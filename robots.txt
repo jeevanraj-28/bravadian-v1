@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /admin*
+Disallow: /cms*
+Disallow: /backend*
+Disallow: /dashboard*
+
+Sitemap: https://bravadian.in/sitemap.xml

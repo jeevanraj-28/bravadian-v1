@@ -1,0 +1,34 @@
+{
+  "name": "BRAVADIAN | BRAVE INDIAN",
+  "short_name": "BRAVADIAN",
+  "description": "240 GSM Premium Oversized Silhouettes. Built for those who don't follow the crowd.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#060608",
+  "theme_color": "#060608",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "images/favicon-16x16.png",
+      "sizes": "16x16",
+      "type": "image/png"
+    },
+    {
+      "src": "images/favicon-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "images/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    },
+    {
+      "src": "images/logo.png",
+      "sizes": "655x222",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
