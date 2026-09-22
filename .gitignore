@@ -1,0 +1,15 @@
+node_modules/
+dist/
+.DS_Store
+*.log
+scratch_*.png
+scratch_*.js
+scratch_*.html
+shot_*.png
+cards_shot_*.png
+test_*.png
+test_*.js
+test_*.html
+mobile_*.png
+verify_*.js
+capture_*.js

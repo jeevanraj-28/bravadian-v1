@@ -66,13 +66,11 @@ function initCustomCursor() {
   if (!cursor) return;
 
   const dot = cursor.querySelector('.cursor-dot');
+  if (!dot) return;
   const ring = cursor.querySelector('.cursor-ring');
-  if (!dot || !ring) return;
 
   let mouseX = -100;
   let mouseY = -100;
-  let ringX = -100;
-  let ringY = -100;
   let isVisible = false;
 
   window.addEventListener('mousemove', (e) => {
@@ -82,8 +80,6 @@ function initCustomCursor() {
     if (!isVisible) {
       isVisible = true;
       cursor.classList.remove('is-hidden');
-      ringX = mouseX;
-      ringY = mouseY;
     }
 
     dot.style.transform = `translate3d(${mouseX}px, ${mouseY}px, 0)`;
@@ -99,15 +95,18 @@ function initCustomCursor() {
     isVisible = true;
   });
 
-  // Smooth lerp loop for the trailing round ring
-  function renderCursor() {
-    ringX += (mouseX - ringX) * 0.18;
-    ringY += (mouseY - ringY) * 0.18;
-
-    ring.style.transform = `translate3d(${ringX}px, ${ringY}px, 0)`;
+  // If a ring element is present, drive its lerp animation loop
+  if (ring) {
+    let ringX = -100;
+    let ringY = -100;
+    function renderCursor() {
+      ringX += (mouseX - ringX) * 0.18;
+      ringY += (mouseY - ringY) * 0.18;
+      ring.style.transform = `translate3d(${ringX}px, ${ringY}px, 0)`;
+      requestAnimationFrame(renderCursor);
+    }
     requestAnimationFrame(renderCursor);
   }
-  requestAnimationFrame(renderCursor);
 
   // Hover state for interactive items
   function attachHover() {

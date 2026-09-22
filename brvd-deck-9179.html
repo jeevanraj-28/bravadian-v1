@@ -275,6 +275,61 @@
               <label>CONCIERGE SUPPORT EMAIL</label>
               <input type="email" id="cfgSupportEmail" class="admin-input" placeholder="bravadian.clothing@gmail.com">
             </div>
+
+            <!-- Top Announcement Ticker Settings -->
+            <div class="form-field-full" style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--admin-border);">
+              <h3 style="font-family: var(--font-display); font-size: 1.1rem; color: var(--admin-ember); margin-bottom: 0.5rem; letter-spacing: 1.5px;">TOP ANNOUNCEMENT MARQUEE</h3>
+              <p style="font-size: 0.78rem; color: #888; margin-bottom: 1rem;">Configure the high-impact running marquee and fitted WhatsApp button displayed beneath the header.</p>
+            </div>
+            <div class="admin-field form-field-full">
+              <label>ANNOUNCEMENT TICKER TEXT</label>
+              <input type="text" id="cfgAnnouncementText" class="admin-input" placeholder="PRE-RELEASE VAULT PROTOCOL // 200 NUMBERED PIECES ONLY // ALL INDIA PRIORITY DISPATCH">
+            </div>
+            <div class="admin-field">
+              <label>FITTED WHATSAPP BUTTON TEXT</label>
+              <input type="text" id="cfgAnnouncementWaText" class="admin-input" placeholder="ORDER VIA WHATSAPP">
+            </div>
+            <div class="admin-field" style="justify-content: center;">
+              <label style="font-family: var(--font-mono); font-size: 0.75rem; display: flex; align-items: center; gap: 0.6rem; cursor: pointer; margin-top: 1.2rem;">
+                <input type="checkbox" id="cfgAnnouncementEnabled" checked> SHOW ANNOUNCEMENT TICKER
+              </label>
+            </div>
+
+            <!-- Homepage Hero Section Copy -->
+            <div class="form-field-full" style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--admin-border);">
+              <h3 style="font-family: var(--font-display); font-size: 1.1rem; color: var(--admin-ember); margin-bottom: 0.5rem; letter-spacing: 1.5px;">HOMEPAGE HERO & MARKETING COPY</h3>
+              <p style="font-size: 0.78rem; color: #888; margin-bottom: 1rem;">Control the primary hero headline, manifesto tag, description, and running sub-marquee ticker.</p>
+            </div>
+            <div class="admin-field">
+              <label>HERO PROTOCOL TAG</label>
+              <input type="text" id="cfgHeroTag" class="admin-input" placeholder="[ PRE-RELEASE DROP / PROTOCOL 01: HERITAGE ]">
+            </div>
+            <div class="admin-field">
+              <label>HERO MAIN HEADLINE</label>
+              <input type="text" id="cfgHeroTitle" class="admin-input" placeholder="WEAR YOUR ROOTS LOUD">
+            </div>
+            <div class="admin-field form-field-full">
+              <label>HERO NARRATIVE DESCRIPTION</label>
+              <textarea id="cfgHeroDesc" rows="2" class="admin-textarea" placeholder="Engineered heavyweight silhouettes which forward Bharat culture into raw street context..."></textarea>
+            </div>
+            <div class="admin-field form-field-full">
+              <label>HERO BACKGROUND IMAGE URL (OPTIONAL CUSTOM MEDIA)</label>
+              <input type="url" id="cfgHeroBgImage" class="admin-input" placeholder="https://... (Leave blank for brutalist grid pattern)">
+            </div>
+            <div class="admin-field form-field-full">
+              <label>SUB-HEADER RUNNING MARQUEE TICKER</label>
+              <input type="text" id="cfgHeroTicker" class="admin-input" placeholder="CRAFTED IN INDIA ✦ HEAVYWEIGHT 280 GSM FRENCH TERRY ✦ 300 NUMBERED EDITIONS ONLY ✦ PRE-RELEASE VAULT ENGAGED ✦ FAST WHATSAPP CHECKOUT">
+            </div>
+
+            <!-- WhatsApp VIP Concierge Message Template -->
+            <div class="form-field-full" style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--admin-border);">
+              <h3 style="font-family: var(--font-display); font-size: 1.1rem; color: var(--admin-ember); margin-bottom: 0.5rem; letter-spacing: 1.5px;">WHATSAPP CONCIERGE TEMPLATES</h3>
+              <p style="font-size: 0.78rem; color: #888; margin-bottom: 1rem;">Format the automated message dispatched when a VIP requests early drop embargo access.</p>
+            </div>
+            <div class="admin-field form-field-full">
+              <label>VIP DROP INQUIRY MESSAGE TEMPLATE (Use {productName} placeholder)</label>
+              <textarea id="cfgVipTemplate" rows="2" class="admin-textarea" placeholder="Hi Bravadian Concierge, I would like priority notification for the upcoming drop: &quot;{productName}&quot;. Please register me for early VIP access!"></textarea>
+            </div>
           </form>
         </div>
       </section>
@@ -300,9 +355,10 @@
               <label>SUPABASE ANON / PUBLISHABLE KEY</label>
               <input type="password" id="cfgSupabaseKey" class="admin-input" placeholder="Paste your anon public key or publishable key">
             </div>
-            <div class="form-field-full" style="display: flex; gap: 1rem;">
+            <div class="form-field-full" style="display: flex; gap: 1rem; flex-wrap: wrap;">
               <button type="button" class="btn-admin-primary" id="btnTestSupabase">TEST CONNECTION</button>
               <button type="button" class="btn-admin-secondary" id="btnSyncToSupabase">SYNC LOCAL CATALOG TO SUPABASE</button>
+              <button type="button" class="btn-admin-secondary" id="btnPullFromSupabase">PULL CATALOG FROM SUPABASE</button>
             </div>
           </form>
 
@@ -371,16 +427,28 @@
           <input type="number" id="editProdCompare" class="admin-input">
         </div>
         <div class="admin-field">
-          <label>FABRIC (e.g. 240 GSM)</label>
-          <input type="text" id="editProdFabric" class="admin-input" value="240 GSM">
+          <label>FABRIC</label>
+          <input type="text" id="editProdFabric" class="admin-input" value="240 GSM French Interlock Combed Cotton">
         </div>
         <div class="admin-field">
-          <label>FIT (e.g. Oversized)</label>
-          <input type="text" id="editProdFit" class="admin-input" value="Oversized">
+          <label>GSM (WEIGHT)</label>
+          <input type="number" id="editProdGSM" class="admin-input" value="240">
+        </div>
+        <div class="admin-field">
+          <label>FIT</label>
+          <input type="text" id="editProdFit" class="admin-input" value="Oversized Boxy Silhouette">
         </div>
         <div class="admin-field">
           <label>MATERIAL</label>
           <input type="text" id="editProdMaterial" class="admin-input" value="100% Combed Cotton">
+        </div>
+        <div class="admin-field">
+          <label>RELIC TAG (e.g. RELIC 01, ARCHIVE 07)</label>
+          <input type="text" id="editProdRelicTag" class="admin-input" placeholder="RELIC 01">
+        </div>
+        <div class="admin-field">
+          <label>RELIC BADGE (e.g. COMING SOON, PRE-ORDER)</label>
+          <input type="text" id="editProdRelicBadge" class="admin-input" placeholder="COMING SOON">
         </div>
         <div class="admin-field">
           <label>SKU</label>
@@ -395,15 +463,63 @@
           </select>
         </div>
         <div class="admin-field form-field-full">
+          <label>AVAILABLE COLORS (Comma-separated)</label>
+          <input type="text" id="editProdColors" class="admin-input" placeholder="e.g. Obsidian Black, Bone Ecru, Washed Charcoal" value="Black, White">
+        </div>
+
+        <!-- Multi-Angle Product Imagery -->
+        <div class="form-field-full" style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--admin-border);">
+          <h4 style="font-family: var(--font-display); font-size: 1rem; color: var(--admin-ember); margin-bottom: 0.35rem; letter-spacing: 1px;">PRODUCT IMAGERY (4-ANGLE PROTOCOL)</h4>
+          <p style="font-size: 0.75rem; color: #888; margin-bottom: 1rem;">Provide URLs (public CDN or local path). Previews update automatically on change.</p>
+          <div class="admin-image-inputs-grid">
+            <div class="image-input-card">
+              <label>1. FRONT / HERO VIEW</label>
+              <input type="url" id="editProdImgFront" class="admin-input admin-img-input" placeholder="https://... or images/...">
+              <div class="img-preview-box" id="previewBoxFront">
+                <img id="previewImgFront" src="" alt="Front Preview">
+                <span class="preview-empty">NO IMAGE</span>
+              </div>
+            </div>
+            <div class="image-input-card">
+              <label>2. BACK / SPARK VIEW</label>
+              <input type="url" id="editProdImgBack" class="admin-input admin-img-input" placeholder="https://... or images/...">
+              <div class="img-preview-box" id="previewBoxBack">
+                <img id="previewImgBack" src="" alt="Back Preview">
+                <span class="preview-empty">NO IMAGE</span>
+              </div>
+            </div>
+            <div class="image-input-card">
+              <label>3. CLOSE-UP / TEXTURE</label>
+              <input type="url" id="editProdImgCloseup" class="admin-input admin-img-input" placeholder="https://... or images/...">
+              <div class="img-preview-box" id="previewBoxCloseup">
+                <img id="previewImgCloseup" src="" alt="Detail Preview">
+                <span class="preview-empty">NO IMAGE</span>
+              </div>
+            </div>
+            <div class="image-input-card">
+              <label>4. LIFESTYLE / DRAPE</label>
+              <input type="url" id="editProdImgLifestyle" class="admin-input admin-img-input" placeholder="https://... or images/...">
+              <div class="img-preview-box" id="previewBoxLifestyle">
+                <img id="previewImgLifestyle" src="" alt="Lifestyle Preview">
+                <span class="preview-empty">NO IMAGE</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="admin-field form-field-full">
           <label>DESCRIPTION</label>
           <textarea id="editProdDesc" rows="3" class="admin-textarea" required></textarea>
         </div>
-        <div class="form-field-full" style="display: flex; gap: 1.5rem;">
+        <div class="form-field-full" style="display: flex; gap: 1.5rem; flex-wrap: wrap;">
           <label style="font-family: var(--font-mono); font-size: 0.75rem; display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
             <input type="checkbox" id="editProdFeatured"> FEATURED PIECE
           </label>
           <label style="font-family: var(--font-mono); font-size: 0.75rem; display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
             <input type="checkbox" id="editProdNewDrop"> NEW DROP
+          </label>
+          <label style="font-family: var(--font-mono); font-size: 0.75rem; display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+            <input type="checkbox" id="editProdComingSoon"> COMING SOON
           </label>
         </div>
         <div class="form-field-full" style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1.5rem;">
@@ -414,7 +530,7 @@
     </div>
   </div>
 
-  <script src="js/data.js"></script>
-  <script src="js/admin.js"></script>
+  <script type="module" src="js/data.js"></script>
+  <script type="module" src="js/admin.js"></script>
 </body>
 </html>

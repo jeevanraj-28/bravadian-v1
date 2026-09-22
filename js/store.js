@@ -11,6 +11,7 @@
   const StoreState = {
     currentRoute: '',
     activeCollection: 'all',
+    cataloguePage: 1,
     activeFilters: {
       color: '',
       size: '',
@@ -74,6 +75,10 @@
     StoreState.currentRoute = hash;
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
+    // Hide top announcement marquee bar on Heritage collection chapter page (matches Figma full-bleed hero)
+    const isHeritage = (hash === '#/collections/heritage' || hash === '#/heritage');
+    document.body.classList.toggle('hide-announcement-bar', isHeritage);
+
     // Close any open drawers/modals on navigation
     closeCartDrawer();
     closeSearchModal();
@@ -82,9 +87,25 @@
 
     if (hash === '#/' || hash === '#/home' || hash === '') {
       renderHomeView();
-    } else if (hash.startsWith('#/collections') || hash === '#/shop') {
+    } else if (hash === '#/collections' || hash === '#/collections/' || hash === '#/universe-wall') {
+      renderUniverseWallView();
+    } else if (hash === '#/collections/heritage' || hash === '#/heritage') {
+      renderHeritageChapterView();
+    } else if (hash.startsWith('#/collections/') || hash === '#/shop') {
       const parts = hash.split('/');
-      const colSlug = parts[2] || 'all';
+      let colSlug = parts[2] || 'all';
+      // Temporarily active categories: ALL, HERITAGE, and GARUDA
+      const ACTIVE_COLLECTIONS = ['all', 'heritage', 'garuda'];
+      if (!ACTIVE_COLLECTIONS.includes(colSlug.toLowerCase())) {
+        colSlug = 'all';
+        if (hash.startsWith('#/collections/')) {
+          window.location.hash = '#/collections';
+          return;
+        }
+      }
+      if (StoreState.activeCollection !== colSlug) {
+        StoreState.cataloguePage = 1;
+      }
       StoreState.activeCollection = colSlug;
       renderShopView(colSlug);
     } else if (hash.startsWith('#/product/')) {
@@ -114,7 +135,11 @@
     const links = document.querySelectorAll('.nav-link, .mobile-nav-item a');
     links.forEach(link => {
       const href = link.getAttribute('href');
-      if (href === StoreState.currentRoute) {
+      if (
+        href === StoreState.currentRoute ||
+        (href === '#/collections' && StoreState.currentRoute && StoreState.currentRoute.startsWith('#/collections')) ||
+        (href === '#/shop' && StoreState.currentRoute === '#/shop')
+      ) {
         link.classList.add('active');
       } else {
         link.classList.remove('active');
@@ -131,21 +156,73 @@
     const mobileList = document.getElementById('mobileCollectionsList');
     const collections = window.BravadianDB.getCollections();
 
+    // User requirement: Remove Universe Wall & ALL; only keep HERITAGE active and slash all others
+    const filteredCollections = collections.filter(c => c.slug !== 'all');
+
     if (megaList) {
-      megaList.innerHTML = collections.map(c => `
-        <li class="mega-item">
-          <a href="#/collections/${c.slug}">
-            <span>${c.name}</span>
-            <span class="item-dot"></span>
-          </a>
-        </li>
-      `).join('');
+      megaList.innerHTML = filteredCollections.map(c => {
+        const isLive = c.slug === 'heritage'; // Only keep heritage active!
+        return `
+          <li class="mega-item ${!isLive ? 'is-disabled' : ''}">
+            ${isLive ? `
+              <a href="#/collections/${c.slug}">
+                <span>${c.name}</span>
+                <span class="item-dot"></span>
+              </a>
+            ` : `
+              <div class="mega-item-disabled" title="${c.name} — Unreleased Drop // Locked" aria-disabled="true">
+                <span class="mega-item-name-slashed">
+                  ${c.name}
+                  <span class="mega-word-strike"></span>
+                </span>
+                <span class="mega-item-status">[SOON]</span>
+              </div>
+            `}
+          </li>
+        `;
+      }).join('');
     }
 
     if (mobileList) {
-      mobileList.innerHTML = collections.map(c => `
-        <li><a href="#/collections/${c.slug}" class="mobile-sub-link">${c.name}</a></li>
-      `).join('');
+      const collectionsData = [
+        { name: 'HERITAGE', slug: 'heritage', isLive: true },
+        { name: 'GARUDA', slug: 'garuda', isLive: false },
+        { name: 'ASURA', slug: 'asura', isLive: false },
+        { name: 'BERUNDA', slug: 'berunda', isLive: false },
+        { name: 'CHOLA', slug: 'chola', isLive: false }
+      ];
+
+      mobileList.innerHTML = collectionsData.map(c => {
+        if (c.isLive) {
+          return `
+            <li class="mobile-sub-item is-live">
+              <a href="#/collections/${c.slug}" class="mobile-sub-anchor is-live">
+                <span class="mobile-sub-dot"></span>
+                <span class="mobile-sub-text">${c.name}</span>
+              </a>
+            </li>
+          `;
+        } else {
+          return `
+            <li class="mobile-sub-item is-slashed">
+              <div class="mobile-sub-disabled" title="${c.name} — Unreleased Drop // Locked" aria-disabled="true">
+                <span class="mobile-sub-slashed-name">${c.name}</span>
+              </div>
+            </li>
+          `;
+        }
+      }).join('');
+    }
+
+    // Collections Accordion Toggle in Mobile Drawer
+    const collectionsGroup = document.getElementById('mobileNavGroupCollections');
+    const collectionsToggle = document.getElementById('mobileCollectionsToggle');
+    if (collectionsToggle && collectionsGroup) {
+      collectionsToggle.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        collectionsGroup.classList.toggle('is-open');
+      });
     }
 
     // Cart Buttons
@@ -169,17 +246,55 @@
     const searchClose = document.getElementById('closeSearchBtn');
     if (searchClose) searchClose.addEventListener('click', closeSearchModal);
 
-    // Mobile Hamburger
+    // Dark & White Theme Switcher (Header & Mobile Drawer)
+    function toggleThemeMode(e) {
+      if (e) e.preventDefault();
+      const current = document.documentElement.getAttribute('data-theme') || 'light';
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('bravadian-theme', next);
+    }
+
+    const themeBtn = document.getElementById('themeToggleBtn');
+    if (themeBtn) themeBtn.addEventListener('click', toggleThemeMode);
+
+    const drawerThemeBtn = document.getElementById('mobileDrawerThemeBtn');
+    if (drawerThemeBtn) drawerThemeBtn.addEventListener('click', toggleThemeMode);
+
+    // Mobile Hamburger & Fullscreen Drawer
     const mobileBtn = document.getElementById('mobileMenuBtn');
     const mobileDrawer = document.getElementById('mobileNavDrawer');
     const mobileClose = document.getElementById('closeMobileNavBtn');
 
+    function openMobileDrawer() {
+      if (!mobileDrawer) return;
+      mobileDrawer.classList.add('is-open');
+      mobileDrawer.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeMobileDrawer() {
+      if (!mobileDrawer) return;
+      mobileDrawer.classList.remove('is-open');
+      mobileDrawer.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+    }
+
     if (mobileBtn && mobileDrawer) {
-      mobileBtn.addEventListener('click', () => mobileDrawer.classList.add('is-open'));
-      if (mobileClose) mobileClose.addEventListener('click', () => mobileDrawer.classList.remove('is-open'));
+      mobileBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        openMobileDrawer();
+      });
+      if (mobileClose) mobileClose.addEventListener('click', closeMobileDrawer);
       
       mobileDrawer.querySelectorAll('a').forEach(a => {
-        a.addEventListener('click', () => mobileDrawer.classList.remove('is-open'));
+        a.addEventListener('click', closeMobileDrawer);
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && mobileDrawer.classList.contains('is-open')) {
+          closeMobileDrawer();
+        }
       });
     }
 
@@ -214,126 +329,265 @@
   }
 
   /* --------------------------------------------------------------------------
-     1. HOME VIEW
+     1. HOME VIEW (MATCHING FIGMA REDESIGN)
      -------------------------------------------------------------------------- */
   function renderHomeView() {
     const products = window.BravadianDB.getProducts();
-    const newDrops = products.filter(p => p.newDrop || p.featured).slice(0, 3);
-    const collections = window.BravadianDB.getCollections().filter(c => c.slug !== 'all');
+    // Get top 4 products for ROOTED IN STONE collection
+    const featuredPieces = products.slice(0, 4);
 
     mainContainer.innerHTML = `
-      <!-- CINEMATIC HERO -->
-      <section class="hero-section">
-        <div class="hero-bg-accent" aria-hidden="true">
-          <span class="hero-watermark">BRAVADIAN</span>
-        </div>
+      <!-- HERO SECTION (Full-Width Hero Ready for Future Background Image) -->
+      <section class="figma-hero-section">
+        <!-- Ambient Grid & Atmosphere (Active when no image is loaded) -->
+        <div class="hero-brutalist-bg" aria-hidden="true"></div>
+        <div class="hero-ambient-amber" aria-hidden="true"></div>
+        <div class="hero-watermark-bg" aria-hidden="true"><span>BRAVADIAN</span></div>
 
-        <div class="container hero-content">
-          <div class="hero-pill-badge fade-in is-visible">
-            <span class="pill-dot"></span>
-            <span class="pill-text">DROP 01 // THE ARCHIVE IS LIVE</span>
-            <span class="pill-code">[ 240 GSM ]</span>
-          </div>
+        <!-- Full-Width Background Media Layer (Ready for future custom image) -->
+        <div class="hero-bg-media" id="heroBgMedia" role="img" aria-label="Bravadian Heavyweight Streetwear"></div>
+        <div class="hero-overlay-gradient" aria-hidden="true"></div>
 
-          <div class="hero-brand-block fade-in is-visible">
-            <div class="hero-logo-wrap">
-              <img src="images/logo.png" alt="BRAVADIAN — BRAVE INDIA" class="hero-brand-logo">
+        <div class="container hero-container-inner">
+          <div class="hero-content-row">
+            <div class="hero-narrative-col">
+              <div class="figma-hero-tag">
+                <span class="hero-amber-dot"></span>
+                <span>[ PRE-RELEASE DROP / PROTOCOL 01: HERITAGE ]</span>
+              </div>
+
+              <h1 class="figma-hero-title">
+                WEAR YOUR<br>
+                ROOTS LOUD
+              </h1>
+
+              <p class="figma-hero-desc">
+                Engineered heavyweight silhouettes which forward Bharat culture into raw street context. Each piece woven and cut from 240 GSM organic cotton.
+              </p>
+
+              <div class="figma-hero-cta-wrap">
+                <a href="#/shop" class="btn-figma-primary">
+                  <span>[ VISIT THE VAULT ]</span>
+                  <svg class="btn-vault-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                  </svg>
+                </a>
+                <a href="https://wa.me/917975362526?text=Hi%20Bravadian,%20I%20want%20VIP%20Order%20access%20for%20Protocol%2001%20Heritage" target="_blank" rel="noopener noreferrer" class="btn-figma-whatsapp">
+                  <svg class="btn-wa-icon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+                  </svg>
+                  <span>WHATSAPP VIP ORDER</span>
+                </a>
+              </div>
             </div>
-            <h1 class="visually-hidden">BRAVADIAN — BRAVE INDIA</h1>
-          </div>
-
-          <div class="hero-statement-block fade-in is-visible">
-            <h2 class="hero-statement-title">
-              NOT JUST A T-SHIRT.<br>
-              <span class="gradient-text">A STATEMENT.</span>
-            </h2>
-            <p class="hero-statement-desc">
-              240 GSM oversized silhouettes. Built for those who don't follow the crowd.
-            </p>
-          </div>
-
-          <div class="hero-cta-group fade-in is-visible">
-            <a href="#/shop" class="btn-primary magnetic">
-              <span class="btn-bg"></span>
-              <span class="btn-text">SHOP THE DROP</span>
-              <svg class="btn-arrow" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M3.33 8H12.67M12.67 8L8.67 4M12.67 8L8.67 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </a>
-            <a href="#/collections" class="btn-secondary magnetic">
-              <span class="btn-text">EXPLORE COLLECTIONS</span>
-            </a>
-          </div>
-
-          <div class="hero-spec-strip fade-in is-visible">
-            <div class="strip-item"><span class="strip-code">01</span><span class="strip-text">240 GSM HEAVYWEIGHT</span></div>
-            <div class="strip-divider">//</div>
-            <div class="strip-item"><span class="strip-code">02</span><span class="strip-text">EXTREME DROP-SHOULDER CUT</span></div>
-            <div class="strip-divider">//</div>
-            <div class="strip-item"><span class="strip-code">03</span><span class="strip-text">1.25" ANTI-SAG COLLAR</span></div>
-            <div class="strip-divider">//</div>
-            <div class="strip-item"><span class="strip-code">04</span><span class="strip-text">INSTANT WHATSAPP CHECKOUT</span></div>
           </div>
         </div>
       </section>
 
-      <!-- FEATURED NEW DROPS -->
-      <section class="home-featured-section container" style="padding: 6rem 2rem;">
-        <div class="section-header" style="text-align: center; margin-bottom: 3.5rem;">
-          <span class="section-tag">[ ACTIVE ARCHIVE ]</span>
-          <h2 class="section-title">FEATURED SILHOUETTES</h2>
-          <p class="section-desc">Limited batches engineered with high-density interlock cotton. Each piece commands presence.</p>
+      <!-- SUB-HEADER MARQUEE TICKER (RUNNING TICKER) -->
+      <div class="figma-sub-marquee" aria-hidden="true">
+        <div class="sub-marquee-track">
+          <div class="sub-marquee-content">
+            <span>CRAFTED IN INDIA</span> <span class="marquee-star">✦</span>
+            <span>HEAVYWEIGHT 280 GSM FRENCH TERRY</span> <span class="marquee-star">✦</span>
+            <span>300 NUMBERED EDITIONS ONLY</span> <span class="marquee-star">✦</span>
+            <span>PRE-RELEASE VAULT ENGAGED</span> <span class="marquee-star">✦</span>
+            <span>COD ON ACTIVATION</span> <span class="marquee-star">✦</span>
+            <span>FAST WHATSAPP CHECKOUT</span> <span class="marquee-star">✦</span>
+          </div>
+          <div class="sub-marquee-content">
+            <span>CRAFTED IN INDIA</span> <span class="marquee-star">✦</span>
+            <span>HEAVYWEIGHT 280 GSM FRENCH TERRY</span> <span class="marquee-star">✦</span>
+            <span>300 NUMBERED EDITIONS ONLY</span> <span class="marquee-star">✦</span>
+            <span>PRE-RELEASE VAULT ENGAGED</span> <span class="marquee-star">✦</span>
+            <span>COD ON ACTIVATION</span> <span class="marquee-star">✦</span>
+            <span>FAST WHATSAPP CHECKOUT</span> <span class="marquee-star">✦</span>
+          </div>
         </div>
+      </div>
 
-        <div class="product-grid">
-          ${newDrops.map(p => renderProductCardHTML(p)).join('')}
-        </div>
-
-        <div style="text-align: center; margin-top: 2rem;">
-          <a href="#/shop" class="btn-primary magnetic">
-            <span class="btn-text">VIEW ALL PIECES</span>
-          </a>
-        </div>
-      </section>
-
-      <!-- COLLECTIONS RAIL -->
-      <section class="home-collections-overview" style="background: #09090d; border-top: 1px solid rgba(255,255,255,0.05); padding: 6rem 2rem;">
+      <!-- ROOTED IN STONE COLLECTION SECTION -->
+      <section class="rooted-stone-section">
         <div class="container">
-          <div class="section-header" style="text-align: center; margin-bottom: 3rem;">
-            <span class="section-tag">[ EXPLORE THE UNIVERSE ]</span>
-            <h2 class="section-title">THE COLLECTIONS</h2>
+          <div class="figma-section-header">
+            <div class="section-header-left">
+              <span class="figma-tag">— 01 / TOTAL RELICS COLLECTION</span>
+              <h2 class="figma-section-title">ROOTED IN STONE</h2>
+            </div>
+            <div class="section-header-right">
+              <p class="figma-section-narrative">
+                Sacred architectural motifs derived from Halebidu and Belur friezes, translated onto engineered drop-shoulder silhouettes.
+              </p>
+            </div>
           </div>
 
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
-            ${collections.map(col => `
-              <a href="#/collections/${col.slug}" class="pillar-card" style="cursor: pointer; text-decoration: none;">
-                <div class="pillar-accent"></div>
-                <span class="pillar-num">COLLECTION</span>
-                <h3 class="pillar-title">${col.name}</h3>
-                <p class="pillar-sub">${col.description}</p>
-                <span style="display: inline-block; margin-top: 1rem; font-family: var(--font-mono); font-size: 0.72rem; color: var(--color-ember); font-weight: 700; letter-spacing: 1.5px;">EXPLORE →</span>
-              </a>
-            `).join('')}
+          <div class="figma-product-grid">
+            ${featuredPieces.map((p, idx) => {
+              const badges = ['PRE-ORDER', 'NEW DROP', 'ARCHIVE', 'PRE-ORDER'];
+              const badge = badges[idx] || 'ARCHIVE';
+              const subtitles = [
+                '240 GSM COMBED TEXTURED COTTON',
+                '400 GSM FRENCH TERRY // OIL WASHED',
+                '380 GSM HEAVYWEIGHT TERRY',
+                'HEAVY CANVAS CHORE COAT'
+              ];
+              const subText = subtitles[idx] || (p.fabric ? `${p.fabric} // ${p.fit}` : '240 GSM // OVERSIZED');
+              return `
+                <div class="figma-product-card" data-slug="${p.slug}">
+                  <div class="card-media-wrap" onclick="window.location.hash='#/product/${p.slug}'" role="button" aria-label="View ${p.name}">
+                    <span class="card-relic-tag">[ RELIC 0${idx + 1} ]</span>
+                    <span class="card-badge">[ ${badge} ]</span>
+                    <img src="${p.images.front}" alt="${p.name}" class="card-relic-img" loading="lazy">
+                  </div>
+                  <div class="card-info-wrap">
+                    <div class="card-title-col">
+                      <h3 class="card-product-name" onclick="window.location.hash='#/product/${p.slug}'">${p.name}</h3>
+                      <span class="card-product-sub">${subText}</span>
+                    </div>
+                    <div class="card-action-col">
+                      <span class="card-product-price">₹${p.price.toLocaleString('en-IN')}</span>
+                      <button type="button" class="btn-card-vault" onclick="event.stopPropagation(); window.BravadianStore.quickAdd('${p.slug}');">
+                        <span>[ PRE-ORDER VAULT ]</span>
+                        <svg class="btn-vault-arrow" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                          <line x1="5" y1="12" x2="19" y2="12"></line>
+                          <polyline points="12 5 19 12 12 19"></polyline>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              `;
+            }).join('')}
           </div>
         </div>
       </section>
 
-      <!-- THE 240 GSM MANIFESTO -->
-      <section class="brand-story-section">
-        <div class="container story-container">
-          <div class="story-heritage-stamp">
-            <span class="stamp-text">BHARAT STREETWEAR MANIFESTO</span>
+      <!-- THE BRAVADIAN MANIFESTO QUOTE SECTION (With Authentic Panoramic Architectural Heritage Relief) -->
+      <section class="figma-manifesto-section" id="manifestoSection">
+        <!-- Authentic Panoramic Heritage Architectural Backdrop (Light & Dark Theme Specific) -->
+        <div class="manifesto-panoramic-wrap" aria-hidden="true">
+          <img src="images/9c2cb80f-f7e1-49d7-9376-7675e99ade5b.png" alt="" class="manifesto-panoramic-img manifesto-bg-light manifesto-img-desktop" loading="eager">
+          <img src="images/04e65c1f-818d-45d1-9bcd-dab3a04bcea5.png" alt="" class="manifesto-panoramic-img manifesto-bg-dark manifesto-img-desktop" loading="eager">
+          <!-- Mobile Flanking Architecture (Temple Left, Celestial Maiden Right) -->
+          <div class="manifesto-mobile-flank manifesto-mobile-flank-left" aria-hidden="true">
+            <img src="images/9c2cb80f-f7e1-49d7-9376-7675e99ade5b.png" alt="" class="manifesto-bg-light" loading="eager">
+            <img src="images/04e65c1f-818d-45d1-9bcd-dab3a04bcea5.png" alt="" class="manifesto-bg-dark" loading="eager">
           </div>
-          <div class="story-quote-card">
-            <blockquote class="story-text">
-              “BRAVADIAN is built around one idea —<br>
-              <strong class="story-highlight">BE BRAVE. BE INDIAN. BE YOURSELF.</strong>”
-            </blockquote>
-            <div class="story-author-block">
-              <span class="story-brand">BRAVADIAN</span>
-              <span class="story-divider">—</span>
-              <span class="story-meaning">240 GSM OF PRESENCE</span>
+          <div class="manifesto-mobile-flank manifesto-mobile-flank-right" aria-hidden="true">
+            <img src="images/9c2cb80f-f7e1-49d7-9376-7675e99ade5b.png" alt="" class="manifesto-bg-light" loading="eager">
+            <img src="images/04e65c1f-818d-45d1-9bcd-dab3a04bcea5.png" alt="" class="manifesto-bg-dark" loading="eager">
+          </div>
+          <div class="manifesto-scrim-overlay"></div>
+        </div>
+
+        <!-- Left Side Editorial Ribbon -->
+        <div class="manifesto-margin-left" aria-hidden="true">
+          <div class="margin-star-wrap">
+            <span class="margin-hairline-top"></span>
+            <svg class="margin-star-icon" width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2L14.2 9.8L22 12L14.2 14.2L12 22L9.8 14.2L2 12L9.8 9.8L12 2Z"/>
+            </svg>
+            <span class="margin-hairline-bottom"></span>
+          </div>
+          <span class="margin-vertical-text">ROOTED &nbsp;•&nbsp; REIMAGINED &nbsp;•&nbsp; BRAVADIAN &nbsp;•</span>
+        </div>
+
+        <!-- Right Side Editorial Ribbon -->
+        <div class="manifesto-margin-right" aria-hidden="true">
+          <div class="margin-star-wrap">
+            <span class="margin-hairline-top"></span>
+            <svg class="margin-star-icon" width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2L14.2 9.8L22 12L14.2 14.2L12 22L9.8 14.2L2 12L9.8 9.8L12 2Z"/>
+            </svg>
+            <span class="margin-hairline-bottom"></span>
+          </div>
+          <span class="margin-vertical-text">BRAVADIAN &nbsp;•</span>
+        </div>
+
+        <!-- Center Editorial Content -->
+        <div class="container manifesto-inner">
+          <span class="manifesto-tag">[ THE BRAVADIAN MANIFESTO ]</span>
+          <blockquote class="manifesto-quote">
+            “WE CARVE THE FACE ON THE SHIRT MARK THAT SACRED ICONOGRAPHY RECONTEXTUALIZED AS MODERN INDIAN STREET ARMOR.”
+          </blockquote>
+          <div class="manifesto-divider">
+            <span class="divider-line"></span>
+            <span class="coordinates-label">— FOUNDATIONAL TRANSMISSION // 28°36'N 77°12'E —</span>
+            <span class="divider-line"></span>
+          </div>
+        </div>
+
+        <!-- Bottom Editorial Corners -->
+        <div class="manifesto-bottom-row" aria-hidden="true">
+          <div class="manifesto-corner-left">
+            <span class="corner-brand-text">CULTURE &nbsp;&nbsp; WEARS &nbsp;&nbsp; FORWARD</span>
+            <span class="corner-hairline"></span>
+          </div>
+          <div class="manifesto-corner-right">
+            <span class="corner-subline">MORE THAN CLOTHING</span>
+            <span class="corner-subline">A CONTINUUM</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- THE TEN ARCHIVE SECTION -->
+      <section class="figma-ten-archive-section">
+        <div class="container">
+          <div class="archive-section-header">
+            <div class="archive-header-left">
+              <span class="figma-tag">[ SYSTEM TAXONOMY // CHRONICLING SUB-CONTINENT ]</span>
+              <h2 class="archive-title">THE TEN ARCHIVE</h2>
             </div>
+            <div class="archive-header-right">
+              <span class="archive-cadence">CHRONOLOGICAL CADENCE // NUMBERED EDITIONS</span>
+            </div>
+          </div>
+
+          <div class="archive-cards-grid">
+            ${(window.BravadianDB ? window.BravadianDB.getArchiveEditions() : []).map(card => {
+              if (card.status === 'active') {
+                return `
+                  <a href="#/collections/${card.slug || 'all'}" class="archive-card status-active" data-edition="${card.num}">
+                    <div class="archive-card-top">
+                      <span class="archive-num">${card.num}</span>
+                      <span class="archive-plus">+</span>
+                    </div>
+                    <div class="archive-card-bottom">
+                      <h3 class="archive-card-title">${card.title}</h3>
+                      <span class="archive-card-desc">${card.desc}</span>
+                    </div>
+                    <span class="archive-card-corner-pip" aria-hidden="true"></span>
+                  </a>
+                `;
+              } else if (card.status === 'next') {
+                return `
+                  <div class="archive-card status-next" data-edition="${card.num}" aria-disabled="true" role="region" aria-label="${card.title} - Upcoming Release">
+                    <div class="archive-card-top">
+                      <span class="archive-num">${card.num}</span>
+                      <span class="archive-badge badge-next">NEXT</span>
+                    </div>
+                    <div class="archive-card-bottom">
+                      <h3 class="archive-card-title">${card.title}</h3>
+                      <span class="archive-card-desc">${card.desc}</span>
+                    </div>
+                  </div>
+                `;
+              } else {
+                return `
+                  <div class="archive-card status-vault" data-edition="${card.num}" aria-disabled="true" role="region" aria-label="${card.title} - Vault Unreleased">
+                    <div class="archive-card-top">
+                      <span class="archive-num">${card.num}</span>
+                      <span class="archive-badge badge-vault">VAULT</span>
+                    </div>
+                    <div class="archive-card-bottom">
+                      <h3 class="archive-card-title">${card.title}</h3>
+                      <span class="archive-card-desc">${card.desc}</span>
+                    </div>
+                  </div>
+                `;
+              }
+            }).join('')}
           </div>
         </div>
       </section>
@@ -343,11 +597,409 @@
   }
 
   /* --------------------------------------------------------------------------
+     1.5 THE TEN UNIVERSE WALL VIEW (MATCHING FIGMA AUTO-LAYOUT SPEC)
+     -------------------------------------------------------------------------- */
+  /* --------------------------------------------------------------------------
+     1.5 THE TEN ARCHIVE / COLLECTIONS OVERVIEW VIEW
+     -------------------------------------------------------------------------- */
+  function renderUniverseWallView() {
+    const chapters = (window.BravadianDB && typeof window.BravadianDB.getUniverseChapters === 'function')
+      ? window.BravadianDB.getUniverseChapters()
+      : (window.DEFAULT_UNIVERSE_CHAPTERS || []);
+
+    mainContainer.innerHTML = `
+      <div class="collections-overview-page">
+        <!-- THE TEN ARCHIVE SECTION (MATCHING SCREENSHOT AESTHETIC) -->
+        <section class="figma-ten-archive-section collections-page-archive">
+          <div class="container">
+            <div class="archive-section-header">
+              <div class="archive-header-left">
+                <span class="figma-tag">[ SYSTEM TAXONOMY // CHRONICLING SUB-CONTINENT ]</span>
+                <h1 class="archive-title">THE TEN ARCHIVE</h1>
+              </div>
+              <div class="archive-header-right">
+                <span class="archive-cadence">CHRONOLOGICAL CADENCE // NUMBERED EDITIONS</span>
+              </div>
+            </div>
+
+            <!-- 10 ARCHIVE CARDS GRID (NO DIAGRAMS, READY FOR SUPABASE IMAGES) -->
+            <div class="archive-cards-grid">
+              ${chapters.map(c => renderUniverseArchiveCard(c)).join('')}
+            </div>
+          </div>
+        </section>
+
+        <!-- PRIORITY VIP CONCIERGE CALLOUT SECTION -->
+        <section class="universe-callout-section">
+          <div class="universe-callout-container">
+            <div class="universe-callout-badge">[ ARCHIVE DROP DISPATCH // PRIORITY CONCIERGE ]</div>
+            <h3 class="universe-callout-heading">Authenticate your credentials to register for imminent vault drops and archived restocks.</h3>
+            <div class="universe-callout-btn-wrap">
+              <a href="https://wa.me/917975362526?text=Hi%20Bravadian%20Concierge,%20I%20would%20like%20to%20register%20for%20priority%20access%20to%20upcoming%20Universe%20chapter%20drops" target="_blank" rel="noopener noreferrer" class="btn-universe-callout">
+                <svg class="btn-wa-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+                </svg>
+                <span>REQUEST DIGITAL CERTIFICATION // VIP ACCESS</span>
+              </a>
+            </div>
+          </div>
+        </section>
+      </div>
+    `;
+
+    bindUniverseWallActions();
+  }
+
+  function renderUniverseArchiveCard(c) {
+    const isLive = c.slug === 'heritage' || c.slug === 'garuda';
+    const hasImage = !!c.image;
+
+    if (isLive) {
+      return `
+        <a 
+          href="#/collections/${c.slug}" 
+          class="archive-card status-active universe-collection-card ${hasImage ? 'has-custom-img' : ''}" 
+          data-slug="${c.slug}" 
+          data-name="${c.name}"
+          data-edition="${c.num}"
+          title="${c.name} — ${c.chapter || c.desc} (Click to explore relics)"
+        >
+          ${hasImage ? `
+            <div class="archive-card-bg-img" style="background-image: url('${c.image}');"></div>
+            <div class="archive-card-bg-overlay"></div>
+          ` : ''}
+          <div class="archive-card-top">
+            <span class="archive-num">${c.num}</span>
+            <span class="archive-plus">+</span>
+          </div>
+          <div class="archive-card-bottom">
+            <h3 class="archive-card-title">${c.name}</h3>
+            <span class="archive-card-desc">${c.chapter || c.desc}</span>
+          </div>
+          <span class="archive-card-corner-pip" aria-hidden="true"></span>
+        </a>
+      `;
+    } else {
+      return `
+        <div 
+          class="archive-card status-vault universe-collection-card ${hasImage ? 'has-custom-img is-vault-blurred' : ''}" 
+          data-slug="${c.slug}" 
+          data-name="${c.name}" 
+          data-edition="${c.num}"
+          role="button"
+          tabindex="0"
+          title="${c.name} — ${c.chapter || c.desc} (Unreleased Drop // Click for VIP Access)"
+          aria-label="${c.name} - Vault Unreleased"
+        >
+          ${hasImage ? `
+            <div class="archive-card-bg-img is-vault-blurred" style="background-image: url('${c.image}');"></div>
+            <div class="archive-card-bg-overlay"></div>
+            <div class="frosted-crosshair-center" aria-hidden="true"></div>
+          ` : ''}
+          <div class="archive-card-top">
+            <span class="archive-num">${c.num}</span>
+            <span class="archive-badge badge-vault">VAULT</span>
+          </div>
+          <div class="archive-card-bottom">
+            <h3 class="archive-card-title">${c.name}</h3>
+            <span class="archive-card-desc">${c.chapter || c.desc}</span>
+          </div>
+        </div>
+      `;
+    }
+  }
+
+  function bindUniverseWallActions() {
+    const vaultCards = document.querySelectorAll('.collections-page-archive .archive-card.status-vault');
+    vaultCards.forEach(card => {
+      const name = card.getAttribute('data-name');
+      const handleAction = () => {
+        if (window.BravadianStore && typeof window.BravadianStore.requestVipEmbargo === 'function') {
+          window.BravadianStore.requestVipEmbargo(name);
+        }
+      };
+      card.addEventListener('click', handleAction);
+      card.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          handleAction();
+        }
+      });
+    });
+  }
+
+  /* --------------------------------------------------------------------------
+     1.6 HERITAGE CHAPTER VIEW (#/collections/heritage)
+     Matches Figma Auto-Layout Spec for collection-heritage
+     -------------------------------------------------------------------------- */
+  function renderHeritageChapterView() {
+    const settings = window.BravadianDB.getSettings();
+    const allProducts = window.BravadianDB.getProducts();
+
+    // Dynamically map heritage products from shop database (Supabase synced / local)
+    const heritageProducts = allProducts.filter(p => 
+      p.collection === 'heritage' || (p.tags && p.tags.includes('heritage'))
+    );
+    // Fill up to 3 products if fewer than 3 heritage products in catalogue
+    const displayProducts = heritageProducts.length >= 3 
+      ? heritageProducts.slice(0, 3) 
+      : [...heritageProducts, ...allProducts.filter(p => !heritageProducts.some(hp => hp.id === p.id))].slice(0, 3);
+
+    mainContainer.innerHTML = `
+      <div class="heritage-chapter-page">
+        <!-- FULL-WIDTH HERO SECTION (Edge-to-Edge with Zero Side Gaps) -->
+        <section class="heritage-hero-section">
+          <div class="heritage-hero-backdrop" role="img" aria-label="Belur and Halebidu Temple Stone Relief"></div>
+          <div class="heritage-hero-scrim" aria-hidden="true"></div>
+
+          <div class="heritage-hero-inner">
+            <div class="heritage-hero-foreground">
+              <!-- Micro-Identity -->
+              <div class="heritage-micro-identity">
+                <span class="amber-dot-square" aria-hidden="true"></span>
+                <span class="micro-identity-text">CH-01 // HOYSALA ARCHITECTURAL ARCHIVE</span>
+              </div>
+
+              <!-- Titles & CTA Row -->
+              <div class="heritage-titles-cta-row">
+                <div class="heritage-headline-group">
+                  <h1 class="heritage-hero-title">HERITAGE</h1>
+                  <p class="heritage-hero-desc">
+                    Severe stone carvings translated into heavyweight street armor. An architectural manifest derived from ancient Belur and Halebidu temples.
+                  </p>
+                </div>
+
+                <div class="heritage-cta-wrapper">
+                  <button type="button" class="btn-discover-protocols" onclick="document.getElementById('heritageGarmentsSection').scrollIntoView({ behavior: 'smooth' })">
+                    DISCOVER PROTOCOLS
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- MAIN VIEWPORT CONTAINER (1280px Centered) -->
+        <div class="heritage-viewport-container">
+          <!-- SECTION 2: 01 / DECODED CIVILIZATIONAL MOTIFS -->
+          <section class="heritage-section heritage-motifs-section" id="heritageMotifsSection">
+            <div class="heritage-section-header">
+              <div class="heritage-marker-row">
+                <span class="heritage-line-indicator" aria-hidden="true"></span>
+                <span class="heritage-marker-text">01 / DECODED CIVILIZATIONAL MOTIFS</span>
+              </div>
+
+              <div class="heritage-header-flex">
+                <h2 class="heritage-section-title">CIVILIZATIONAL MOTIFS</h2>
+                <div class="heritage-desc-wrapper">
+                  <p class="heritage-section-narrative">
+                    Four codified temple artifacts meticulously vector-traced and screen-printed onto heavy cotton fibers. Every thread preserves a fragment of civilizational history.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Motifs Cards Row (4 Motifs) -->
+            <div class="heritage-motifs-row">
+              <!-- M-01 -->
+              <article class="motif-card">
+                <div class="motif-image-box">
+                  <img src="images/heritage/motif-belur-salabhanjika.jpg" alt="Belur Salabhanjika stone carving bracket figure" class="motif-img" loading="lazy" />
+                </div>
+                <div class="motif-specs">
+                  <div class="motif-title-badge">
+                    <h3 class="motif-name">BELUR SALABHANJIKA</h3>
+                    <span class="motif-code">M-01</span>
+                  </div>
+                  <p class="motif-caption">Angled bracket-figure detailing showcasing sacred symmetry.</p>
+                </div>
+              </article>
+
+              <!-- M-02 -->
+              <article class="motif-card">
+                <div class="motif-image-box">
+                  <img src="images/heritage/motif-halebidu-frieze.jpg" alt="Halebidu Frieze disciplined cavalry lines" class="motif-img" loading="lazy" />
+                </div>
+                <div class="motif-specs">
+                  <div class="motif-title-badge">
+                    <h3 class="motif-name">HALEBIDU FRIEZE</h3>
+                    <span class="motif-code">M-02</span>
+                  </div>
+                  <p class="motif-caption">The relentless cavalry lines symbolizing eternal disciplined charge.</p>
+                </div>
+              </article>
+
+              <!-- M-03 -->
+              <article class="motif-card">
+                <div class="motif-image-box">
+                  <img src="images/heritage/motif-hoysala-crest.jpg" alt="Hoysala Crest warrior Sala slaying lion" class="motif-img" loading="lazy" />
+                </div>
+                <div class="motif-specs">
+                  <div class="motif-title-badge">
+                    <h3 class="motif-name">HOYSALA CREST</h3>
+                    <span class="motif-code">M-03</span>
+                  </div>
+                  <p class="motif-caption">The legendary warrior Sala striking down the mythological beast.</p>
+                </div>
+              </article>
+
+              <!-- M-04 -->
+              <article class="motif-card">
+                <div class="motif-image-box">
+                  <img src="images/heritage/motif-kirtidhwaja-column.jpg" alt="Kirtidhwaja Column victory pillar relief" class="motif-img" loading="lazy" />
+                </div>
+                <div class="motif-specs">
+                  <div class="motif-title-badge">
+                    <h3 class="motif-name">KIRTIDHWAJA COLUMN</h3>
+                    <span class="motif-code">M-04</span>
+                  </div>
+                  <p class="motif-caption">Pillars of architectural victory and mathematical precision.</p>
+                </div>
+              </article>
+            </div>
+          </section>
+
+          <!-- SECTION 3: 02 / ENGINEERED PATTERNS // GARMENT ARTIFACTS -->
+          <section class="heritage-section heritage-garments-section" id="heritageGarmentsSection">
+            <div class="heritage-section-header">
+              <div class="heritage-marker-row">
+                <span class="heritage-line-indicator" aria-hidden="true"></span>
+                <span class="heritage-marker-text">02 / ENGINEERED PATTERNS</span>
+              </div>
+
+              <div class="heritage-header-flex">
+                <h2 class="heritage-section-title">GARMENT ARTIFACTS</h2>
+                <div class="heritage-desc-wrapper">
+                  <p class="heritage-section-narrative">
+                    Severe street silhouettes forged in modern Indian cities, engineered with heavyweight 280 GSM to 420 GSM fibers for structural discipline.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Products Row (Mapped Dynamically from Shop DB) -->
+            <div class="heritage-products-row">
+              ${displayProducts.map((p, idx) => renderHeritageGarmentCard(p, idx, settings)).join('')}
+            </div>
+          </section>
+
+          <!-- SECTION 4: 03 / CHROMATIC CODES // ARCHITECTURAL INK & DYE -->
+          <section class="heritage-section heritage-swatches-section">
+            <div class="heritage-section-header">
+              <div class="heritage-marker-row">
+                <span class="heritage-line-indicator" aria-hidden="true"></span>
+                <span class="heritage-marker-text">03 / CHROMATIC CODES</span>
+              </div>
+
+              <div class="heritage-header-flex">
+                <h2 class="heritage-section-title">ARCHITECTURAL INK & DYE</h2>
+                <div class="heritage-desc-wrapper">
+                  <p class="heritage-section-narrative">
+                    The dark monochrome spectrum of ancient temple ruins. Ground earth pigments, processed charcoal, and minerals applied through high-density screen printing.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Swatch Strip (5 Swatches) -->
+            <div class="heritage-swatches-row">
+              <!-- Swatch 1: ASH TEMPLE BLACK -->
+              <div class="swatch-card">
+                <div class="swatch-color-block" style="background-color: #0E0E0E;"></div>
+                <div class="swatch-details">
+                  <span class="swatch-title">ASH TEMPLE BLACK</span>
+                  <span class="swatch-hex">#0E0E0E</span>
+                  <span class="swatch-info">Charcoal base replicating weathered stone shadows.</span>
+                </div>
+              </div>
+
+              <!-- Swatch 2: BELUR STONE GREY -->
+              <div class="swatch-card">
+                <div class="swatch-color-block" style="background-color: #6B6A69;"></div>
+                <div class="swatch-details">
+                  <span class="swatch-title">BELUR STONE GREY</span>
+                  <span class="swatch-hex">#6B6A69</span>
+                  <span class="swatch-info">Muted mid-tone mimicking ancient architectural pillars.</span>
+                </div>
+              </div>
+
+              <!-- Swatch 3: SALA MADDER RED -->
+              <div class="swatch-card">
+                <div class="swatch-color-block" style="background-color: #801212;"></div>
+                <div class="swatch-details">
+                  <span class="swatch-title">SALA MADDER RED</span>
+                  <span class="swatch-hex">#801212</span>
+                  <span class="swatch-info">A rare, deep volcanic red taken from mythic standard flags.</span>
+                </div>
+              </div>
+
+              <!-- Swatch 4: VAULT AMBER DUST -->
+              <div class="swatch-card">
+                <div class="swatch-color-block" style="background-color: #FFA000;"></div>
+                <div class="swatch-details">
+                  <span class="swatch-title">VAULT AMBER DUST</span>
+                  <span class="swatch-hex">#FFA000</span>
+                  <span class="swatch-info">The bright highlight of oil lamps reflecting on stone.</span>
+                </div>
+              </div>
+
+              <!-- Swatch 5: HALEBIDU SILT CREAM -->
+              <div class="swatch-card">
+                <div class="swatch-color-block" style="background-color: #E5E2E1;"></div>
+                <div class="swatch-details">
+                  <span class="swatch-title">HALEBIDU SILT CREAM</span>
+                  <span class="swatch-hex">#E5E2E1</span>
+                  <span class="swatch-info">The warm mineral deposit dust settling over centuries.</span>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderHeritageGarmentCard(p, idx, settings) {
+    const relicTag = p.relicTag || `RELIC 0${idx + 1}`;
+    const badgeText = p.isComingSoon ? 'COMING SOON' : (p.relicBadge || 'PRE-ORDER ACTIVE');
+    const fabricText = p.fabric || '280 GSM COMBED COTTON // ARCHIVAL EMBROIDERY';
+    const priceFormatted = `${settings.currency || '₹'}${p.price.toLocaleString('en-IN')}`;
+
+    return `
+      <article 
+        class="heritage-product-card" 
+        onclick="window.location.hash='#/product/${p.slug}'" 
+        role="button" 
+        tabindex="0"
+        aria-label="View ${p.name}"
+      >
+        <div class="heritage-card-image-box">
+          <img src="${p.images.front}" alt="${p.name} — Bravadian Streetwear" class="heritage-card-product-img" loading="lazy" />
+          <div class="heritage-badge-pill">${relicTag}</div>
+        </div>
+        <div class="heritage-card-specs">
+          <div class="heritage-card-title-row">
+            <h3 class="heritage-card-product-name">${p.name}</h3>
+            <span class="heritage-card-price">${priceFormatted}</span>
+          </div>
+          <div class="heritage-card-sub-row">
+            <span class="heritage-card-fabric" title="${fabricText}">${fabricText}</span>
+            <span class="heritage-indicator-tag">${badgeText}</span>
+          </div>
+        </div>
+      </article>
+    `;
+  }
+
+  /* --------------------------------------------------------------------------
      2. SHOP & COLLECTION VIEW
      -------------------------------------------------------------------------- */
   function renderShopView(colSlug = 'all') {
     const collections = window.BravadianDB.getCollections();
-    const activeCol = collections.find(c => c.slug === colSlug) || { name: 'ALL PIECES', description: 'Complete 240 GSM architectural oversized archive.' };
+    const activeCol = collections.find(c => c.slug === colSlug) || { 
+      name: 'THE CANON CATALOGUE', 
+      description: 'Browse and secure your relics from our structural multi-chapter manifest. Every garment is heavily engineered and strictly numbered.' 
+    };
     
     // Get filtered products
     const products = window.BravadianDB.getProducts({
@@ -359,63 +1011,122 @@
       search: StoreState.activeFilters.search
     });
 
+    const pageSize = 6;
+    const isShowingAll = StoreState.cataloguePage > 1 || colSlug !== 'all' || products.length <= pageSize;
+    const displayedProducts = isShowingAll ? products : products.slice(0, pageSize);
+    const totalCount = displayedProducts.length;
+    const formattedCount = String(totalCount).padStart(2, '0');
+
     mainContainer.innerHTML = `
-      <div class="container" style="padding-top: 7rem;">
-        <!-- Header Strip -->
-        <div class="shop-header-strip">
-          <div class="shop-headline-block">
-            <span class="shop-pill-tag">[ ARCHIVE COLLECTION ]</span>
-            <h1 class="shop-main-title">${activeCol.name}</h1>
-            <p class="shop-sub-desc">${activeCol.description}</p>
+      <div class="canon-catalogue-container">
+        <!-- Canon Catalogue Header Block -->
+        <header class="canon-header-block">
+          <div class="canon-eyebrow">
+            <span class="eyebrow-dash">—</span>
+            <span class="eyebrow-text">STREET ARMOR DIVISION // FULL SPECS</span>
+          </div>
+          <h1 class="canon-main-title">THE CANON CATALOGUE</h1>
+          <p class="canon-sub-desc">
+            Browse and secure your relics from our structural multi-chapter manifest. Every garment is heavily engineered and strictly numbered.
+          </p>
+        </header>
+
+        <!-- Chapter Filter Pills & Controls Bar -->
+        <nav class="canon-filter-toolbar" aria-label="Archive Collection Filters">
+          <!-- Chapter Tabs Pills -->
+          <div class="canon-tabs-group" role="tablist">
+            ${collections.map(c => {
+              // Active categories: ALL, HERITAGE, GARUDA
+              const isAvailable = c.slug === 'all' || c.slug === 'heritage' || c.slug === 'garuda';
+              const isSlashed = !isAvailable;
+              const isActive = c.slug === colSlug;
+
+              if (isSlashed) {
+                return `
+                  <span 
+                    class="canon-tab-pill is-slashed is-disabled" 
+                    role="tab"
+                    aria-disabled="true"
+                    title="${c.name} — Unreleased Drop // Locked"
+                    tabindex="-1"
+                  >
+                    <span class="pill-text">
+                      ${c.name}
+                      <span class="pill-word-strike" aria-hidden="true"></span>
+                    </span>
+                  </span>
+                `;
+              }
+
+              return `
+                <a 
+                  href="#/collections/${c.slug}" 
+                  class="canon-tab-pill ${isActive ? 'active' : ''}" 
+                  role="tab"
+                  aria-selected="${isActive ? 'true' : 'false'}"
+                  title="${c.name}"
+                >
+                  <span class="pill-text">
+                    ${c.name}
+                  </span>
+                </a>
+              `;
+            }).join('')}
           </div>
 
-          <!-- Collection Tabs -->
-          <div class="collection-tabs-scroll">
-            ${collections.map(c => `
-              <a href="#/collections/${c.slug}" class="collection-tab-pill ${c.slug === colSlug ? 'active' : ''}">
-                ${c.name}
-              </a>
-            `).join('')}
-          </div>
-        </div>
+          <!-- Right Status & Filter Controls -->
+          <div class="canon-toolbar-right">
+            <span class="canon-index-status">
+              ACTIVE INDEXED ARTIFACTS: <strong class="canon-count-badge">[${formattedCount} // 100]</strong>
+            </span>
 
-        <!-- Filter & Sort Toolbar -->
-        <div class="filter-sort-bar">
-          <div class="filter-left-counts">
-            SHOWING <strong>${products.length}</strong> ${products.length === 1 ? 'PIECE' : 'PIECES'}
-          </div>
+            <div class="canon-filter-selectors">
+              <!-- Filter by Size -->
+              <select class="canon-select" id="sizeFilterSelect" aria-label="Filter by size">
+                <option value="">ALL SIZES</option>
+                <option value="S" ${StoreState.activeFilters.size === 'S' ? 'selected' : ''}>SIZE S</option>
+                <option value="M" ${StoreState.activeFilters.size === 'M' ? 'selected' : ''}>SIZE M</option>
+                <option value="L" ${StoreState.activeFilters.size === 'L' ? 'selected' : ''}>SIZE L</option>
+                <option value="XL" ${StoreState.activeFilters.size === 'XL' ? 'selected' : ''}>SIZE XL</option>
+                <option value="XXL" ${StoreState.activeFilters.size === 'XXL' ? 'selected' : ''}>SIZE XXL</option>
+              </select>
 
-          <div class="filter-controls-group">
-            <!-- Filter by Size -->
-            <select class="custom-select" id="sizeFilterSelect" aria-label="Filter by size">
-              <option value="">ALL SIZES</option>
-              <option value="S" ${StoreState.activeFilters.size === 'S' ? 'selected' : ''}>SIZE S</option>
-              <option value="M" ${StoreState.activeFilters.size === 'M' ? 'selected' : ''}>SIZE M</option>
-              <option value="L" ${StoreState.activeFilters.size === 'L' ? 'selected' : ''}>SIZE L</option>
-              <option value="XL" ${StoreState.activeFilters.size === 'XL' ? 'selected' : ''}>SIZE XL</option>
-              <option value="XXL" ${StoreState.activeFilters.size === 'XXL' ? 'selected' : ''}>SIZE XXL</option>
-            </select>
-
-            <!-- Sort -->
-            <select class="custom-select" id="sortSelect" aria-label="Sort products">
-              <option value="newest" ${StoreState.activeFilters.sort === 'newest' ? 'selected' : ''}>SORT: NEWEST</option>
-              <option value="price-low" ${StoreState.activeFilters.sort === 'price-low' ? 'selected' : ''}>PRICE: LOW TO HIGH</option>
-              <option value="price-high" ${StoreState.activeFilters.sort === 'price-high' ? 'selected' : ''}>PRICE: HIGH TO LOW</option>
-            </select>
+              <!-- Sort -->
+              <select class="canon-select" id="sortSelect" aria-label="Sort products">
+                <option value="newest" ${StoreState.activeFilters.sort === 'newest' ? 'selected' : ''}>SORT: NEWEST</option>
+                <option value="price-low" ${StoreState.activeFilters.sort === 'price-low' ? 'selected' : ''}>PRICE: LOW TO HIGH</option>
+                <option value="price-high" ${StoreState.activeFilters.sort === 'price-high' ? 'selected' : ''}>PRICE: HIGH TO LOW</option>
+              </select>
+            </div>
           </div>
-        </div>
+        </nav>
 
         <!-- Product Grid or Empty State -->
-        ${products.length > 0 ? `
-          <div class="product-grid">
-            ${products.map(p => renderProductCardHTML(p)).join('')}
+        ${totalCount > 0 ? `
+          <div class="canon-product-grid">
+            ${displayedProducts.map((p, idx) => renderProductCardHTML(p, idx)).join('')}
+          </div>
+
+          <!-- Bottom Pagination / Load More (Locked for now) -->
+          <div class="canon-load-more-wrap">
+            <button 
+              type="button" 
+              class="btn-canon-load-more is-vault-locked" 
+              id="canonLoadMoreBtn"
+              disabled
+              title="Page 2 Archive is currently locked in vault"
+              aria-disabled="true"
+            >
+              <span class="lock-icon" style="margin-right: 8px;">🔒</span>
+              <span>SYSTEM ARCHIVE ARCHETECH [PAGE 2] // LOCKED</span>
+            </button>
           </div>
         ` : `
-          <div class="empty-state-box">
+          <div class="canon-empty-state">
             <div class="empty-state-icon">⚡</div>
-            <h3 class="empty-state-title">NO PIECES FOUND</h3>
-            <p class="empty-state-sub">Try clearing filters or explore another collection.</p>
-            <a href="#/collections/all" class="btn-secondary" style="display: inline-block;">VIEW ALL COLLECTIONS</a>
+            <h3 class="empty-state-title">NO ARTIFACTS FOUND</h3>
+            <p class="empty-state-sub">Try clearing size filters or explore another canon chapter.</p>
+            <a href="#/collections/all" class="btn-canon-load-more" style="display: inline-block;">RESET ALL FILTERS</a>
           </div>
         `}
       </div>
@@ -438,58 +1149,138 @@
       });
     }
 
+    // Load More Page 2 Listener (Locked for now)
+    const loadMoreBtn = document.getElementById('canonLoadMoreBtn');
+    if (loadMoreBtn && !loadMoreBtn.classList.contains('is-vault-locked')) {
+      loadMoreBtn.addEventListener('click', () => {
+        StoreState.cataloguePage = 2;
+        renderShopView(colSlug);
+      });
+    }
+
     bindProductCardActions();
   }
 
   /* --------------------------------------------------------------------------
-     3. PRODUCT CARD COMPONENT
+     3. PRODUCT CARD COMPONENT (FIGMA CANON CARD)
      -------------------------------------------------------------------------- */
-  function renderProductCardHTML(product) {
+  function renderProductCardHTML(product, idx = 0) {
     const isOutOfStock = !product.variants || product.variants.every(v => v.stock === 0);
     const settings = window.BravadianDB.getSettings();
+    const relicTag = product.relicTag || `RELIC 0${(idx % 6) + 1}`;
+    const isLocked = product.isComingSoon === true;
+    const relicBadge = isLocked ? 'COMING SOON' : (product.relicBadge || (product.newDrop ? 'PRE-ORDER ACTIVATED' : 'ARCHIVAL RUN'));
+    const fabricSpec = product.fabric || '240 GSM INTERLOCK // 100% COMBED COTTON';
+
+    if (isLocked) {
+      return `
+        <article class="canon-product-card is-vault-locked" data-slug="${product.slug}">
+          <!-- Media Container with Subtle Frosted Blur (No Text Overlay) -->
+          <div 
+            class="canon-card-media is-vault-media" 
+            onclick="window.BravadianStore.requestVipEmbargo('${product.name}')" 
+            role="button" 
+            tabindex="0"
+            aria-label="${product.name} — Coming Soon"
+          >
+            <span class="canon-card-tag">[ ${relicTag} // COMING SOON ]</span>
+            <img 
+              src="${product.images.front}" 
+              alt="${product.name} — Bravadian Streetwear" 
+              class="canon-card-img is-vault-blurred" 
+              loading="lazy"
+            >
+            <!-- Minimal Subtle Frosted Glass Overlay with Delicate Crosshair (No Text) -->
+            <div class="subtle-frosted-overlay" aria-hidden="true">
+              <span class="frosted-crosshair-center"></span>
+            </div>
+          </div>
+
+          <!-- Product Card Meta & Details -->
+          <div class="canon-card-info">
+            <div class="canon-card-header">
+              <h3 
+                class="canon-card-title is-locked-title" 
+                onclick="window.BravadianStore.requestVipEmbargo('${product.name}')"
+              >
+                ${product.name}
+              </h3>
+              <div class="canon-card-price canon-card-price-locked">
+                ${settings.currency}${product.price.toLocaleString('en-IN')}
+              </div>
+            </div>
+
+            <!-- Specs Row -->
+            <div class="canon-specs-row">
+              <span class="canon-fabric-text">${fabricSpec}</span>
+              <span class="canon-badge-pill canon-badge-locked">[ COMING SOON ]</span>
+            </div>
+
+            <!-- Action Button -->
+            <div class="canon-card-action">
+              <button 
+                type="button" 
+                class="btn-canon-archive btn-canon-locked" 
+                onclick="event.stopPropagation(); window.BravadianStore.requestVipEmbargo('${product.name}');"
+                aria-label="Coming Soon — ${product.name}"
+              >
+                <span>[ COMING SOON ]</span>
+              </button>
+            </div>
+          </div>
+        </article>
+      `;
+    }
 
     return `
-      <article class="product-card" data-slug="${product.slug}">
-        <div class="product-media-wrap" onclick="window.location.hash='#/product/${product.slug}'">
+      <article class="canon-product-card" data-slug="${product.slug}">
+        <!-- Media Container -->
+        <div 
+          class="canon-card-media" 
+          onclick="window.location.hash='#/product/${product.slug}'" 
+          role="button" 
+          tabindex="0"
+          aria-label="View ${product.name}"
+        >
+          <span class="canon-card-tag">[ ${relicTag} ]</span>
           <img 
             src="${product.images.front}" 
-            alt="${product.name} 240 GSM Oversized T-Shirt" 
-            class="product-card-img" 
+            alt="${product.name} — Bravadian Streetwear" 
+            class="canon-card-img" 
             loading="lazy"
           >
-          <div class="card-badges-top">
-            <span class="badge-pill spec-gsm">240 GSM</span>
-            ${product.newDrop ? '<span class="badge-pill badge-new">NEW DROP</span>' : ''}
-            ${isOutOfStock ? '<span class="badge-pill badge-soldout">SOLD OUT</span>' : ''}
-          </div>
-
-          <div class="card-quick-actions">
-            <button class="btn-card-quick" onclick="event.stopPropagation(); window.location.hash='#/product/${product.slug}';">
-              VIEW PRODUCT
-            </button>
-            ${!isOutOfStock ? `
-              <button class="btn-card-quick" style="background: var(--color-ember); color: #fff;" onclick="event.stopPropagation(); window.BravadianStore.quickAdd('${product.slug}');">
-                QUICK ADD
-              </button>
-            ` : ''}
-          </div>
         </div>
 
-        <div class="product-card-details">
-          <span class="product-coll-label">${product.collection}</span>
-          <h3 class="product-card-name" onclick="window.location.hash='#/product/${product.slug}'" style="cursor: pointer;">
-            ${product.name}
-          </h3>
-          <p class="product-card-desc">${product.description}</p>
-          
-          <div class="product-card-price-row">
-            <div>
-              <span class="price-current">${settings.currency}${product.price.toLocaleString('en-IN')}</span>
-              ${product.comparePrice ? `<span class="price-compare">${settings.currency}${product.comparePrice.toLocaleString('en-IN')}</span>` : ''}
+        <!-- Product Card Meta & Details -->
+        <div class="canon-card-info">
+          <div class="canon-card-header">
+            <h3 
+              class="canon-card-title" 
+              onclick="window.location.hash='#/product/${product.slug}'"
+            >
+              ${product.name}
+            </h3>
+            <div class="canon-card-price">
+              ${settings.currency}${product.price.toLocaleString('en-IN')}
             </div>
-            <span class="card-status-indicator ${isOutOfStock ? 'sold-out' : 'available'}">
-              ${isOutOfStock ? 'SOLD OUT' : 'AVAILABLE'}
-            </span>
+          </div>
+
+          <!-- Specs Row -->
+          <div class="canon-specs-row">
+            <span class="canon-fabric-text">${fabricSpec}</span>
+            <span class="canon-badge-pill">[ ${relicBadge} ]</span>
+          </div>
+
+          <!-- Action Button -->
+          <div class="canon-card-action">
+            <button 
+              type="button" 
+              class="btn-canon-archive" 
+              onclick="event.stopPropagation(); window.BravadianStore.quickAdd('${product.slug}');"
+              aria-label="Add ${product.name} to archive bag"
+            >
+              <span>ADD TO ARCHIVE // +</span>
+            </button>
           </div>
         </div>
       </article>
@@ -503,203 +1294,399 @@
   /* --------------------------------------------------------------------------
      4. PRODUCT DETAIL PAGE (PDP) & VARIANT MATRIX
      -------------------------------------------------------------------------- */
+  /* --------------------------------------------------------------------------
+     4. PRODUCT DETAIL PAGE (PDP) — FIGMA PRECISION ARCHITECTURE
+     -------------------------------------------------------------------------- */
   function renderPDPView(slug) {
-    const product = window.BravadianDB.getProductBySlug(slug);
+    let product = window.BravadianDB.getProductBySlug(slug);
     if (!product) {
-      renderShopView('all');
-      return;
+      product = window.BravadianDB.getProductBySlug('hoysala-oversized-relic-tee') || window.BravadianDB.getProducts()[0];
+      if (!product) {
+        renderShopView('all');
+        return;
+      }
     }
 
     StoreState.currentProduct = product;
-    // Default color to first available
     StoreState.selectedColor = product.colors && product.colors.length > 0 ? product.colors[0] : '';
-    // Find first available size for this color
-    StoreState.selectedSize = '';
+    StoreState.selectedSize = 'M';
     StoreState.selectedQty = 1;
 
-    // Check available sizes for selected color
     const availableSizes = getAvailableSizesForColor(product, StoreState.selectedColor);
-    if (availableSizes.length > 0) {
+    if (availableSizes.includes('M')) {
+      StoreState.selectedSize = 'M';
+    } else if (availableSizes.length > 0) {
       StoreState.selectedSize = availableSizes[0];
+    } else {
+      StoreState.selectedSize = 'M';
     }
 
     const settings = window.BravadianDB.getSettings();
 
+    // Diagrams and Supabase image mapping
+    const pImages = product.images || {};
+    const getDiagram = (view) => {
+      if (window.BravadianDefaults && window.BravadianDefaults.createTeeSVG) {
+        return window.BravadianDefaults.createTeeSVG(product.name, product.collection || 'Heritage', '#111116', '#FFA000', view);
+      }
+      return '';
+    };
+
+    const thumb1 = pImages.front || getDiagram('front');
+    const thumb2 = pImages.back || getDiagram('back');
+    const thumb3 = pImages.closeup || getDiagram('closeup');
+    const mainHero = thumb1;
+
+    const allSizes = ['S', 'M', 'L', 'XL', 'XXL'];
+
+    const accordions = [
+      {
+        num: '01',
+        title: 'THE STORY',
+        content: 'A homage to the 12th-century Hoysala dynasty. The print layout mirrors the friezes of Halebidu temple complex, engineered to scale with the shoulder drapery.'
+      },
+      {
+        num: '02',
+        title: 'MOTIF DECODE',
+        content: 'Features the sacred double-headed Berunda and charging temple elephants. Every motif is redrawn from hand-inked archives and silkscreened on textured cotton.'
+      },
+      {
+        num: '03',
+        title: 'FABRIC & PRINT',
+        content: `${product.fabric || '280 GSM premium long-staple Indian cotton'}. Loop-back French Terry structure. Low-impact organic active dyes.`
+      },
+      {
+        num: '04',
+        title: 'ARCHIVAL CUSTODY',
+        content: 'Washing should be conducted inside out at cold temperatures. Line dry only in natural shade. Avoid mechanical heat exposure to protect the high-density puff print.'
+      },
+      {
+        num: '05',
+        title: 'VAULT DISPATCH & RETURNS',
+        content: 'Dispatched globally from our Bengaluru node. Covered by our 7-day tactical archive verification window. Returns accepted only if security tags are intact.'
+      }
+    ];
+
+    const relatedRelics = [
+      {
+        badge: 'RELIC 02',
+        name: 'HOYSALA LINGESHWARA RELIC TEE',
+        price: 3200,
+        slug: 'hoysala-lingeshwara-relic-tee'
+      },
+      {
+        badge: 'RELIC 03',
+        name: 'SRI YOGA SARASVATHESHWARA TEE',
+        price: 3600,
+        slug: 'sri-yoga-sarasvatheshwara-tee'
+      },
+      {
+        badge: 'RELIC 04',
+        name: 'NRITYA PRIMACY DESCENSION JACKET',
+        price: 6500,
+        slug: 'nritya-primacy-descension-jacket'
+      }
+    ].map(item => {
+      const relProd = window.BravadianDB.getProductBySlug(item.slug);
+      const img = (relProd && relProd.images && relProd.images.front)
+        ? relProd.images.front
+        : (window.BravadianDefaults ? window.BravadianDefaults.createTeeSVG(item.name, 'Heritage', '#111116', '#FFA000', 'front') : '');
+      return {
+        ...item,
+        name: relProd ? relProd.name : item.name,
+        price: relProd ? relProd.price : item.price,
+        badge: relProd ? (relProd.relicTag || item.badge) : item.badge,
+        image: img
+      };
+    });
+
+    const gateways = [
+      {
+        num: '02',
+        title: 'GARUDA',
+        chapter: 'CHAPTER 02: SOVEREIGN SKY',
+        collection: 'garuda'
+      },
+      {
+        num: '03',
+        title: 'ASURA',
+        chapter: 'CHAPTER 03: SOLAR SHADOWS',
+        collection: 'asura'
+      },
+      {
+        num: '04',
+        title: 'BERUNDA',
+        chapter: 'CHAPTER 04: DOUBLE VISION',
+        collection: 'berunda'
+      }
+    ].map(gw => {
+      const colProd = window.BravadianDB.getProducts({ collection: gw.collection })[0];
+      const gImg = (colProd && colProd.images && colProd.images.front)
+        ? colProd.images.front
+        : (window.BravadianDefaults ? window.BravadianDefaults.createTeeSVG(gw.title, gw.collection, '#121216', '#FFA000', 'front') : '');
+      return {
+        ...gw,
+        image: gImg
+      };
+    });
+
     mainContainer.innerHTML = `
-      <div class="container">
-        <div class="product-detail-layout">
-          <!-- GALLERY -->
-          <div class="product-gallery-side">
-            <div class="gallery-thumbnails">
-              <img src="${product.images.front}" alt="Front view" class="gallery-thumb active" data-img="${product.images.front}">
-              <img src="${product.images.back}" alt="Back view" class="gallery-thumb" data-img="${product.images.back}">
-              <img src="${product.images.closeup}" alt="Fabric closeup" class="gallery-thumb" data-img="${product.images.closeup}">
-              <img src="${product.images.lifestyle}" alt="Lifestyle silhouette" class="gallery-thumb" data-img="${product.images.lifestyle}">
+      <div class="pdp-figma-layout">
+        <!-- SECTION - PRODUCT MAIN BRIEF -->
+        <section class="pdp-brief-section">
+          <!-- Column-Media -->
+          <div class="pdp-media-col">
+            <div class="pdp-main-frame ${product.isComingSoon ? 'is-vault-media' : ''}">
+              <img src="${mainHero}" alt="${product.name}" id="pdpFigmaMainImg" class="pdp-main-photo ${product.isComingSoon ? 'is-vault-blurred' : ''}">
+              ${product.isComingSoon ? `
+                <div class="subtle-frosted-overlay" aria-hidden="true">
+                  <span class="frosted-crosshair-center"></span>
+                </div>
+              ` : ''}
             </div>
-            <div class="gallery-main-view">
-              <img src="${product.images.front}" alt="${product.name}" id="pdpMainImage" class="gallery-main-img">
+
+            <div class="pdp-thumbs-row">
+              <div class="pdp-thumb-card active" data-img="${thumb1}" role="button" tabindex="0" title="Front Architectural View">
+                <img src="${thumb1}" alt="Front Architectural View" class="pdp-thumb-img">
+              </div>
+              <div class="pdp-thumb-card" data-img="${thumb2}" role="button" tabindex="0" title="Technical Rear View">
+                <img src="${thumb2}" alt="Technical Rear Typography" class="pdp-thumb-img">
+              </div>
+              <div class="pdp-thumb-card" data-img="${thumb3}" role="button" tabindex="0" title="Fabric Specimen View">
+                <img src="${thumb3}" alt="Macro Fabric loops" class="pdp-thumb-img">
+              </div>
             </div>
           </div>
 
-          <!-- INFO & VARIANT MATRIX -->
-          <div class="product-info-side">
-            <span class="pdp-collection-tag">${product.collection} // DROP ARCHIVE</span>
-            <h1 class="pdp-title">${product.name}</h1>
-
-            <div class="pdp-price-wrap">
-              <span class="pdp-price">${settings.currency}${product.price.toLocaleString('en-IN')}</span>
-              ${product.comparePrice ? `<span class="pdp-compare">${settings.currency}${product.comparePrice.toLocaleString('en-IN')}</span>` : ''}
-              <span class="card-status-indicator available" id="pdpStockBadge">IN STOCK</span>
+          <!-- Column-Specifications -->
+          <div class="pdp-specs-col">
+            <!-- Header Eyebrow -->
+            <div class="pdp-eyebrow-row">
+              <span class="pdp-amber-dot"></span>
+              <span class="pdp-eyebrow-text">${(product.collection || 'HERITAGE').toUpperCase()} COLLECTION // CHAPTER 01</span>
             </div>
 
-            <!-- Prominent First Product Specification Banner -->
-            <div class="pdp-spec-banner">
-              <div class="pdp-spec-item">
-                <span class="pdp-spec-title">FABRIC WEIGHT</span>
-                <span class="pdp-spec-val">${product.fabric || '240 GSM'}</span>
-              </div>
-              <div style="width: 1px; background: rgba(255,255,255,0.08);"></div>
-              <div class="pdp-spec-item">
-                <span class="pdp-spec-title">CUT & FIT</span>
-                <span class="pdp-spec-val">${product.fit || 'Oversized'}</span>
-              </div>
-              <div style="width: 1px; background: rgba(255,255,255,0.08);"></div>
-              <div class="pdp-spec-item">
-                <span class="pdp-spec-title">MATERIAL</span>
-                <span class="pdp-spec-val">${product.material || '100% Combed Cotton'}</span>
-              </div>
-            </div>
+            <!-- Title -->
+            <h1 class="pdp-figma-title">${product.name}</h1>
 
-            <p class="pdp-desc">${product.description}</p>
+            <!-- Price -->
+            <div class="pdp-figma-price">${settings.currency}${product.price.toLocaleString('en-IN')}</div>
 
-            <!-- Color Selection -->
-            <div class="variant-block">
-              <div class="variant-label-row">
-                <span class="variant-label-name">COLOR:</span>
-                <span class="variant-selected-val" id="selectedColorDisplay">${StoreState.selectedColor}</span>
+            <!-- Description -->
+            <p class="pdp-figma-desc">${product.description}</p>
+
+            <!-- Size Selection -->
+            <div class="pdp-size-section">
+              <div class="pdp-size-header">
+                <span class="pdp-size-label">SELECT SPECIFICATION (SIZE)</span>
+                <button type="button" class="pdp-size-guide-btn" id="pdpSizeGuideTrigger">SIZE GUIDE</button>
               </div>
-              <div class="color-pills-list" id="pdpColorList">
-                ${product.colors.map(col => `
-                  <button type="button" class="color-pill-btn ${col === StoreState.selectedColor ? 'active' : ''}" data-color="${col}">
-                    ${col}
+              <div class="pdp-size-matrix" id="pdpSizeMatrix">
+                ${allSizes.map(sz => `
+                  <button type="button" class="pdp-size-box ${sz === StoreState.selectedSize ? 'active' : ''}" data-size="${sz}">
+                    ${sz}
                   </button>
                 `).join('')}
               </div>
             </div>
 
-            <!-- Size Selection (Variant Level Dynamic Matrix) -->
-            <div class="variant-block">
-              <div class="variant-label-row">
-                <span class="variant-label-name">SIZE:</span>
-                <span class="size-guide-link" id="pdpSizeGuideTrigger">Not sure about your size?</span>
-              </div>
-              <div class="size-pills-list" id="pdpSizeList">
-                <!-- Dynamically populated based on color stock -->
-              </div>
-            </div>
-
-            <!-- Quantity & Add to Cart -->
-            <div class="pdp-action-row">
-              <div class="qty-control">
-                <button type="button" class="qty-btn" id="qtyMinusBtn">-</button>
-                <span class="qty-display" id="qtyVal">1</span>
-                <button type="button" class="qty-btn" id="qtyPlusBtn">+</button>
-              </div>
-
-              <button type="button" class="btn-add-cart" id="addToCartBtn">
-                <span>ADD TO CART</span>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-                  <line x1="3" y1="6" x2="21" y2="6"></line>
-                  <path d="M16 10a4 4 0 0 1-8 0"></path>
-                </svg>
+            <!-- Add to Bag CTA -->
+            <div class="pdp-cta-wrap">
+              <button type="button" class="pdp-cta-btn ${product.isComingSoon ? 'is-coming-soon' : ''}" id="pdpCtaBtn">
+                ${product.isComingSoon ? `[ COMING SOON ]` : `ADD TO ARCHIVE BAG — ${settings.currency}${product.price.toLocaleString('en-IN')}`}
               </button>
+              <div class="pdp-cta-subtext">
+                ✦ SECURE ENCRYPTED PROTOCOL // DISPATCHED IN 48 HOURS // NUMBERED AUTHENTICITY CHIP INCLUDED
+              </div>
             </div>
 
-            <!-- Accordion Details -->
-            <div class="pdp-spec-accordion">
-              <div class="accordion-item">
-                <button class="accordion-trigger" type="button">
-                  <span>SPECIFICATIONS & CRAFT</span>
-                  <span>+</span>
-                </button>
-                <div class="accordion-content">
-                  Heavy 240 GSM interlock fabric with bio-washed velvet finish. High-tension 1.25" rib neckline designed to resist sagging wear after wear. Twin-needle reinforced seams along the shoulder drop.
-                </div>
-              </div>
+            <!-- Line Divider -->
+            <div class="pdp-figma-divider"></div>
 
-              <div class="accordion-item">
-                <button class="accordion-trigger" type="button">
-                  <span>DISPATCH & WHATSAPP ORDERS</span>
-                  <span>+</span>
-                </button>
-                <div class="accordion-content">
-                  Orders placed are confirmed through our concierge on WhatsApp. Dispatches ship within 24-48 hours across India via express air delivery. Free shipping on orders above ${settings.currency}${settings.freeShippingThreshold}.
+            <!-- 5 Specification Accordions -->
+            <div class="pdp-accordion-group">
+              ${accordions.map((acc, i) => `
+                <div class="pdp-accordion-item ${i === 0 ? 'is-open' : ''}" data-index="${i}">
+                  <button type="button" class="pdp-accordion-header" aria-expanded="${i === 0 ? 'true' : 'false'}">
+                    <span class="pdp-accordion-title">${acc.num} // ${acc.title}</span>
+                    <span class="pdp-accordion-icon">
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#FFA000" stroke-width="2">
+                        <line x1="8" y1="2" x2="8" y2="14" class="pdp-icon-v"></line>
+                        <line x1="2" y1="8" x2="14" y2="8"></line>
+                      </svg>
+                    </span>
+                  </button>
+                  <div class="pdp-accordion-body" style="${i === 0 ? 'max-height: 180px; opacity: 1;' : 'max-height: 0px; opacity: 0;'}">
+                    <p class="pdp-accordion-text">${acc.content}</p>
+                  </div>
                 </div>
-              </div>
+              `).join('')}
             </div>
           </div>
-        </div>
+        </section>
+
+        <!-- SECTION - MORE FROM THE UNIVERSE -->
+        <section class="pdp-more-universe-section">
+          <div class="pdp-section-header">
+            <div class="pdp-section-title-group">
+              <div class="pdp-section-eyebrow">
+                <span class="pdp-line-indicator"></span>
+                <span class="pdp-section-eyebrow-text">02 / ARCHIVE RE-ROUTING</span>
+              </div>
+              <h2 class="pdp-section-heading">MORE FROM THE ${(product.collection || 'HERITAGE').toUpperCase()} UNIVERSE</h2>
+            </div>
+            <div class="pdp-section-header-tag">CHAPTER 01 MANIFESTED SHAPES</div>
+          </div>
+
+          <div class="pdp-relics-grid">
+            ${relatedRelics.map(item => `
+              <article class="pdp-relic-card" data-slug="${item.slug}">
+                <div class="pdp-relic-badge">${item.badge}</div>
+                <div class="pdp-relic-img-wrap">
+                  <img src="${item.image}" alt="${item.name}" class="pdp-relic-img">
+                </div>
+                <div class="pdp-relic-specs">
+                  <div class="pdp-relic-row-top">
+                    <h3 class="pdp-relic-name">${item.name}</h3>
+                    <span class="pdp-relic-price">${settings.currency}${item.price.toLocaleString('en-IN')}</span>
+                  </div>
+                  <div class="pdp-relic-row-bottom">
+                    <span class="pdp-relic-material">280 GSM COMBED TEXTURED COTTON</span>
+                    <span class="pdp-relic-status">PRE-ORDER ACTIVE</span>
+                  </div>
+                </div>
+              </article>
+            `).join('')}
+          </div>
+        </section>
+
+        <!-- SECTION - NEIGHBOURING UNIVERSES -->
+        <section class="pdp-gateways-section">
+          <div class="pdp-section-header">
+            <div class="pdp-section-title-group">
+              <div class="pdp-section-eyebrow">
+                <span class="pdp-line-indicator"></span>
+                <span class="pdp-section-eyebrow-text">03 / DIMENSIONAL GATEWAYS</span>
+              </div>
+              <h2 class="pdp-section-heading">DISCOVER NEIGHBOURING UNIVERSES</h2>
+            </div>
+            <div class="pdp-section-header-tag">MULTI-CHAPTER MANIFEST</div>
+          </div>
+
+          <div class="pdp-gateways-grid">
+            ${gateways.map(gw => `
+              <div class="pdp-gateway-card" data-collection="${gw.collection}">
+                <div class="pdp-gateway-bg" style="background-image: url('${gw.image}');"></div>
+                <div class="pdp-gateway-overlay"></div>
+                <div class="pdp-gateway-top">
+                  <span class="pdp-gateway-num">${gw.num}</span>
+                  <span class="pdp-gateway-star">✦</span>
+                </div>
+                <div class="pdp-gateway-bottom">
+                  <h3 class="pdp-gateway-title">${gw.title}</h3>
+                  <span class="pdp-gateway-sub">${gw.chapter}</span>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </section>
       </div>
     `;
 
-    // Bind Gallery events
-    const mainImg = document.getElementById('pdpMainImage');
-    const thumbs = document.querySelectorAll('.gallery-thumb');
-    thumbs.forEach(t => {
-      t.addEventListener('click', () => {
-        thumbs.forEach(thumb => thumb.classList.remove('active'));
-        t.classList.add('active');
-        mainImg.src = t.getAttribute('data-img');
+    // Event Bindings
+    // 1. Thumbnail Clicking & Switching
+    const mainImg = document.getElementById('pdpFigmaMainImg');
+    const thumbCards = document.querySelectorAll('.pdp-thumb-card');
+    thumbCards.forEach(tc => {
+      tc.addEventListener('click', () => {
+        thumbCards.forEach(c => c.classList.remove('active'));
+        tc.classList.add('active');
+        const targetSrc = tc.getAttribute('data-img');
+        if (mainImg && targetSrc) {
+          mainImg.style.opacity = '0.4';
+          setTimeout(() => {
+            mainImg.src = targetSrc;
+            mainImg.style.opacity = '1';
+          }, 150);
+        }
       });
     });
 
-    // Bind Size Guide Modal Trigger
+    // 2. Size Matrix Selection
+    const sizeBoxes = document.querySelectorAll('.pdp-size-box');
+    sizeBoxes.forEach(sb => {
+      sb.addEventListener('click', () => {
+        sizeBoxes.forEach(b => b.classList.remove('active'));
+        sb.classList.add('active');
+        StoreState.selectedSize = sb.getAttribute('data-size');
+      });
+    });
+
+    // 3. Size Guide Trigger
     const sizeGuideTrigger = document.getElementById('pdpSizeGuideTrigger');
     if (sizeGuideTrigger) {
       sizeGuideTrigger.addEventListener('click', openSizeGuideModal);
     }
 
-    // Bind Quantity Buttons
-    const qtyVal = document.getElementById('qtyVal');
-    document.getElementById('qtyMinusBtn').addEventListener('click', () => {
-      if (StoreState.selectedQty > 1) {
-        StoreState.selectedQty--;
-        qtyVal.textContent = StoreState.selectedQty;
-      }
-    });
-    document.getElementById('qtyPlusBtn').addEventListener('click', () => {
-      const maxStock = getVariantStock(product, StoreState.selectedColor, StoreState.selectedSize);
-      if (StoreState.selectedQty < maxStock) {
-        StoreState.selectedQty++;
-        qtyVal.textContent = StoreState.selectedQty;
-      }
-    });
-
-    // Bind Color Buttons
-    const colorBtns = document.querySelectorAll('.color-pill-btn');
-    colorBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        colorBtns.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        StoreState.selectedColor = btn.getAttribute('data-color');
-        document.getElementById('selectedColorDisplay').textContent = StoreState.selectedColor;
-        renderSizePills();
+    // 4. Accordions Expand / Collapse
+    const accordionItems = document.querySelectorAll('.pdp-accordion-item');
+    accordionItems.forEach(item => {
+      const header = item.querySelector('.pdp-accordion-header');
+      const body = item.querySelector('.pdp-accordion-body');
+      header.addEventListener('click', () => {
+        const isOpen = item.classList.contains('is-open');
+        if (isOpen) {
+          item.classList.remove('is-open');
+          header.setAttribute('aria-expanded', 'false');
+          body.style.maxHeight = '0px';
+          body.style.opacity = '0';
+        } else {
+          item.classList.add('is-open');
+          header.setAttribute('aria-expanded', 'true');
+          body.style.maxHeight = (body.scrollHeight + 50) + 'px';
+          body.style.opacity = '1';
+        }
       });
     });
 
-    // Initial render of size pills for the selected color
-    renderSizePills();
+    // 5. Add to Archive Bag CTA
+    const ctaBtn = document.getElementById('pdpCtaBtn');
+    if (ctaBtn) {
+      ctaBtn.addEventListener('click', () => {
+        if (product.isComingSoon) {
+          window.BravadianStore.requestVipEmbargo(product.name);
+          return;
+        }
+        if (!StoreState.selectedSize) {
+          StoreState.selectedSize = 'M';
+        }
+        addToCart(product, StoreState.selectedColor, StoreState.selectedSize, 1);
+        openCartDrawer();
+      });
+    }
 
-    // Bind Add to Cart
-    document.getElementById('addToCartBtn').addEventListener('click', () => {
-      if (!StoreState.selectedSize) {
-        alert('Please select an available size.');
-        return;
-      }
+    // 6. Relic Cards in "More from Universe"
+    const relicCards = document.querySelectorAll('.pdp-relic-card');
+    relicCards.forEach(rc => {
+      rc.addEventListener('click', () => {
+        const targetSlug = rc.getAttribute('data-slug');
+        if (targetSlug) {
+          window.location.hash = `#/product/${targetSlug}`;
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      });
+    });
 
-      addToCart(product, StoreState.selectedColor, StoreState.selectedSize, StoreState.selectedQty);
-      openCartDrawer();
+    // 7. Neighbouring Universe Gateways
+    const gatewayCards = document.querySelectorAll('.pdp-gateway-card');
+    gatewayCards.forEach(gc => {
+      gc.addEventListener('click', () => {
+        const col = gc.getAttribute('data-collection');
+        if (col) {
+          window.location.hash = `#/collections/${col}`;
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      });
     });
   }
 
@@ -897,7 +1884,11 @@
     const badges = document.querySelectorAll('.cart-badge-count');
     badges.forEach(b => {
       b.textContent = totalCount;
-      b.style.display = totalCount > 0 ? 'flex' : 'none';
+      if (b.closest('.header-bag-btn')) {
+        b.style.display = 'inline';
+      } else {
+        b.style.display = totalCount > 0 ? 'flex' : 'none';
+      }
     });
 
     // Populate Drawer
@@ -996,7 +1987,7 @@
               <div class="cart-item-row" style="padding: 1.5rem 0;">
                 <img src="${item.image}" alt="${item.name}" style="width: 100px; height: 125px; object-fit: contain; background: #08080c; border: 1px solid rgba(255,255,255,0.08); border-radius: 4px;">
                 <div class="cart-item-body" style="padding-left: 1rem;">
-                  <h3 class="cart-item-name" style="font-size: 1.2rem;">${item.name}</h3>
+                  <h3 class="cart-item-name" style="font-size: 1.4rem;">${item.name}</h3>
                   <div class="cart-item-meta" style="font-size: 0.85rem; margin: 0.4rem 0 1rem;">
                     COLOR: ${item.color} &nbsp;•&nbsp; SIZE: ${item.size}
                   </div>
@@ -1017,16 +2008,16 @@
           <!-- Summary Deck -->
           <div>
             <div style="background: #101015; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 2rem;">
-              <h3 style="font-family: var(--font-display); font-size: 1.25rem; font-weight: 900; letter-spacing: 1.5px; margin-bottom: 1.5rem;">ORDER SUMMARY</h3>
+              <h3 style="font-family: 'Bebas Neue', var(--font-display), sans-serif; font-size: 1.6rem; font-weight: 400; letter-spacing: 2px; margin-bottom: 1.5rem;">ORDER SUMMARY</h3>
               <div class="cart-tally-line"><span>Subtotal:</span><span>${settings.currency}${subtotal.toLocaleString('en-IN')}</span></div>
               <div class="cart-tally-line"><span>Shipping:</span><span>${shipping === 0 ? 'FREE' : `${settings.currency}${shipping}`}</span></div>
               <div class="cart-tally-line total"><span>Total:</span><span>${settings.currency}${total.toLocaleString('en-IN')}</span></div>
               
               <button type="button" class="btn-checkout-whatsapp" onclick="window.BravadianStore.openCheckoutModal();">
-                <span>PLACE ORDER ON WHATSAPP</span>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M17.472 14.382c-.301-.15-1.78-.879-2.056-.98-.275-.1-.475-.15-.675.15-.2.3-.775.98-.95 1.18-.175.2-.35.225-.65.075-.3-.15-1.267-.467-2.414-1.49-1.147-1.023-1.921-2.288-2.146-2.673-.225-.385-.024-.593.126-.743.136-.135.301-.35.451-.525.15-.175.2-.3.3-.5.1-.2.05-.375-.025-.525-.075-.15-.675-1.625-.925-2.225-.244-.585-.492-.506-.675-.515-.175-.008-.375-.01-.575-.01s-.525.075-.8.375c-.275.3-1.05 1.025-1.05 2.5 0 1.475 1.075 2.9 1.225 3.1.15.2 2.115 3.23 5.125 4.53 3.01 1.3 3.01.867 3.56.817.55-.05 1.78-.725 2.03-1.425.25-.7.25-1.3.175-1.425-.075-.125-.275-.2-.575-.35z"/>
+                <svg class="btn-wa-icon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
                 </svg>
+                <span>PLACE ORDER ON WHATSAPP</span>
               </button>
             </div>
           </div>
@@ -1401,6 +2392,12 @@ Thank you.
       } else {
         window.location.hash = `#/product/${slug}`;
       }
+    },
+    requestVipEmbargo(productName) {
+      const settings = window.BravadianDB.getSettings();
+      const text = encodeURIComponent(`Hi Bravadian Concierge, I would like priority notification for the upcoming drop: "${productName}". Please register me for early VIP access!`);
+      const url = `https://wa.me/${settings.whatsappNumber}?text=${text}`;
+      window.open(url, '_blank');
     },
     updateCartItemQty,
     removeFromCart,

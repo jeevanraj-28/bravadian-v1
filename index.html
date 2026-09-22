@@ -1,7 +1,22 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
+  <script>
+    (function() {
+      try {
+        var params = new URLSearchParams(window.location.search);
+        var qTheme = params.get('theme');
+        if (qTheme === 'light' || qTheme === 'dark') {
+          localStorage.setItem('bravadian-theme', qTheme);
+          document.documentElement.setAttribute('data-theme', qTheme);
+        } else {
+          var t = localStorage.getItem('bravadian-theme') || 'light';
+          document.documentElement.setAttribute('data-theme', t);
+        }
+      } catch(e) {}
+    })();
+  </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
   
   <!-- Primary SEO Meta Tags -->
@@ -190,7 +205,7 @@
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Syne:wght@700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cinzel:wght@600;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Syne:wght@700;800;900&display=swap" rel="stylesheet">
   
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="css/store.css">
@@ -204,98 +219,218 @@
   <div class="grain-overlay" aria-hidden="true"></div>
   <div class="ambient-glow" aria-hidden="true"></div>
 
-  <!-- Custom Round Cursor -->
+  <!-- Custom Cursor (Red & Yellow Mix Dot) -->
   <div class="custom-cursor is-hidden" id="customCursor" aria-hidden="true">
     <div class="cursor-dot"></div>
-    <div class="cursor-ring"></div>
   </div>
 
-  <!-- STICKY HEADER -->
-  <header class="site-header">
-    <div class="header-container">
-      <!-- Brand Logo -->
-      <a href="#/" class="brand-mark" aria-label="BRAVADIAN Home">
-        <img src="images/logo.png" alt="BRAVADIAN — BRAVE INDIA" class="brand-logo-img">
-      </a>
-
-      <!-- Center Navigation with Collections Mega Menu -->
-      <nav class="desktop-nav" aria-label="Primary navigation">
-        <ul class="nav-links">
-          <li class="nav-item">
-            <a href="#/" class="nav-link">HOME</a>
-          </li>
-          <li class="nav-item">
-            <a href="#/shop" class="nav-link">SHOP</a>
-          </li>
-          <li class="nav-item">
-            <a href="#/collections" class="nav-link">
-              <span>COLLECTIONS</span>
-              <span class="dropdown-arrow">▼</span>
-            </a>
-            <!-- Mega Dropdown -->
-            <div class="mega-dropdown">
-              <div class="mega-title">[ THE ARCHIVES ]</div>
-              <ul class="mega-list" id="megaCollectionsList">
-                <!-- Dynamically populated from data -->
-              </ul>
-            </div>
-          </li>
-          <li class="nav-item">
-            <a href="#/about" class="nav-link">ABOUT</a>
-          </li>
-        </ul>
-      </nav>
-
-      <!-- Right Action Icons -->
-      <div class="header-actions">
-        <!-- Search Trigger -->
-        <button type="button" class="header-icon-btn" data-action="open-search" title="Search pieces" aria-label="Search">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="11" cy="11" r="8"></circle>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-          </svg>
-        </button>
-
-        <!-- Cart Trigger -->
-        <button type="button" class="header-icon-btn" data-action="open-cart" title="View Cart" aria-label="Cart">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-            <line x1="3" y1="6" x2="21" y2="6"></line>
-            <path d="M16 10a4 4 0 0 1-8 0"></path>
-          </svg>
-          <span class="cart-badge-count" style="display: none;">0</span>
-        </button>
-
-        <!-- WhatsApp Direct Header Link -->
-        <a href="https://wa.me/917975362526" target="_blank" rel="noopener noreferrer" class="header-icon-btn" title="Chat on WhatsApp" aria-label="WhatsApp">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M17.472 14.382c-.301-.15-1.78-.879-2.056-.98-.275-.1-.475-.15-.675.15-.2.3-.775.98-.95 1.18-.175.2-.35.225-.65.075-.3-.15-1.267-.467-2.414-1.49-1.147-1.023-1.921-2.288-2.146-2.673-.225-.385-.024-.593.126-.743.136-.135.301-.35.451-.525.15-.175.2-.3.3-.5.1-.2.05-.375-.025-.525-.075-.15-.675-1.625-.925-2.225-.244-.585-.492-.506-.675-.515-.175-.008-.375-.01-.575-.01s-.525.075-.8.375c-.275.3-1.05 1.025-1.05 2.5 0 1.475 1.075 2.9 1.225 3.1.15.2 2.115 3.23 5.125 4.53 3.01 1.3 3.01.867 3.56.817.55-.05 1.78-.725 2.03-1.425.25-.7.25-1.3.175-1.425-.075-.125-.275-.2-.575-.35z"/>
-          </svg>
+  <!-- FIXED TOP NAVIGATION WRAPPER (Matching Figma: Header on top, Announcement Bar beneath) -->
+  <div class="fixed-header-wrapper" id="fixedHeaderWrapper">
+    <!-- HEADER -->
+    <header class="site-header">
+      <div class="header-container">
+        <!-- Brand Logo -->
+        <a href="#/" class="brand-mark" aria-label="BRAVADIAN Home">
+          <img src="images/logo.png" alt="BRAVADIAN — BRAVE INDIA" class="brand-logo-img logo-theme-dark">
+          <img src="images/logo-dark.png" alt="BRAVADIAN — BRAVE INDIA" class="brand-logo-img logo-theme-light">
         </a>
 
-        <!-- Mobile Menu Toggle -->
-        <button type="button" class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle Mobile Navigation">
-          <span></span><span></span><span></span>
-        </button>
-      </div>
-    </div>
-  </header>
+        <!-- Center Navigation (Matching Figma: SHOP, COLLECTIONS, LOOKBOOK, ABOUT) -->
+        <nav class="desktop-nav" aria-label="Primary navigation">
+          <ul class="nav-links">
+            <li class="nav-item">
+              <a href="#/shop" class="nav-link">SHOP</a>
+            </li>
+            <li class="nav-item">
+              <a href="#/collections" class="nav-link">
+                <span>COLLECTIONS</span>
+                <span class="dropdown-arrow">▼</span>
+              </a>
+              <!-- Mega Dropdown -->
+              <div class="mega-dropdown">
+                <div class="mega-title">[ THE ARCHIVES ]</div>
+                <ul class="mega-list" id="megaCollectionsList">
+                  <!-- Dynamically populated from data -->
+                </ul>
+              </div>
+            </li>
+            <li class="nav-item">
+              <a href="#/shop" class="nav-link">LOOKBOOK</a>
+            </li>
+            <li class="nav-item">
+              <a href="#/about" class="nav-link">ABOUT</a>
+            </li>
+          </ul>
+        </nav>
 
-  <!-- MOBILE FULLSCREEN DRAWER -->
-  <div class="mobile-nav-drawer" id="mobileNavDrawer">
-    <button type="button" class="mobile-nav-close" id="closeMobileNavBtn">&times;</button>
-    <ul class="mobile-nav-list">
-      <li class="mobile-nav-item"><a href="#/">HOME</a></li>
-      <li class="mobile-nav-item"><a href="#/shop">SHOP ALL</a></li>
-      <li class="mobile-nav-item" style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--color-ember); margin-top: 1rem;">
-        COLLECTIONS:
-      </li>
-      <ul id="mobileCollectionsList" style="list-style: none; padding-left: 0.5rem; display: flex; flex-direction: column; gap: 0.75rem;"></ul>
-      <li class="mobile-nav-item" style="margin-top: 1rem;"><a href="#/about">ABOUT</a></li>
-      <li class="mobile-nav-item"><a href="#/contact">CONTACT</a></li>
-    </ul>
-    <div style="font-family: var(--font-mono); font-size: 0.72rem; color: #777;">
-      © 2026 BRAVADIAN. ALL RIGHTS RESERVED.
+        <!-- Right Action Icons -->
+        <!-- Right Action Icons (Search, WhatsApp Chat, BAG [0] with Solid Amber Lock Circle) -->
+        <div class="header-actions">
+          <!-- Search Trigger -->
+          <button type="button" class="header-icon-btn header-search-btn" data-action="open-search" title="Search pieces" aria-label="Search">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="7.5"></circle>
+              <line x1="21" y1="21" x2="16.5" y2="16.5"></line>
+            </svg>
+          </button>
+
+          <!-- WhatsApp Chat Trigger (Official Outline Vector Matching Reference Spec) -->
+          <a href="https://wa.me/917975362526?text=Hi%20Bravadian,%20I%20have%20a%20question%20about%20your%20products" target="_blank" rel="noopener noreferrer" class="header-icon-btn header-wa-chat-btn" title="Chat on WhatsApp" aria-label="Chat on WhatsApp">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+            </svg>
+          </a>
+
+          <!-- Theme Mode Switcher (Dark & White Theme) -->
+          <button type="button" class="header-icon-btn theme-toggle-btn" id="themeToggleBtn" title="Switch Theme (Dark / White)" aria-label="Toggle Theme">
+            <svg class="theme-icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="5"></circle>
+              <line x1="12" y1="1" x2="12" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="23"></line>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+              <line x1="1" y1="12" x2="3" y2="12"></line>
+              <line x1="21" y1="12" x2="23" y2="12"></line>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+            <svg class="theme-icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+          </button>
+
+          <!-- Cart Trigger (Matching Reference Design: [Icon] BAG [0]) -->
+          <button type="button" class="header-bag-btn" data-action="open-cart" title="View Bag" aria-label="Bag">
+            <svg class="header-bag-icon" width="16" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M6.5 8h11l1.5 12a1.5 1.5 0 0 1-1.5 1.5H6.5a1.5 1.5 0 0 1-1.5-1.5L6.5 8z"></path>
+              <path d="M9 8V6a3 3 0 0 1 6 0v2"></path>
+            </svg>
+            <span class="bag-text-wrap">
+              <span class="bag-label-text">BAG</span>
+              <span class="bag-count-bracket">[<span class="cart-badge-count">0</span>]</span>
+            </span>
+          </button>
+
+          <!-- Mobile Menu Toggle (Minimalist 2-Line Icon Matching Spec) -->
+          <button type="button" class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle Mobile Navigation">
+            <span></span><span></span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- TOP ANNOUNCEMENT MARQUEE (Below Header in Figma) -->
+    <aside class="top-announcement-bar" aria-label="Announcement">
+      <div class="announcement-ticker-track">
+        <div class="announcement-ticker-inner">
+          <span class="announcement-bullet"></span>
+          <span class="announcement-text">PRE-RELEASE VAULT PROTOCOL // 200 NUMBERED PIECES ONLY // ALL INDIA PRIORITY DISPATCH</span>
+          <span class="announcement-bullet"></span>
+          <span class="announcement-text">PRE-RELEASE VAULT PROTOCOL // 200 NUMBERED PIECES ONLY // ALL INDIA PRIORITY DISPATCH</span>
+          <span class="announcement-bullet"></span>
+          <span class="announcement-text">PRE-RELEASE VAULT PROTOCOL // 200 NUMBERED PIECES ONLY // ALL INDIA PRIORITY DISPATCH</span>
+        </div>
+        <div class="announcement-ticker-inner" aria-hidden="true">
+          <span class="announcement-bullet"></span>
+          <span class="announcement-text">PRE-RELEASE VAULT PROTOCOL // 200 NUMBERED PIECES ONLY // ALL INDIA PRIORITY DISPATCH</span>
+          <span class="announcement-bullet"></span>
+          <span class="announcement-text">PRE-RELEASE VAULT PROTOCOL // 200 NUMBERED PIECES ONLY // ALL INDIA PRIORITY DISPATCH</span>
+          <span class="announcement-bullet"></span>
+          <span class="announcement-text">PRE-RELEASE VAULT PROTOCOL // 200 NUMBERED PIECES ONLY // ALL INDIA PRIORITY DISPATCH</span>
+        </div>
+      </div>
+
+      <!-- FITTED ANNOUNCEMENT BOX (Invert Color Policy on Hover, Theme Aware) -->
+      <a href="https://wa.me/917975362526?text=Hi%20Bravadian,%20I%20would%20like%20to%20order%20from%20the%20pre-release%20vault" target="_blank" rel="noopener noreferrer" class="announcement-wa-box" title="Order via WhatsApp">
+        <svg class="wa-box-icon" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+        </svg>
+        <span class="wa-box-text">ORDER VIA WHATSAPP</span>
+        <span class="wa-box-arrow">→</span>
+      </a>
+    </aside>
+  </div>
+
+  <!-- MOBILE FULLSCREEN DRAWER (Matching Reference Architecture) -->
+  <div class="mobile-nav-drawer" id="mobileNavDrawer" aria-hidden="true">
+    <div class="mobile-drawer-top">
+      <a href="#/" class="mobile-drawer-brand" aria-label="BRAVADIAN Home">
+        <img src="images/logo.png" alt="BRAVADIAN" class="mobile-drawer-logo logo-theme-dark">
+        <img src="images/logo-dark.png" alt="BRAVADIAN" class="mobile-drawer-logo logo-theme-light">
+      </a>
+      <button type="button" class="mobile-nav-close" id="closeMobileNavBtn" aria-label="Close navigation">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+
+    <div class="mobile-drawer-content">
+      <ul class="mobile-nav-menu">
+        <li class="mobile-menu-item-row">
+          <a href="#/" class="mobile-nav-link">HOME</a>
+        </li>
+        <li class="mobile-menu-item-row">
+          <a href="#/shop" class="mobile-nav-link">SHOP ALL</a>
+        </li>
+        <li class="mobile-menu-item-row mobile-nav-group is-open" id="mobileNavGroupCollections">
+          <div class="mobile-collections-header-row" id="mobileCollectionsHeaderRow">
+            <a href="#/collections" class="mobile-nav-link">COLLECTIONS</a>
+            <button type="button" class="mobile-chevron-toggle" id="mobileCollectionsToggle" aria-label="Toggle collections">
+              <svg class="mobile-chevron-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="18 15 12 9 6 15"></polyline>
+              </svg>
+            </button>
+          </div>
+          <ul class="mobile-collections-sub" id="mobileCollectionsList">
+            <!-- Populated via store.js -->
+          </ul>
+        </li>
+        <li class="mobile-menu-item-row">
+          <a href="#/shop" class="mobile-nav-link">LOOKBOOK</a>
+        </li>
+        <li class="mobile-menu-item-row">
+          <a href="#/about" class="mobile-nav-link">ABOUT</a>
+        </li>
+        <li class="mobile-menu-item-row">
+          <a href="#/contact" class="mobile-nav-link">CONTACT</a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="mobile-drawer-footer">
+      <div class="mobile-footer-split-row">
+        <button type="button" class="mobile-footer-split-btn" id="mobileDrawerThemeBtn" aria-label="Switch Theme">
+          <svg class="mobile-footer-split-icon theme-icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+          <svg class="mobile-footer-split-icon theme-icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+          <span>SWITCH THEME</span>
+        </button>
+
+        <a href="https://wa.me/917975362526?text=Hi%20Bravadian%20Concierge,%20I%20have%20an%20inquiry." target="_blank" rel="noopener noreferrer" class="mobile-footer-split-btn" id="mobileDrawerWABtn" aria-label="WhatsApp VIP">
+          <svg class="mobile-footer-split-icon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+          </svg>
+          <span>WHATSAPP VIP</span>
+        </a>
+      </div>
+
+      <div class="mobile-drawer-bottom-row">
+        <span class="mobile-drawer-copy">© 2026 BRAVADIAN. ALL RIGHTS RESERVED.</span>
+        <span class="mobile-drawer-tagline">BRAVE INDIAN —</span>
+      </div>
     </div>
   </div>
 
@@ -331,10 +466,10 @@
       <div class="cart-tally-line total"><span>Total:</span><span id="drawerTotal">₹0</span></div>
       
       <button type="button" class="btn-checkout-whatsapp" id="drawerCheckoutBtn" onclick="window.BravadianStore.openCheckoutModal();">
-        <span>PLACE ORDER ON WHATSAPP</span>
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M17.472 14.382c-.301-.15-1.78-.879-2.056-.98-.275-.1-.475-.15-.675.15-.2.3-.775.98-.95 1.18-.175.2-.35.225-.65.075-.3-.15-1.267-.467-2.414-1.49-1.147-1.023-1.921-2.288-2.146-2.673-.225-.385-.024-.593.126-.743.136-.135.301-.35.451-.525.15-.175.2-.3.3-.5.1-.2.05-.375-.025-.525-.075-.15-.675-1.625-.925-2.225-.244-.585-.492-.506-.675-.515-.175-.008-.375-.01-.575-.01s-.525.075-.8.375c-.275.3-1.05 1.025-1.05 2.5 0 1.475 1.075 2.9 1.225 3.1.15.2 2.115 3.23 5.125 4.53 3.01 1.3 3.01.867 3.56.817.55-.05 1.78-.725 2.03-1.425.25-.7.25-1.3.175-1.425-.075-.125-.275-.2-.575-.35z"/>
+        <svg class="btn-wa-icon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
         </svg>
+        <span>PLACE ORDER ON WHATSAPP</span>
       </button>
     </div>
   </aside>
@@ -415,10 +550,10 @@
         </div>
 
         <button type="submit" class="btn-checkout-whatsapp" style="margin-top: 1rem;">
-          <span>PROCEED TO WHATSAPP ORDER</span>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M17.472 14.382c-.301-.15-1.78-.879-2.056-.98-.275-.1-.475-.15-.675.15-.2.3-.775.98-.95 1.18-.175.2-.35.225-.65.075-.3-.15-1.267-.467-2.414-1.49-1.147-1.023-1.921-2.288-2.146-2.673-.225-.385-.024-.593.126-.743.136-.135.301-.35.451-.525.15-.175.2-.3.3-.5.1-.2.05-.375-.025-.525-.075-.15-.675-1.625-.925-2.225-.244-.585-.492-.506-.675-.515-.175-.008-.375-.01-.575-.01s-.525.075-.8.375c-.275.3-1.05 1.025-1.05 2.5 0 1.475 1.075 2.9 1.225 3.1.15.2 2.115 3.23 5.125 4.53 3.01 1.3 3.01.867 3.56.817.55-.05 1.78-.725 2.03-1.425.25-.7.25-1.3.175-1.425-.075-.125-.275-.2-.575-.35z"/>
+          <svg class="btn-wa-icon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
           </svg>
+          <span>PROCEED TO WHATSAPP ORDER</span>
         </button>
       </form>
     </div>
@@ -459,7 +594,7 @@
   <!-- FLOATING WHATSAPP CHAT BUTTON -->
   <div class="floating-whatsapp-btn" id="floatingWhatsAppBtn" role="button" aria-label="Chat with Bravadian on WhatsApp">
     <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M17.472 14.382c-.301-.15-1.78-.879-2.056-.98-.275-.1-.475-.15-.675.15-.2.3-.775.98-.95 1.18-.175.2-.35.225-.65.075-.3-.15-1.267-.467-2.414-1.49-1.147-1.023-1.921-2.288-2.146-2.673-.225-.385-.024-.593.126-.743.136-.135.301-.35.451-.525.15-.175.2-.3.3-.5.1-.2.05-.375-.025-.525-.075-.15-.675-1.625-.925-2.225-.244-.585-.492-.506-.675-.515-.175-.008-.375-.01-.575-.01s-.525.075-.8.375c-.275.3-1.05 1.025-1.05 2.5 0 1.475 1.075 2.9 1.225 3.1.15.2 2.115 3.23 5.125 4.53 3.01 1.3 3.01.867 3.56.817.55-.05 1.78-.725 2.03-1.425.25-.7.25-1.3.175-1.425-.075-.125-.275-.2-.575-.35z"/>
+      <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
     </svg>
     <div class="whatsapp-tooltip">Chat with us</div>
   </div>
@@ -470,55 +605,44 @@
       <div class="footer-top">
         <div class="footer-brand-col">
           <a href="#/" class="footer-logo-link" aria-label="BRAVADIAN Home">
-            <img src="images/logo.png" alt="BRAVADIAN — BRAVE INDIA" class="footer-brand-logo">
+            <img src="images/logo.png" alt="BRAVADIAN ARCHIVE" class="footer-brand-logo logo-theme-dark">
+            <img src="images/logo-dark.png" alt="BRAVADIAN ARCHIVE" class="footer-brand-logo logo-theme-light">
           </a>
+          <h4 class="footer-archive-brand-title">BRAVADIAN ARCHIVE</h4>
           <p class="footer-brand-desc">
-            Independent Indian streetwear label engineered in 240 GSM heavy interlock cotton. Designed for the relentless.
+            Heavyweight luxury Indian streetwear, engineered for the relentless. 240 GSM, 400 GSM fleece, cut and sewn in Bharat.
           </p>
         </div>
 
         <div class="footer-status-col">
-          <span class="social-label">SHOP ARCHIVE</span>
-          <div style="display: flex; flex-direction: column; gap: 0.5rem; font-family: var(--font-mono); font-size: 0.78rem;">
-            <a href="#/shop" style="color: #aaa;">All Pieces</a>
-            <a href="#/collections" style="color: #aaa;">Collections</a>
-            <a href="#/collections/new-drop" style="color: var(--color-ember);">New Drop Archive</a>
-          </div>
-
-          <span class="social-label" style="margin-top: 1.5rem;">HELP & CONCIERGE</span>
-          <div style="display: flex; flex-direction: column; gap: 0.5rem; font-family: var(--font-mono); font-size: 0.78rem;">
-            <a href="#/contact" style="color: #aaa;">Contact Concierge</a>
-            <a href="#/policy/shipping" style="color: #aaa;">Shipping Policy</a>
-            <a href="#/policy/returns" style="color: #aaa;">Returns & Exchanges</a>
-            <a href="#/" onclick="event.preventDefault(); window.BravadianStore.openSizeGuideModal();" style="color: #aaa;">Size Guide</a>
+          <span class="social-label">VAULT OPS</span>
+          <div class="footer-links-column">
+            <a href="#/shop">Drop 01 Archive</a>
+            <a href="#/" onclick="event.preventDefault(); window.BravadianStore.openSizeGuideModal();">Size Recommendation</a>
+            <a href="#/about">Garment Care Book</a>
+            <a href="#/contact">Order Concierge</a>
           </div>
         </div>
 
         <div class="footer-social-col">
-          <span class="social-label">LEGAL & POLICIES</span>
-          <div style="display: flex; flex-direction: column; gap: 0.5rem; font-family: var(--font-mono); font-size: 0.78rem; margin-bottom: 1.5rem;">
-            <a href="#/policy/privacy" style="color: #aaa;">Privacy Policy</a>
-            <a href="#/policy/terms" style="color: #aaa;">Terms & Conditions</a>
+          <span class="social-label">CHANNELS</span>
+          <div class="footer-links-column" style="margin-bottom: 1.25rem;">
+            <a href="https://instagram.com/bravadian" target="_blank" rel="noopener noreferrer">Instagram (@bravadian)</a>
+            <a href="https://twitter.com/bravadian" target="_blank" rel="noopener noreferrer">Twitter / X</a>
+            <a href="#/contact">Discord Guild</a>
+            <a href="#/about">Dispatch Journal</a>
           </div>
-
-          <span class="social-label">OFFICIAL TRANSMISSIONS</span>
-          <a href="https://instagram.com/bravadian" target="_blank" rel="noopener noreferrer" class="instagram-link magnetic">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-              <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
-              <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
-              <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
-            </svg>
-            <span>@bravadian</span>
-          </a>
         </div>
       </div>
 
       <div class="footer-bottom">
         <div class="footer-copy">
-          © 2026 BRAVADIAN (BRAVE INDIAN). ALL RIGHTS RESERVED.
+          © 2026 BRAVADIAN ARCHIVE PROTOCOL // ALL RIGHTS RESERVED.
         </div>
-        <div style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--color-ember);">
-          240 GSM HEAVYWEIGHT // BHARAT
+        <div class="footer-bottom-links">
+          <a href="#/policy/terms">TERMS</a> // 
+          <a href="#/policy/privacy">PRIVACY</a> // 
+          <a href="#/contact">CONTACT</a>
         </div>
       </div>
     </div>
@@ -528,8 +652,8 @@
   <div id="cartToast" class="cart-toast" role="status" aria-live="polite"></div>
 
   <!-- Scripts -->
-  <script src="js/data.js"></script>
-  <script src="script.js"></script>
-  <script src="js/store.js"></script>
+  <script type="module" src="js/data.js"></script>
+  <script type="module" src="script.js"></script>
+  <script type="module" src="js/store.js"></script>
 </body>
 </html>
