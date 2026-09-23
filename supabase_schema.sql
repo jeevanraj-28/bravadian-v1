@@ -123,14 +123,37 @@ CREATE POLICY "Public Read Inventory" ON inventory FOR SELECT USING (true);
 CREATE POLICY "Public Read Size Guide" ON size_guide FOR SELECT USING (true);
 CREATE POLICY "Public Read Site Settings" ON site_settings FOR SELECT USING (true);
 
--- Allow Public/Anon ALL access for static demo & admin mode
-CREATE POLICY "Allow Anon All Collections" ON collections FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "Allow Anon All Products" ON products FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "Allow Anon All Product Images" ON product_images FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "Allow Anon All Product Variants" ON product_variants FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "Allow Anon All Inventory" ON inventory FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "Allow Anon All Size Guide" ON size_guide FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "Allow Anon All Site Settings" ON site_settings FOR ALL USING (true) WITH CHECK (true);
+-- Allow Authenticated Admin WRITE access (INSERT, UPDATE, DELETE)
+-- Only users logged in via Supabase Auth can modify data.
+-- To set up admin: create a user in Supabase Auth dashboard,
+-- then use that user's session to access the admin CMS.
+CREATE POLICY "Admin Insert Collections" ON collections FOR INSERT TO authenticated WITH CHECK (true);
+CREATE POLICY "Admin Update Collections" ON collections FOR UPDATE TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "Admin Delete Collections" ON collections FOR DELETE TO authenticated USING (true);
+
+CREATE POLICY "Admin Insert Products" ON products FOR INSERT TO authenticated WITH CHECK (true);
+CREATE POLICY "Admin Update Products" ON products FOR UPDATE TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "Admin Delete Products" ON products FOR DELETE TO authenticated USING (true);
+
+CREATE POLICY "Admin Insert Product Images" ON product_images FOR INSERT TO authenticated WITH CHECK (true);
+CREATE POLICY "Admin Update Product Images" ON product_images FOR UPDATE TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "Admin Delete Product Images" ON product_images FOR DELETE TO authenticated USING (true);
+
+CREATE POLICY "Admin Insert Product Variants" ON product_variants FOR INSERT TO authenticated WITH CHECK (true);
+CREATE POLICY "Admin Update Product Variants" ON product_variants FOR UPDATE TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "Admin Delete Product Variants" ON product_variants FOR DELETE TO authenticated USING (true);
+
+CREATE POLICY "Admin Insert Inventory" ON inventory FOR INSERT TO authenticated WITH CHECK (true);
+CREATE POLICY "Admin Update Inventory" ON inventory FOR UPDATE TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "Admin Delete Inventory" ON inventory FOR DELETE TO authenticated USING (true);
+
+CREATE POLICY "Admin Insert Size Guide" ON size_guide FOR INSERT TO authenticated WITH CHECK (true);
+CREATE POLICY "Admin Update Size Guide" ON size_guide FOR UPDATE TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "Admin Delete Size Guide" ON size_guide FOR DELETE TO authenticated USING (true);
+
+CREATE POLICY "Admin Insert Site Settings" ON site_settings FOR INSERT TO authenticated WITH CHECK (true);
+CREATE POLICY "Admin Update Site Settings" ON site_settings FOR UPDATE TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "Admin Delete Site Settings" ON site_settings FOR DELETE TO authenticated USING (true);
 
 -- ==========================================================================
 -- SEED DATA (Official Bravadian Multi-Chapter Manifest)

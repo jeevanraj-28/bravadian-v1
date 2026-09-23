@@ -2,6 +2,8 @@ node_modules/
 dist/
 .DS_Store
 *.log
+
+# Debug & scratch artifacts (generated during development)
 scratch_*.png
 scratch_*.js
 scratch_*.html
@@ -13,3 +15,5 @@ test_*.html
 mobile_*.png
 verify_*.js
 capture_*.js
+rendered_dom.html
+powershell.cmd

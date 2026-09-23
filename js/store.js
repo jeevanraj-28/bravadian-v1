@@ -1908,10 +1908,23 @@
       if (StoreState.cart.length === 0) {
         drawerList.innerHTML = `
           <div class="empty-state-box" style="padding: 4rem 1rem;">
-            <div class="empty-state-icon">🛒</div>
-            <h4 class="empty-state-title" style="font-size: 1.2rem;">YOUR CART IS EMPTY</h4>
-            <p class="empty-state-sub" style="font-size: 0.85rem;">240 GSM silhouettes are waiting in the drop.</p>
-            <a href="#/shop" class="btn-primary" style="padding: 0.75rem 1.5rem;" onclick="window.BravadianStore.closeCartDrawer();">EXPLORE THE DROP</a>
+            <div class="empty-state-icon empty-vault-icon" aria-hidden="true">
+              <svg class="vault-icon-svg" width="60" height="60" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M24 4L42 12V24C42 34 34 41 24 44C14 41 6 34 6 24V12L24 4Z" stroke="#FFA000" stroke-width="1.8" fill="rgba(255, 160, 0, 0.08)"/>
+                <path d="M17 32V23C17 19.13 20.13 16 24 16C27.87 16 31 19.13 31 23V32" stroke="currentColor" stroke-width="1.6"/>
+                <circle cx="24" cy="24" r="3" fill="#FFA000"/>
+                <path d="M24 27V30" stroke="#FFA000" stroke-width="2"/>
+              </svg>
+            </div>
+            <h4 class="empty-state-title">YOUR VAULT IS EMPTY</h4>
+            <p class="empty-state-sub">240 GSM architectural silhouettes are waiting in the drop.</p>
+            <a href="#/shop" class="btn-figma-primary btn-vault-action" onclick="window.BravadianStore.closeCartDrawer();">
+              <span>[ EXPLORE THE DROP ]</span>
+              <svg class="btn-vault-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+                <polyline points="12 5 19 12 12 19"></polyline>
+              </svg>
+            </a>
           </div>
         `;
         if (checkoutBtn) checkoutBtn.style.display = 'none';
@@ -1963,10 +1976,23 @@
       mainContainer.innerHTML = `
         <div class="container" style="padding: 8rem 2rem;">
           <div class="empty-state-box">
-            <div class="empty-state-icon">🛒</div>
-            <h2 class="empty-state-title">YOUR CART IS EMPTY</h2>
-            <p class="empty-state-sub">Discover unreleased 240 GSM silhouettes in the collection archive.</p>
-            <a href="#/shop" class="btn-primary" style="display: inline-block;">EXPLORE THE DROP</a>
+            <div class="empty-state-icon empty-vault-icon" aria-hidden="true">
+              <svg class="vault-icon-svg" width="72" height="72" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M24 4L42 12V24C42 34 34 41 24 44C14 41 6 34 6 24V12L24 4Z" stroke="#FFA000" stroke-width="1.8" fill="rgba(255, 160, 0, 0.08)"/>
+                <path d="M17 32V23C17 19.13 20.13 16 24 16C27.87 16 31 19.13 31 23V32" stroke="currentColor" stroke-width="1.6"/>
+                <circle cx="24" cy="24" r="3" fill="#FFA000"/>
+                <path d="M24 27V30" stroke="#FFA000" stroke-width="2"/>
+              </svg>
+            </div>
+            <h2 class="empty-state-title">YOUR VAULT IS EMPTY</h2>
+            <p class="empty-state-sub">Discover unreleased 240 GSM architectural silhouettes in the collection archive.</p>
+            <a href="#/shop" class="btn-figma-primary btn-vault-action">
+              <span>[ EXPLORE THE DROP ]</span>
+              <svg class="btn-vault-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+                <polyline points="12 5 19 12 12 19"></polyline>
+              </svg>
+            </a>
           </div>
         </div>
       `;
@@ -2344,19 +2370,175 @@ Thank you.
 
   function renderAboutView() {
     mainContainer.innerHTML = `
-      <div class="policy-page-container">
-        <span class="shop-pill-tag">[ BRAND ARCHIVE ]</span>
-        <h1 class="policy-headline">BRAVE INDIAN</h1>
-        <div class="policy-body">
-          <p>BRAVADIAN is an independent Indian streetwear label engineered in 240 GSM heavy interlock cotton. Designed for the relentless.</p>
-          <h3>THE 240 GSM PHILOSOPHY</h3>
-          <p>We reject flimsy, fast-fashion garments. Every silhouette is built with structural architectural presence, thick ribbing, and substantial drape that refuses to warp.</p>
-          <h3>ROOTED IN BHARAT</h3>
-          <p>From underground anime influences to ancient warrior folklore, each collection reflects modern Indian identity on the world stage.</p>
-        </div>
-        <div style="margin-top: 3rem;">
-          <a href="#/shop" class="btn-primary">EXPLORE THE DROP</a>
-        </div>
+      <div class="about-page-wrap">
+        <!-- 1. HERO BRAND INTRO -->
+        <section class="about-hero-section">
+          <div class="container about-hero-container">
+            <div class="about-badge-wrap">
+              <span class="figma-tag">[ ARCHIVAL GENESIS // PROTOCOL 00 ]</span>
+              <span class="about-radar-dot" aria-hidden="true"></span>
+            </div>
+            
+            <h1 class="about-hero-title">
+              <span class="about-title-lead">BRAVE INDIAN</span>
+              <span class="about-title-sub">MONOLITHIC CULTURAL STREETWEAR</span>
+            </h1>
+
+            <p class="about-manifesto-sub">
+              Engineered in 240 GSM heavy interlock cotton. Sacred architectural iconography directly translated from Belur & Halebidu stone reliefs onto modern drop-shoulder armor.
+            </p>
+
+            <div class="about-geo-coordinates">
+              <span class="geo-bar"></span>
+              <span class="geo-text">— FOUNDATIONAL TRANSMISSION // 28°36'N 77°12'E // EST. 2026 —</span>
+              <span class="geo-bar"></span>
+            </div>
+          </div>
+        </section>
+
+        <!-- 2. EDITORIAL PULL-QUOTE BOX -->
+        <section class="about-quote-section container">
+          <div class="about-quote-card">
+            <span class="quote-tag">[ THE BRAVADIAN CREED ]</span>
+            <blockquote class="about-quote-body">
+              “WE CARVE SACRED ICONOGRAPHY AS HEAVYWEIGHT ARMOR. REJECTING DISPOSABLE FAST-FASHION IN FAVOR OF 240 GSM STRUCTURAL RELICS BUILT TO OUTLAST THE NOISE.”
+            </blockquote>
+            <div class="quote-author-line">
+              <span class="quote-line-dash"></span>
+              <span class="quote-author-text">BRAVADIAN ARCHIVE PROTOCOL // BHARAT</span>
+              <span class="quote-line-dash"></span>
+            </div>
+          </div>
+        </section>
+
+        <!-- 3. FOUR CORE ARCHITECTURAL PILLARS -->
+        <section class="about-pillars-section container">
+          <div class="about-section-header">
+            <span class="figma-tag">— 01 / ENGINEERING SPECIFICATIONS</span>
+            <h2 class="about-section-title">THE ARCHITECTURAL PILLARS</h2>
+            <p class="about-section-narrative">
+              Every detail is calibrated to elevate Indian streetwear beyond fast-fashion compromises.
+            </p>
+          </div>
+
+          <div class="about-pillars-grid">
+            <!-- PILLAR 1: 240 GSM -->
+            <div class="about-pillar-card">
+              <div class="pillar-icon-box">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                </svg>
+              </div>
+              <span class="pillar-num">[ 01 ]</span>
+              <h3 class="pillar-heading">240 GSM HEAVY INTERLOCK</h3>
+              <p class="pillar-desc">
+                Custom double-knit combed cotton with zero synthetic blend. Provides a rigid, architectural boxy drape that hangs effortlessly with monolithic physical presence.
+              </p>
+              <div class="pillar-metric">DENSITY // 240 G/M² TEXTURED</div>
+            </div>
+
+            <!-- PILLAR 2: NO-BACON RIB COLLAR -->
+            <div class="about-pillar-card">
+              <div class="pillar-icon-box">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="9"/>
+                  <circle cx="12" cy="12" r="5" stroke-dasharray="3 3"/>
+                  <path d="M12 3v3M12 18v3M3 12h3M18 12h3"/>
+                </svg>
+              </div>
+              <span class="pillar-num">[ 02 ]</span>
+              <h3 class="pillar-heading">1.25" REINFORCED RIB COLLAR</h3>
+              <p class="pillar-desc">
+                Thick elastane-reinforced Lycra collar. Engineered to withstand intense daily wear and laundry cycles without ever stretching or curling into bacon-neck.
+              </p>
+              <div class="pillar-metric">COLLAR // 1.25 INCH REINFORCED</div>
+            </div>
+
+            <!-- PILLAR 3: HOYSALA ICONOGRAPHY -->
+            <div class="about-pillar-card">
+              <div class="pillar-icon-box">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                </svg>
+              </div>
+              <span class="pillar-num">[ 03 ]</span>
+              <h3 class="pillar-heading">AUTHENTIC STONE RELIEFS</h3>
+              <p class="pillar-desc">
+                Directly referenced from 12th-century Belur and Halebidu temple friezes. Sacred Salabhanjika maidens, celestial Garudas, and monolithic temple tiers re-imagined as wearable art.
+              </p>
+              <div class="pillar-metric">HERITAGE // HOYSALA ARCHITECTURE</div>
+            </div>
+
+            <!-- PILLAR 4: VAULT SERIALIZATION -->
+            <div class="about-pillar-card">
+              <div class="pillar-icon-box">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                  <circle cx="12" cy="16" r="1.5"/>
+                </svg>
+              </div>
+              <span class="pillar-num">[ 04 ]</span>
+              <h3 class="pillar-heading">VAULT LIMIT // 200 PIECES</h3>
+              <p class="pillar-desc">
+                Extreme scarcity by protocol. Every piece is capped at 200 serialized units. When a numbered run sells out, it is vaulted permanently. Zero restocks.
+              </p>
+              <div class="pillar-metric">ALLOTMENT // 200 NUMBERED UNITS</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 4. SPECIFICATION TAXONOMY STRIP -->
+        <section class="about-specs-section container">
+          <div class="about-spec-strip">
+            <div class="about-spec-item">
+              <span class="spec-label">[ FABRIC DENSITY ]</span>
+              <span class="spec-val">240 GSM</span>
+              <span class="spec-sub">Heavy Double Interlock</span>
+            </div>
+            <div class="about-spec-item">
+              <span class="spec-label">[ COLLAR REINFORCE ]</span>
+              <span class="spec-val">1.25 INCH</span>
+              <span class="spec-sub">Lycra Rib Zero Warp</span>
+            </div>
+            <div class="about-spec-item">
+              <span class="spec-label">[ FIBER ORIGIN ]</span>
+              <span class="spec-val">100% COMBED</span>
+              <span class="spec-sub">Indian Long-Staple Cotton</span>
+            </div>
+            <div class="about-spec-item">
+              <span class="spec-label">[ EMBARGO LIMIT ]</span>
+              <span class="spec-val">200 PCS</span>
+              <span class="spec-sub">Archival Serial Numbered</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- 5. CALL TO ACTION WITH THEMED VAULT BUTTON -->
+        <section class="about-cta-section container">
+          <div class="about-cta-card">
+            <span class="figma-tag">[ DIRECT PROTOCOL ACCESS ]</span>
+            <h2 class="about-cta-title">CLAIM YOUR ARCHIVAL ARMOR</h2>
+            <p class="about-cta-sub">
+              Access the current active edition before the 200-piece vault embargo closes.
+            </p>
+            <div class="about-cta-actions">
+              <a href="#/shop" class="btn-figma-primary">
+                <span>[ VISIT THE VAULT ]</span>
+                <svg class="btn-vault-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                  <polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
+              </a>
+              <a href="https://wa.me/917975362526?text=Hi%20Bravadian,%20I%20have%20an%20inquiry%20regarding%20the%20brand%20and%20upcoming%20drops" target="_blank" rel="noopener noreferrer" class="btn-figma-whatsapp">
+                <svg class="btn-wa-icon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+                </svg>
+                <span>WHATSAPP CONCIERGE</span>
+              </a>
+            </div>
+          </div>
+        </section>
       </div>
     `;
   }
