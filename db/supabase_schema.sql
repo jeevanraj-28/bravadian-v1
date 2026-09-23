@@ -370,5 +370,5 @@ INSERT INTO site_settings (key, value) VALUES
   ('general', '{"brand_name": "BRAVADIAN", "tagline": "BRAVE INDIAN", "currency": "₹", "support_email": "bravadian.clothing@gmail.com"}'::jsonb),
   ('whatsapp', '{"phone_number": "917975362526", "business_name": "BRAVADIAN Official"}'::jsonb),
   ('shipping', '{"shipping_charge": 99, "free_shipping_threshold": 1999, "estimated_days": "3-5 Business Days"}'::jsonb),
-  ('social', '{"instagram": "https://instagram.com/bravadian"}'::jsonb)
+  ('social', '{"instagram": "https://www.instagram.com/bravadian.in"}'::jsonb)
 ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value;

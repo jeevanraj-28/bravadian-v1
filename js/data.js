@@ -778,7 +778,7 @@
     tagline: 'BRAVE INDIAN',
     currency: '₹',
     whatsappNumber: '917975362526',
-    instagramUrl: 'https://instagram.com/bravadian',
+    instagramUrl: 'https://www.instagram.com/bravadian.in',
     supportEmail: 'bravadian.clothing@gmail.com',
     shippingFee: 99,
     freeShippingThreshold: 1999,
@@ -1281,6 +1281,7 @@
             const s = JSON.parse(storedSettings);
             s.whatsappNumber = '917975362526';
             s.supportEmail = 'bravadian.clothing@gmail.com';
+            s.instagramUrl = 'https://www.instagram.com/bravadian.in';
             localStorage.setItem('bravadian_settings', JSON.stringify(s));
           } catch (e) {
             localStorage.removeItem('bravadian_settings');

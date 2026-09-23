@@ -2571,11 +2571,38 @@ Thank you.
         <span class="shop-pill-tag">[ DIRECT TRANSMISSIONS ]</span>
         <h1 class="policy-headline">CONTACT CONCIERGE</h1>
         <div class="policy-body">
-          <p>For custom inquiries, size consultations, or wholesale batch allotments:</p>
-          <div style="margin: 2rem 0; padding: 1.5rem; background: #111116; border: 1px solid rgba(255,255,255,0.08); border-radius: 4px;">
-            <p><strong>WHATSAPP:</strong> <a href="https://wa.me/${settings.whatsappNumber}" target="_blank" style="color: var(--color-ember);">+${settings.whatsappNumber}</a></p>
-            <p><strong>INSTAGRAM:</strong> <a href="${settings.instagramUrl}" target="_blank" style="color: var(--color-ember);">${settings.instagramUrl}</a></p>
-            <p><strong>EMAIL:</strong> <span style="color: #fff;">${settings.supportEmail}</span></p>
+          <p style="font-size: 1rem; color: #b5b5c2; margin-bottom: 1.5rem;">For custom inquiries, size consultations, order tracking, or wholesale batch allotments:</p>
+          <div style="margin: 2rem 0; padding: 2rem; background: #0E0E12; border: 1px solid rgba(255,160,0,0.25); border-radius: 4px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem;">
+              <div>
+                <span style="display: block; font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700; letter-spacing: 1.5px; color: #FFA000; margin-bottom: 0.35rem;">WHATSAPP CONCIERGE</span>
+                <a href="https://wa.me/${settings.whatsappNumber}?text=Hi%20Bravadian%20Concierge,%20I%20have%20an%20inquiry" target="_blank" rel="noopener noreferrer" style="font-family: var(--font-mono); font-size: 0.95rem; color: #fff; text-decoration: none; display: flex; align-items: center; gap: 0.5rem; transition: color 0.2s ease;">
+                  <span>+${settings.whatsappNumber}</span>
+                </a>
+              </div>
+              <div>
+                <span style="display: block; font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700; letter-spacing: 1.5px; color: #FFA000; margin-bottom: 0.35rem;">INSTAGRAM CHANNEL</span>
+                <a href="${settings.instagramUrl}" target="_blank" rel="noopener noreferrer" style="font-family: var(--font-mono); font-size: 0.95rem; color: #fff; text-decoration: none; transition: color 0.2s ease;">
+                  @bravadian.in
+                </a>
+              </div>
+              <div>
+                <span style="display: block; font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700; letter-spacing: 1.5px; color: #FFA000; margin-bottom: 0.35rem;">DIRECT CALL & LINE</span>
+                <a href="tel:+${settings.whatsappNumber}" style="font-family: var(--font-mono); font-size: 0.95rem; color: #fff; text-decoration: none;">
+                  07975 362526
+                </a>
+              </div>
+              <div>
+                <span style="display: block; font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700; letter-spacing: 1.5px; color: #FFA000; margin-bottom: 0.35rem;">CONCIERGE EMAIL</span>
+                <a href="mailto:${settings.supportEmail}" style="font-family: var(--font-mono); font-size: 0.95rem; color: #fff; text-decoration: none;">
+                  ${settings.supportEmail}
+                </a>
+              </div>
+            </div>
+            <div style="margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+              <span style="font-family: var(--font-mono); font-size: 0.75rem; color: #8E8E9C;">OFFICIAL STOREFRONT: <strong style="color: #fff;">bravadian.in</strong></span>
+              <span style="font-family: var(--font-mono); font-size: 0.75rem; color: #FFA000;">🇮🇳 MADE FOR THE BRAVE</span>
+            </div>
           </div>
         </div>
       </div>
