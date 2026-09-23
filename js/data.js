@@ -633,6 +633,128 @@
     return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
   }
 
+  /* ==========================================================================
+     HERITAGE 5-COLORWAY SPINE SILHOUETTE GENERATOR
+     ========================================================================== */
+  function createSpineTeeSVG(colorKey) {
+    const key = (colorKey || 'black').toLowerCase();
+    const config = {
+      black: { name: 'BLACK', body: '#121216', rib: '#0a0a0d', highlight: '#1e1e26', print: '#ffffff', accent: '#e53935', bg: '#08080c' },
+      ivory: { name: 'IVORY', body: '#ece3d2', rib: '#ded4c0', highlight: '#faf5eb', print: '#14120e', accent: '#e67e00', bg: '#1c1b18' },
+      red:   { name: 'RED',   body: '#c81d25', rib: '#a8141b', highlight: '#e52b34', print: '#ffffff', accent: '#ffa000', bg: '#1a090b' },
+      blue:  { name: 'BLUE',  body: '#1852b8', rib: '#103b8a', highlight: '#2563eb', print: '#ffffff', accent: '#ffa000', bg: '#09101d' },
+      white: { name: 'WHITE', body: '#f7f7fa', rib: '#e4e4ec', highlight: '#ffffff', print: '#14120e', accent: '#e53935', bg: '#1a1a20' }
+    }[key] || { name: 'BLACK', body: '#121216', rib: '#0a0a0d', highlight: '#1e1e26', print: '#ffffff', accent: '#e53935', bg: '#08080c' };
+
+    const uid = 'spineTee_' + key;
+    const isLightTee = key === 'ivory' || key === 'white';
+
+    const svg = `
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 625" width="500" height="625">
+        <defs>
+          <radialGradient id="bgGrad_${uid}" cx="50%" cy="40%" r="70%">
+            <stop offset="0%" stop-color="#22222c"/>
+            <stop offset="60%" stop-color="#111116"/>
+            <stop offset="100%" stop-color="#07070a"/>
+          </radialGradient>
+          <linearGradient id="teeBodyGrad_${uid}" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="${config.highlight}"/>
+            <stop offset="40%" stop-color="${config.body}"/>
+            <stop offset="100%" stop-color="${isLightTee ? '#dedee6' : '#0a0a0e'}"/>
+          </linearGradient>
+          <filter id="shadow_${uid}" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="0" dy="18" stdDeviation="22" flood-color="#000" flood-opacity="0.85"/>
+          </filter>
+        </defs>
+
+        <rect width="100%" height="100%" fill="url(#bgGrad_${uid})"/>
+        <ellipse cx="250" cy="570" rx="140" ry="22" fill="#000000" opacity="0.65" filter="blur(10px)"/>
+
+        <!-- T-SHIRT SILHOUETTE -->
+        <g filter="url(#shadow_${uid})">
+          <!-- Inner Back Scoop -->
+          <path d="M 200 95 C 220 78, 280 78, 300 95 C 280 114, 220 114, 200 95 Z" fill="${isLightTee ? '#cfd0d8' : '#070709'}"/>
+          <rect x="232" y="85" width="36" height="18" rx="1.5" fill="#050508" stroke="#f59e0b" stroke-width="0.8"/>
+          <text x="250" y="93" text-anchor="middle" fill="#fff" font-family="'Bebas Neue', sans-serif" font-size="4" font-weight="900" letter-spacing="0.5">BRAVADIAN</text>
+          <text x="250" y="99" text-anchor="middle" fill="#f59e0b" font-family="'Space Grotesk', monospace" font-size="3.5" font-weight="700">240 GSM</text>
+
+          <!-- Main Body -->
+          <path d="M 200 95 
+                   C 220 114, 280 114, 300 95 
+                   L 410 160 
+                   L 380 280 
+                   L 330 250 
+                   L 335 550 
+                   L 165 550 
+                   L 170 250 
+                   L 120 280 
+                   L 90 160 Z" 
+                fill="url(#teeBodyGrad_${uid})" 
+                stroke="${isLightTee ? 'rgba(0,0,0,0.12)' : 'rgba(255,255,255,0.12)'}" 
+                stroke-width="1.2"/>
+
+          <!-- High-Tension Rib Collar -->
+          <path d="M 200 95 C 220 114, 280 114, 300 95 C 280 84, 220 84, 200 95 Z" fill="${config.rib}" stroke="#ffa000" stroke-width="1"/>
+
+          <!-- Drop Shoulder & Sleeve Seams -->
+          <line x1="170" y1="250" x2="335" y2="250" stroke="${isLightTee ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.06)'}" stroke-width="1"/>
+          <line x1="200" y1="95" x2="170" y2="250" stroke="${isLightTee ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.08)'}" stroke-width="1.2"/>
+          <line x1="300" y1="95" x2="330" y2="250" stroke="${isLightTee ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.08)'}" stroke-width="1.2"/>
+
+          <!-- SACRED VERTICAL SPINE ARTWORK -->
+          <g transform="translate(250, 140)">
+            <!-- Top Sacred Trishul -->
+            <path d="M 0 0 L 0 30 M -12 8 C -12 24 12 24 12 8 L 12 0 M -12 0 L -12 8" fill="none" stroke="${config.print}" stroke-width="2.5" stroke-linecap="round"/>
+            <polygon points="0,-4 3,0 -3,0" fill="${config.accent}"/>
+            <circle cx="0" cy="18" r="3" fill="${config.accent}"/>
+
+            <!-- Sacred Vertical Spine Text: हर हर महादेव -->
+            <!-- HAR 1 -->
+            <text x="0" y="55" text-anchor="middle" fill="${config.print}" font-family="'Tiro Devanagari Hindi', 'Noto Sans Devanagari', serif" font-size="22" font-weight="900">हर</text>
+            <path d="M -24 50 C -16 46 -10 54 0 54 C 10 54 16 46 24 50" fill="none" stroke="${config.print}" stroke-width="1.2"/>
+            <circle cx="0" cy="64" r="2.5" fill="${config.accent}"/>
+
+            <!-- HAR 2 -->
+            <text x="0" y="92" text-anchor="middle" fill="${config.print}" font-family="'Tiro Devanagari Hindi', 'Noto Sans Devanagari', serif" font-size="22" font-weight="900">हर</text>
+            <path d="M -24 87 C -16 83 -10 91 0 91 C 10 91 16 83 24 87" fill="none" stroke="${config.print}" stroke-width="1.2"/>
+            <circle cx="0" cy="101" r="2.5" fill="${config.accent}"/>
+
+            <!-- MAHA -->
+            <text x="0" y="130" text-anchor="middle" fill="${config.print}" font-family="'Tiro Devanagari Hindi', 'Noto Sans Devanagari', serif" font-size="22" font-weight="900">महा</text>
+            <path d="M -26 125 C -18 120 -10 129 0 129 C 10 129 18 120 26 125" fill="none" stroke="${config.print}" stroke-width="1.2"/>
+            <circle cx="0" cy="139" r="2.5" fill="${config.accent}"/>
+
+            <!-- DEV -->
+            <text x="0" y="168" text-anchor="middle" fill="${config.print}" font-family="'Tiro Devanagari Hindi', 'Noto Sans Devanagari', serif" font-size="22" font-weight="900">देव</text>
+            <path d="M -26 163 C -18 158 -10 167 0 167 C 10 167 18 158 26 163" fill="none" stroke="${config.print}" stroke-width="1.2"/>
+            <circle cx="0" cy="177" r="2.5" fill="${config.accent}"/>
+
+            <!-- Vertebra Ribs Sequence -->
+            <g transform="translate(0, 192)" stroke="${config.print}" stroke-width="1.5" fill="none">
+              <path d="M 0 0 L -22 -6 M 0 0 L 22 -6"/>
+              <path d="M 0 16 L -24 10 M 0 16 L 24 10"/>
+              <path d="M 0 32 L -26 26 M 0 32 L 26 26"/>
+              <path d="M 0 48 L -28 42 M 0 48 L 28 42"/>
+              <path d="M 0 64 L -28 58 M 0 64 L 28 58"/>
+              <path d="M 0 80 L -26 74 M 0 80 L 26 74"/>
+              <path d="M 0 96 L -24 90 M 0 96 L 24 90"/>
+              <line x1="0" y1="-8" x2="0" y2="108" stroke="${config.accent}" stroke-width="2"/>
+            </g>
+
+            <!-- Bottom Vajra / Spearhead Finial -->
+            <g transform="translate(0, 316)">
+              <polygon points="0,35 -14,10 -4,12 0,0 4,12 14,10" fill="${config.print}"/>
+              <polygon points="0,28 -5,12 0,4 5,12" fill="${config.accent}"/>
+              <path d="M -20 5 L -8 18 L 0 8 L 8 18 L 20 5" fill="none" stroke="${config.print}" stroke-width="1.5"/>
+            </g>
+          </g>
+        </g>
+      </svg>
+    `.trim();
+
+    return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+  }
+
   // DEFAULT COLLECTIONS (Canon Chapters)
   const DEFAULT_COLLECTIONS = [
     { id: 'c-all', name: 'ALL', slug: 'all', description: 'Browse and secure your relics from our structural multi-chapter manifest. Every garment is heavily engineered in 240+ GSM and strictly numbered.', isActive: true, order: 0 },
@@ -1848,6 +1970,7 @@
   window.TEN_ARCHIVE_EDITIONS = TEN_ARCHIVE_EDITIONS;
   window.DEFAULT_UNIVERSE_CHAPTERS = DEFAULT_UNIVERSE_CHAPTERS;
   window.createUniverseDiagramSVG = createUniverseDiagramSVG;
+  window.createSpineTeeSVG = createSpineTeeSVG;
   window.BravadianDefaults = {
     DEFAULT_PRODUCTS,
     DEFAULT_COLLECTIONS,
@@ -1856,6 +1979,7 @@
     DEFAULT_SIZE_GUIDE,
     DEFAULT_SETTINGS,
     createTeeSVG,
+    createSpineTeeSVG,
     createUniverseDiagramSVG
   };
 

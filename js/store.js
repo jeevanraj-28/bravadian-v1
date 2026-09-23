@@ -882,64 +882,128 @@
               </div>
 
               <div class="heritage-header-flex">
-                <h2 class="heritage-section-title">ARCHITECTURAL INK & DYE</h2>
+                <h2 class="heritage-section-title">THE FIVE SACRED DYES</h2>
                 <div class="heritage-desc-wrapper">
                   <p class="heritage-section-narrative">
-                    The dark monochrome spectrum of ancient temple ruins. Ground earth pigments, processed charcoal, and minerals applied through high-density screen printing.
+                    The 5 canon chromatic archetypes engineered for our structural street armor. Mineral limestone, organic unbleached fiber, temple sindhoor, sovereign cobalt, and midnight obsidian.
                   </p>
                 </div>
               </div>
             </div>
 
-            <!-- Swatch Strip (5 Swatches) -->
+            <!-- Swatch Strip (5 Official Colorways) -->
             <div class="heritage-swatches-row">
-              <!-- Swatch 1: ASH TEMPLE BLACK -->
+              <!-- Swatch 1: OBSIDIAN BLACK -->
               <div class="swatch-card">
-                <div class="swatch-color-block" style="background-color: #0E0E0E;"></div>
+                <div class="swatch-color-block" style="background-color: #111116;"></div>
                 <div class="swatch-details">
-                  <span class="swatch-title">ASH TEMPLE BLACK</span>
-                  <span class="swatch-hex">#0E0E0E</span>
-                  <span class="swatch-info">Charcoal base replicating weathered stone shadows.</span>
+                  <span class="swatch-title">01 // BLACK</span>
+                  <span class="swatch-hex">#111116</span>
+                  <span class="swatch-info">Deep carbon base replicating midnight temple stone shadows.</span>
                 </div>
               </div>
 
-              <!-- Swatch 2: BELUR STONE GREY -->
+              <!-- Swatch 2: BONE IVORY -->
               <div class="swatch-card">
-                <div class="swatch-color-block" style="background-color: #6B6A69;"></div>
+                <div class="swatch-color-block" style="background-color: #ECE3D2;"></div>
                 <div class="swatch-details">
-                  <span class="swatch-title">BELUR STONE GREY</span>
-                  <span class="swatch-hex">#6B6A69</span>
-                  <span class="swatch-info">Muted mid-tone mimicking ancient architectural pillars.</span>
+                  <span class="swatch-title">02 // IVORY</span>
+                  <span class="swatch-hex">#ECE3D2</span>
+                  <span class="swatch-info">Organic unbleached combed cotton mimicking sun-baked stone.</span>
                 </div>
               </div>
 
-              <!-- Swatch 3: SALA MADDER RED -->
+              <!-- Swatch 3: SACRED RED -->
               <div class="swatch-card">
-                <div class="swatch-color-block" style="background-color: #801212;"></div>
+                <div class="swatch-color-block" style="background-color: #C81D25;"></div>
                 <div class="swatch-details">
-                  <span class="swatch-title">SALA MADDER RED</span>
-                  <span class="swatch-hex">#801212</span>
-                  <span class="swatch-info">A rare, deep volcanic red taken from mythic standard flags.</span>
+                  <span class="swatch-title">03 // RED</span>
+                  <span class="swatch-hex">#C81D25</span>
+                  <span class="swatch-info">Deep ritual vermillion inspired by temple sanctum sindhoor.</span>
                 </div>
               </div>
 
-              <!-- Swatch 4: VAULT AMBER DUST -->
+              <!-- Swatch 4: ROYAL SAPPHIRE BLUE -->
               <div class="swatch-card">
-                <div class="swatch-color-block" style="background-color: #FFA000;"></div>
+                <div class="swatch-color-block" style="background-color: #1852B8;"></div>
                 <div class="swatch-details">
-                  <span class="swatch-title">VAULT AMBER DUST</span>
-                  <span class="swatch-hex">#FFA000</span>
-                  <span class="swatch-info">The bright highlight of oil lamps reflecting on stone.</span>
+                  <span class="swatch-title">04 // BLUE</span>
+                  <span class="swatch-hex">#1852B8</span>
+                  <span class="swatch-info">Sovereign heritage cobalt symbolizing the boundless cosmic expanse.</span>
                 </div>
               </div>
 
-              <!-- Swatch 5: HALEBIDU SILT CREAM -->
+              <!-- Swatch 5: CHALK WHITE -->
               <div class="swatch-card">
-                <div class="swatch-color-block" style="background-color: #E5E2E1;"></div>
+                <div class="swatch-color-block" style="background-color: #F7F7FA;"></div>
                 <div class="swatch-details">
-                  <span class="swatch-title">HALEBIDU SILT CREAM</span>
-                  <span class="swatch-hex">#E5E2E1</span>
-                  <span class="swatch-info">The warm mineral deposit dust settling over centuries.</span>
+                  <span class="swatch-title">05 // WHITE</span>
+                  <span class="swatch-hex">#F7F7FA</span>
+                  <span class="swatch-info">Pristine architectural limestone base for high-contrast typography.</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- SECTION 5: 04 / THE FIVE CANON SILHOUETTES // FULL PALETTE LINEUP -->
+          <section class="heritage-section heritage-lineup-section">
+            <div class="heritage-section-header">
+              <div class="heritage-marker-row">
+                <span class="heritage-line-indicator" aria-hidden="true"></span>
+                <span class="heritage-marker-text">04 / COLORWAY MANIFESTO</span>
+              </div>
+
+              <div class="heritage-header-flex">
+                <h2 class="heritage-section-title">THE FIVE SILHOUETTES</h2>
+                <div class="heritage-desc-wrapper">
+                  <p class="heritage-section-narrative">
+                    240 GSM heavy interlock architecture presented across the complete chromatic spectrum. Sacred vertical Sanskrit spine scripture engineered on dropped-shoulder boxy cuts.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- 5 T-Shirt Lineup Card Grid -->
+            <div class="heritage-lineup-stage">
+              <div class="heritage-lineup-grid">
+                ${[
+                  { key: 'black', name: 'BLACK', desc: 'DEEP OBSIDIAN' },
+                  { key: 'ivory', name: 'IVORY', desc: 'RAW BONE ECRU' },
+                  { key: 'red',   name: 'RED',   desc: 'SACRED CRIMSON' },
+                  { key: 'blue',  name: 'BLUE',  desc: 'ROYAL SAPPHIRE' },
+                  { key: 'white', name: 'WHITE', desc: 'MINERAL CHALK' }
+                ].map(item => `
+                  <div class="lineup-tee-card" data-color="${item.key}">
+                    <div class="lineup-tee-header">
+                      <span class="lineup-color-title">${item.name}</span>
+                    </div>
+                    <div class="lineup-tee-media">
+                      <img 
+                        src="${window.BravadianDefaults ? window.BravadianDefaults.createSpineTeeSVG(item.key) : ''}" 
+                        alt="Bravadian Heritage Spine Tee in ${item.name}" 
+                        class="lineup-tee-img"
+                        loading="lazy"
+                      />
+                    </div>
+                    <div class="lineup-tee-meta">
+                      <span class="lineup-tee-spec">${item.desc}</span>
+                      <span class="lineup-tee-badge">240 GSM</span>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+
+              <!-- Editorial Bottom Signature Banner (Faithful to Brand Manifesto) -->
+              <div class="heritage-manifesto-signature-row">
+                <div class="sig-corner-left">
+                  <span class="sig-tag-text">ROOTED IN CULTURE</span>
+                </div>
+                <div class="sig-center-branding">
+                  <h3 class="sig-brand-name">B R A V A D I A N</h3>
+                  <p class="sig-brand-sub">— BRAVE INDIAN —</p>
+                </div>
+                <div class="sig-corner-right">
+                  <span class="sig-tag-text">WEAR YOUR STORY</span>
                 </div>
               </div>
             </div>
