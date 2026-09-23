@@ -9071,180 +9071,6 @@ body {
   color: #756E5E;
 }
 
-/* Section 5: 5-Colorway Lineup Showcase */
-.heritage-lineup-stage {
-  box-sizing: border-box;
-  background: radial-gradient(circle at 50% 30%, rgba(255, 160, 0, 0.05) 0%, rgba(10, 10, 14, 0.98) 70%);
-  border: 1px solid rgba(255, 160, 0, 0.25);
-  padding: 2.5rem 1.5rem 2rem;
-  display: flex;
-  flex-direction: column;
-  gap: 2.5rem;
-  border-radius: 4px;
-}
-
-[data-theme="light"] .heritage-lineup-stage {
-  background: radial-gradient(circle at 50% 30%, rgba(217, 130, 0, 0.08) 0%, #FAF3DE 70%);
-  border-color: rgba(217, 130, 0, 0.3);
-}
-
-.heritage-lineup-grid {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 16px;
-  width: 100%;
-}
-
-.lineup-tee-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  background: rgba(14, 14, 18, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 4px;
-  padding: 1rem 0.75rem;
-  transition: transform var(--duration-normal, 240ms) var(--ease-out),
-              border-color var(--duration-normal, 240ms) var(--ease-out),
-              box-shadow var(--duration-normal, 240ms) var(--ease-out);
-}
-
-[data-theme="light"] .lineup-tee-card {
-  background: rgba(253, 249, 238, 0.85);
-  border-color: rgba(140, 110, 50, 0.18);
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .lineup-tee-card:hover {
-    transform: translateY(-5px);
-    border-color: #FFA000;
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5), 0 0 15px rgba(255, 160, 0, 0.15);
-  }
-}
-
-.lineup-tee-header {
-  width: 100%;
-  text-align: center;
-}
-
-.lineup-color-title {
-  font-family: 'Space Grotesk', monospace;
-  font-weight: 700;
-  font-size: 11px;
-  letter-spacing: 2px;
-  color: #FFA000;
-  text-transform: uppercase;
-}
-
-.lineup-tee-media {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.lineup-tee-img {
-  width: 100%;
-  max-width: 220px;
-  height: auto;
-  aspect-ratio: 4 / 5;
-  object-fit: contain;
-  filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.6));
-}
-
-.lineup-tee-meta {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  padding-top: 6px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-[data-theme="light"] .lineup-tee-meta {
-  border-top-color: rgba(140, 110, 50, 0.15);
-}
-
-.lineup-tee-spec {
-  font-family: 'Space Grotesk', monospace;
-  font-size: 8.5px;
-  font-weight: 600;
-  color: #C5C5D5;
-  letter-spacing: 1px;
-}
-
-[data-theme="light"] .lineup-tee-spec {
-  color: #3D372E;
-}
-
-.lineup-tee-badge {
-  font-family: 'Space Grotesk', monospace;
-  font-size: 8px;
-  font-weight: 700;
-  color: #FFA000;
-  background: rgba(255, 160, 0, 0.1);
-  padding: 2px 6px;
-  border-radius: 2px;
-}
-
-/* Editorial Brand Signature Row */
-.heritage-manifesto-signature-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-top: 1.5rem;
-  border-top: 1px solid rgba(255, 160, 0, 0.2);
-  width: 100%;
-}
-
-.sig-corner-left,
-.sig-corner-right {
-  display: flex;
-  align-items: center;
-}
-
-.sig-tag-text {
-  font-family: 'Space Grotesk', monospace;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 3px;
-  color: #A0A0B0;
-  text-transform: uppercase;
-}
-
-[data-theme="light"] .sig-tag-text {
-  color: #695E4F;
-}
-
-.sig-center-branding {
-  text-align: center;
-}
-
-.sig-brand-name {
-  font-family: 'Bebas Neue', 'Space Grotesk', sans-serif;
-  font-size: 24px;
-  font-weight: 900;
-  letter-spacing: 8px;
-  color: #FFFFFF;
-  margin: 0;
-  line-height: 1.2;
-}
-
-[data-theme="light"] .sig-brand-name {
-  color: #14120E;
-}
-
-.sig-brand-sub {
-  font-family: 'Space Grotesk', monospace;
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 4px;
-  color: #FFA000;
-  margin: 4px 0 0;
-}
-
-
-
 /* Responsive Adaptations */
 @media (max-width: 1024px) {
   .heritage-motifs-row {
@@ -9254,9 +9080,6 @@ body {
     grid-template-columns: repeat(2, 1fr);
   }
   .heritage-swatches-row {
-    grid-template-columns: repeat(3, 1fr);
-  }
-  .heritage-lineup-grid {
     grid-template-columns: repeat(3, 1fr);
   }
   .heritage-hero-section {
@@ -9270,19 +9093,6 @@ body {
 }
 
 @media (max-width: 768px) {
-  .heritage-lineup-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-  }
-  .heritage-lineup-stage {
-    padding: 1.5rem 1rem;
-    gap: 1.5rem;
-  }
-  .heritage-manifesto-signature-row {
-    flex-direction: column;
-    gap: 12px;
-    text-align: center;
-  }
   .heritage-viewport-container {
     padding: 24px 16px 64px;
     gap: 56px;
@@ -9413,10 +9223,6 @@ body {
   .heritage-motifs-row {
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
-  }
-  .heritage-lineup-grid {
-    grid-template-columns: 1fr;
-    gap: 14px;
   }
   .motif-specs {
     padding: 10px 8px;
