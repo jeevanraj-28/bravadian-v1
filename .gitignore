@@ -17,3 +17,4 @@ verify_*.js
 capture_*.js
 rendered_dom.html
 powershell.cmd
+script.js

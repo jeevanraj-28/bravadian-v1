@@ -23,6 +23,20 @@
 </head>
 <body class="admin-body">
 
+  <!-- Admin Login Gate Overlay -->
+  <div id="adminLoginOverlay" class="admin-login-overlay">
+    <div class="admin-login-box">
+      <img src="images/logo.png" alt="BRAVADIAN" class="admin-login-logo">
+      <div class="admin-login-tagline">COMMAND DECK // AUTHENTICATION REQUIRED</div>
+      <form id="adminLoginForm" class="admin-login-form" autocomplete="off">
+        <input type="password" id="adminPasswordInput" class="admin-login-input" placeholder="ENTER ACCESS CODE" autocomplete="new-password" required>
+        <div id="adminLoginError" class="admin-login-error"></div>
+        <button type="submit" class="admin-login-btn">AUTHENTICATE →</button>
+      </form>
+      <div class="admin-login-hint">Default: bravadian2024</div>
+    </div>
+  </div>
+
   <!-- Top Static Disclaimer Banner -->
   <div class="static-disclaimer-banner">
     <div>

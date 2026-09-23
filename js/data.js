@@ -2,6 +2,19 @@
  * BRAVADIAN | BRAVE INDIAN
  * Core Data Engine & Supabase Abstraction Layer
  * Supports LocalStorage Offline First + Supabase Cloud Sync
+ *
+ * TABLE OF CONTENTS
+ * ─────────────────────────────────────────────────────
+ *  1. SVG MOCK IMAGE GENERATORS ........... ~L10
+ *  2. DEFAULT PRODUCT DATA ................ ~L400
+ *  3. DEFAULT COLLECTIONS ................. ~L750
+ *  4. DEFAULT SETTINGS .................... ~L760
+ *  5. BravadianDB PUBLIC API .............. ~L1230
+ *     - init(), getProducts(), saveProduct()
+ *     - getCollections(), getSettings()
+ *     - Supabase sync methods
+ *  6. SUPABASE REMOTE SYNC ................ ~L1600
+ * ─────────────────────────────────────────────────────
  */
 
 (function (window) {
@@ -1312,13 +1325,18 @@
       // Apply Filters
       if (filters.collection && filters.collection !== 'all') {
         const cSlug = filters.collection.toLowerCase();
+        // Data-driven collection alias map — add new aliases here
+        const COLLECTION_ALIASES = {
+          'garuda': ['mythology'],
+          'asura': ['mythology'],
+          'berunda': ['heritage'],
+          'chola': ['heritage']
+        };
+        const aliases = COLLECTION_ALIASES[cSlug] || [];
         prods = prods.filter(p => {
           const pCol = (p.collection || '').toLowerCase();
-          return pCol === cSlug || 
-            (cSlug === 'garuda' && (pCol === 'mythology' || (p.tags && p.tags.includes('garuda')))) ||
-            (cSlug === 'asura' && (pCol === 'mythology' || (p.tags && p.tags.includes('asura')))) ||
-            (cSlug === 'berunda' && (pCol === 'heritage' || (p.tags && p.tags.includes('berunda')))) ||
-            (cSlug === 'chola' && (pCol === 'heritage' || (p.tags && p.tags.includes('chola')))) ||
+          return pCol === cSlug ||
+            aliases.includes(pCol) ||
             (p.tags && p.tags.some(t => t.toLowerCase() === cSlug));
         });
       }
