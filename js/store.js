@@ -148,6 +148,8 @@
       renderOrderSuccessView();
     } else if (hash === '#/about') {
       renderAboutView();
+    } else if (hash === '#/care' || hash === '#/garment-care' || hash === '#/care-guide') {
+      renderGarmentCareView();
     } else if (hash === '#/contact') {
       renderContactView();
     } else if (hash.startsWith('#/policy/')) {
@@ -2603,6 +2605,246 @@ Thank you.
               <span style="font-family: var(--font-mono); font-size: 0.75rem; color: #8E8E9C;">OFFICIAL STOREFRONT: <strong style="color: #fff;">bravadian.in</strong></span>
               <span style="font-family: var(--font-mono); font-size: 0.75rem; color: #FFA000;">🇮🇳 MADE FOR THE BRAVE</span>
             </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  /* --------------------------------------------------------------------------
+     GARMENT CARE BOOK VIEW (#/care)
+     -------------------------------------------------------------------------- */
+  function renderGarmentCareView() {
+    mainContainer.innerHTML = `
+      <div class="care-page-container">
+        <!-- 1. HERO HEADER -->
+        <div class="care-page-hero">
+          <div class="about-badge-wrap" style="margin-bottom: 0.75rem;">
+            <span class="figma-tag">[ 🛡️ MAINTENANCE & PRESERVATION MANUAL ]</span>
+            <span class="about-radar-dot" aria-hidden="true"></span>
+          </div>
+          <h1 class="care-page-title">GARMENT CARE BOOK</h1>
+          <p class="care-page-intro">
+            Bravadian cotton is raw, heavyweight (240–400 GSM), and highly sensitive to heat and mechanical agitation. Follow these calibrated protocols to protect fiber tensile strength, collar tension, and discharge screen print depth for decades of wear.
+          </p>
+        </div>
+
+        <!-- 2. SECTION 04: THE FOUR MAINTENANCE PROTOCOLS -->
+        <section class="size-spec-section" style="margin-bottom: 3.5rem;">
+          <div class="size-spec-section-head">
+            <span class="size-spec-section-num">— 04 / MAINTENANCE PROTOCOLS</span>
+            <h2 class="size-spec-section-title">DAILY CARE MATRIX</h2>
+            <p class="size-spec-section-sub">
+              Execute each step systematically after every active wear cycle.
+            </p>
+          </div>
+
+          <div class="garment-care-cards-grid">
+            <!-- Card 1: Machine Wash Cold -->
+            <div class="garment-care-card">
+              <div class="care-icon-wrap">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FFA000" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+                </svg>
+              </div>
+              <h3 class="care-card-title">MACHINE WASH COLD</h3>
+              <p class="care-card-desc">
+                Wash inside out at 30°C maximum. Cold temperatures preserve fabric fibers and color depth.
+              </p>
+            </div>
+
+            <!-- Card 2: Hang Dry Only -->
+            <div class="garment-care-card">
+              <div class="care-icon-wrap">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FFA000" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <circle cx="12" cy="12" r="5"/>
+                  <line x1="12" y1="1" x2="12" y2="3"/>
+                  <line x1="12" y1="21" x2="12" y2="23"/>
+                  <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                  <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                  <line x1="1" y1="12" x2="3" y2="12"/>
+                  <line x1="21" y1="12" x2="23" y2="12"/>
+                  <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                  <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                </svg>
+              </div>
+              <h3 class="care-card-title">HANG DRY ONLY</h3>
+              <p class="care-card-desc">
+                Do not tumble dry. Hang flat away from direct sunlight to maintain the engineered shape.
+              </p>
+            </div>
+
+            <!-- Card 3: Do Not Bleach -->
+            <div class="garment-care-card">
+              <div class="care-icon-wrap">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FFA000" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <circle cx="12" cy="12" r="10"/>
+                  <line x1="15" y1="9" x2="9" y2="15"/>
+                  <line x1="9" y1="9" x2="15" y2="15"/>
+                </svg>
+              </div>
+              <h3 class="care-card-title">DO NOT BLEACH</h3>
+              <p class="care-card-desc">
+                Avoid chlorine or harsh chemical detergents. Spot clean locally for stains.
+              </p>
+            </div>
+
+            <!-- Card 4: Iron Low -->
+            <div class="garment-care-card">
+              <div class="care-icon-wrap">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FFA000" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                </svg>
+              </div>
+              <h3 class="care-card-title">IRON LOW</h3>
+              <p class="care-card-desc">
+                Iron inside out on the lowest heat setting. Do not iron directly on raised silicone prints.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- 3. CONSERVATION STANDARD BANNER (SYSTEM SPECIFICATION) -->
+        <div class="conservation-protocol-banner">
+          <div class="conservation-header-strip">
+            <div class="conservation-tag-left">
+              <span>CONSERVATION STANDARD</span>
+              <span class="conservation-bars" aria-hidden="true">// ▮▮▮▮▮▮▮▮</span>
+            </div>
+            <div class="conservation-tag-right">
+              DISCHARGE PRINTING // REACTIVE DYES // HEAVY JERSEY
+            </div>
+          </div>
+
+          <h2 class="conservation-title">GARMENT PRESERVATION PROTOCOL</h2>
+
+          <div class="conservation-protocol-grid">
+            <!-- 1. 30°C Cold Cycle -->
+            <div class="conservation-item">
+              <div class="conservation-item-head">
+                <span class="conservation-item-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/>
+                  </svg>
+                </span>
+                <span>30°C COLD CYCLE</span>
+              </div>
+              <p class="conservation-item-desc">
+                Always wash inside-out at or below 30°C (86°F). Protects high-density discharge prints and prevents fiber degradation.
+              </p>
+            </div>
+
+            <!-- 2. No Tumble Dry -->
+            <div class="conservation-item">
+              <div class="conservation-item-head">
+                <span class="conservation-item-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/>
+                    <line x1="1" y1="1" x2="23" y2="23"/>
+                  </svg>
+                </span>
+                <span>NO TUMBLE DRY</span>
+              </div>
+              <p class="conservation-item-desc">
+                Flat line-dry away from direct harsh midday ultraviolet. Tumble drying damages the 3.5cm collar tension rib.
+              </p>
+            </div>
+
+            <!-- 3. Reverse Steam Only -->
+            <div class="conservation-item">
+              <div class="conservation-item-head">
+                <span class="conservation-item-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 2v8M8 6l4-4 4 4M4 14a8 8 0 0 0 16 0"/>
+                  </svg>
+                </span>
+                <span>REVERSE STEAM ONLY</span>
+              </div>
+              <p class="conservation-item-desc">
+                Iron strictly on the reverse side with moderate steam. Never apply hot metal plate directly over the Hoysala screen prints.
+              </p>
+            </div>
+
+            <!-- 4. Museum Fold -->
+            <div class="conservation-item">
+              <div class="conservation-item-head">
+                <span class="conservation-item-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                    <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+                    <line x1="12" y1="22.08" x2="12" y2="12"/>
+                  </svg>
+                </span>
+                <span>MUSEUM FOLD</span>
+              </div>
+              <p class="conservation-item-desc">
+                Store folded horizontally in the provided dust bag. Avoid continuous thin wire hanger storage to maintain shoulder seams.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. TECHNICAL FIBER & STRUCTURAL SPECIFICATIONS -->
+        <section class="size-spec-section" style="margin-top: 3.5rem;">
+          <div class="size-spec-section-head">
+            <span class="size-spec-section-num">— 05 / COMPOSITION & INTEGRITY</span>
+            <h2 class="size-spec-section-title">MATERIAL ARCHITECTURE</h2>
+          </div>
+
+          <div style="overflow-x: auto;">
+            <table class="care-fabric-matrix-table">
+              <thead>
+                <tr>
+                  <th>COMPONENT</th>
+                  <th>SPECIFICATION</th>
+                  <th>CARE TOLERANCE</th>
+                  <th>EXPECTED LIFESPAN</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="color: #FFA000; font-weight: 700;">240 GSM Body Fabric</td>
+                  <td>100% Combed Indian Long-Staple Cotton</td>
+                  <td>Max 30°C / No Agitation</td>
+                  <td>500+ Wear Cycles</td>
+                </tr>
+                <tr>
+                  <td style="color: #FFA000; font-weight: 700;">1.25" Collar Rib</td>
+                  <td>Lycra-Reinforced High-Elastic Ribbing</td>
+                  <td>Flat Lay Dry (Zero Stretch)</td>
+                  <td>Anti-Sag Structural Guarantee</td>
+                </tr>
+                <tr>
+                  <td style="color: #FFA000; font-weight: 700;">Hoysala Relief Prints</td>
+                  <td>High-Density Discharge & Reactive Pigments</td>
+                  <td>Reverse Ironing Only</td>
+                  <td>Zero Cracking / Zero Peeling</td>
+                </tr>
+                <tr>
+                  <td style="color: #FFA000; font-weight: 700;">Shoulder Drop Seams</td>
+                  <td>Overlocked Double-Needle Chainstitch</td>
+                  <td>Fold Flat / Wide Hangers Only</td>
+                  <td>Zero Seam Slippage</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- 5. QUICK ACTIONS STRIP -->
+        <div class="care-page-cta-strip">
+          <div>
+            <span class="figma-tag">[ ARCHIVAL SYSTEM READY ]</span>
+            <h3 style="font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; color: #fff; margin: 0.35rem 0 0 0; letter-spacing: 1.5px; text-transform: uppercase;">VERIFY YOUR EXACT FIT</h3>
+          </div>
+          <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <button type="button" onclick="window.BravadianStore.openSizeGuideModal();" class="btn-figma-primary" style="cursor: pointer;">
+              <span>[ OPEN SIZE GUIDE ]</span>
+            </button>
+            <a href="#/shop" class="btn-figma-whatsapp" style="text-decoration: none;">
+              <span>EXPLORE THE VAULT →</span>
+            </a>
           </div>
         </div>
       </div>
