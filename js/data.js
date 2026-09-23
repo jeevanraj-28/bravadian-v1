@@ -57,7 +57,7 @@
 
           <!-- Header Specs -->
           <text x="35" y="45" fill="${accent}" font-family="'Space Grotesk', monospace" font-size="10" font-weight="700" letter-spacing="3">[ MACRO FABRIC SPECIMEN ]</text>
-          <text x="35" y="65" fill="#fff" font-family="'Syne', sans-serif" font-size="18" font-weight="900" letter-spacing="2">240 GSM COMBED INTERLOCK</text>
+          <text x="35" y="65" fill="#fff" font-family="'Bebas Neue', sans-serif" font-size="18" font-weight="900" letter-spacing="2">240 GSM COMBED INTERLOCK</text>
           <line x1="35" y1="78" x2="465" y2="78" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
 
           <!-- 1.25" High Tension Rib Collar Contour -->
@@ -71,7 +71,7 @@
             <rect x="0" y="0" width="220" height="135" rx="4" fill="#09090d" stroke="#f59e0b" stroke-width="1.2" filter="drop-shadow(0 15px 25px rgba(0,0,0,0.9))"/>
             <rect x="6" y="6" width="208" height="123" rx="2" fill="none" stroke="rgba(245,158,11,0.25)" stroke-width="1" stroke-dasharray="3,2"/>
             
-            <text x="110" y="36" text-anchor="middle" fill="#fff" font-family="'Syne', sans-serif" font-size="15" font-weight="900" letter-spacing="4">BRAVADIAN</text>
+            <text x="110" y="36" text-anchor="middle" fill="#fff" font-family="'Bebas Neue', sans-serif" font-size="15" font-weight="900" letter-spacing="4">BRAVADIAN</text>
             <text x="110" y="52" text-anchor="middle" fill="#f59e0b" font-family="'Space Grotesk', monospace" font-size="8.5" font-weight="700" letter-spacing="3">BRAVE INDIAN</text>
             
             <line x1="30" y1="62" x2="190" y2="62" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
@@ -128,13 +128,13 @@
 
           <!-- Editorial Typography Overlay -->
           <text x="40" y="55" fill="${accent}" font-family="'Space Grotesk', monospace" font-size="10" font-weight="700" letter-spacing="4">EDITORIAL SILHOUETTE // ARCHIVE</text>
-          <text x="40" y="85" fill="#fff" font-family="'Syne', sans-serif" font-size="28" font-weight="900" letter-spacing="3">BRAVADIAN</text>
+          <text x="40" y="85" fill="#fff" font-family="'Bebas Neue', sans-serif" font-size="28" font-weight="900" letter-spacing="3">BRAVADIAN</text>
           <text x="40" y="108" fill="#aaa" font-family="'Space Grotesk', monospace" font-size="10" font-weight="600" letter-spacing="2">240 GSM ARCHITECTURAL CUT</text>
 
           <!-- Center Spec Wheel -->
           <circle cx="250" cy="360" r="85" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1" stroke-dasharray="4,4"/>
           <circle cx="250" cy="360" r="60" fill="none" stroke="${accent}" stroke-width="1.2" opacity="0.5"/>
-          <text x="250" y="355" text-anchor="middle" fill="#fff" font-family="'Syne', sans-serif" font-size="14" font-weight="900" letter-spacing="2">OVERSIZED</text>
+          <text x="250" y="355" text-anchor="middle" fill="#fff" font-family="'Bebas Neue', sans-serif" font-size="14" font-weight="900" letter-spacing="2">OVERSIZED</text>
           <text x="250" y="375" text-anchor="middle" fill="${accent}" font-family="'Space Grotesk', monospace" font-size="9" font-weight="700" letter-spacing="2">240 GSM</text>
 
           <!-- Footer Metadata -->
@@ -155,8 +155,8 @@
           <!-- Minimal Left Chest Anime / Ninetails Graphic -->
           <g transform="translate(170, 195)">
             <rect x="0" y="0" width="75" height="52" rx="3" fill="#09090e" stroke="${accent}" stroke-width="1.2"/>
-            <text x="12" y="24" fill="${accent}" font-family="'Syne', sans-serif" font-size="16" font-weight="900">九尾</text>
-            <text x="36" y="19" fill="${textCol}" font-family="'Syne', sans-serif" font-size="7" font-weight="800" letter-spacing="1">BRVD</text>
+            <text x="12" y="24" fill="${accent}" font-family="'Bebas Neue', sans-serif" font-size="16" font-weight="900">九尾</text>
+            <text x="36" y="19" fill="${textCol}" font-family="'Bebas Neue', sans-serif" font-size="7" font-weight="800" letter-spacing="1">BRVD</text>
             <text x="36" y="28" fill="${textSub}" font-family="'Space Grotesk', monospace" font-size="5.5" font-weight="600">240 GSM</text>
             <line x1="8" y1="35" x2="67" y2="35" stroke="rgba(255,255,255,0.12)" stroke-width="0.8"/>
             <text x="10" y="44" fill="${accent}" font-family="'Space Grotesk', monospace" font-size="6" font-weight="700" letter-spacing="1">CELESTIAL FOX // 01</text>
@@ -170,7 +170,7 @@
           <!-- Hoysala Stone Inscription Chest Crest -->
           <g transform="translate(170, 195)">
             <rect x="0" y="0" width="76" height="50" rx="2" fill="#08080c" stroke="#FFA000" stroke-width="1.2"/>
-            <text x="38" y="18" text-anchor="middle" fill="#FFA000" font-family="'Syne', sans-serif" font-size="9" font-weight="900" letter-spacing="1.5">HOYSALA</text>
+            <text x="38" y="18" text-anchor="middle" fill="#FFA000" font-family="'Bebas Neue', sans-serif" font-size="9" font-weight="900" letter-spacing="1.5">HOYSALA</text>
             <text x="38" y="30" text-anchor="middle" fill="#fff" font-family="'Space Grotesk', monospace" font-size="6.5" font-weight="700">ROOTED IN STONE</text>
             <line x1="10" y1="36" x2="66" y2="36" stroke="#FFA000" stroke-width="0.8"/>
             <text x="38" y="44" text-anchor="middle" fill="#888" font-family="'Space Grotesk', monospace" font-size="5.5">240 GSM // BHARAT</text>
@@ -182,7 +182,7 @@
           <g transform="translate(180, 195)">
             <circle cx="26" cy="26" r="24" fill="#0a0a0f" stroke="#FFA000" stroke-width="1.2"/>
             <polygon points="26,10 38,36 14,36" fill="none" stroke="#FFA000" stroke-width="1"/>
-            <text x="26" y="30" text-anchor="middle" fill="#fff" font-family="'Syne', sans-serif" font-size="7" font-weight="900">ASURA</text>
+            <text x="26" y="30" text-anchor="middle" fill="#fff" font-family="'Bebas Neue', sans-serif" font-size="7" font-weight="900">ASURA</text>
             <text x="26" y="42" text-anchor="middle" fill="#FFA000" font-family="'Space Grotesk', monospace" font-size="5" font-weight="700">400 GSM</text>
           </g>
         `;
@@ -193,7 +193,7 @@
             <rect x="0" y="0" width="76" height="50" rx="2" fill="#08080c" stroke="#FFA000" stroke-width="1"/>
             <circle cx="28" cy="20" r="8" fill="none" stroke="#FFA000" stroke-width="1"/>
             <circle cx="48" cy="20" r="8" fill="none" stroke="#FFA000" stroke-width="1"/>
-            <text x="38" y="36" text-anchor="middle" fill="#fff" font-family="'Syne', sans-serif" font-size="8" font-weight="900">BERUNDA</text>
+            <text x="38" y="36" text-anchor="middle" fill="#fff" font-family="'Bebas Neue', sans-serif" font-size="8" font-weight="900">BERUNDA</text>
             <text x="38" y="44" text-anchor="middle" fill="#FFA000" font-family="'Space Grotesk', monospace" font-size="5" font-weight="700">CHORE COAT</text>
           </g>
         `;
@@ -212,7 +212,7 @@
           <!-- Brutalist Longitude Badge -->
           <g transform="translate(170, 195)">
             <rect x="0" y="0" width="80" height="46" rx="2" fill="#08080c" stroke="${accent}" stroke-width="1"/>
-            <text x="10" y="18" fill="#fff" font-family="'Syne', sans-serif" font-size="9" font-weight="900" letter-spacing="1.5">BHARAT</text>
+            <text x="10" y="18" fill="#fff" font-family="'Bebas Neue', sans-serif" font-size="9" font-weight="900" letter-spacing="1.5">BHARAT</text>
             <text x="10" y="29" fill="${accent}" font-family="'Space Grotesk', monospace" font-size="6.5" font-weight="700">28°36'N 77°12'E</text>
             <text x="10" y="39" fill="${textSub}" font-family="'Space Grotesk', monospace" font-size="5.5" letter-spacing="1">240 GSM ARCHIVE</text>
           </g>
@@ -224,7 +224,7 @@
             <rect x="0" y="0" width="76" height="48" rx="2" fill="#08080c" stroke="${accent}" stroke-width="1.2"/>
             <rect x="0" y="0" width="76" height="6" fill="${accent}"/>
             <text x="38" y="5" text-anchor="middle" fill="#000" font-family="'Space Grotesk', monospace" font-size="4.5" font-weight="900">WARNING: 240 GSM</text>
-            <text x="8" y="24" fill="#fff" font-family="'Syne', sans-serif" font-size="9" font-weight="900" letter-spacing="1">CYBER REBEL</text>
+            <text x="8" y="24" fill="#fff" font-family="'Bebas Neue', sans-serif" font-size="9" font-weight="900" letter-spacing="1">CYBER REBEL</text>
             <line x1="8" y1="32" x2="68" y2="32" stroke="${textCol}" stroke-width="2" stroke-dasharray="1,2,3,1,2"/>
             <text x="8" y="42" fill="${accent}" font-family="'Space Grotesk', monospace" font-size="6" font-weight="700">[BRVD-CR-04]</text>
           </g>
@@ -244,7 +244,7 @@
         artworkMarkup = `
           <g transform="translate(175, 200)">
             <rect x="0" y="0" width="70" height="40" rx="2" fill="#0a0a0d" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
-            <text x="35" y="18" text-anchor="middle" fill="${textCol}" font-family="'Syne', sans-serif" font-size="7.5" font-weight="800" letter-spacing="2">BRAVADIAN</text>
+            <text x="35" y="18" text-anchor="middle" fill="${textCol}" font-family="'Bebas Neue', sans-serif" font-size="7.5" font-weight="800" letter-spacing="2">BRAVADIAN</text>
             <text x="35" y="30" text-anchor="middle" fill="${accent}" font-family="'Space Grotesk', monospace" font-size="6.5" font-weight="700" letter-spacing="1.5">240 GSM</text>
           </g>
         `;
@@ -279,13 +279,13 @@
             <polygon points="98,78 94,81 97,83" fill="${accent}"/>
 
             <!-- Vertical Japanese Kanji Stream -->
-            <text x="18" y="70" fill="#fff" font-family="'Syne', sans-serif" font-size="10" font-weight="900" opacity="0.8">勇</text>
-            <text x="18" y="86" fill="#fff" font-family="'Syne', sans-serif" font-size="10" font-weight="900" opacity="0.8">敢</text>
-            <text x="18" y="102" fill="${accent}" font-family="'Syne', sans-serif" font-size="10" font-weight="900">狐</text>
+            <text x="18" y="70" fill="#fff" font-family="'Bebas Neue', sans-serif" font-size="10" font-weight="900" opacity="0.8">勇</text>
+            <text x="18" y="86" fill="#fff" font-family="'Bebas Neue', sans-serif" font-size="10" font-weight="900" opacity="0.8">敢</text>
+            <text x="18" y="102" fill="${accent}" font-family="'Bebas Neue', sans-serif" font-size="10" font-weight="900">狐</text>
 
             <!-- Heavy Typography Block -->
-            <text x="90" y="160" text-anchor="middle" fill="#ffffff" font-family="'Syne', sans-serif" font-size="18" font-weight="900" letter-spacing="4">BRAVADIAN</text>
-            <text x="90" y="178" text-anchor="middle" fill="${accent}" font-family="'Syne', sans-serif" font-size="14" font-weight="900" letter-spacing="3">NINETAILS</text>
+            <text x="90" y="160" text-anchor="middle" fill="#ffffff" font-family="'Bebas Neue', sans-serif" font-size="18" font-weight="900" letter-spacing="4">BRAVADIAN</text>
+            <text x="90" y="178" text-anchor="middle" fill="${accent}" font-family="'Bebas Neue', sans-serif" font-size="14" font-weight="900" letter-spacing="3">NINETAILS</text>
             
             <line x1="25" y1="190" x2="155" y2="190" stroke="${accent}" stroke-width="1.5"/>
 
@@ -300,7 +300,7 @@
             <rect x="0" y="0" width="180" height="230" rx="4" fill="#08080c" stroke="#FFA000" stroke-width="1.2"/>
             <path d="M 90 35 L 45 80 L 60 80 L 60 120 L 120 120 L 120 80 L 135 80 Z" fill="none" stroke="#FFA000" stroke-width="1.5"/>
             <rect x="75" y="90" width="30" height="30" fill="#FFA000" opacity="0.3"/>
-            <text x="90" y="150" text-anchor="middle" fill="#ffffff" font-family="'Syne', sans-serif" font-size="16" font-weight="900" letter-spacing="3">HOYSALA</text>
+            <text x="90" y="150" text-anchor="middle" fill="#ffffff" font-family="'Bebas Neue', sans-serif" font-size="16" font-weight="900" letter-spacing="3">HOYSALA</text>
             <text x="90" y="170" text-anchor="middle" fill="#FFA000" font-family="'Space Grotesk', monospace" font-size="9" font-weight="700" letter-spacing="2.5">ROOTED IN STONE</text>
             <line x1="30" y1="184" x2="150" y2="184" stroke="#FFA000" stroke-width="1.2"/>
             <text x="90" y="202" text-anchor="middle" fill="#aaa" font-family="'Space Grotesk', monospace" font-size="7.5" font-weight="700" letter-spacing="2">ARCHITECTURAL RELIEF</text>
@@ -314,7 +314,7 @@
             <rect x="0" y="0" width="180" height="230" rx="4" fill="#08080c" stroke="#FFA000" stroke-width="1.2"/>
             <circle cx="90" cy="75" r="32" fill="none" stroke="#FFA000" stroke-width="1.2" stroke-dasharray="3,2"/>
             <polygon points="90,45 105,75 75,75" fill="#FFA000" opacity="0.8"/>
-            <text x="90" y="150" text-anchor="middle" fill="#ffffff" font-family="'Syne', sans-serif" font-size="18" font-weight="900" letter-spacing="3">ASURA</text>
+            <text x="90" y="150" text-anchor="middle" fill="#ffffff" font-family="'Bebas Neue', sans-serif" font-size="18" font-weight="900" letter-spacing="3">ASURA</text>
             <text x="90" y="170" text-anchor="middle" fill="#FFA000" font-family="'Space Grotesk', monospace" font-size="8.5" font-weight="700" letter-spacing="2">WARRIOR ARCHIVE</text>
             <line x1="30" y1="184" x2="150" y2="184" stroke="#FFA000" stroke-width="1.2"/>
             <text x="90" y="202" text-anchor="middle" fill="#aaa" font-family="'Space Grotesk', monospace" font-size="7.5" font-weight="700" letter-spacing="2">CHAOS DOCTRINE</text>
@@ -329,7 +329,7 @@
             <circle cx="72" cy="70" r="14" fill="none" stroke="#FFA000" stroke-width="1.5"/>
             <circle cx="108" cy="70" r="14" fill="none" stroke="#FFA000" stroke-width="1.5"/>
             <path d="M 60 70 L 40 45 L 90 90 L 140 45 L 120 70 Z" fill="#FFA000" opacity="0.75"/>
-            <text x="90" y="150" text-anchor="middle" fill="#ffffff" font-family="'Syne', sans-serif" font-size="16" font-weight="900" letter-spacing="3">BERUNDA</text>
+            <text x="90" y="150" text-anchor="middle" fill="#ffffff" font-family="'Bebas Neue', sans-serif" font-size="16" font-weight="900" letter-spacing="3">BERUNDA</text>
             <text x="90" y="170" text-anchor="middle" fill="#FFA000" font-family="'Space Grotesk', monospace" font-size="8.5" font-weight="700" letter-spacing="2">TWIN SOVEREIGN</text>
             <line x1="30" y1="184" x2="150" y2="184" stroke="#FFA000" stroke-width="1.2"/>
             <text x="90" y="202" text-anchor="middle" fill="#aaa" font-family="'Space Grotesk', monospace" font-size="7.5" font-weight="700" letter-spacing="2">HEAVY CHORE COAT</text>
@@ -347,8 +347,8 @@
             <circle cx="90" cy="80" r="28" fill="none" stroke="#fff" stroke-width="1" stroke-dasharray="2,2"/>
             <text x="90" y="85" text-anchor="middle" fill="#fff" font-family="'Tiro Devanagari Hindi', serif" font-size="14" font-weight="700">गरुड़</text>
 
-            <text x="90" y="155" text-anchor="middle" fill="#fff" font-family="'Syne', sans-serif" font-size="18" font-weight="900" letter-spacing="3">GARUDA DISTRESSED</text>
-            <text x="90" y="175" text-anchor="middle" fill="#FFA000" font-family="'Syne', sans-serif" font-size="13" font-weight="900" letter-spacing="2">400 GSM FLEECE</text>
+            <text x="90" y="155" text-anchor="middle" fill="#fff" font-family="'Bebas Neue', sans-serif" font-size="18" font-weight="900" letter-spacing="3">GARUDA DISTRESSED</text>
+            <text x="90" y="175" text-anchor="middle" fill="#FFA000" font-family="'Bebas Neue', sans-serif" font-size="13" font-weight="900" letter-spacing="2">400 GSM FLEECE</text>
             <line x1="30" y1="188" x2="150" y2="188" stroke="#FFA000" stroke-width="1.5"/>
             <text x="90" y="205" text-anchor="middle" fill="#ccc" font-family="'Space Grotesk', monospace" font-size="7.5" font-weight="700" letter-spacing="2">MYTHOLOGY DROP // BHARAT</text>
             <text x="90" y="218" text-anchor="middle" fill="#FFA000" font-family="'Space Grotesk', monospace" font-size="7" font-weight="700" letter-spacing="2.5">LIMITED ARCHIVE PIECE</text>
@@ -365,8 +365,8 @@
             <circle cx="90" cy="80" r="28" fill="none" stroke="#fff" stroke-width="0.8" stroke-dasharray="3,2"/>
             <circle cx="90" cy="80" r="8" fill="${accent}"/>
             
-            <text x="90" y="150" text-anchor="middle" fill="#ffffff" font-family="'Syne', sans-serif" font-size="20" font-weight="900" letter-spacing="4">BHARAT</text>
-            <text x="90" y="172" text-anchor="middle" fill="${accent}" font-family="'Syne', sans-serif" font-size="14" font-weight="900" letter-spacing="3">MONOLITH</text>
+            <text x="90" y="150" text-anchor="middle" fill="#ffffff" font-family="'Bebas Neue', sans-serif" font-size="20" font-weight="900" letter-spacing="4">BHARAT</text>
+            <text x="90" y="172" text-anchor="middle" fill="${accent}" font-family="'Bebas Neue', sans-serif" font-size="14" font-weight="900" letter-spacing="3">MONOLITH</text>
             <line x1="30" y1="185" x2="150" y2="185" stroke="${accent}" stroke-width="1.5"/>
             <text x="90" y="202" text-anchor="middle" fill="#ccc" font-family="'Space Grotesk', monospace" font-size="8" font-weight="700" letter-spacing="2">28°36'N 77°12'E // HERITAGE</text>
             <text x="90" y="216" text-anchor="middle" fill="${accent}" font-family="'Space Grotesk', monospace" font-size="7" font-weight="700" letter-spacing="2.5">240 GSM HEAVY INTERLOCK</text>
@@ -380,14 +380,14 @@
             
             <!-- Hazard Cross Stripes -->
             <line x1="10" y1="15" x2="170" y2="15" stroke="${accent}" stroke-width="4" stroke-dasharray="6,4"/>
-            <text x="90" y="55" text-anchor="middle" fill="#fff" font-family="'Syne', sans-serif" font-size="16" font-weight="900" letter-spacing="2">RAW REBELLION</text>
+            <text x="90" y="55" text-anchor="middle" fill="#fff" font-family="'Bebas Neue', sans-serif" font-size="16" font-weight="900" letter-spacing="2">RAW REBELLION</text>
             <text x="90" y="78" text-anchor="middle" fill="${accent}" font-family="'Space Grotesk', monospace" font-size="8" font-weight="700" letter-spacing="3">[ ANTI-SURVEILLANCE ]</text>
             
             <!-- Inverted Brutalist Seal -->
             <polygon points="90,95 65,135 115,135" fill="none" stroke="${accent}" stroke-width="2"/>
             <text x="90" y="125" text-anchor="middle" fill="#fff" font-family="'Space Grotesk', monospace" font-size="12" font-weight="900">!</text>
 
-            <text x="90" y="170" text-anchor="middle" fill="#fff" font-family="'Syne', sans-serif" font-size="15" font-weight="900" letter-spacing="3">BRAVADIAN</text>
+            <text x="90" y="170" text-anchor="middle" fill="#fff" font-family="'Bebas Neue', sans-serif" font-size="15" font-weight="900" letter-spacing="3">BRAVADIAN</text>
             <text x="90" y="190" text-anchor="middle" fill="${accent}" font-family="'Space Grotesk', monospace" font-size="9" font-weight="700" letter-spacing="2">STREET ARCHIVE 2026</text>
             <text x="90" y="214" text-anchor="middle" fill="#888" font-family="'Space Grotesk', monospace" font-size="7" letter-spacing="2">[ 240 GSM OVERSIZED ]</text>
           </g>
@@ -397,8 +397,8 @@
         artworkMarkup = `
           <g transform="translate(160, 175)">
             <rect x="0" y="0" width="180" height="200" rx="4" fill="#08080c" stroke="${accent}" stroke-width="1" stroke-dasharray="5,4"/>
-            <text x="90" y="65" text-anchor="middle" fill="#ffffff" font-family="'Syne', sans-serif" font-size="20" font-weight="900" letter-spacing="4">BRAVADIAN</text>
-            <text x="90" y="95" text-anchor="middle" fill="${accent}" font-family="'Syne', sans-serif" font-size="16" font-weight="900" letter-spacing="3">BRAVE INDIAN</text>
+            <text x="90" y="65" text-anchor="middle" fill="#ffffff" font-family="'Bebas Neue', sans-serif" font-size="20" font-weight="900" letter-spacing="4">BRAVADIAN</text>
+            <text x="90" y="95" text-anchor="middle" fill="${accent}" font-family="'Bebas Neue', sans-serif" font-size="16" font-weight="900" letter-spacing="3">BRAVE INDIAN</text>
             <line x1="30" y1="115" x2="150" y2="115" stroke="${accent}" stroke-width="1.5"/>
             <text x="90" y="140" text-anchor="middle" fill="#bbb" font-family="'Space Grotesk', monospace" font-size="8.5" font-weight="700" letter-spacing="2">ARCHITECTURAL SILHOUETTE</text>
             <text x="90" y="165" text-anchor="middle" fill="${accent}" font-family="'Space Grotesk', monospace" font-size="7.5" font-weight="700" letter-spacing="3">[ 240 GSM // HEAVY INTERLOCK ]</text>
@@ -440,7 +440,7 @@
             <path d="M 200 95 C 220 78, 280 78, 300 95 C 280 114, 220 114, 200 95 Z" fill="${innerNeckFill}"/>
             <!-- Woven Inside Neck Brand Label -->
             <rect x="232" y="85" width="36" height="18" rx="1.5" fill="#050508" stroke="#f59e0b" stroke-width="0.8"/>
-            <text x="250" y="93" text-anchor="middle" fill="#fff" font-family="'Syne', sans-serif" font-size="4" font-weight="900" letter-spacing="0.5">BRAVADIAN</text>
+            <text x="250" y="93" text-anchor="middle" fill="#fff" font-family="'Bebas Neue', sans-serif" font-size="4" font-weight="900" letter-spacing="0.5">BRAVADIAN</text>
             <text x="250" y="99" text-anchor="middle" fill="#f59e0b" font-family="'Space Grotesk', monospace" font-size="3.5" font-weight="700">240 GSM</text>
           ` : ''}
 
