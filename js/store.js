@@ -123,14 +123,10 @@
     } else if (hash.startsWith('#/collections/') || hash === '#/shop') {
       const parts = hash.split('/');
       let colSlug = parts[2] || 'all';
-      // Temporarily active categories: ALL, HERITAGE, and GARUDA
-      const ACTIVE_COLLECTIONS = ['all', 'heritage', 'garuda'];
+      // 5 Official Categories + ALL
+      const ACTIVE_COLLECTIONS = ['all', 'anime', 'mythology', 'heritage', 'street-culture', 'minimal'];
       if (!ACTIVE_COLLECTIONS.includes(colSlug.toLowerCase())) {
         colSlug = 'all';
-        if (hash.startsWith('#/collections/')) {
-          window.location.hash = '#/collections';
-          return;
-        }
       }
       if (StoreState.activeCollection !== colSlug) {
         StoreState.cataloguePage = 1;
@@ -187,62 +183,29 @@
     const mobileList = document.getElementById('mobileCollectionsList');
     const collections = window.BravadianDB.getCollections();
 
-    // User requirement: Remove Universe Wall & ALL; only keep HERITAGE active and slash all others
+    // 5 Official Collections (ANIME, MYTHOLOGY, HERITAGE, STREET CULTURE, MINIMAL)
     const filteredCollections = collections.filter(c => c.slug !== 'all');
 
     if (megaList) {
-      megaList.innerHTML = filteredCollections.map(c => {
-        const isLive = c.slug === 'heritage'; // Only keep heritage active!
-        return `
-          <li class="mega-item ${!isLive ? 'is-disabled' : ''}">
-            ${isLive ? `
-              <a href="#/collections/${c.slug}">
-                <span>${c.name}</span>
-                <span class="item-dot"></span>
-              </a>
-            ` : `
-              <div class="mega-item-disabled" title="${c.name} — Unreleased Drop // Locked" aria-disabled="true">
-                <span class="mega-item-name-slashed">
-                  ${c.name}
-                  <span class="mega-word-strike"></span>
-                </span>
-                <span class="mega-item-status">[SOON]</span>
-              </div>
-            `}
-          </li>
-        `;
-      }).join('');
+      megaList.innerHTML = filteredCollections.map(c => `
+        <li class="mega-item">
+          <a href="#/collections/${c.slug}">
+            <span>${c.name}</span>
+            <span class="item-dot"></span>
+          </a>
+        </li>
+      `).join('');
     }
 
     if (mobileList) {
-      const collectionsData = [
-        { name: 'HERITAGE', slug: 'heritage', isLive: true },
-        { name: 'GARUDA', slug: 'garuda', isLive: false },
-        { name: 'ASURA', slug: 'asura', isLive: false },
-        { name: 'BERUNDA', slug: 'berunda', isLive: false },
-        { name: 'CHOLA', slug: 'chola', isLive: false }
-      ];
-
-      mobileList.innerHTML = collectionsData.map(c => {
-        if (c.isLive) {
-          return `
-            <li class="mobile-sub-item is-live">
-              <a href="#/collections/${c.slug}" class="mobile-sub-anchor is-live">
-                <span class="mobile-sub-dot"></span>
-                <span class="mobile-sub-text">${c.name}</span>
-              </a>
-            </li>
-          `;
-        } else {
-          return `
-            <li class="mobile-sub-item is-slashed">
-              <div class="mobile-sub-disabled" title="${c.name} — Unreleased Drop // Locked" aria-disabled="true">
-                <span class="mobile-sub-slashed-name">${c.name}</span>
-              </div>
-            </li>
-          `;
-        }
-      }).join('');
+      mobileList.innerHTML = filteredCollections.map(c => `
+        <li class="mobile-sub-item is-live">
+          <a href="#/collections/${c.slug}" class="mobile-sub-anchor is-live">
+            <span class="mobile-sub-dot"></span>
+            <span class="mobile-sub-text">${c.name}</span>
+          </a>
+        </li>
+      `).join('');
     }
 
     // Collections Accordion Toggle in Mobile Drawer
@@ -678,7 +641,7 @@
   }
 
   function renderUniverseArchiveCard(c) {
-    const isLive = c.slug === 'heritage' || c.slug === 'garuda';
+    const isLive = c.isLive !== false;
     const hasImage = !!c.image;
 
     if (isLive) {
@@ -689,7 +652,7 @@
           data-slug="${c.slug}" 
           data-name="${c.name}"
           data-edition="${c.num}"
-          title="${c.name} — ${c.chapter || c.desc} (Click to explore relics)"
+          title="${c.name} — ${c.chapter || c.desc || c.description} (Click to explore relics)"
         >
           ${hasImage ? `
             <div class="archive-card-bg-img" style="background-image: url('${c.image}');"></div>
@@ -701,7 +664,7 @@
           </div>
           <div class="archive-card-bottom">
             <h3 class="archive-card-title">${c.name}</h3>
-            <span class="archive-card-desc">${c.chapter || c.desc}</span>
+            <span class="archive-card-desc">${c.description || c.chapter || c.desc}</span>
           </div>
           <span class="archive-card-corner-pip" aria-hidden="true"></span>
         </a>
@@ -715,7 +678,7 @@
           data-edition="${c.num}"
           role="button"
           tabindex="0"
-          title="${c.name} — ${c.chapter || c.desc} (Unreleased Drop // Click for VIP Access)"
+          title="${c.name} — ${c.chapter || c.desc || c.description} (Unreleased Drop // Click for VIP Access)"
           aria-label="${c.name} - Vault Unreleased"
         >
           ${hasImage ? `
@@ -729,7 +692,7 @@
           </div>
           <div class="archive-card-bottom">
             <h3 class="archive-card-title">${c.name}</h3>
-            <span class="archive-card-desc">${c.chapter || c.desc}</span>
+            <span class="archive-card-desc">${c.description || c.chapter || c.desc}</span>
           </div>
         </div>
       `;
@@ -1063,28 +1026,7 @@
           <!-- Chapter Tabs Pills -->
           <div class="canon-tabs-group" role="tablist">
             ${collections.map(c => {
-              // Active categories: ALL, HERITAGE, GARUDA
-              const isAvailable = c.slug === 'all' || c.slug === 'heritage' || c.slug === 'garuda';
-              const isSlashed = !isAvailable;
               const isActive = c.slug === colSlug;
-
-              if (isSlashed) {
-                return `
-                  <span 
-                    class="canon-tab-pill is-slashed is-disabled" 
-                    role="tab"
-                    aria-disabled="true"
-                    title="${c.name} — Unreleased Drop // Locked"
-                    tabindex="-1"
-                  >
-                    <span class="pill-text">
-                      ${c.name}
-                      <span class="pill-word-strike" aria-hidden="true"></span>
-                    </span>
-                  </span>
-                `;
-              }
-
               return `
                 <a 
                   href="#/collections/${c.slug}" 
@@ -1093,9 +1035,7 @@
                   aria-selected="${isActive ? 'true' : 'false'}"
                   title="${c.name}"
                 >
-                  <span class="pill-text">
-                    ${c.name}
-                  </span>
+                  <span class="pill-text">${c.name}</span>
                 </a>
               `;
             }).join('')}
@@ -1427,26 +1367,16 @@
       };
     });
 
-    const gateways = [
-      {
-        num: '02',
-        title: 'GARUDA',
-        chapter: 'CHAPTER 02: SOVEREIGN SKY',
-        collection: 'garuda'
-      },
-      {
-        num: '03',
-        title: 'ASURA',
-        chapter: 'CHAPTER 03: SOLAR SHADOWS',
-        collection: 'asura'
-      },
-      {
-        num: '04',
-        title: 'BERUNDA',
-        chapter: 'CHAPTER 04: DOUBLE VISION',
-        collection: 'berunda'
-      }
-    ].map(gw => {
+    const defaultChapters = [
+      { num: '01', title: 'ANIME', chapter: 'CHAPTER 01: MANGA & ANIME', collection: 'anime' },
+      { num: '02', title: 'MYTHOLOGY', chapter: 'CHAPTER 02: SACRED MYTHOLOGY', collection: 'mythology' },
+      { num: '03', title: 'HERITAGE', chapter: 'CHAPTER 03: BHARAT HERITAGE', collection: 'heritage' },
+      { num: '04', title: 'STREET CULTURE', chapter: 'CHAPTER 04: URBAN STREET CULTURE', collection: 'street-culture' },
+      { num: '05', title: 'MINIMAL', chapter: 'CHAPTER 05: MONOLITHIC MINIMAL', collection: 'minimal' }
+    ];
+    const gateways = defaultChapters
+      .filter(gw => gw.collection !== (product.collection || 'heritage').toLowerCase())
+      .slice(0, 3).map(gw => {
       const colProd = window.BravadianDB.getProducts({ collection: gw.collection })[0];
       const gImg = (colProd && colProd.images && colProd.images.front)
         ? colProd.images.front

@@ -65,6 +65,15 @@
 
   /* Logo filter */
   --theme-logo-filter: none;
+
+  /* Emil Kowalski Design Engineering Motion Tokens */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.15);
+  --duration-fast: 160ms;
+  --duration-normal: 240ms;
+  --duration-drawer: 300ms;
 }
 
 [data-theme="light"] {
@@ -9787,6 +9796,136 @@ body {
   .about-cta-actions .btn-figma-primary,
   .about-cta-actions .btn-figma-whatsapp {
     width: 100%;
+  }
+}
+
+/* ==========================================================================
+   EMIL KOWALSKI DESIGN ENGINEERING CRAFT SYSTEM
+   https://github.com/emilkowalski/skills (emil-design-eng & apple-design)
+   ========================================================================== */
+
+/* 1. Tactile Button & Pressable Feedback */
+button,
+.btn-primary,
+.btn-secondary,
+.btn-outline,
+.btn-canon-load-more,
+.canon-tab-pill,
+.pdp-primary-btn,
+.pdp-quick-add,
+.btn-discover-protocols,
+.btn-universe-callout,
+.btn-figma-primary,
+.btn-figma-whatsapp,
+.pdp-size-btn,
+.pdp-color-chip,
+.header-icon-btn,
+.action-btn,
+.cart-drawer-checkout,
+.mobile-nav-item > a,
+.mobile-sub-anchor {
+  transition: transform var(--duration-fast, 160ms) var(--ease-out),
+              background-color var(--duration-fast, 160ms) var(--ease-out),
+              border-color var(--duration-fast, 160ms) var(--ease-out),
+              color var(--duration-fast, 160ms) var(--ease-out),
+              box-shadow var(--duration-fast, 160ms) var(--ease-out);
+  will-change: transform;
+}
+
+button:active,
+.btn-primary:active,
+.btn-secondary:active,
+.btn-outline:active,
+.btn-canon-load-more:active,
+.canon-tab-pill:active,
+.pdp-primary-btn:active,
+.pdp-quick-add:active,
+.btn-discover-protocols:active,
+.btn-universe-callout:active,
+.btn-figma-primary:active,
+.btn-figma-whatsapp:active,
+.pdp-size-btn:active,
+.header-icon-btn:active,
+.action-btn:active,
+.cart-drawer-checkout:active {
+  transform: scale(0.97) !important;
+}
+
+/* 2. Tactile Product Card & Archive Card Transitions */
+.product-card,
+.archive-card,
+.universe-collection-card,
+.motif-card {
+  transition: transform var(--duration-normal, 240ms) var(--ease-out),
+              border-color var(--duration-normal, 240ms) var(--ease-out),
+              box-shadow var(--duration-normal, 240ms) var(--ease-out),
+              background-color var(--duration-normal, 240ms) var(--ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .product-card:hover {
+    transform: translateY(-4px);
+  }
+  .archive-card.status-active:hover {
+    transform: translateY(-3px);
+  }
+}
+
+.product-card:active,
+.archive-card.status-active:active {
+  transform: scale(0.985);
+}
+
+/* 3. Origin-Aware Popovers & Modals (No scale(0), entry from scale(0.96)) */
+.modal-dialog,
+.size-guide-modal-content,
+.checkout-modal-content,
+.search-modal-content {
+  transform-origin: center center;
+  transition: transform var(--duration-normal, 240ms) var(--ease-out),
+              opacity var(--duration-normal, 240ms) var(--ease-out);
+}
+
+.modal-backdrop.is-opening .modal-dialog,
+.modal.is-opening .modal-content {
+  transform: scale(0.96);
+  opacity: 0;
+}
+
+.modal-backdrop.is-open .modal-dialog,
+.modal.is-open .modal-content {
+  transform: scale(1);
+  opacity: 1;
+}
+
+/* 4. Drawer Sheet Physics (iOS-like easing curve) */
+.cart-drawer,
+.mobile-nav-drawer {
+  transition: transform var(--duration-drawer, 300ms) var(--ease-drawer);
+}
+
+/* 5. Smooth Tab Pills Active Shift */
+.canon-tab-pill {
+  position: relative;
+  overflow: hidden;
+}
+
+.canon-tab-pill.active {
+  transition: background-color var(--duration-fast, 160ms) var(--ease-out),
+              border-color var(--duration-fast, 160ms) var(--ease-out),
+              color var(--duration-fast, 160ms) var(--ease-out),
+              box-shadow var(--duration-fast, 160ms) var(--ease-out);
+}
+
+/* 6. Accessibility — Prefers Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
 

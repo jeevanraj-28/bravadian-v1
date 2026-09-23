@@ -516,151 +516,76 @@
 
     let emblemMarkup = '';
     switch (String(num).padStart(2, '0')) {
-      case '01': // HERITAGE - Hoysala temple shikhara & stepped shrine relief
+      case '01': // ANIME - Manga-inspired artwork & Japanese animation
         emblemMarkup = `
           <g stroke="${strokeColor}" stroke-width="1.6" fill="none">
-            <polygon points="150,90 220,180 80,180" />
+            <!-- Anime katana blade & stylized geometric burst -->
+            <path d="M 70 230 L 230 100 L 245 115 L 85 245 Z" fill="${strokeColor}" fill-opacity="0.12"/>
+            <line x1="60" y1="240" x2="240" y2="90" stroke="${strokeColor}" stroke-width="2.5"/>
+            <polygon points="150,85 165,115 135,115" fill="${strokeColor}" fill-opacity="0.5"/>
+            <circle cx="150" cy="165" r="45" stroke="${strokeColor}" stroke-dasharray="6,4"/>
+            <path d="M 120 165 L 180 165 M 150 135 L 150 195" stroke="${strokeColor}" stroke-width="1.5"/>
+            <text x="150" y="280" text-anchor="middle" fill="${strokeColor}" font-family="'Space Grotesk', monospace" font-size="10" font-weight="700" letter-spacing="3">MANGA // ANIME</text>
+          </g>
+        `;
+        break;
+
+      case '02': // MYTHOLOGY - Krishna, Shiva, Hanuman, Ramayana, Mahabharata
+        emblemMarkup = `
+          <g stroke="${strokeColor}" stroke-width="1.6" fill="none">
+            <!-- Sacred Trishula & Sudarshana Solar Mandala -->
+            <circle cx="150" cy="160" r="50" stroke="${strokeColor}" stroke-dasharray="3,3" opacity="0.8"/>
+            <path d="M 150 90 L 150 240" stroke="${strokeColor}" stroke-width="2.5"/>
+            <path d="M 120 120 C 120 165, 180 165, 180 120" stroke="${strokeColor}" stroke-width="2.2"/>
+            <line x1="105" y1="110" x2="195" y2="110" stroke="${strokeColor}" stroke-width="1.8"/>
+            <circle cx="150" cy="160" r="12" fill="${strokeColor}" fill-opacity="0.25"/>
+            <circle cx="150" cy="160" r="4" fill="${strokeColor}"/>
+            <text x="150" y="280" text-anchor="middle" fill="${strokeColor}" font-family="'Space Grotesk', monospace" font-size="10" font-weight="700" letter-spacing="3">SACRED MYTHOLOGY</text>
+          </g>
+        `;
+        break;
+
+      case '03': // HERITAGE - Indian crafts, folk art, traditional patterns & architecture
+        emblemMarkup = `
+          <g stroke="${strokeColor}" stroke-width="1.6" fill="none">
+            <!-- Hoysala temple stepped shikhara & shrine relief -->
+            <polygon points="150,85 225,180 75,180" fill="${strokeColor}" fill-opacity="0.08"/>
             <polygon points="150,110 205,180 95,180" opacity="0.6"/>
-            <polygon points="150,130 190,180 110,180" opacity="0.4"/>
-            <rect x="70" y="180" width="160" height="24" stroke="${strokeColor}"/>
-            <rect x="85" y="204" width="130" height="24" stroke="${strokeColor}"/>
-            <rect x="100" y="228" width="100" height="24" stroke="${strokeColor}"/>
-            <rect x="135" y="192" width="30" height="60" fill="${strokeColor}" fill-opacity="0.15"/>
-            <circle cx="150" cy="190" r="8" fill="${strokeColor}" fill-opacity="0.3"/>
-            <line x1="150" y1="65" x2="150" y2="90" stroke="${strokeColor}" stroke-width="2"/>
-            <circle cx="150" cy="65" r="4" fill="${strokeColor}"/>
-            <text x="150" y="280" text-anchor="middle" fill="${strokeColor}" font-family="'Space Grotesk', monospace" font-size="10" font-weight="700" letter-spacing="3">HOYSALA // ORIGIN</text>
+            <polygon points="150,135 185,180 115,180" opacity="0.4"/>
+            <rect x="70" y="180" width="160" height="22" stroke="${strokeColor}"/>
+            <rect x="85" y="202" width="130" height="22" stroke="${strokeColor}"/>
+            <rect x="100" y="224" width="100" height="22" stroke="${strokeColor}"/>
+            <rect x="135" y="190" width="30" height="56" fill="${strokeColor}" fill-opacity="0.2"/>
+            <circle cx="150" cy="65" r="5" fill="${strokeColor}"/>
+            <line x1="150" y1="65" x2="150" y2="85" stroke="${strokeColor}" stroke-width="2"/>
+            <text x="150" y="280" text-anchor="middle" fill="${strokeColor}" font-family="'Space Grotesk', monospace" font-size="10" font-weight="700" letter-spacing="3">BHARAT HERITAGE</text>
           </g>
         `;
         break;
 
-      case '02': // GARUDA - Sovereign avian winged dissent
+      case '04': // STREET CULTURE - Graffiti, urban graphics, hip-hop, typography
         emblemMarkup = `
           <g stroke="${strokeColor}" stroke-width="1.6" fill="none">
-            <path d="M 150 110 L 240 135 L 210 175 L 260 190 L 190 215 L 150 245 L 110 215 L 40 190 L 90 175 L 60 135 Z" fill="${strokeColor}" fill-opacity="0.1"/>
-            <line x1="150" y1="125" x2="225" y2="150"/>
-            <line x1="150" y1="140" x2="200" y2="175"/>
-            <line x1="150" y1="125" x2="75" y2="150"/>
-            <line x1="150" y1="140" x2="100" y2="175"/>
-            <circle cx="150" cy="145" r="14" stroke="${strokeColor}" stroke-width="1.8"/>
-            <circle cx="150" cy="145" r="5" fill="${strokeColor}"/>
-            <line x1="150" y1="80" x2="150" y2="110" stroke-width="2"/>
-            <polygon points="150,75 145,85 155,85" fill="${strokeColor}"/>
-            <text x="150" y="280" text-anchor="middle" fill="${strokeColor}" font-family="'Space Grotesk', monospace" font-size="10" font-weight="700" letter-spacing="3">SOVEREIGN SKY</text>
+            <!-- Urban cross-hair & stencil typography frame -->
+            <rect x="85" y="105" width="130" height="130" stroke="${strokeColor}" stroke-width="2"/>
+            <rect x="95" y="115" width="110" height="110" stroke="${strokeColor}" stroke-dasharray="4,3" fill="${strokeColor}" fill-opacity="0.08"/>
+            <line x1="70" y1="170" x2="230" y2="170" stroke="${strokeColor}" stroke-width="1.8"/>
+            <line x1="150" y1="90" x2="150" y2="250" stroke="${strokeColor}" stroke-width="1.8"/>
+            <polygon points="150,140 180,170 150,200 120,170" fill="${strokeColor}" fill-opacity="0.3"/>
+            <text x="150" y="280" text-anchor="middle" fill="${strokeColor}" font-family="'Space Grotesk', monospace" font-size="10" font-weight="700" letter-spacing="3">STREET CULTURE</text>
           </g>
         `;
         break;
 
-      case '03': // ASURA - Solar shadows & chaos duality
+      case '05': // MINIMAL - Simple typography, subtle symbols, clean graphics
         emblemMarkup = `
           <g stroke="${strokeColor}" stroke-width="1.6" fill="none">
-            <circle cx="150" cy="165" r="55" stroke="${strokeColor}" stroke-dasharray="4,3"/>
-            <circle cx="150" cy="165" r="40" stroke="${strokeColor}"/>
-            <circle cx="150" cy="165" r="24" fill="${strokeColor}" fill-opacity="0.15"/>
-            <path d="M 150 95 L 150 80 M 150 235 L 150 250 M 80 165 L 65 165 M 220 165 L 235 165" stroke-width="2"/>
-            <path d="M 100 115 L 90 105 M 200 215 L 210 225 M 100 215 L 90 225 M 200 115 L 210 105" stroke-width="2"/>
-            <path d="M 105 130 C 120 95, 180 95, 195 130" stroke-width="2"/>
-            <polygon points="150,150 160,170 140,170" fill="${strokeColor}"/>
-            <text x="150" y="280" text-anchor="middle" fill="${strokeColor}" font-family="'Space Grotesk', monospace" font-size="10" font-weight="700" letter-spacing="3">SOLAR SHADOWS</text>
-          </g>
-        `;
-        break;
-
-      case '04': // BERUNDA - Symmetrical twin-headed royal eagle
-        emblemMarkup = `
-          <g stroke="${strokeColor}" stroke-width="1.6" fill="none">
-            <path d="M 150 115 L 205 140 L 195 210 L 150 245 L 105 210 L 95 140 Z" fill="${strokeColor}" fill-opacity="0.12"/>
-            <path d="M 140 120 C 130 95, 105 100, 95 120 L 85 115 L 95 128" stroke-width="2"/>
-            <circle cx="112" cy="115" r="2.5" fill="${strokeColor}"/>
-            <path d="M 160 120 C 170 95, 195 100, 205 120 L 215 115 L 205 128" stroke-width="2"/>
-            <circle cx="188" cy="115" r="2.5" fill="${strokeColor}"/>
-            <path d="M 135 90 L 142 100 L 150 85 L 158 100 L 165 90 L 165 108 L 135 108 Z" stroke-width="1.8" fill="${strokeColor}" fill-opacity="0.3"/>
-            <line x1="150" y1="130" x2="150" y2="225" stroke-width="1.8" stroke-dasharray="3,2"/>
-            <text x="150" y="280" text-anchor="middle" fill="${strokeColor}" font-family="'Space Grotesk', monospace" font-size="10" font-weight="700" letter-spacing="3">DOUBLE VISION</text>
-          </g>
-        `;
-        break;
-
-      case '05': // CHOLA - Maritime bronze dominion
-        emblemMarkup = `
-          <g stroke="${strokeColor}" stroke-width="1.6" fill="none">
-            <path d="M 85 185 C 95 240, 205 240, 215 185" stroke-width="2.5"/>
-            <line x1="150" y1="90" x2="150" y2="235" stroke-width="2.5"/>
-            <line x1="110" y1="125" x2="190" y2="125" stroke-width="2.5"/>
-            <circle cx="150" cy="85" r="14" stroke-width="2.2"/>
-            <path d="M 135 75 L 150 60 L 165 75"/>
-            <line x1="150" y1="60" x2="150" y2="72"/>
-            <path d="M 100 215 Q 125 205, 150 215 T 200 215" stroke-width="1.2" opacity="0.6"/>
-            <text x="150" y="280" text-anchor="middle" fill="${strokeColor}" font-family="'Space Grotesk', monospace" font-size="10" font-weight="700" letter-spacing="3">BRONZE AGE</text>
-          </g>
-        `;
-        break;
-
-      case '06': // SIMHA - Sovereign Lion Crest of Ashoka Pillars
-        emblemMarkup = `
-          <g stroke="${strokeColor}" stroke-width="1.6" fill="none">
-            <path d="M 150 100 C 185 100, 215 125, 210 165 C 205 195, 185 220, 150 230 C 115 220, 95 195, 90 165 C 85 125, 115 100, 150 100 Z" fill="${strokeColor}" fill-opacity="0.08"/>
-            <circle cx="150" cy="165" r="45" stroke-dasharray="3,3" opacity="0.7"/>
-            <path d="M 125 210 L 120 235 M 140 215 L 140 240 M 160 215 L 160 240 M 175 210 L 180 235" stroke-width="2"/>
-            <line x1="90" y1="245" x2="210" y2="245" stroke-width="2"/>
-            <text x="150" y="280" text-anchor="middle" fill="${strokeColor}" font-family="'Space Grotesk', monospace" font-size="10" font-weight="700" letter-spacing="3">PRIDE &amp; CLAW</text>
-          </g>
-        `;
-        break;
-
-      case '07': // NAGARA - Sacred Coil & Spire
-        emblemMarkup = `
-          <g stroke="${strokeColor}" stroke-width="1.6" fill="none">
-            <path d="M 150 190 A 25 25 0 0 1 175 215 A 40 40 0 0 1 135 255 A 55 55 0 0 1 95 200 A 70 70 0 0 1 165 145" stroke-width="2"/>
-            <polygon points="150,75 180,165 120,165" stroke-width="1.8" fill="${strokeColor}" fill-opacity="0.1"/>
-            <line x1="150" y1="55" x2="150" y2="75" stroke-width="2"/>
-            <circle cx="150" cy="55" r="4" fill="${strokeColor}"/>
-            <line x1="130" y1="140" x2="170" y2="140"/>
-            <line x1="140" y1="115" x2="160" y2="115"/>
-            <text x="150" y="280" text-anchor="middle" fill="${strokeColor}" font-family="'Space Grotesk', monospace" font-size="10" font-weight="700" letter-spacing="3">COIL &amp; SPIRE</text>
-          </g>
-        `;
-        break;
-
-      case '08': // KALPA - Cosmic infinite loop / dual toruses
-        emblemMarkup = `
-          <g stroke="${strokeColor}" stroke-width="1.6" fill="none">
-            <path d="M 150 165 C 120 120, 80 120, 80 165 C 80 210, 120 210, 150 165 C 180 120, 220 120, 220 165 C 220 210, 180 210, 150 165 Z" stroke-width="2.5" fill="${strokeColor}" fill-opacity="0.08"/>
-            <circle cx="105" cy="165" r="15" stroke-dasharray="3,2"/>
-            <circle cx="195" cy="165" r="15" stroke-dasharray="3,2"/>
-            <circle cx="105" cy="165" r="4" fill="${strokeColor}"/>
-            <circle cx="195" cy="165" r="4" fill="${strokeColor}"/>
-            <circle cx="150" cy="165" r="6" fill="${strokeColor}"/>
-            <text x="150" y="280" text-anchor="middle" fill="${strokeColor}" font-family="'Space Grotesk', monospace" font-size="10" font-weight="700" letter-spacing="3">INFINITE LOOP</text>
-          </g>
-        `;
-        break;
-
-      case '09': // AYUDHA - Archival blades & crossed tridents
-        emblemMarkup = `
-          <g stroke="${strokeColor}" stroke-width="1.6" fill="none">
-            <line x1="90" y1="100" x2="210" y2="230" stroke-width="2.2"/>
-            <line x1="210" y1="100" x2="90" y2="230" stroke-width="2.2"/>
-            <polygon points="150,115 190,145 180,205 150,230 120,205 110,145" stroke-width="2" fill="${strokeColor}" fill-opacity="0.15"/>
-            <polygon points="150,140 165,165 150,190 135,165" fill="${strokeColor}"/>
-            <text x="150" y="280" text-anchor="middle" fill="${strokeColor}" font-family="'Space Grotesk', monospace" font-size="10" font-weight="700" letter-spacing="3">ARCHIVAL BLADES</text>
-          </g>
-        `;
-        break;
-
-      case '10': // DRAVIDA - Stepped towering gopuram pyramid
-        emblemMarkup = `
-          <g stroke="${strokeColor}" stroke-width="1.6" fill="none">
-            <rect x="75" y="225" width="150" height="24" stroke-width="2" fill="${strokeColor}" fill-opacity="0.08"/>
-            <rect x="90" y="195" width="120" height="24" stroke-width="1.8"/>
-            <rect x="105" y="165" width="90" height="24" stroke-width="1.8"/>
-            <rect x="120" y="135" width="60" height="24" stroke-width="1.8"/>
-            <rect x="135" y="105" width="30" height="24" stroke-width="1.8"/>
-            <line x1="140" y1="90" x2="140" y2="105" stroke-width="1.5"/>
-            <line x1="150" y1="85" x2="150" y2="105" stroke-width="2"/>
-            <line x1="160" y1="90" x2="160" y2="105" stroke-width="1.5"/>
-            <path d="M 140 249 L 140 220 Q 150 210 160 220 L 160 249" fill="${strokeColor}" fill-opacity="0.3"/>
-            <text x="150" y="280" text-anchor="middle" fill="${strokeColor}" font-family="'Space Grotesk', monospace" font-size="10" font-weight="700" letter-spacing="3">RISING TOWERS</text>
+            <!-- Monolithic clean geometric lines & golden ratio square -->
+            <rect x="100" y="115" width="100" height="100" stroke="${strokeColor}" stroke-width="1.8" fill="${strokeColor}" fill-opacity="0.05"/>
+            <line x1="100" y1="165" x2="200" y2="165" stroke="${strokeColor}" stroke-width="1.2"/>
+            <circle cx="150" cy="165" r="25" stroke="${strokeColor}" stroke-width="1.2"/>
+            <circle cx="150" cy="165" r="3" fill="${strokeColor}"/>
+            <text x="150" y="280" text-anchor="middle" fill="${strokeColor}" font-family="'Space Grotesk', monospace" font-size="10" font-weight="700" letter-spacing="4">MINIMAL // RAW</text>
           </g>
         `;
         break;
@@ -710,57 +635,34 @@
 
   // DEFAULT COLLECTIONS (Canon Chapters)
   const DEFAULT_COLLECTIONS = [
-    { id: 'c-all', name: 'ALL', slug: 'all', description: 'Browse and secure your relics from our structural multi-chapter manifest. Every garment is heavily engineered and strictly numbered.', isActive: true, order: 0 },
-    { id: 'c-heritage', name: 'HERITAGE', slug: 'heritage', description: 'Rooted in the earth of Bharat. Cultural brutalism and ancient stone friezes.', isActive: true, order: 1 },
-    { id: 'c-garuda', name: 'GARUDA', slug: 'garuda', description: 'Geometric winged dissent. Sovereign avian iconography on 240+ GSM drape.', isActive: true, order: 2 },
-    { id: 'c-asura', name: 'ASURA', slug: 'asura', description: 'Chaos doctrine // Duality. Underground mythological armor and sun-burnt patinas.', isActive: true, order: 3 },
-    { id: 'c-berunda', name: 'BERUNDA', slug: 'berunda', description: 'Twin-headed sovereignty. Heavy canvas and monumental bullion embroidery.', isActive: true, order: 4 },
-    { id: 'c-chola', name: 'CHOLA', slug: 'chola', description: 'Maritime dominion in bronze. Imperial temple armor and tactical outer shells.', isActive: true, order: 5 },
-    { id: 'c-simha', name: 'SIMHA', slug: 'simha', description: 'Lion crest of sovereign pillars. Heavyweight armor forged in stone silence.', isActive: false, order: 6 },
-    { id: 'c-nagara', name: 'NAGARA', slug: 'nagara', description: 'Spires reaching toward heavens. Serpent coil geometry and architectural relief.', isActive: false, order: 7 },
-    { id: 'c-kalpa', name: 'KALPA', slug: 'kalpa', description: 'Cycles of cosmic dissolution. Monolithic granite block with geometric engravings.', isActive: false, order: 8 },
-    { id: 'c-ayudha', name: 'AYUDHA', slug: 'ayudha', description: 'Weapons forged in stone silence. Dark techwear accessory with high-spec modular straps.', isActive: false, order: 9 },
-    { id: 'c-dravida', name: 'DRAVIDA', slug: 'dravida', description: 'Brutalist temple gopuram tower silhouette towering vertically into midnight sky.', isActive: false, order: 10 }
+    { id: 'c-all', name: 'ALL', slug: 'all', description: 'Browse and secure your relics from our structural multi-chapter manifest. Every garment is heavily engineered in 240+ GSM and strictly numbered.', isActive: true, order: 0 },
+    { id: 'c-anime', name: 'ANIME', slug: 'anime', description: 'Anime characters, manga-inspired artwork, Japanese animation.', isActive: true, order: 1 },
+    { id: 'c-mythology', name: 'MYTHOLOGY', slug: 'mythology', description: 'Krishna, Shiva, Hanuman, Ramayana, Mahabharata, deities, mythological stories.', isActive: true, order: 2 },
+    { id: 'c-heritage', name: 'HERITAGE', slug: 'heritage', description: 'Indian crafts, folk art, traditional patterns, architecture, cultural symbols, regional traditions.', isActive: true, order: 3 },
+    { id: 'c-street-culture', name: 'STREET CULTURE', slug: 'street-culture', description: 'Graffiti, urban graphics, hip-hop, typography, rebellious/contemporary designs.', isActive: true, order: 4 },
+    { id: 'c-minimal', name: 'MINIMAL', slug: 'minimal', description: 'Simple typography, subtle symbols, clean graphics, understated designs.', isActive: true, order: 5 }
   ];
 
   /* ==========================================================================
-     THE TEN UNIVERSE CHAPTERS (MATCHING FIGMA SPECIFICATION)
-     --------------------------------------------------------------------------
-     Row 1: ACTIVE DROP CHAPTERS (01–05)
-     Row 2: LOCK-DOWN VAULT STAGES (06–10)
+     THE ARCHIVE UNIVERSE CHAPTERS
      ========================================================================== */
   const DEFAULT_UNIVERSE_CHAPTERS = [
-    { num: '01', name: 'HERITAGE', slug: 'heritage', chapter: 'CHAPTER 01: ORIGIN', category: 'active', statusBadge: '4 PIECES ACTIVE', isLive: true, image: null, description: 'Rooted in the earth of Bharat. Cultural brutalism and ancient stone friezes.' },
-    { num: '02', name: 'GARUDA', slug: 'garuda', chapter: 'CHAPTER 02: SOVEREIGN SKY', category: 'active', statusBadge: '4 PIECES ACTIVE', isLive: true, image: null, description: 'Geometric winged dissent. Sovereign avian iconography on 240+ GSM drape.' },
-    { num: '03', name: 'ASURA', slug: 'asura', chapter: 'CHAPTER 03: SOLAR SHADOWS', category: 'active', statusBadge: '4 PIECES ACTIVE', isLive: false, image: null, description: 'Chaos doctrine // Duality. Underground mythological armor and sun-burnt patinas.' },
-    { num: '04', name: 'BERUNDA', slug: 'berunda', chapter: 'CHAPTER 04: DOUBLE VISION', category: 'active', statusBadge: '4 PIECES ACTIVE', isLive: false, image: null, description: 'Twin-headed sovereignty. Heavy canvas and monumental bullion embroidery.' },
-    { num: '05', name: 'CHOLA', slug: 'chola', chapter: 'CHAPTER 05: BRONZE AGE', category: 'active', statusBadge: '4 PIECES ACTIVE', isLive: false, image: null, description: 'Maritime dominion in bronze. Imperial temple armor and tactical outer shells.' },
-    { num: '06', name: 'SIMHA', slug: 'simha', chapter: 'CHAPTER 06: PRIDE & CLAW', category: 'vault', statusBadge: 'COMING SOON', isLive: false, image: null, description: 'Lion crest of sovereign pillars. Heavyweight armor forged in stone silence.' },
-    { num: '07', name: 'NAGARA', slug: 'nagara', chapter: 'CHAPTER 07: COIL & SPIRE', category: 'vault', statusBadge: 'COMING SOON', isLive: false, image: null, description: 'Spires reaching toward heavens. Serpent coil geometry and architectural relief.' },
-    { num: '08', name: 'KALPA', slug: 'kalpa', chapter: 'CHAPTER 08: INFINITE LOOP', category: 'vault', statusBadge: 'COMING SOON', isLive: false, image: null, description: 'Cycles of cosmic dissolution. Monolithic granite block with geometric engravings.' },
-    { num: '09', name: 'AYUDHA', slug: 'ayudha', chapter: 'CHAPTER 09: ARCHIVAL BLADES', category: 'vault', statusBadge: 'COMING SOON', isLive: false, image: null, description: 'Weapons forged in stone silence. Dark techwear accessory with high-spec modular straps.' },
-    { num: '10', name: 'DRAVIDA', slug: 'dravida', chapter: 'CHAPTER 10: RISING TOWERS', category: 'vault', statusBadge: 'COMING SOON', isLive: false, image: null, description: 'Brutalist temple gopuram tower silhouette towering vertically into midnight sky.' }
+    { num: '01', name: 'ANIME', slug: 'anime', chapter: 'CHAPTER 01: MANGA & ANIME', category: 'active', statusBadge: 'ACTIVE DROP', isLive: true, image: null, description: 'Anime characters, manga-inspired artwork, Japanese animation.' },
+    { num: '02', name: 'MYTHOLOGY', slug: 'mythology', chapter: 'CHAPTER 02: SACRED MYTHOLOGY', category: 'active', statusBadge: 'ACTIVE DROP', isLive: true, image: null, description: 'Krishna, Shiva, Hanuman, Ramayana, Mahabharata, deities, mythological stories.' },
+    { num: '03', name: 'HERITAGE', slug: 'heritage', chapter: 'CHAPTER 03: BHARAT HERITAGE', category: 'active', statusBadge: 'ACTIVE DROP', isLive: true, image: null, description: 'Indian crafts, folk art, traditional patterns, architecture, cultural symbols, regional traditions.' },
+    { num: '04', name: 'STREET CULTURE', slug: 'street-culture', chapter: 'CHAPTER 04: URBAN STREET CULTURE', category: 'active', statusBadge: 'ACTIVE DROP', isLive: true, image: null, description: 'Graffiti, urban graphics, hip-hop, typography, rebellious/contemporary designs.' },
+    { num: '05', name: 'MINIMAL', slug: 'minimal', chapter: 'CHAPTER 05: MONOLITHIC MINIMAL', category: 'active', statusBadge: 'ACTIVE DROP', isLive: true, image: null, description: 'Simple typography, subtle symbols, clean graphics, understated designs.' }
   ];
 
   /* ==========================================================================
-     THE TEN ARCHIVE EDITIONS CONFIGURATION
-     --------------------------------------------------------------------------
-     Easily add or activate collections for future launches:
-     - status: 'active'  => Live drop, clickable link with [+] and hover effects
-     - status: 'next'    => Upcoming drop with [NEXT] badge, non-interactive
-     - status: 'vault'   => Locked edition, dimmed with [VAULT] badge, non-interactive
+     THE ARCHIVE EDITIONS CONFIGURATION
      ========================================================================== */
   const TEN_ARCHIVE_EDITIONS = [
-    { num: '01', title: 'HERITAGE', desc: 'CHAPTER 01: ORIGIN', status: 'active', slug: 'heritage' },
-    { num: '02', title: 'GARUDA', desc: 'CHAPTER 02: SOVEREIGN SKY', status: 'active', slug: 'garuda' },
-    { num: '03', title: 'ASURA', desc: 'CHAPTER 03: SOLAR SHADOWS', status: 'vault', slug: 'asura' },
-    { num: '04', title: 'BERUNDA', desc: 'CHAPTER 04: DOUBLE VISION', status: 'vault', slug: 'berunda' },
-    { num: '05', title: 'CHOLA', desc: 'CHAPTER 05: BRONZE AGE', status: 'vault', slug: 'chola' },
-    { num: '06', title: 'SIMHA', desc: 'CHAPTER 06: PRIDE & CLAW', status: 'vault', slug: 'simha' },
-    { num: '07', title: 'NAGARA', desc: 'CHAPTER 07: COIL & SPIRE', status: 'vault', slug: 'nagara' },
-    { num: '08', title: 'KALPA', desc: 'CHAPTER 08: INFINITE LOOP', status: 'vault', slug: 'kalpa' },
-    { num: '09', title: 'AYUDHA', desc: 'CHAPTER 09: ARCHIVAL BLADES', status: 'vault', slug: 'ayudha' },
-    { num: '10', title: 'DRAVIDA', desc: 'CHAPTER 10: RISING TOWERS', status: 'vault', slug: 'dravida' }
+    { num: '01', title: 'ANIME', desc: 'CHAPTER 01: MANGA & ANIME', status: 'active', slug: 'anime' },
+    { num: '02', title: 'MYTHOLOGY', desc: 'CHAPTER 02: SACRED MYTHOLOGY', status: 'active', slug: 'mythology' },
+    { num: '03', title: 'HERITAGE', desc: 'CHAPTER 03: BHARAT HERITAGE', status: 'active', slug: 'heritage' },
+    { num: '04', title: 'STREET CULTURE', desc: 'CHAPTER 04: URBAN STREET CULTURE', status: 'active', slug: 'street-culture' },
+    { num: '05', title: 'MINIMAL', desc: 'CHAPTER 05: MONOLITHIC MINIMAL', status: 'active', slug: 'minimal' }
   ];
 
   // DEFAULT SIZE GUIDE
@@ -878,8 +780,8 @@
       description: 'Monumental archival 300 GSM cotton tee presenting the multi-armed Yogic sovereign deity in pure metallic gold foil screenprint.',
       price: 3600,
       comparePrice: 4200,
-      collection: 'garuda',
-      tags: ['garuda', 'mythology', 'gold-foil', '300gsm', 'yoga'],
+      collection: 'mythology',
+      tags: ['mythology', 'deities', 'krishna', 'shiva', 'gold-foil', '300gsm', 'yoga'],
       fabric: '300 GSM ARCHIVAL COTTON // GOLD FOIL PRINT',
       gsm: 300,
       fit: 'Architectural Boxy',
@@ -894,10 +796,10 @@
       colors: ['Obsidian Black'],
       sizes: ['S', 'M', 'L', 'XL', 'XXL'],
       images: {
-        front: createTeeSVG('SRI YOGA SARASVATHESHWARA', 'Garuda', '#0c0c10', '#FFA000', 'front'),
-        back: createTeeSVG('SRI YOGA SARASVATHESHWARA', 'Garuda', '#0c0c10', '#FFA000', 'back'),
-        closeup: createTeeSVG('SRI YOGA SARASVATHESHWARA', 'Garuda', '#0c0c10', '#FFA000', 'closeup'),
-        lifestyle: createTeeSVG('SRI YOGA SARASVATHESHWARA', 'Garuda', '#0c0c10', '#FFA000', 'lifestyle')
+        front: createTeeSVG('SRI YOGA SARASVATHESHWARA', 'Mythology', '#0c0c10', '#FFA000', 'front'),
+        back: createTeeSVG('SRI YOGA SARASVATHESHWARA', 'Mythology', '#0c0c10', '#FFA000', 'back'),
+        closeup: createTeeSVG('SRI YOGA SARASVATHESHWARA', 'Mythology', '#0c0c10', '#FFA000', 'closeup'),
+        lifestyle: createTeeSVG('SRI YOGA SARASVATHESHWARA', 'Mythology', '#0c0c10', '#FFA000', 'lifestyle')
       },
       variants: [
         { color: 'Obsidian Black', size: 'S', stock: 7 },
@@ -914,8 +816,8 @@
       description: 'Heavyweight tactical bomber constructed in 450 GSM canvas shell with custom antique brass zippers, rib knit cuffs, and tonal warrior embroidery.',
       price: 6500,
       comparePrice: 7999,
-      collection: 'chola',
-      tags: ['chola', 'jacket', 'bomber', 'nritya', '450gsm', 'heritage'],
+      collection: 'heritage',
+      tags: ['heritage', 'indian-craft', 'jacket', 'bomber', 'nritya', '450gsm'],
       fabric: '450 GSM DUCK CANVAS // BOMBER ARCHITECTURE',
       gsm: 450,
       fit: 'Bomber Flight Cut',
@@ -930,10 +832,10 @@
       colors: ['Pitch Black'],
       sizes: ['S', 'M', 'L', 'XL', 'XXL'],
       images: {
-        front: createTeeSVG('NRITYA PRIMACY BOMBER', 'Chola', '#121218', '#f59e0b', 'front'),
-        back: createTeeSVG('NRITYA PRIMACY BOMBER', 'Chola', '#121218', '#f59e0b', 'back'),
-        closeup: createTeeSVG('NRITYA PRIMACY BOMBER', 'Chola', '#121218', '#f59e0b', 'closeup'),
-        lifestyle: createTeeSVG('NRITYA PRIMACY BOMBER', 'Chola', '#121218', '#f59e0b', 'lifestyle')
+        front: createTeeSVG('NRITYA PRIMACY BOMBER', 'Heritage', '#121218', '#f59e0b', 'front'),
+        back: createTeeSVG('NRITYA PRIMACY BOMBER', 'Heritage', '#121218', '#f59e0b', 'back'),
+        closeup: createTeeSVG('NRITYA PRIMACY BOMBER', 'Heritage', '#121218', '#f59e0b', 'closeup'),
+        lifestyle: createTeeSVG('NRITYA PRIMACY BOMBER', 'Heritage', '#121218', '#f59e0b', 'lifestyle')
       },
       variants: [
         { color: 'Pitch Black', size: 'S', stock: 5 },
@@ -950,8 +852,8 @@
       description: 'Sun-burnt charcoal compact jersey featuring high-density sacred Sanskrit hymn "ॐ सह नाववतु" and radiating solar celestial sigil.',
       price: 2900,
       comparePrice: 3500,
-      collection: 'asura',
-      tags: ['asura', 'mythology', 'solar-fire', '280gsm', 'oversized'],
+      collection: 'mythology',
+      tags: ['mythology', 'shiva', 'ramayana', 'solar-fire', '280gsm', 'oversized'],
       fabric: '280 GSM COMPACT JERSEY // SUN BURNT PATINA',
       gsm: 280,
       fit: 'Relaxed Drop-Shoulder',
@@ -966,10 +868,10 @@
       colors: ['Washed Charcoal'],
       sizes: ['S', 'M', 'L', 'XL', 'XXL'],
       images: {
-        front: createTeeSVG('ASURA SOLAR FIRE', 'Asura', '#1a1816', '#ff5722', 'front'),
-        back: createTeeSVG('ASURA SOLAR FIRE', 'Asura', '#1a1816', '#ff5722', 'back'),
-        closeup: createTeeSVG('ASURA SOLAR FIRE', 'Asura', '#1a1816', '#ff5722', 'closeup'),
-        lifestyle: createTeeSVG('ASURA SOLAR FIRE', 'Asura', '#1a1816', '#ff5722', 'lifestyle')
+        front: createTeeSVG('ASURA SOLAR FIRE', 'Mythology', '#1a1816', '#ff5722', 'front'),
+        back: createTeeSVG('ASURA SOLAR FIRE', 'Mythology', '#1a1816', '#ff5722', 'back'),
+        closeup: createTeeSVG('ASURA SOLAR FIRE', 'Mythology', '#1a1816', '#ff5722', 'closeup'),
+        lifestyle: createTeeSVG('ASURA SOLAR FIRE', 'Mythology', '#1a1816', '#ff5722', 'lifestyle')
       },
       variants: [
         { color: 'Washed Charcoal', size: 'S', stock: 7 },
@@ -986,8 +888,8 @@
       description: '280 GSM heavyweight cotton tee with monumental twin-headed Gandaberunda imperial crest rendered in antique gold embroidery.',
       price: 3500,
       comparePrice: 4200,
-      collection: 'berunda',
-      tags: ['berunda', 'heritage', 'embroidery', '280gsm', 'armor'],
+      collection: 'heritage',
+      tags: ['heritage', 'berunda', 'traditional-patterns', 'cultural-symbols', 'embroidery', '280gsm', 'armor'],
       fabric: '280 GSM HEAVY TERRY // GOLD EMBROIDERY',
       gsm: 280,
       fit: 'Oversized',
@@ -1002,10 +904,10 @@
       colors: ['Pitch Black'],
       sizes: ['S', 'M', 'L', 'XL', 'XXL'],
       images: {
-        front: createTeeSVG('BERUNDA DUAL VISION', 'Berunda', '#0a0a0e', '#FFA000', 'front'),
-        back: createTeeSVG('BERUNDA DUAL VISION', 'Berunda', '#0a0a0e', '#FFA000', 'back'),
-        closeup: createTeeSVG('BERUNDA DUAL VISION', 'Berunda', '#0a0a0e', '#FFA000', 'closeup'),
-        lifestyle: createTeeSVG('BERUNDA DUAL VISION', 'Berunda', '#0a0a0e', '#FFA000', 'lifestyle')
+        front: createTeeSVG('BERUNDA DUAL VISION', 'Heritage', '#0a0a0e', '#FFA000', 'front'),
+        back: createTeeSVG('BERUNDA DUAL VISION', 'Heritage', '#0a0a0e', '#FFA000', 'back'),
+        closeup: createTeeSVG('BERUNDA DUAL VISION', 'Heritage', '#0a0a0e', '#FFA000', 'closeup'),
+        lifestyle: createTeeSVG('BERUNDA DUAL VISION', 'Heritage', '#0a0a0e', '#FFA000', 'lifestyle')
       },
       variants: [
         { color: 'Pitch Black', size: 'S', stock: 5 },
@@ -1022,8 +924,8 @@
       description: '240 GSM heavyweight oversized silhouette featuring high-density back-print of the mythical celestial fox spirit. Constructed with double-combed long-staple yarns for architectural boxy drape.',
       price: 1499,
       comparePrice: 1999,
-      collection: 'heritage',
-      tags: ['oversized', 'anime', 'heavyweight', '240gsm'],
+      collection: 'anime',
+      tags: ['anime', 'manga', 'japanese-animation', 'ninetails', 'oversized', '240gsm'],
       fabric: '240 GSM INTERLOCK COTTON',
       gsm: 240,
       fit: 'Oversized',
@@ -1063,8 +965,8 @@
       description: 'An ode to the supreme avian sovereign. Geometric feathered wingspan printed in reflective metallic pigments across dropped shoulder seams on 240 GSM heavy French cotton.',
       price: 1699,
       comparePrice: 2199,
-      collection: 'garuda',
-      tags: ['mythology', 'garuda', 'heavyweight', '240gsm'],
+      collection: 'mythology',
+      tags: ['mythology', 'garuda', 'deities', 'mythological-stories', 'heavyweight', '240gsm'],
       fabric: '240 GSM HEAVYWEIGHT FRENCH COTTON',
       gsm: 240,
       fit: 'Oversized',
@@ -1105,7 +1007,7 @@
       price: 1599,
       comparePrice: 2099,
       collection: 'heritage',
-      tags: ['heritage', 'bharat', 'oversized', '240gsm'],
+      tags: ['heritage', 'bharat', 'architecture', 'cultural-symbols', 'oversized', '240gsm'],
       fabric: '240 GSM HIGH DENSITY KNIT',
       gsm: 240,
       fit: 'Oversized',
@@ -1145,8 +1047,8 @@
       description: 'Underground dystopian Indian streetwear. High-impact typography with anti-surveillance warning tapes engineered on 240 GSM ultra-heavy cotton.',
       price: 1499,
       comparePrice: 1899,
-      collection: 'chola',
-      tags: ['street', 'cyber', 'oversized', '240gsm', 'chola'],
+      collection: 'street-culture',
+      tags: ['street-culture', 'typography', 'graffiti', 'urban', 'rebellious', 'oversized', '240gsm'],
       fabric: '240 GSM ULTRA-HEAVY COTTON',
       gsm: 240,
       fit: 'Oversized',
@@ -1161,10 +1063,10 @@
       colors: ['Pitch Black', 'Acid Charcoal'],
       sizes: ['S', 'M', 'L', 'XL', 'XXL'],
       images: {
-        front: createTeeSVG('BRAVADIAN CYBER', 'Street', '#0a0a0e', '#ff4d00', 'front'),
-        back: createTeeSVG('BRAVADIAN CYBER', 'Street', '#0a0a0e', '#ff4d00', 'back'),
-        closeup: createTeeSVG('BRAVADIAN CYBER', 'Street', '#0a0a0e', '#ff4d00', 'closeup'),
-        lifestyle: createTeeSVG('BRAVADIAN CYBER', 'Street', '#0a0a0e', '#ff4d00', 'lifestyle')
+        front: createTeeSVG('BRAVADIAN CYBER', 'Street Culture', '#0a0a0e', '#ff4d00', 'front'),
+        back: createTeeSVG('BRAVADIAN CYBER', 'Street Culture', '#0a0a0e', '#ff4d00', 'back'),
+        closeup: createTeeSVG('BRAVADIAN CYBER', 'Street Culture', '#0a0a0e', '#ff4d00', 'closeup'),
+        lifestyle: createTeeSVG('BRAVADIAN CYBER', 'Street Culture', '#0a0a0e', '#ff4d00', 'lifestyle')
       },
       variants: [
         { color: 'Pitch Black', size: 'S', stock: 4 },
@@ -1186,8 +1088,8 @@
       description: 'Zero graphics. Zero noise. Pure structural drape, thick 1.25" Lycra rib collar, and drop-shoulder presence. Designed to outlast seasonal trends.',
       price: 1299,
       comparePrice: 1599,
-      collection: 'heritage',
-      tags: ['minimal', 'essential', 'plain', '240gsm', 'heritage'],
+      collection: 'minimal',
+      tags: ['minimal', 'essential', 'clean-graphics', 'understated', 'simple-typography', '240gsm'],
       fabric: '240 GSM COMBED INTERLOCK',
       gsm: 240,
       fit: 'Oversized',
@@ -1227,8 +1129,8 @@
       description: 'Unreleased archive drop. 24-spoke Solar Chakra motif in neon solar ember across the chest and oversized drop spine. Limited to 500 numbered pieces.',
       price: 1799,
       comparePrice: 2299,
-      collection: 'asura',
-      tags: ['asura', 'ashoka', 'limited', '240gsm'],
+      collection: 'heritage',
+      tags: ['heritage', 'ashoka', 'cultural-symbols', 'traditional-patterns', 'limited', '240gsm'],
       fabric: '240 GSM COMBED HEAVY COTTON',
       gsm: 240,
       fit: 'Oversized',
@@ -1243,9 +1145,9 @@
       colors: ['Black Ember'],
       sizes: ['S', 'M', 'L', 'XL', 'XXL'],
       images: {
-        front: createTeeSVG('BRAVADIAN ASHOKA', 'New Drop', '#0c0c10', '#ff4d00', 'front'),
-        back: createTeeSVG('BRAVADIAN ASHOKA', 'New Drop', '#0c0c10', '#ff4d00', 'back'),
-        closeup: createTeeSVG('BRAVADIAN ASHOKA', 'New Drop', '#0c0c10', '#ff4d00', 'closeup'),
+        front: createTeeSVG('BRAVADIAN ASHOKA', 'Heritage', '#0c0c10', '#ff4d00', 'front'),
+        back: createTeeSVG('BRAVADIAN ASHOKA', 'Heritage', '#0c0c10', '#ff4d00', 'back'),
+        closeup: createTeeSVG('BRAVADIAN ASHOKA', 'Heritage', '#0c0c10', '#ff4d00', 'closeup'),
         lifestyle: createTeeSVG('BRAVADIAN ASHOKA', 'New Drop', '#0c0c10', '#ff4d00', 'lifestyle')
       },
       variants: [
@@ -1264,7 +1166,7 @@
 
     init() {
       // Auto-Migration to ensure new luxury mockups, products, and collections load immediately
-      const DATA_VERSION = '3.1.0';
+      const DATA_VERSION = '4.0.0';
       const storedVer = localStorage.getItem('bravadian_data_version');
       const storedProds = localStorage.getItem('bravadian_products');
       const hasStaleJpg = storedProds && (storedProds.includes('images/relics') || storedProds.includes('.jpg'));
@@ -1274,6 +1176,7 @@
         // Refresh cached products with pristine diagrams and collections
         localStorage.removeItem('bravadian_products');
         localStorage.removeItem('bravadian_collections');
+        localStorage.removeItem('bravadian_universe_chapters');
         // Update contact details in existing stored settings
         const storedSettings = localStorage.getItem('bravadian_settings');
         if (storedSettings) {
@@ -1326,19 +1229,23 @@
       // Apply Filters
       if (filters.collection && filters.collection !== 'all') {
         const cSlug = filters.collection.toLowerCase();
-        // Data-driven collection alias map — add new aliases here
+        // Alias map for legacy URLs or tags
         const COLLECTION_ALIASES = {
           'garuda': ['mythology'],
           'asura': ['mythology'],
           'berunda': ['heritage'],
-          'chola': ['heritage']
+          'chola': ['heritage', 'street-culture'],
+          'street': ['street-culture'],
+          'manga': ['anime'],
+          'traditional': ['heritage'],
+          'urban': ['street-culture']
         };
         const aliases = COLLECTION_ALIASES[cSlug] || [];
         prods = prods.filter(p => {
           const pCol = (p.collection || '').toLowerCase();
           return pCol === cSlug ||
             aliases.includes(pCol) ||
-            (p.tags && p.tags.some(t => t.toLowerCase() === cSlug));
+            (p.tags && p.tags.some(t => t.toLowerCase() === cSlug || (COLLECTION_ALIASES[t.toLowerCase()] && COLLECTION_ALIASES[t.toLowerCase()].includes(cSlug))));
         });
       }
       if (filters.search) {
