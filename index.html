@@ -560,34 +560,207 @@
     </div>
   </div>
 
-  <!-- SIZE GUIDE MODAL -->
-  <div class="modal-overlay" id="sizeGuideModal">
-    <div class="modal-content-card">
-      <div class="modal-head">
-        <h3 class="modal-title">SIZE GUIDE // 240 GSM</h3>
-        <button type="button" class="cart-close-btn" id="closeSizeGuideBtn">&times;</button>
+  <!-- SIZE & SPECIFICATION GUIDE MODAL (SYSTEM V.1) -->
+  <div class="modal-overlay size-spec-modal-overlay" id="sizeGuideModal" role="dialog" aria-modal="true" aria-label="Size & Specification Guide">
+    <div class="size-spec-card">
+      <button type="button" class="size-spec-close-btn" id="closeSizeGuideBtn" aria-label="Close size guide">&times;</button>
+      
+      <!-- HEADER -->
+      <div class="size-spec-header">
+        <div class="size-spec-tag">
+          <span class="size-spec-square">■</span>
+          <span>TECHNICAL FIT VERIFICATION // SYSTEM V.1</span>
+        </div>
+        <h2 class="size-spec-title">SIZE & SPECIFICATION GUIDE</h2>
+        <p class="size-spec-desc">
+          BRAVADIAN garments are engineered with relaxed, drop-shoulder silhouettes and custom heavyweight drapes. Use this matrix to calibrate your exact fit profile.
+        </p>
       </div>
-      <p style="font-size: 0.85rem; color: #aaa; margin-bottom: 1.5rem;">
-        All silhouettes follow our custom boxy oversized cut with heavy dropped shoulders. All measurements are in <strong>inches</strong>.
-      </p>
 
-      <table class="size-guide-table">
-        <thead>
-          <tr>
-            <th>SIZE</th>
-            <th>CHEST</th>
-            <th>LENGTH</th>
-            <th>SHOULDER</th>
-            <th>SLEEVE</th>
-          </tr>
-        </thead>
-        <tbody id="sizeGuideTableBody">
-          <!-- Populated from data -->
-        </tbody>
-      </table>
+      <!-- SECTION 01: SPECIFICATION MATRIX -->
+      <section class="size-spec-section">
+        <div class="size-spec-section-head">
+          <span class="size-spec-section-num">— 01 / SPECIFICATION MATRIX</span>
+          <h3 class="size-spec-section-title">MEASUREMENT CHART</h3>
+          <p class="size-spec-section-sub">
+            All specifications are shown in centimeters (cm). Garments are measured flat on a level surface.
+          </p>
+        </div>
 
-      <div class="size-guide-notes">
-        • <strong>Fit Recommendation:</strong> For an extreme boxy street drape, choose your true size. For a regular relaxed fit, size down by one.
+        <div class="size-spec-table-wrap">
+          <table class="size-spec-table">
+            <thead>
+              <tr>
+                <th class="col-size">SIZE (OVERSIZED)</th>
+                <th>CHEST WIDTH</th>
+                <th>BODY LENGTH</th>
+                <th>SHOULDER WIDTH</th>
+                <th>SLEEVE LENGTH</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="cell-size">S</td>
+                <td>118 cm</td>
+                <td>72 cm</td>
+                <td>58 cm</td>
+                <td>22 cm</td>
+              </tr>
+              <tr>
+                <td class="cell-size">M</td>
+                <td>124 cm</td>
+                <td>74 cm</td>
+                <td>58 cm</td>
+                <td>23 cm</td>
+              </tr>
+              <tr>
+                <td class="cell-size">L</td>
+                <td>130 cm</td>
+                <td>76 cm</td>
+                <td>60 cm</td>
+                <td>24 cm</td>
+              </tr>
+              <tr>
+                <td class="cell-size">XL</td>
+                <td>138 cm</td>
+                <td>78 cm</td>
+                <td>62 cm</td>
+                <td>25 cm</td>
+              </tr>
+              <tr>
+                <td class="cell-size">XXL</td>
+                <td>142 cm</td>
+                <td>80 cm</td>
+                <td>64 cm</td>
+                <td>26 cm</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- LOWER SPLIT: 02 HOW TO MEASURE & 03 ON-BODY FIT GUIDE -->
+      <div class="size-spec-split-grid">
+        <!-- 02 / DIAGNOSIS PROTOCOL: HOW TO MEASURE -->
+        <section class="size-spec-col">
+          <div class="size-spec-section-head">
+            <span class="size-spec-section-num">— 02 / DIAGNOSIS PROTOCOL</span>
+            <h3 class="size-spec-section-title">HOW TO MEASURE</h3>
+          </div>
+
+          <div class="size-spec-blueprint-box">
+            <!-- Technical Blueprint Vector SVG -->
+            <div class="size-spec-blueprint-canvas">
+              <svg viewBox="0 0 360 250" class="blueprint-svg" fill="none" stroke="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <!-- Grid pattern -->
+                <defs>
+                  <pattern id="blueprintGrid" width="20" height="20" patternUnits="userSpaceOnUse">
+                    <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(255,160,0,0.06)" stroke-width="0.75"/>
+                  </pattern>
+                </defs>
+                <rect width="100%" height="100%" fill="url(#blueprintGrid)" />
+
+                <!-- T-Shirt Technical Silhouette Outline (Boxy Drop Shoulder) -->
+                <path d="M 130 52 C 145 68, 215 68, 230 52 L 285 78 L 320 142 L 275 160 L 260 120 L 260 220 L 100 220 L 100 120 L 85 160 L 40 142 L 75 78 Z" fill="#0C0C10" stroke="#FFA000" stroke-width="1.8" stroke-linejoin="round"/>
+                
+                <!-- Collar rib -->
+                <path d="M 130 52 C 145 74, 215 74, 230 52" fill="none" stroke="#FFA000" stroke-width="2.5"/>
+                <path d="M 130 52 C 145 42, 215 42, 230 52" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1.2"/>
+
+                <!-- Drop Shoulder seams -->
+                <line x1="100" y1="120" x2="130" y2="52" stroke="rgba(255,255,255,0.25)" stroke-width="1.2" stroke-dasharray="3,2"/>
+                <line x1="260" y1="120" x2="230" y2="52" stroke="rgba(255,255,255,0.25)" stroke-width="1.2" stroke-dasharray="3,2"/>
+
+                <!-- 1. Chest Width Measurement Line -->
+                <line x1="90" y1="135" x2="270" y2="135" stroke="#FFA000" stroke-width="1.5" stroke-dasharray="4,3"/>
+                <circle cx="100" cy="135" r="3" fill="#FFA000"/>
+                <circle cx="260" cy="135" r="3" fill="#FFA000"/>
+                <text x="180" y="130" text-anchor="middle" fill="#FFA000" font-family="'Space Grotesk', monospace" font-size="8.5" font-weight="700" letter-spacing="1.5">CHEST WIDTH</text>
+
+                <!-- 2. Body Length Measurement Line -->
+                <line x1="130" y1="45" x2="130" y2="230" stroke="rgba(255,255,255,0.7)" stroke-width="1.2" stroke-dasharray="4,3"/>
+                <line x1="120" y1="52" x2="140" y2="52" stroke="#fff" stroke-width="1.5"/>
+                <line x1="90" y1="220" x2="270" y2="220" stroke="#fff" stroke-width="1.5"/>
+                <text x="122" y="175" text-anchor="middle" fill="#fff" font-family="'Space Grotesk', monospace" font-size="8" font-weight="700" letter-spacing="1" transform="rotate(-90 122 175)">BODY LENGTH</text>
+
+                <!-- 3. Shoulder Drop Dimension -->
+                <line x1="68" y1="70" x2="292" y2="70" stroke="rgba(255,160,0,0.6)" stroke-width="1" stroke-dasharray="3,2"/>
+                <text x="180" y="42" text-anchor="middle" fill="#C9C6C2" font-family="'Space Grotesk', monospace" font-size="7.5" font-weight="600" letter-spacing="1">SHOULDER WIDTH</text>
+
+                <!-- 4. Sleeve Length Dimension -->
+                <line x1="285" y1="78" x2="320" y2="142" stroke="#FFA000" stroke-width="1.5"/>
+                <text x="315" y="105" text-anchor="start" fill="#FFA000" font-family="'Space Grotesk', monospace" font-size="7.5" font-weight="700">SLEEVE</text>
+              </svg>
+            </div>
+            <div class="size-spec-blueprint-caption">
+              REFERENCE GRAPH // MEASUREMENT BOUNDARIES
+            </div>
+          </div>
+
+          <div class="size-spec-steps">
+            <div class="size-spec-step-item">
+              <span class="step-num-title">1. CHEST WIDTH</span>
+              <p class="step-desc">
+                Measure horizontally across the chest from armpit to armpit. Multiply by 2 for the total circumference.
+              </p>
+            </div>
+            <div class="size-spec-step-item">
+              <span class="step-num-title">2. BODY LENGTH</span>
+              <p class="step-desc">
+                Measure vertically from the highest point of the shoulder (beside the collar) down to the bottom hem.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- 03 / VOLUMETRIC CALIBRATION: ON-BODY FIT GUIDE -->
+        <section class="size-spec-col">
+          <div class="size-spec-section-head">
+            <span class="size-spec-section-num">— 03 / VOLUMETRIC CALIBRATION</span>
+            <h3 class="size-spec-section-title">ON-BODY FIT GUIDE</h3>
+          </div>
+
+          <div class="size-fit-cards-wrap">
+            <!-- Card 1: Compact Slouch -->
+            <div class="size-fit-card">
+              <div class="size-fit-img-wrap">
+                <img src="images/fit-slouch.jpg" alt="Fit Profile Compact Slouch" class="size-fit-img" loading="lazy">
+              </div>
+              <div class="size-fit-content">
+                <h4 class="size-fit-name">FIT PROFILE // COMPACT SLOUCH</h4>
+                <p class="size-fit-desc">
+                  Model is 175cm / 68kg wearing <strong class="fit-highlight">SIZE M</strong>. Offers a relaxed drape that sits comfortably with classic drop shoulders.
+                </p>
+              </div>
+            </div>
+
+            <!-- Card 2: Engineered Drape -->
+            <div class="size-fit-card">
+              <div class="size-fit-img-wrap">
+                <img src="images/fit-drape.jpg" alt="Fit Profile Engineered Drape" class="size-fit-img" loading="lazy">
+              </div>
+              <div class="size-fit-content">
+                <h4 class="size-fit-name">FIT PROFILE // ENGINEERED DRAPE</h4>
+                <p class="size-fit-desc">
+                  Model is 183cm / 76kg wearing <strong class="fit-highlight">SIZE L</strong>. Perfect oversized scale. Heavyweight fabrics fall beautifully without ballooning.
+                </p>
+              </div>
+            </div>
+
+            <!-- Card 3: Severe Armor -->
+            <div class="size-fit-card">
+              <div class="size-fit-img-wrap">
+                <img src="images/fit-armor.jpg" alt="Fit Profile Severe Armor" class="size-fit-img" loading="lazy">
+              </div>
+              <div class="size-fit-content">
+                <h4 class="size-fit-name">FIT PROFILE // SEVERE ARMOR</h4>
+                <p class="size-fit-desc">
+                  Model is 190cm / 86kg wearing <strong class="fit-highlight">SIZE XL</strong>. Full volume silhouette. Maximal mobility with structured, armor-like presentation.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
       </div>
     </div>
   </div>
