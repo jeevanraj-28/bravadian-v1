@@ -692,7 +692,7 @@
   background-color: #0A0A0C;
   background-image: 
     linear-gradient(to right, rgba(10, 10, 12, 0.94) 0%, rgba(10, 10, 12, 0.72) 55%, rgba(10, 10, 12, 0.25) 100%),
-    url('/images/04e65c1f-818d-45d1-9bcd-dab3a04bcea5.png');
+    url('/images/manifesto-panoramic-dark-alt.png');
   background-position: right top;
   background-repeat: no-repeat;
   background-size: cover;
@@ -704,7 +704,7 @@
   background-color: #FAF3DE;
   background-image: 
     linear-gradient(to right, rgba(250, 243, 222, 0.94) 0%, rgba(250, 243, 222, 0.70) 55%, rgba(250, 243, 222, 0.20) 100%),
-    url('/images/9c2cb80f-f7e1-49d7-9376-7675e99ade5b.png');
+    url('/images/manifesto-panoramic-light.png');
   background-position: right top;
   background-repeat: no-repeat;
   background-size: cover;
@@ -6232,7 +6232,7 @@ body {
   background-color: #FAF3DE !important;
   background-image: 
     linear-gradient(to right, rgba(250, 243, 222, 0.93) 0%, rgba(250, 243, 222, 0.68) 55%, rgba(250, 243, 222, 0.18) 100%),
-    url('/images/9c2cb80f-f7e1-49d7-9376-7675e99ade5b.png') !important;
+    url('/images/manifesto-panoramic-light.png') !important;
   background-position: right top !important;
   background-repeat: no-repeat !important;
   background-size: cover !important;
@@ -7733,7 +7733,7 @@ body {
   inset: 0;
   width: 100%;
   height: 100%;
-  background-image: url('/images/heritage/8342e1eb-e3ff-4aee-b4b6-1299abec814d.png');
+  background-image: url('/images/heritage/heritage-pillar-left.png');
   background-size: cover;
   background-position: 65% center;
   z-index: 0;
@@ -7742,7 +7742,7 @@ body {
 }
 
 [data-theme="light"] .heritage-hero-backdrop {
-  background-image: url('/images/heritage/bdae6681-212b-458e-8658-844862fbd6be.png') !important;
+  background-image: url('/images/heritage/heritage-pillar-right.png') !important;
   filter: brightness(1.05) contrast(102%) !important;
 }
 

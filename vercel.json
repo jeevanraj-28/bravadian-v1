@@ -3,16 +3,6 @@
   "trailingSlash": false,
   "redirects": [
     {
-      "source": "/admin",
-      "destination": "/",
-      "permanent": false
-    },
-    {
-      "source": "/admin.html",
-      "destination": "/",
-      "permanent": false
-    },
-    {
       "source": "/cms",
       "destination": "/",
       "permanent": false
@@ -36,6 +26,11 @@
       "source": "/wp-admin",
       "destination": "/",
       "permanent": false
+    },
+    {
+      "source": "/brvd-deck-9179",
+      "destination": "/admin",
+      "permanent": true
     }
   ],
   "headers": [

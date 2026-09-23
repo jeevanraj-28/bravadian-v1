@@ -494,16 +494,16 @@
       <section class="figma-manifesto-section" id="manifestoSection">
         <!-- Authentic Panoramic Heritage Architectural Backdrop (Light & Dark Theme Specific) -->
         <div class="manifesto-panoramic-wrap" aria-hidden="true">
-          <img src="images/9c2cb80f-f7e1-49d7-9376-7675e99ade5b.png" alt="" class="manifesto-panoramic-img manifesto-bg-light manifesto-img-desktop" loading="eager">
-          <img src="images/04e65c1f-818d-45d1-9bcd-dab3a04bcea5.png" alt="" class="manifesto-panoramic-img manifesto-bg-dark manifesto-img-desktop" loading="eager">
+          <img src="images/manifesto-panoramic-light.png" alt="" class="manifesto-panoramic-img manifesto-bg-light manifesto-img-desktop" loading="eager">
+          <img src="images/manifesto-panoramic-dark-alt.png" alt="" class="manifesto-panoramic-img manifesto-bg-dark manifesto-img-desktop" loading="eager">
           <!-- Mobile Flanking Architecture (Temple Left, Celestial Maiden Right) -->
           <div class="manifesto-mobile-flank manifesto-mobile-flank-left" aria-hidden="true">
-            <img src="images/9c2cb80f-f7e1-49d7-9376-7675e99ade5b.png" alt="" class="manifesto-bg-light" loading="eager">
-            <img src="images/04e65c1f-818d-45d1-9bcd-dab3a04bcea5.png" alt="" class="manifesto-bg-dark" loading="eager">
+            <img src="images/manifesto-panoramic-light.png" alt="" class="manifesto-bg-light" loading="eager">
+            <img src="images/manifesto-panoramic-dark-alt.png" alt="" class="manifesto-bg-dark" loading="eager">
           </div>
           <div class="manifesto-mobile-flank manifesto-mobile-flank-right" aria-hidden="true">
-            <img src="images/9c2cb80f-f7e1-49d7-9376-7675e99ade5b.png" alt="" class="manifesto-bg-light" loading="eager">
-            <img src="images/04e65c1f-818d-45d1-9bcd-dab3a04bcea5.png" alt="" class="manifesto-bg-dark" loading="eager">
+            <img src="images/manifesto-panoramic-light.png" alt="" class="manifesto-bg-light" loading="eager">
+            <img src="images/manifesto-panoramic-dark-alt.png" alt="" class="manifesto-bg-dark" loading="eager">
           </div>
           <div class="manifesto-scrim-overlay"></div>
         </div>
