@@ -382,7 +382,7 @@
             <div class="hero-narrative-col">
               <div class="figma-hero-tag">
                 <span class="hero-amber-dot"></span>
-                <span>[ PRE-RELEASE DROP / PROTOCOL 01: HERITAGE ]</span>
+                <span>[ 🇮🇳 MADE FOR THE BRAVE // EVERYDAY CLOTHING WITH PURPOSE ]</span>
               </div>
 
               <h1 class="figma-hero-title">
@@ -391,7 +391,7 @@
               </h1>
 
               <p class="figma-hero-desc">
-                Engineered heavyweight silhouettes which forward Bharat culture into raw street context. Each piece woven and cut from 240 GSM organic cotton.
+                Everyday clothing made with purpose. Premium, comfortable, and affordable 240 GSM heavy interlock cotton silhouettes crafted for those who carry heritage forward.
               </p>
 
               <div class="figma-hero-cta-wrap">
@@ -416,19 +416,19 @@
       <div class="figma-sub-marquee" aria-hidden="true">
         <div class="sub-marquee-track">
           <div class="sub-marquee-content">
-            <span>CRAFTED IN INDIA</span> <span class="marquee-star">✦</span>
-            <span>HEAVYWEIGHT 280 GSM FRENCH TERRY</span> <span class="marquee-star">✦</span>
-            <span>300 NUMBERED EDITIONS ONLY</span> <span class="marquee-star">✦</span>
-            <span>PRE-RELEASE VAULT ENGAGED</span> <span class="marquee-star">✦</span>
-            <span>COD ON ACTIVATION</span> <span class="marquee-star">✦</span>
+            <span>🇮🇳 MADE FOR THE BRAVE</span> <span class="marquee-star">✦</span>
+            <span>EVERYDAY CLOTHING WITH PURPOSE</span> <span class="marquee-star">✦</span>
+            <span>PREMIUM • COMFORTABLE • AFFORDABLE</span> <span class="marquee-star">✦</span>
+            <span>240 GSM HEAVY INTERLOCK</span> <span class="marquee-star">✦</span>
+            <span>CRAFTED IN BHARAT</span> <span class="marquee-star">✦</span>
             <span>FAST WHATSAPP CHECKOUT</span> <span class="marquee-star">✦</span>
           </div>
           <div class="sub-marquee-content">
-            <span>CRAFTED IN INDIA</span> <span class="marquee-star">✦</span>
-            <span>HEAVYWEIGHT 280 GSM FRENCH TERRY</span> <span class="marquee-star">✦</span>
-            <span>300 NUMBERED EDITIONS ONLY</span> <span class="marquee-star">✦</span>
-            <span>PRE-RELEASE VAULT ENGAGED</span> <span class="marquee-star">✦</span>
-            <span>COD ON ACTIVATION</span> <span class="marquee-star">✦</span>
+            <span>🇮🇳 MADE FOR THE BRAVE</span> <span class="marquee-star">✦</span>
+            <span>EVERYDAY CLOTHING WITH PURPOSE</span> <span class="marquee-star">✦</span>
+            <span>PREMIUM • COMFORTABLE • AFFORDABLE</span> <span class="marquee-star">✦</span>
+            <span>240 GSM HEAVY INTERLOCK</span> <span class="marquee-star">✦</span>
+            <span>CRAFTED IN BHARAT</span> <span class="marquee-star">✦</span>
             <span>FAST WHATSAPP CHECKOUT</span> <span class="marquee-star">✦</span>
           </div>
         </div>
@@ -2398,17 +2398,17 @@ Thank you.
         <section class="about-hero-section">
           <div class="container about-hero-container">
             <div class="about-badge-wrap">
-              <span class="figma-tag">[ ARCHIVAL GENESIS // PROTOCOL 00 ]</span>
+              <span class="figma-tag">[ 🇮🇳 MADE FOR THE BRAVE // BHARAT ]</span>
               <span class="about-radar-dot" aria-hidden="true"></span>
             </div>
             
             <h1 class="about-hero-title">
-              <span class="about-title-lead">BRAVE INDIAN</span>
-              <span class="about-title-sub">MONOLITHIC CULTURAL STREETWEAR</span>
+              <span class="about-title-lead">MADE FOR THE BRAVE</span>
+              <span class="about-title-sub">EVERYDAY CLOTHING. MADE WITH PURPOSE.</span>
             </h1>
 
             <p class="about-manifesto-sub">
-              Engineered in 240 GSM heavy interlock cotton. Sacred architectural iconography directly translated from Belur & Halebidu stone reliefs onto modern drop-shoulder armor.
+              Premium • Comfortable • Affordable. Engineered in 240 GSM heavy interlock cotton. Sacred architectural iconography and everyday essentials built to outlast the noise. The journey starts here.
             </p>
 
             <div class="about-geo-coordinates">
@@ -2424,11 +2424,11 @@ Thank you.
           <div class="about-quote-card">
             <span class="quote-tag">[ THE BRAVADIAN CREED ]</span>
             <blockquote class="about-quote-body">
-              “WE CARVE SACRED ICONOGRAPHY AS HEAVYWEIGHT ARMOR. REJECTING DISPOSABLE FAST-FASHION IN FAVOR OF 240 GSM STRUCTURAL RELICS BUILT TO OUTLAST THE NOISE.”
+              “MADE FOR THE BRAVE. EVERYDAY CLOTHING CRAFTED WITH PURPOSE — BALANCING 240 GSM ARCHITECTURAL QUALITY, TIMELESS COMFORT, AND ACCESSIBLE LUXURY.”
             </blockquote>
             <div class="quote-author-line">
               <span class="quote-line-dash"></span>
-              <span class="quote-author-text">BRAVADIAN ARCHIVE PROTOCOL // BHARAT</span>
+              <span class="quote-author-text">BRAVADIAN ARCHIVE PROTOCOL // bravadian.in</span>
               <span class="quote-line-dash"></span>
             </div>
           </div>
