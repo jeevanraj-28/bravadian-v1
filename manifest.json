@@ -1,19 +1,14 @@
 {
-  "name": "BRAVADIAN | BRAVE INDIAN",
+  "name": "BRAVADIAN",
   "short_name": "BRAVADIAN",
-  "description": "240 GSM Premium Oversized Silhouettes. Built for those who don't follow the crowd.",
+  "description": "Contemporary Indian streetwear. Indian roots. Modern form. A story worth wearing.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#060608",
-  "theme_color": "#060608",
+  "background_color": "#111111",
+  "theme_color": "#111111",
   "orientation": "portrait-primary",
   "icons": [
-    {
-      "src": "images/favicons/favicon-16x16.png",
-      "sizes": "16x16",
-      "type": "image/png"
-    },
     {
       "src": "images/favicons/favicon-32x32.png",
       "sizes": "32x32",
@@ -25,8 +20,14 @@
       "type": "image/png"
     },
     {
-      "src": "images/logo.png",
-      "sizes": "655x222",
+      "src": "images/favicons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "images/favicons/icon-512.png",
+      "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     }

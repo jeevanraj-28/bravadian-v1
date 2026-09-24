@@ -7,23 +7,6 @@
 (function () {
   'use strict';
 
-  // Default admin password hash (SHA-256 of 'bravadian2024')
-  // To change: update the adminPasswordHash in site settings via CMS
-  const DEFAULT_ADMIN_HASH = '0c674a23715a7be55b3aae750d3d46dd2e5b6b9b989ec6dfbea36bf6e9dde133';
-
-  // SHA-256 hash function using Web Crypto API
-  async function sha256(message) {
-    const msgBuffer = new TextEncoder().encode(message);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-  }
-
-  // Check if admin session is active
-  function isAdminAuthenticated() {
-    return sessionStorage.getItem('bravadian_admin_auth') === 'true';
-  }
-
   // Initialize all admin modules
   function initAllModules() {
     const modules = [
@@ -64,64 +47,53 @@
     }
   }
 
-  document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener('DOMContentLoaded', async () => {
     const loginOverlay = document.getElementById('adminLoginOverlay');
     const loginForm = document.getElementById('adminLoginForm');
+    const emailInput = document.getElementById('adminEmailInput');
     const passwordInput = document.getElementById('adminPasswordInput');
     const loginError = document.getElementById('adminLoginError');
+    const client = window.BravadianDB && window.BravadianDB.supabaseClient;
 
-    // If already authenticated this session, skip login
-    if (isAdminAuthenticated()) {
+    function unlock() {
       if (loginOverlay) loginOverlay.classList.add('is-hidden');
       document.body.classList.remove('is-locked');
       initAllModules();
+    }
+
+    document.body.classList.add('is-locked');
+
+    if (!client) {
+      if (loginError) loginError.textContent = 'Supabase is not configured. Add SUPABASE_URL and SUPABASE_ANON_KEY in js/data.js.';
       return;
     }
 
-    // Lock the admin panel
-    document.body.classList.add('is-locked');
+    // Supabase keeps the session, so a signed-in admin skips the login screen
+    const { data: sessionData } = await client.auth.getSession();
+    if (sessionData && sessionData.session) {
+      unlock();
+      return;
+    }
 
-    // Handle login form submission
     if (loginForm) {
       loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const password = passwordInput ? passwordInput.value : '';
-        if (!password) return;
-
-        try {
-          const hash = await sha256(password);
-
-          // Check against stored admin hash or default
-          let storedHash = DEFAULT_ADMIN_HASH;
-          try {
-            const settings = JSON.parse(localStorage.getItem('bravadian_settings') || '{}');
-            if (settings.adminPasswordHash) {
-              storedHash = settings.adminPasswordHash;
-            }
-          } catch (e) {}
-
-          if (hash === storedHash) {
-            // Success — grant access
-            sessionStorage.setItem('bravadian_admin_auth', 'true');
-            if (loginOverlay) loginOverlay.classList.add('is-hidden');
-            document.body.classList.remove('is-locked');
-            initAllModules();
-          } else {
-            // Wrong password
-            if (loginError) loginError.textContent = 'ACCESS DENIED — INVALID CREDENTIALS';
-            if (passwordInput) {
-              passwordInput.value = '';
-              passwordInput.focus();
-            }
-          }
-        } catch (err) {
-          if (loginError) loginError.textContent = 'Authentication error. Try again.';
+        if (loginError) loginError.textContent = '';
+        const { error } = await client.auth.signInWithPassword({
+          email: emailInput.value.trim(),
+          password: passwordInput.value
+        });
+        if (error) {
+          if (loginError) loginError.textContent = 'Wrong email or password.';
+          passwordInput.value = '';
+          passwordInput.focus();
+          return;
         }
+        unlock();
       });
     }
 
-    // Focus password input
-    if (passwordInput) passwordInput.focus();
+    if (emailInput) emailInput.focus();
   });
 
 
@@ -457,10 +429,10 @@
 
     // Announcement Marquee
     if (document.getElementById('cfgAnnouncementText')) {
-      document.getElementById('cfgAnnouncementText').value = s.announcementText || 'PRE-RELEASE VAULT PROTOCOL // 200 NUMBERED PIECES ONLY // ALL INDIA PRIORITY DISPATCH';
+      document.getElementById('cfgAnnouncementText').value = s.announcementText || '🇮🇳 BRAVADIAN BESPOKE // CUSTOM STREETWEAR ORDERS ACCEPTED // ORDER DIRECTLY VIA WHATSAPP // BESPOKE SIZING, PERSONALIZED GRAPHICS & ARTWORK COMMISSIONS // ALL-INDIA PRIORITY DISPATCH';
     }
     if (document.getElementById('cfgAnnouncementWaText')) {
-      document.getElementById('cfgAnnouncementWaText').value = s.announcementWaText || 'ORDER VIA WHATSAPP';
+      document.getElementById('cfgAnnouncementWaText').value = s.announcementWaText || 'CUSTOM ORDERS VIA WHATSAPP';
     }
     if (document.getElementById('cfgAnnouncementEnabled')) {
       document.getElementById('cfgAnnouncementEnabled').checked = s.announcementEnabled !== false;

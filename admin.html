@@ -15,8 +15,8 @@
   <link rel="stylesheet" href="css/admin.css">
 
   <!-- Favicon -->
-  <link rel="icon" type="image/svg+xml" href="images/favicons/favicon.svg">
-  <link rel="icon" type="image/png" href="images/logo.png">
+  <link rel="icon" type="image/svg+xml" href="images/favicons/favicon.svg?v=2">
+  <link rel="icon" type="image/png" sizes="32x32" href="images/favicons/favicon-32x32.png?v=2">
 
   <!-- Supabase JS Client via CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -28,12 +28,12 @@
     <div class="admin-login-box">
       <img src="images/logo.png" alt="BRAVADIAN" class="admin-login-logo">
       <div class="admin-login-tagline">COMMAND DECK // AUTHENTICATION REQUIRED</div>
-      <form id="adminLoginForm" class="admin-login-form" autocomplete="off">
-        <input type="password" id="adminPasswordInput" class="admin-login-input" placeholder="ENTER ACCESS CODE" autocomplete="new-password" required>
+      <form id="adminLoginForm" class="admin-login-form">
+        <input type="email" id="adminEmailInput" class="admin-login-input" placeholder="ADMIN EMAIL" autocomplete="username" required>
+        <input type="password" id="adminPasswordInput" class="admin-login-input" placeholder="PASSWORD" autocomplete="current-password" required>
         <div id="adminLoginError" class="admin-login-error"></div>
         <button type="submit" class="admin-login-btn">AUTHENTICATE →</button>
       </form>
-      <div class="admin-login-hint">Default: bravadian2024</div>
     </div>
   </div>
 
@@ -297,11 +297,11 @@
             </div>
             <div class="admin-field form-field-full">
               <label>ANNOUNCEMENT TICKER TEXT</label>
-              <input type="text" id="cfgAnnouncementText" class="admin-input" placeholder="PRE-RELEASE VAULT PROTOCOL // 200 NUMBERED PIECES ONLY // ALL INDIA PRIORITY DISPATCH">
+              <input type="text" id="cfgAnnouncementText" class="admin-input" placeholder="🇮🇳 BRAVADIAN BESPOKE // CUSTOM STREETWEAR ORDERS ACCEPTED // ORDER DIRECTLY VIA WHATSAPP // BESPOKE SIZING, PERSONALIZED GRAPHICS &amp; ARTWORK COMMISSIONS // ALL-INDIA PRIORITY DISPATCH">
             </div>
             <div class="admin-field">
               <label>FITTED WHATSAPP BUTTON TEXT</label>
-              <input type="text" id="cfgAnnouncementWaText" class="admin-input" placeholder="ORDER VIA WHATSAPP">
+              <input type="text" id="cfgAnnouncementWaText" class="admin-input" placeholder="CUSTOM ORDERS VIA WHATSAPP">
             </div>
             <div class="admin-field" style="justify-content: center;">
               <label style="font-family: var(--font-mono); font-size: 0.75rem; display: flex; align-items: center; gap: 0.6rem; cursor: pointer; margin-top: 1.2rem;">

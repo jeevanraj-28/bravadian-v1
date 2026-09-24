@@ -57,7 +57,7 @@
 
           <!-- Header Specs -->
           <text x="35" y="45" fill="${accent}" font-family="'Space Grotesk', monospace" font-size="10" font-weight="700" letter-spacing="3">[ MACRO FABRIC SPECIMEN ]</text>
-          <text x="35" y="65" fill="#fff" font-family="'Bebas Neue', sans-serif" font-size="18" font-weight="900" letter-spacing="2">240 GSM COMBED INTERLOCK</text>
+          <text x="35" y="65" fill="#fff" font-family="'Bebas Neue', sans-serif" font-size="18" font-weight="900" letter-spacing="2">240 GSM FRENCH TERRY</text>
           <line x1="35" y1="78" x2="465" y2="78" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
 
           <!-- 1.25" High Tension Rib Collar Contour -->
@@ -76,7 +76,7 @@
             
             <line x1="30" y1="62" x2="190" y2="62" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
 
-            <text x="110" y="80" text-anchor="middle" fill="#ddd" font-family="'Space Grotesk', monospace" font-size="9" font-weight="700" letter-spacing="2">240 GSM HEAVY INTERLOCK</text>
+            <text x="110" y="80" text-anchor="middle" fill="#ddd" font-family="'Space Grotesk', monospace" font-size="9" font-weight="700" letter-spacing="2">240 GSM FRENCH TERRY</text>
             <text x="110" y="96" text-anchor="middle" fill="#888" font-family="'Space Grotesk', monospace" font-size="8" letter-spacing="1.5">100% COMBED LONG-STAPLE</text>
             <text x="110" y="112" text-anchor="middle" fill="${accent}" font-family="'Space Grotesk', monospace" font-size="7.5" font-weight="700" letter-spacing="3">CRAFTED IN BHARAT // BATCH 001</text>
           </g>
@@ -90,7 +90,7 @@
             <text x="40" y="48" fill="#888" font-family="'Space Grotesk', monospace" font-size="8.5">Reinforced with twin-needle chainstitch to hold sharp drape through 100+ washes.</text>
 
             <circle cx="25" cy="72" r="4" fill="#f59e0b"/>
-            <text x="40" y="76" fill="#fff" font-family="'Space Grotesk', monospace" font-size="10" font-weight="700">240 GSM DENSE DUAL-INTERLOCK WEAVE</text>
+            <text x="40" y="76" fill="#fff" font-family="'Space Grotesk', monospace" font-size="10" font-weight="700">240 GSM FRENCH TERRY // BIO WASH</text>
             <text x="40" y="90" fill="#888" font-family="'Space Grotesk', monospace" font-size="8.5">Substantial 240g/m² weight gives architectural boxy drape with zero cling.</text>
           </g>
         </svg>
@@ -369,7 +369,7 @@
             <text x="90" y="172" text-anchor="middle" fill="${accent}" font-family="'Bebas Neue', sans-serif" font-size="14" font-weight="900" letter-spacing="3">MONOLITH</text>
             <line x1="30" y1="185" x2="150" y2="185" stroke="${accent}" stroke-width="1.5"/>
             <text x="90" y="202" text-anchor="middle" fill="#ccc" font-family="'Space Grotesk', monospace" font-size="8" font-weight="700" letter-spacing="2">28°36'N 77°12'E // HERITAGE</text>
-            <text x="90" y="216" text-anchor="middle" fill="${accent}" font-family="'Space Grotesk', monospace" font-size="7" font-weight="700" letter-spacing="2.5">240 GSM HEAVY INTERLOCK</text>
+            <text x="90" y="216" text-anchor="middle" fill="${accent}" font-family="'Space Grotesk', monospace" font-size="7" font-weight="700" letter-spacing="2.5">240 GSM FRENCH TERRY</text>
           </g>
         `;
       } else if (upperTitle.includes('CYBER')) {
@@ -401,7 +401,7 @@
             <text x="90" y="95" text-anchor="middle" fill="${accent}" font-family="'Bebas Neue', sans-serif" font-size="16" font-weight="900" letter-spacing="3">BRAVE INDIAN</text>
             <line x1="30" y1="115" x2="150" y2="115" stroke="${accent}" stroke-width="1.5"/>
             <text x="90" y="140" text-anchor="middle" fill="#bbb" font-family="'Space Grotesk', monospace" font-size="8.5" font-weight="700" letter-spacing="2">ARCHITECTURAL SILHOUETTE</text>
-            <text x="90" y="165" text-anchor="middle" fill="${accent}" font-family="'Space Grotesk', monospace" font-size="7.5" font-weight="700" letter-spacing="3">[ 240 GSM // HEAVY INTERLOCK ]</text>
+            <text x="90" y="165" text-anchor="middle" fill="${accent}" font-family="'Space Grotesk', monospace" font-size="7.5" font-weight="700" letter-spacing="3">[ 240 GSM // FRENCH TERRY ]</text>
           </g>
         `;
       }
@@ -789,11 +789,11 @@
 
   // DEFAULT SIZE GUIDE
   const DEFAULT_SIZE_GUIDE = [
-    { size: 'S', chest: 44.0, length: 28.5, shoulder: 21.5, sleeve: 8.5 },
-    { size: 'M', chest: 46.0, length: 29.5, shoulder: 22.5, sleeve: 9.0 },
-    { size: 'L', chest: 48.0, length: 30.5, shoulder: 23.5, sleeve: 9.5 },
-    { size: 'XL', chest: 50.0, length: 31.5, shoulder: 24.5, sleeve: 10.0 },
-    { size: 'XXL', chest: 52.0, length: 32.5, shoulder: 25.5, sleeve: 10.5 }
+    { size: 'S', chest: 40, length: 26, shoulder: null, sleeve: null },
+    { size: 'M', chest: 42, length: 27, shoulder: null, sleeve: null },
+    { size: 'L', chest: 44, length: 28, shoulder: null, sleeve: null },
+    { size: 'XL', chest: 46, length: 29, shoulder: null, sleeve: null },
+    { size: 'XXL', chest: 48, length: 30, shoulder: null, sleeve: null }
   ];
 
   // DEFAULT SITE SETTINGS
@@ -814,18 +814,72 @@
   // DEFAULT PRODUCTS with Variant-Level Inventory
   const DEFAULT_PRODUCTS = [
     {
+      id: 'prod-013',
+      name: 'BHARAT SPIRIT TEE',
+      slug: 'bharat-spirit-tee',
+      description: 'The peacock, the tiger, the lotus and the elephant, four symbols of India drawn together as one story. Oversized 240 GSM French Terry cotton, bio + silicone washed, with a large DTF back print and the Bi mark on the chest.',
+      price: 649,
+      comparePrice: 799,
+      collection: 'heritage',
+      tags: ['oversized', 'heritage', 'peacock', 'tiger', 'lotus', 'elephant', '240gsm'],
+      fabric: '240 GSM FRENCH TERRY // BIO + SILICONE WASH',
+      gsm: 240,
+      fit: 'Oversized Drop-Shoulder',
+      material: '240 GSM French Terry Cotton, Bio + Silicone Washed',
+      story: 'Four symbols every Indian grows up with, drawn as one living composition. Built around the idea that pride in where you come from can be worn every day, not saved for special occasions.',
+      motif: 'Peacock, the national bird, for grace. Tiger, the national animal, for courage. Lotus, the national flower, for rising clean from the mud. Elephant, the national heritage animal, for memory and strength.',
+      relicTag: 'DESIGN 01',
+      relicBadge: 'LAUNCH PRICE',
+      sku: 'BRVD-BHS-01',
+      featured: true,
+      newDrop: true,
+      isComingSoon: false,
+      status: 'PUBLISHED',
+      colors: ['Black', 'White', 'Red', 'Royal Blue'],
+      sizes: ['S', 'M', 'L', 'XL', 'XXL'],
+      images: {
+        front: 'images/products/bharat-spirit/back-print.webp',
+        back: 'images/products/bharat-spirit/front.webp',
+        closeup: 'images/products/bharat-spirit/closeup.webp',
+        lifestyle: 'images/products/bharat-spirit/worn-studio.webp',
+        lifestyle2: 'images/products/bharat-spirit/worn-temple.webp'
+      },
+      variants: [
+        { color: 'Black', size: 'S', stock: 10 },
+        { color: 'Black', size: 'M', stock: 10 },
+        { color: 'Black', size: 'L', stock: 10 },
+        { color: 'Black', size: 'XL', stock: 10 },
+        { color: 'Black', size: 'XXL', stock: 10 },
+        { color: 'White', size: 'S', stock: 10 },
+        { color: 'White', size: 'M', stock: 10 },
+        { color: 'White', size: 'L', stock: 10 },
+        { color: 'White', size: 'XL', stock: 10 },
+        { color: 'White', size: 'XXL', stock: 10 },
+        { color: 'Red', size: 'S', stock: 10 },
+        { color: 'Red', size: 'M', stock: 10 },
+        { color: 'Red', size: 'L', stock: 10 },
+        { color: 'Red', size: 'XL', stock: 10 },
+        { color: 'Red', size: 'XXL', stock: 10 },
+        { color: 'Royal Blue', size: 'S', stock: 10 },
+        { color: 'Royal Blue', size: 'M', stock: 10 },
+        { color: 'Royal Blue', size: 'L', stock: 10 },
+        { color: 'Royal Blue', size: 'XL', stock: 10 },
+        { color: 'Royal Blue', size: 'XXL', stock: 10 }
+      ]
+    },
+    {
       id: 'prod-001',
       name: 'HOYSALA OVERSIZED RELIC TEE',
       slug: 'hoysala-oversized-relic-tee',
-      description: 'A severe tactical garment engineered from 280 GSM heavyweight French Terry. Imprinted with sacred architectural friezes from the historic Halebidu temple complex, modified as modern metropolitan armor.',
+      description: 'A severe tactical garment engineered from 240 GSM heavyweight French Terry. Imprinted with sacred architectural friezes from the historic Halebidu temple complex, modified as modern metropolitan armor.',
       price: 4800,
       comparePrice: 5800,
       collection: 'heritage',
       tags: ['oversized', 'hoysala', 'heavyweight', '280gsm', 'heritage'],
-      fabric: '280 GSM HEAVYWEIGHT FRENCH TERRY',
-      gsm: 280,
+      fabric: '240 GSM FRENCH TERRY // BIO + SILICONE WASH',
+      gsm: 240,
       fit: 'Oversized Boxy',
-      material: '280 GSM Long-Staple Indian Combed Cotton',
+      material: '240 GSM French Terry Cotton, Bio + Silicone Washed',
       relicTag: 'RELIC 01',
       relicBadge: 'PRE-ORDER ACTIVATED',
       sku: 'BRVD-HYS-01',
@@ -833,7 +887,7 @@
       newDrop: true,
       isComingSoon: false,
       status: 'PUBLISHED',
-      colors: ['Obsidian Black', 'Bone Ecru'],
+      colors: ['Black', 'White', 'Red', 'Royal Blue'],
       sizes: ['S', 'M', 'L', 'XL', 'XXL'],
       images: {
         front: createTeeSVG('HOYSALA OVERSIZED RELIC TEE', 'Heritage', '#111116', '#FFA000', 'front'),
@@ -842,16 +896,26 @@
         lifestyle: createTeeSVG('HOYSALA OVERSIZED RELIC TEE', 'Heritage', '#111116', '#FFA000', 'lifestyle')
       },
       variants: [
-        { color: 'Obsidian Black', size: 'S', stock: 8 },
-        { color: 'Obsidian Black', size: 'M', stock: 15 },
-        { color: 'Obsidian Black', size: 'L', stock: 12 },
-        { color: 'Obsidian Black', size: 'XL', stock: 6 },
-        { color: 'Obsidian Black', size: 'XXL', stock: 4 },
-        { color: 'Bone Ecru', size: 'S', stock: 4 },
-        { color: 'Bone Ecru', size: 'M', stock: 8 },
-        { color: 'Bone Ecru', size: 'L', stock: 6 },
-        { color: 'Bone Ecru', size: 'XL', stock: 0 },
-        { color: 'Bone Ecru', size: 'XXL', stock: 2 }
+        { color: 'Black', size: 'S', stock: 8 },
+        { color: 'Black', size: 'M', stock: 15 },
+        { color: 'Black', size: 'L', stock: 12 },
+        { color: 'Black', size: 'XL', stock: 6 },
+        { color: 'Black', size: 'XXL', stock: 4 },
+        { color: 'White', size: 'S', stock: 4 },
+        { color: 'White', size: 'M', stock: 8 },
+        { color: 'White', size: 'L', stock: 6 },
+        { color: 'White', size: 'XL', stock: 0 },
+        { color: 'White', size: 'XXL', stock: 2 },
+        { color: 'Red', size: 'S', stock: 8 },
+        { color: 'Red', size: 'M', stock: 15 },
+        { color: 'Red', size: 'L', stock: 12 },
+        { color: 'Red', size: 'XL', stock: 6 },
+        { color: 'Red', size: 'XXL', stock: 4 },
+        { color: 'Royal Blue', size: 'S', stock: 8 },
+        { color: 'Royal Blue', size: 'M', stock: 15 },
+        { color: 'Royal Blue', size: 'L', stock: 12 },
+        { color: 'Royal Blue', size: 'XL', stock: 6 },
+        { color: 'Royal Blue', size: 'XXL', stock: 4 }
       ]
     },
     {
@@ -863,10 +927,10 @@
       comparePrice: 3800,
       collection: 'heritage',
       tags: ['heritage', 'hoysala', 'lingeshwara', 'heavyweight', '240gsm'],
-      fabric: '240 GSM FRENCH TERRY // BOX FIT SILHOUETTE',
+      fabric: '240 GSM FRENCH TERRY // BIO + SILICONE WASH',
       gsm: 240,
       fit: 'Boxy Drop Shoulder',
-      material: '240 GSM Long-Staple Combed Cotton',
+      material: '240 GSM French Terry Cotton, Bio + Silicone Washed',
       relicTag: 'RELIC 02',
       relicBadge: '300 NUMBERED',
       sku: 'BRVD-LNG-02',
@@ -874,7 +938,7 @@
       newDrop: true,
       isComingSoon: false,
       status: 'PUBLISHED',
-      colors: ['Washed Black', 'Charcoal'],
+      colors: ['Black', 'White', 'Red', 'Royal Blue'],
       sizes: ['S', 'M', 'L', 'XL', 'XXL'],
       images: {
         front: createTeeSVG('HOYSALA LINGESHWARA', 'Heritage', '#111116', '#FFA000', 'front'),
@@ -883,31 +947,41 @@
         lifestyle: createTeeSVG('HOYSALA LINGESHWARA', 'Heritage', '#111116', '#FFA000', 'lifestyle')
       },
       variants: [
-        { color: 'Washed Black', size: 'S', stock: 6 },
-        { color: 'Washed Black', size: 'M', stock: 10 },
-        { color: 'Washed Black', size: 'L', stock: 8 },
-        { color: 'Washed Black', size: 'XL', stock: 4 },
-        { color: 'Washed Black', size: 'XXL', stock: 3 },
-        { color: 'Charcoal', size: 'S', stock: 5 },
-        { color: 'Charcoal', size: 'M', stock: 6 },
-        { color: 'Charcoal', size: 'L', stock: 4 },
-        { color: 'Charcoal', size: 'XL', stock: 0 },
-        { color: 'Charcoal', size: 'XXL', stock: 2 }
+        { color: 'Black', size: 'S', stock: 6 },
+        { color: 'Black', size: 'M', stock: 10 },
+        { color: 'Black', size: 'L', stock: 8 },
+        { color: 'Black', size: 'XL', stock: 4 },
+        { color: 'Black', size: 'XXL', stock: 3 },
+        { color: 'White', size: 'S', stock: 6 },
+        { color: 'White', size: 'M', stock: 10 },
+        { color: 'White', size: 'L', stock: 8 },
+        { color: 'White', size: 'XL', stock: 4 },
+        { color: 'White', size: 'XXL', stock: 3 },
+        { color: 'Red', size: 'S', stock: 6 },
+        { color: 'Red', size: 'M', stock: 10 },
+        { color: 'Red', size: 'L', stock: 8 },
+        { color: 'Red', size: 'XL', stock: 4 },
+        { color: 'Red', size: 'XXL', stock: 3 },
+        { color: 'Royal Blue', size: 'S', stock: 6 },
+        { color: 'Royal Blue', size: 'M', stock: 10 },
+        { color: 'Royal Blue', size: 'L', stock: 8 },
+        { color: 'Royal Blue', size: 'XL', stock: 4 },
+        { color: 'Royal Blue', size: 'XXL', stock: 3 }
       ]
     },
     {
       id: 'prod-003',
       name: 'SRI YOGA SARASVATHESHWARA TEE',
       slug: 'sri-yoga-sarasvatheshwara-tee',
-      description: 'Monumental archival 300 GSM cotton tee presenting the multi-armed Yogic sovereign deity in pure metallic gold foil screenprint.',
+      description: 'Monumental archival 240 GSM cotton tee presenting the multi-armed Yogic sovereign deity in pure metallic gold foil screenprint.',
       price: 3600,
       comparePrice: 4200,
       collection: 'mythology',
       tags: ['mythology', 'deities', 'krishna', 'shiva', 'gold-foil', '300gsm', 'yoga'],
-      fabric: '300 GSM ARCHIVAL COTTON // GOLD FOIL PRINT',
-      gsm: 300,
+      fabric: '240 GSM FRENCH TERRY // BIO + SILICONE WASH',
+      gsm: 240,
       fit: 'Architectural Boxy',
-      material: '300 GSM 100% Archival Cotton',
+      material: '240 GSM French Terry Cotton, Bio + Silicone Washed',
       relicTag: 'RELIC 03',
       relicBadge: 'EDITION NUMBERED',
       sku: 'BRVD-YOG-03',
@@ -915,7 +989,7 @@
       newDrop: true,
       isComingSoon: false,
       status: 'PUBLISHED',
-      colors: ['Obsidian Black'],
+      colors: ['Black', 'White', 'Red', 'Royal Blue'],
       sizes: ['S', 'M', 'L', 'XL', 'XXL'],
       images: {
         front: createTeeSVG('SRI YOGA SARASVATHESHWARA', 'Mythology', '#0c0c10', '#FFA000', 'front'),
@@ -924,11 +998,26 @@
         lifestyle: createTeeSVG('SRI YOGA SARASVATHESHWARA', 'Mythology', '#0c0c10', '#FFA000', 'lifestyle')
       },
       variants: [
-        { color: 'Obsidian Black', size: 'S', stock: 7 },
-        { color: 'Obsidian Black', size: 'M', stock: 12 },
-        { color: 'Obsidian Black', size: 'L', stock: 9 },
-        { color: 'Obsidian Black', size: 'XL', stock: 5 },
-        { color: 'Obsidian Black', size: 'XXL', stock: 3 }
+        { color: 'Black', size: 'S', stock: 7 },
+        { color: 'Black', size: 'M', stock: 12 },
+        { color: 'Black', size: 'L', stock: 9 },
+        { color: 'Black', size: 'XL', stock: 5 },
+        { color: 'Black', size: 'XXL', stock: 3 },
+        { color: 'White', size: 'S', stock: 7 },
+        { color: 'White', size: 'M', stock: 12 },
+        { color: 'White', size: 'L', stock: 9 },
+        { color: 'White', size: 'XL', stock: 5 },
+        { color: 'White', size: 'XXL', stock: 3 },
+        { color: 'Red', size: 'S', stock: 7 },
+        { color: 'Red', size: 'M', stock: 12 },
+        { color: 'Red', size: 'L', stock: 9 },
+        { color: 'Red', size: 'XL', stock: 5 },
+        { color: 'Red', size: 'XXL', stock: 3 },
+        { color: 'Royal Blue', size: 'S', stock: 7 },
+        { color: 'Royal Blue', size: 'M', stock: 12 },
+        { color: 'Royal Blue', size: 'L', stock: 9 },
+        { color: 'Royal Blue', size: 'XL', stock: 5 },
+        { color: 'Royal Blue', size: 'XXL', stock: 3 }
       ]
     },
     {
@@ -951,7 +1040,7 @@
       newDrop: true,
       isComingSoon: false,
       status: 'PUBLISHED',
-      colors: ['Pitch Black'],
+      colors: ['Black'],
       sizes: ['S', 'M', 'L', 'XL', 'XXL'],
       images: {
         front: createTeeSVG('NRITYA PRIMACY BOMBER', 'Heritage', '#121218', '#f59e0b', 'front'),
@@ -960,11 +1049,11 @@
         lifestyle: createTeeSVG('NRITYA PRIMACY BOMBER', 'Heritage', '#121218', '#f59e0b', 'lifestyle')
       },
       variants: [
-        { color: 'Pitch Black', size: 'S', stock: 5 },
-        { color: 'Pitch Black', size: 'M', stock: 8 },
-        { color: 'Pitch Black', size: 'L', stock: 6 },
-        { color: 'Pitch Black', size: 'XL', stock: 3 },
-        { color: 'Pitch Black', size: 'XXL', stock: 2 }
+        { color: 'Black', size: 'S', stock: 5 },
+        { color: 'Black', size: 'M', stock: 8 },
+        { color: 'Black', size: 'L', stock: 6 },
+        { color: 'Black', size: 'XL', stock: 3 },
+        { color: 'Black', size: 'XXL', stock: 2 }
       ]
     },
     {
@@ -976,10 +1065,10 @@
       comparePrice: 3500,
       collection: 'mythology',
       tags: ['mythology', 'shiva', 'ramayana', 'solar-fire', '280gsm', 'oversized'],
-      fabric: '280 GSM COMPACT JERSEY // SUN BURNT PATINA',
-      gsm: 280,
+      fabric: '240 GSM FRENCH TERRY // BIO + SILICONE WASH',
+      gsm: 240,
       fit: 'Relaxed Drop-Shoulder',
-      material: '280 GSM 100% Combed Cotton',
+      material: '240 GSM French Terry Cotton, Bio + Silicone Washed',
       relicTag: 'RELIC 05',
       relicBadge: 'PROTOTYPE LOCKED',
       sku: 'BRVD-ASR-05',
@@ -987,7 +1076,7 @@
       newDrop: true,
       isComingSoon: false,
       status: 'PUBLISHED',
-      colors: ['Washed Charcoal'],
+      colors: ['Black', 'White', 'Red', 'Royal Blue'],
       sizes: ['S', 'M', 'L', 'XL', 'XXL'],
       images: {
         front: createTeeSVG('ASURA SOLAR FIRE', 'Mythology', '#1a1816', '#ff5722', 'front'),
@@ -996,26 +1085,41 @@
         lifestyle: createTeeSVG('ASURA SOLAR FIRE', 'Mythology', '#1a1816', '#ff5722', 'lifestyle')
       },
       variants: [
-        { color: 'Washed Charcoal', size: 'S', stock: 7 },
-        { color: 'Washed Charcoal', size: 'M', stock: 11 },
-        { color: 'Washed Charcoal', size: 'L', stock: 8 },
-        { color: 'Washed Charcoal', size: 'XL', stock: 4 },
-        { color: 'Washed Charcoal', size: 'XXL', stock: 2 }
+        { color: 'Black', size: 'S', stock: 7 },
+        { color: 'Black', size: 'M', stock: 11 },
+        { color: 'Black', size: 'L', stock: 8 },
+        { color: 'Black', size: 'XL', stock: 4 },
+        { color: 'Black', size: 'XXL', stock: 2 },
+        { color: 'White', size: 'S', stock: 7 },
+        { color: 'White', size: 'M', stock: 11 },
+        { color: 'White', size: 'L', stock: 8 },
+        { color: 'White', size: 'XL', stock: 4 },
+        { color: 'White', size: 'XXL', stock: 2 },
+        { color: 'Red', size: 'S', stock: 7 },
+        { color: 'Red', size: 'M', stock: 11 },
+        { color: 'Red', size: 'L', stock: 8 },
+        { color: 'Red', size: 'XL', stock: 4 },
+        { color: 'Red', size: 'XXL', stock: 2 },
+        { color: 'Royal Blue', size: 'S', stock: 7 },
+        { color: 'Royal Blue', size: 'M', stock: 11 },
+        { color: 'Royal Blue', size: 'L', stock: 8 },
+        { color: 'Royal Blue', size: 'XL', stock: 4 },
+        { color: 'Royal Blue', size: 'XXL', stock: 2 }
       ]
     },
     {
       id: 'prod-006',
       name: 'BERUNDA DUAL VISION ARMOR TEE',
       slug: 'berunda-dual-vision-armor-tee',
-      description: '280 GSM heavyweight cotton tee with monumental twin-headed Gandaberunda imperial crest rendered in antique gold embroidery.',
+      description: '240 GSM heavyweight cotton tee with monumental twin-headed Gandaberunda imperial crest rendered in antique gold embroidery.',
       price: 3500,
       comparePrice: 4200,
       collection: 'heritage',
       tags: ['heritage', 'berunda', 'traditional-patterns', 'cultural-symbols', 'embroidery', '280gsm', 'armor'],
-      fabric: '280 GSM HEAVY TERRY // GOLD EMBROIDERY',
-      gsm: 280,
+      fabric: '240 GSM FRENCH TERRY // BIO + SILICONE WASH',
+      gsm: 240,
       fit: 'Oversized',
-      material: '100% Combed Heavy Cotton',
+      material: '240 GSM French Terry Cotton, Bio + Silicone Washed',
       relicTag: 'RELIC 06',
       relicBadge: 'COMING SOON',
       sku: 'BRVD-BRD-06',
@@ -1023,7 +1127,7 @@
       newDrop: true,
       isComingSoon: true,
       status: 'PUBLISHED',
-      colors: ['Pitch Black'],
+      colors: ['Black', 'White', 'Red', 'Royal Blue'],
       sizes: ['S', 'M', 'L', 'XL', 'XXL'],
       images: {
         front: createTeeSVG('BERUNDA DUAL VISION', 'Heritage', '#0a0a0e', '#FFA000', 'front'),
@@ -1032,11 +1136,26 @@
         lifestyle: createTeeSVG('BERUNDA DUAL VISION', 'Heritage', '#0a0a0e', '#FFA000', 'lifestyle')
       },
       variants: [
-        { color: 'Pitch Black', size: 'S', stock: 5 },
-        { color: 'Pitch Black', size: 'M', stock: 8 },
-        { color: 'Pitch Black', size: 'L', stock: 6 },
-        { color: 'Pitch Black', size: 'XL', stock: 3 },
-        { color: 'Pitch Black', size: 'XXL', stock: 2 }
+        { color: 'Black', size: 'S', stock: 5 },
+        { color: 'Black', size: 'M', stock: 8 },
+        { color: 'Black', size: 'L', stock: 6 },
+        { color: 'Black', size: 'XL', stock: 3 },
+        { color: 'Black', size: 'XXL', stock: 2 },
+        { color: 'White', size: 'S', stock: 5 },
+        { color: 'White', size: 'M', stock: 8 },
+        { color: 'White', size: 'L', stock: 6 },
+        { color: 'White', size: 'XL', stock: 3 },
+        { color: 'White', size: 'XXL', stock: 2 },
+        { color: 'Red', size: 'S', stock: 5 },
+        { color: 'Red', size: 'M', stock: 8 },
+        { color: 'Red', size: 'L', stock: 6 },
+        { color: 'Red', size: 'XL', stock: 3 },
+        { color: 'Red', size: 'XXL', stock: 2 },
+        { color: 'Royal Blue', size: 'S', stock: 5 },
+        { color: 'Royal Blue', size: 'M', stock: 8 },
+        { color: 'Royal Blue', size: 'L', stock: 6 },
+        { color: 'Royal Blue', size: 'XL', stock: 3 },
+        { color: 'Royal Blue', size: 'XXL', stock: 2 }
       ]
     },
     {
@@ -1048,10 +1167,10 @@
       comparePrice: 1999,
       collection: 'anime',
       tags: ['anime', 'manga', 'japanese-animation', 'ninetails', 'oversized', '240gsm'],
-      fabric: '240 GSM INTERLOCK COTTON',
+      fabric: '240 GSM FRENCH TERRY // BIO + SILICONE WASH',
       gsm: 240,
       fit: 'Oversized',
-      material: '100% Combed Heavy Interlock Cotton',
+      material: '240 GSM French Terry Cotton, Bio + Silicone Washed',
       relicTag: 'ARCHIVE 07',
       relicBadge: 'COMING SOON',
       sku: 'BRVD-NT-07',
@@ -1059,7 +1178,7 @@
       newDrop: false,
       isComingSoon: true,
       status: 'PUBLISHED',
-      colors: ['Black', 'White'],
+      colors: ['Black', 'White', 'Red', 'Royal Blue'],
       sizes: ['S', 'M', 'L', 'XL', 'XXL'],
       images: {
         front: createTeeSVG('BRAVADIAN NINETAILS', 'Anime', '#121216', '#ff4d00', 'front'),
@@ -1077,7 +1196,17 @@
         { color: 'White', size: 'M', stock: 6 },
         { color: 'White', size: 'L', stock: 9 },
         { color: 'White', size: 'XL', stock: 4 },
-        { color: 'White', size: 'XXL', stock: 1 }
+        { color: 'White', size: 'XXL', stock: 1 },
+        { color: 'Red', size: 'S', stock: 8 },
+        { color: 'Red', size: 'M', stock: 12 },
+        { color: 'Red', size: 'L', stock: 0 },
+        { color: 'Red', size: 'XL', stock: 5 },
+        { color: 'Red', size: 'XXL', stock: 2 },
+        { color: 'Royal Blue', size: 'S', stock: 8 },
+        { color: 'Royal Blue', size: 'M', stock: 12 },
+        { color: 'Royal Blue', size: 'L', stock: 0 },
+        { color: 'Royal Blue', size: 'XL', stock: 5 },
+        { color: 'Royal Blue', size: 'XXL', stock: 2 }
       ]
     },
     {
@@ -1089,10 +1218,10 @@
       comparePrice: 2199,
       collection: 'mythology',
       tags: ['mythology', 'garuda', 'deities', 'mythological-stories', 'heavyweight', '240gsm'],
-      fabric: '240 GSM HEAVYWEIGHT FRENCH COTTON',
+      fabric: '240 GSM FRENCH TERRY // BIO + SILICONE WASH',
       gsm: 240,
       fit: 'Oversized',
-      material: '100% Combed Cotton Heavy Interlock',
+      material: '240 GSM French Terry Cotton, Bio + Silicone Washed',
       relicTag: 'ARCHIVE 08',
       relicBadge: 'COMING SOON',
       sku: 'BRVD-GRD-08',
@@ -1100,7 +1229,7 @@
       newDrop: false,
       isComingSoon: true,
       status: 'PUBLISHED',
-      colors: ['Charcoal', 'Black'],
+      colors: ['Black', 'White', 'Red', 'Royal Blue'],
       sizes: ['S', 'M', 'L', 'XL', 'XXL'],
       images: {
         front: createTeeSVG('BRAVADIAN GARUDA', 'Mythology', '#16161c', '#f59e0b', 'front'),
@@ -1109,16 +1238,26 @@
         lifestyle: createTeeSVG('BRAVADIAN GARUDA', 'Mythology', '#16161c', '#f59e0b', 'lifestyle')
       },
       variants: [
-        { color: 'Charcoal', size: 'S', stock: 5 },
-        { color: 'Charcoal', size: 'M', stock: 8 },
-        { color: 'Charcoal', size: 'L', stock: 6 },
-        { color: 'Charcoal', size: 'XL', stock: 0 },
-        { color: 'Charcoal', size: 'XXL', stock: 3 },
         { color: 'Black', size: 'S', stock: 7 },
         { color: 'Black', size: 'M', stock: 10 },
         { color: 'Black', size: 'L', stock: 4 },
         { color: 'Black', size: 'XL', stock: 3 },
-        { color: 'Black', size: 'XXL', stock: 0 }
+        { color: 'Black', size: 'XXL', stock: 0 },
+        { color: 'White', size: 'S', stock: 5 },
+        { color: 'White', size: 'M', stock: 8 },
+        { color: 'White', size: 'L', stock: 6 },
+        { color: 'White', size: 'XL', stock: 0 },
+        { color: 'White', size: 'XXL', stock: 3 },
+        { color: 'Red', size: 'S', stock: 5 },
+        { color: 'Red', size: 'M', stock: 8 },
+        { color: 'Red', size: 'L', stock: 6 },
+        { color: 'Red', size: 'XL', stock: 0 },
+        { color: 'Red', size: 'XXL', stock: 3 },
+        { color: 'Royal Blue', size: 'S', stock: 5 },
+        { color: 'Royal Blue', size: 'M', stock: 8 },
+        { color: 'Royal Blue', size: 'L', stock: 6 },
+        { color: 'Royal Blue', size: 'XL', stock: 0 },
+        { color: 'Royal Blue', size: 'XXL', stock: 3 }
       ]
     },
     {
@@ -1130,10 +1269,10 @@
       comparePrice: 2099,
       collection: 'heritage',
       tags: ['heritage', 'bharat', 'architecture', 'cultural-symbols', 'oversized', '240gsm'],
-      fabric: '240 GSM HIGH DENSITY KNIT',
+      fabric: '240 GSM FRENCH TERRY // BIO + SILICONE WASH',
       gsm: 240,
       fit: 'Oversized',
-      material: '100% Combed Cotton',
+      material: '240 GSM French Terry Cotton, Bio + Silicone Washed',
       relicTag: 'ARCHIVE 09',
       relicBadge: 'COMING SOON',
       sku: 'BRVD-BHT-09',
@@ -1141,7 +1280,7 @@
       newDrop: true,
       isComingSoon: true,
       status: 'PUBLISHED',
-      colors: ['Black', 'Off-White'],
+      colors: ['Black', 'White', 'Red', 'Royal Blue'],
       sizes: ['S', 'M', 'L', 'XL', 'XXL'],
       images: {
         front: createTeeSVG('BRAVADIAN BHARAT', 'Heritage', '#101014', '#ff4d00', 'front'),
@@ -1155,11 +1294,21 @@
         { color: 'Black', size: 'L', stock: 8 },
         { color: 'Black', size: 'XL', stock: 6 },
         { color: 'Black', size: 'XXL', stock: 4 },
-        { color: 'Off-White', size: 'S', stock: 6 },
-        { color: 'Off-White', size: 'M', stock: 7 },
-        { color: 'Off-White', size: 'L', stock: 5 },
-        { color: 'Off-White', size: 'XL', stock: 0 },
-        { color: 'Off-White', size: 'XXL', stock: 2 }
+        { color: 'White', size: 'S', stock: 6 },
+        { color: 'White', size: 'M', stock: 7 },
+        { color: 'White', size: 'L', stock: 5 },
+        { color: 'White', size: 'XL', stock: 0 },
+        { color: 'White', size: 'XXL', stock: 2 },
+        { color: 'Red', size: 'S', stock: 12 },
+        { color: 'Red', size: 'M', stock: 15 },
+        { color: 'Red', size: 'L', stock: 8 },
+        { color: 'Red', size: 'XL', stock: 6 },
+        { color: 'Red', size: 'XXL', stock: 4 },
+        { color: 'Royal Blue', size: 'S', stock: 12 },
+        { color: 'Royal Blue', size: 'M', stock: 15 },
+        { color: 'Royal Blue', size: 'L', stock: 8 },
+        { color: 'Royal Blue', size: 'XL', stock: 6 },
+        { color: 'Royal Blue', size: 'XXL', stock: 4 }
       ]
     },
     {
@@ -1171,10 +1320,10 @@
       comparePrice: 1899,
       collection: 'street-culture',
       tags: ['street-culture', 'typography', 'graffiti', 'urban', 'rebellious', 'oversized', '240gsm'],
-      fabric: '240 GSM ULTRA-HEAVY COTTON',
+      fabric: '240 GSM FRENCH TERRY // BIO + SILICONE WASH',
       gsm: 240,
       fit: 'Oversized',
-      material: '100% Combed Cotton',
+      material: '240 GSM French Terry Cotton, Bio + Silicone Washed',
       relicTag: 'ARCHIVE 10',
       relicBadge: 'COMING SOON',
       sku: 'BRVD-CR-10',
@@ -1182,7 +1331,7 @@
       newDrop: false,
       isComingSoon: true,
       status: 'PUBLISHED',
-      colors: ['Pitch Black', 'Acid Charcoal'],
+      colors: ['Black', 'White', 'Red', 'Royal Blue'],
       sizes: ['S', 'M', 'L', 'XL', 'XXL'],
       images: {
         front: createTeeSVG('BRAVADIAN CYBER', 'Street Culture', '#0a0a0e', '#ff4d00', 'front'),
@@ -1191,16 +1340,26 @@
         lifestyle: createTeeSVG('BRAVADIAN CYBER', 'Street Culture', '#0a0a0e', '#ff4d00', 'lifestyle')
       },
       variants: [
-        { color: 'Pitch Black', size: 'S', stock: 4 },
-        { color: 'Pitch Black', size: 'M', stock: 6 },
-        { color: 'Pitch Black', size: 'L', stock: 3 },
-        { color: 'Pitch Black', size: 'XL', stock: 2 },
-        { color: 'Pitch Black', size: 'XXL', stock: 0 },
-        { color: 'Acid Charcoal', size: 'S', stock: 3 },
-        { color: 'Acid Charcoal', size: 'M', stock: 5 },
-        { color: 'Acid Charcoal', size: 'L', stock: 0 },
-        { color: 'Acid Charcoal', size: 'XL', stock: 4 },
-        { color: 'Acid Charcoal', size: 'XXL', stock: 1 }
+        { color: 'Black', size: 'S', stock: 4 },
+        { color: 'Black', size: 'M', stock: 6 },
+        { color: 'Black', size: 'L', stock: 3 },
+        { color: 'Black', size: 'XL', stock: 2 },
+        { color: 'Black', size: 'XXL', stock: 0 },
+        { color: 'White', size: 'S', stock: 4 },
+        { color: 'White', size: 'M', stock: 6 },
+        { color: 'White', size: 'L', stock: 3 },
+        { color: 'White', size: 'XL', stock: 2 },
+        { color: 'White', size: 'XXL', stock: 0 },
+        { color: 'Red', size: 'S', stock: 4 },
+        { color: 'Red', size: 'M', stock: 6 },
+        { color: 'Red', size: 'L', stock: 3 },
+        { color: 'Red', size: 'XL', stock: 2 },
+        { color: 'Red', size: 'XXL', stock: 0 },
+        { color: 'Royal Blue', size: 'S', stock: 4 },
+        { color: 'Royal Blue', size: 'M', stock: 6 },
+        { color: 'Royal Blue', size: 'L', stock: 3 },
+        { color: 'Royal Blue', size: 'XL', stock: 2 },
+        { color: 'Royal Blue', size: 'XXL', stock: 0 }
       ]
     },
     {
@@ -1212,10 +1371,10 @@
       comparePrice: 1599,
       collection: 'minimal',
       tags: ['minimal', 'essential', 'clean-graphics', 'understated', 'simple-typography', '240gsm'],
-      fabric: '240 GSM COMBED INTERLOCK',
+      fabric: '240 GSM FRENCH TERRY // BIO + SILICONE WASH',
       gsm: 240,
       fit: 'Oversized',
-      material: '100% Combed Cotton Heavy Interlock',
+      material: '240 GSM French Terry Cotton, Bio + Silicone Washed',
       relicTag: 'ARCHIVE 11',
       relicBadge: 'COMING SOON',
       sku: 'BRVD-ES-11',
@@ -1223,7 +1382,7 @@
       newDrop: false,
       isComingSoon: true,
       status: 'PUBLISHED',
-      colors: ['Pure Black', 'Bone Ecru'],
+      colors: ['Black', 'White', 'Red', 'Royal Blue'],
       sizes: ['S', 'M', 'L', 'XL', 'XXL'],
       images: {
         front: createTeeSVG('BRAVADIAN ESSENTIAL', 'Minimal', '#0e0e12', '#ffffff', 'front'),
@@ -1232,16 +1391,26 @@
         lifestyle: createTeeSVG('BRAVADIAN ESSENTIAL', 'Minimal', '#0e0e12', '#ffffff', 'lifestyle')
       },
       variants: [
-        { color: 'Pure Black', size: 'S', stock: 20 },
-        { color: 'Pure Black', size: 'M', stock: 25 },
-        { color: 'Pure Black', size: 'L', stock: 18 },
-        { color: 'Pure Black', size: 'XL', stock: 15 },
-        { color: 'Pure Black', size: 'XXL', stock: 8 },
-        { color: 'Bone Ecru', size: 'S', stock: 10 },
-        { color: 'Bone Ecru', size: 'M', stock: 14 },
-        { color: 'Bone Ecru', size: 'L', stock: 9 },
-        { color: 'Bone Ecru', size: 'XL', stock: 5 },
-        { color: 'Bone Ecru', size: 'XXL', stock: 4 }
+        { color: 'Black', size: 'S', stock: 20 },
+        { color: 'Black', size: 'M', stock: 25 },
+        { color: 'Black', size: 'L', stock: 18 },
+        { color: 'Black', size: 'XL', stock: 15 },
+        { color: 'Black', size: 'XXL', stock: 8 },
+        { color: 'White', size: 'S', stock: 10 },
+        { color: 'White', size: 'M', stock: 14 },
+        { color: 'White', size: 'L', stock: 9 },
+        { color: 'White', size: 'XL', stock: 5 },
+        { color: 'White', size: 'XXL', stock: 4 },
+        { color: 'Red', size: 'S', stock: 20 },
+        { color: 'Red', size: 'M', stock: 25 },
+        { color: 'Red', size: 'L', stock: 18 },
+        { color: 'Red', size: 'XL', stock: 15 },
+        { color: 'Red', size: 'XXL', stock: 8 },
+        { color: 'Royal Blue', size: 'S', stock: 20 },
+        { color: 'Royal Blue', size: 'M', stock: 25 },
+        { color: 'Royal Blue', size: 'L', stock: 18 },
+        { color: 'Royal Blue', size: 'XL', stock: 15 },
+        { color: 'Royal Blue', size: 'XXL', stock: 8 }
       ]
     },
     {
@@ -1253,10 +1422,10 @@
       comparePrice: 2299,
       collection: 'heritage',
       tags: ['heritage', 'ashoka', 'cultural-symbols', 'traditional-patterns', 'limited', '240gsm'],
-      fabric: '240 GSM COMBED HEAVY COTTON',
+      fabric: '240 GSM FRENCH TERRY // BIO + SILICONE WASH',
       gsm: 240,
       fit: 'Oversized',
-      material: '100% Combed Heavy Cotton',
+      material: '240 GSM French Terry Cotton, Bio + Silicone Washed',
       relicTag: 'ARCHIVE 12',
       relicBadge: 'COMING SOON',
       sku: 'BRVD-ASH-12',
@@ -1264,7 +1433,7 @@
       newDrop: true,
       isComingSoon: true,
       status: 'PUBLISHED',
-      colors: ['Black Ember'],
+      colors: ['Black', 'White', 'Red', 'Royal Blue'],
       sizes: ['S', 'M', 'L', 'XL', 'XXL'],
       images: {
         front: createTeeSVG('BRAVADIAN ASHOKA', 'Heritage', '#0c0c10', '#ff4d00', 'front'),
@@ -1273,22 +1442,42 @@
         lifestyle: createTeeSVG('BRAVADIAN ASHOKA', 'New Drop', '#0c0c10', '#ff4d00', 'lifestyle')
       },
       variants: [
-        { color: 'Black Ember', size: 'S', stock: 5 },
-        { color: 'Black Ember', size: 'M', stock: 7 },
-        { color: 'Black Ember', size: 'L', stock: 4 },
-        { color: 'Black Ember', size: 'XL', stock: 0 },
-        { color: 'Black Ember', size: 'XXL', stock: 2 }
+        { color: 'Black', size: 'S', stock: 5 },
+        { color: 'Black', size: 'M', stock: 7 },
+        { color: 'Black', size: 'L', stock: 4 },
+        { color: 'Black', size: 'XL', stock: 0 },
+        { color: 'Black', size: 'XXL', stock: 2 },
+        { color: 'White', size: 'S', stock: 5 },
+        { color: 'White', size: 'M', stock: 7 },
+        { color: 'White', size: 'L', stock: 4 },
+        { color: 'White', size: 'XL', stock: 0 },
+        { color: 'White', size: 'XXL', stock: 2 },
+        { color: 'Red', size: 'S', stock: 5 },
+        { color: 'Red', size: 'M', stock: 7 },
+        { color: 'Red', size: 'L', stock: 4 },
+        { color: 'Red', size: 'XL', stock: 0 },
+        { color: 'Red', size: 'XXL', stock: 2 },
+        { color: 'Royal Blue', size: 'S', stock: 5 },
+        { color: 'Royal Blue', size: 'M', stock: 7 },
+        { color: 'Royal Blue', size: 'L', stock: 4 },
+        { color: 'Royal Blue', size: 'XL', stock: 0 },
+        { color: 'Royal Blue', size: 'XXL', stock: 2 }
       ]
     }
   ];
 
   // BRAVADIAN DATA STORAGE CONTROLLER
+  // Public project URL + anon (publishable) key. Safe to ship: access is controlled by RLS.
+  // Never put the service_role key here.
+  const SUPABASE_URL = '';
+  const SUPABASE_ANON_KEY = '';
+
   const BravadianDB = {
     supabaseClient: null,
 
     init() {
       // Auto-Migration to ensure new luxury mockups, products, and collections load immediately
-      const DATA_VERSION = '4.0.0';
+      const DATA_VERSION = '4.3.0';
       const storedVer = localStorage.getItem('bravadian_data_version');
       const storedProds = localStorage.getItem('bravadian_products');
       const hasStaleJpg = storedProds && (storedProds.includes('images/relics') || storedProds.includes('.jpg'));
@@ -1299,6 +1488,7 @@
         localStorage.removeItem('bravadian_products');
         localStorage.removeItem('bravadian_collections');
         localStorage.removeItem('bravadian_universe_chapters');
+        localStorage.removeItem('bravadian_size_guide');
         // Update contact details in existing stored settings
         const storedSettings = localStorage.getItem('bravadian_settings');
         if (storedSettings) {
@@ -1316,17 +1506,19 @@
 
       // Load saved settings
       const settings = this.getSettings();
-      let sUrl = settings.supabaseUrl ? settings.supabaseUrl.trim() : '';
+      let sUrl = (SUPABASE_URL || settings.supabaseUrl || '').trim();
       if (sUrl && !sUrl.startsWith('http://') && !sUrl.startsWith('https://')) {
         sUrl = `https://${sUrl.replace(/\.supabase\.co.*$/, '')}.supabase.co`;
       }
-      const sKey = settings.supabaseAnonKey ? settings.supabaseAnonKey.trim() : '';
+      const sKey = (SUPABASE_ANON_KEY || settings.supabaseAnonKey || '').trim();
 
       if (sUrl && sKey && window.supabase) {
         try {
           this.supabaseClient = window.supabase.createClient(sUrl, sKey);
           console.log('[BRAVADIAN] Connected to Supabase Data Layer:', sUrl);
-          this.fetchRemoteCatalog();
+          this.fetchRemoteCatalog().then(res => {
+            if (res && res.success) window.dispatchEvent(new Event('bravadian:catalog-updated'));
+          });
         } catch (err) {
           console.warn('[BRAVADIAN] Supabase Init Error:', err);
         }
@@ -1335,6 +1527,19 @@
 
     isSupabaseConnected() {
       return !!this.supabaseClient;
+    },
+
+    // Returns { order } on success, { rejected, message } when the database refuses it
+    // (e.g. out of stock), or { order: null } when offline so checkout can still use WhatsApp.
+    async placeOrder(customer, items) {
+      if (!this.supabaseClient) return { order: null };
+      try {
+        const { data, error } = await this.supabaseClient.rpc('place_order', { p_customer: customer, p_items: items });
+        if (error) return { order: null, rejected: error.code === 'P0001', message: error.message };
+        return { order: data };
+      } catch (e) {
+        return { order: null };
+      }
     },
 
     // PRODUCTS

@@ -96,12 +96,14 @@
      -------------------------------------------------------------------------- */
   function initRouter() {
     window.addEventListener('hashchange', handleRoute);
+    window.addEventListener('bravadian:catalog-updated', handleRoute);
     handleRoute();
   }
 
   function handleRoute() {
     const hash = window.location.hash || '#/';
     StoreState.currentRoute = hash;
+    clearInterval(StoreState.galleryTimer);
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
     // Hide top announcement marquee bar on Heritage collection chapter page (matches Figma full-bleed hero)
@@ -142,6 +144,8 @@
       openCheckoutModal();
     } else if (hash === '#/order-success') {
       renderOrderSuccessView();
+    } else if (hash === '#/lookbook') {
+      renderLookbookView();
     } else if (hash === '#/about') {
       renderAboutView();
     } else if (hash === '#/care' || hash === '#/garment-care' || hash === '#/care-guide') {
@@ -347,7 +351,7 @@
             <div class="hero-narrative-col">
               <div class="figma-hero-tag">
                 <span class="hero-amber-dot"></span>
-                <span>[ 🇮🇳 MADE FOR THE BRAVE // EVERYDAY CLOTHING WITH PURPOSE ]</span>
+                <span>[ 🇮🇳 INDIAN ROOTS // MODERN FORM ]</span>
               </div>
 
               <h1 class="figma-hero-title">
@@ -356,7 +360,7 @@
               </h1>
 
               <p class="figma-hero-desc">
-                Everyday clothing made with purpose. Premium, comfortable, and affordable 240 GSM heavy interlock cotton silhouettes crafted for those who carry heritage forward.
+                Everyday clothing made with purpose. Premium, comfortable, and affordable 240 GSM French Terry cotton silhouettes crafted for those who carry heritage forward.
               </p>
 
               <div class="figma-hero-cta-wrap">
@@ -381,18 +385,18 @@
       <div class="figma-sub-marquee" aria-hidden="true">
         <div class="sub-marquee-track">
           <div class="sub-marquee-content">
-            <span>🇮🇳 MADE FOR THE BRAVE</span> <span class="marquee-star">✦</span>
+            <span>🇮🇳 A STORY WORTH WEARING</span> <span class="marquee-star">✦</span>
             <span>EVERYDAY CLOTHING WITH PURPOSE</span> <span class="marquee-star">✦</span>
             <span>PREMIUM • COMFORTABLE • AFFORDABLE</span> <span class="marquee-star">✦</span>
-            <span>240 GSM HEAVY INTERLOCK</span> <span class="marquee-star">✦</span>
+            <span>240 GSM FRENCH TERRY</span> <span class="marquee-star">✦</span>
             <span>CRAFTED IN BHARAT</span> <span class="marquee-star">✦</span>
             <span>FAST WHATSAPP CHECKOUT</span> <span class="marquee-star">✦</span>
           </div>
           <div class="sub-marquee-content">
-            <span>🇮🇳 MADE FOR THE BRAVE</span> <span class="marquee-star">✦</span>
+            <span>🇮🇳 A STORY WORTH WEARING</span> <span class="marquee-star">✦</span>
             <span>EVERYDAY CLOTHING WITH PURPOSE</span> <span class="marquee-star">✦</span>
             <span>PREMIUM • COMFORTABLE • AFFORDABLE</span> <span class="marquee-star">✦</span>
-            <span>240 GSM HEAVY INTERLOCK</span> <span class="marquee-star">✦</span>
+            <span>240 GSM FRENCH TERRY</span> <span class="marquee-star">✦</span>
             <span>CRAFTED IN BHARAT</span> <span class="marquee-star">✦</span>
             <span>FAST WHATSAPP CHECKOUT</span> <span class="marquee-star">✦</span>
           </div>
@@ -419,7 +423,7 @@
               const badges = ['PRE-ORDER', 'NEW DROP', 'ARCHIVE', 'PRE-ORDER'];
               const badge = badges[idx] || 'ARCHIVE';
               const subtitles = [
-                '240 GSM COMBED TEXTURED COTTON',
+                '240 GSM FRENCH TERRY COTTON',
                 '400 GSM FRENCH TERRY // OIL WASHED',
                 '380 GSM HEAVYWEIGHT TERRY',
                 'HEAVY CANVAS CHORE COAT'
@@ -459,16 +463,16 @@
       <section class="figma-manifesto-section" id="manifestoSection">
         <!-- Authentic Panoramic Heritage Architectural Backdrop (Light & Dark Theme Specific) -->
         <div class="manifesto-panoramic-wrap" aria-hidden="true">
-          <img src="images/manifesto-panoramic-light.png" alt="" class="manifesto-panoramic-img manifesto-bg-light manifesto-img-desktop" loading="eager">
-          <img src="images/manifesto-panoramic-dark-alt.png" alt="" class="manifesto-panoramic-img manifesto-bg-dark manifesto-img-desktop" loading="eager">
+          <img src="images/manifesto-panoramic-light.webp" alt="" class="manifesto-panoramic-img manifesto-bg-light manifesto-img-desktop" loading="eager">
+          <img src="images/manifesto-panoramic-dark-alt.webp" alt="" class="manifesto-panoramic-img manifesto-bg-dark manifesto-img-desktop" loading="eager">
           <!-- Mobile Flanking Architecture (Temple Left, Celestial Maiden Right) -->
           <div class="manifesto-mobile-flank manifesto-mobile-flank-left" aria-hidden="true">
-            <img src="images/manifesto-panoramic-light.png" alt="" class="manifesto-bg-light" loading="eager">
-            <img src="images/manifesto-panoramic-dark-alt.png" alt="" class="manifesto-bg-dark" loading="eager">
+            <img src="images/manifesto-panoramic-light.webp" alt="" class="manifesto-bg-light" loading="eager">
+            <img src="images/manifesto-panoramic-dark-alt.webp" alt="" class="manifesto-bg-dark" loading="eager">
           </div>
           <div class="manifesto-mobile-flank manifesto-mobile-flank-right" aria-hidden="true">
-            <img src="images/manifesto-panoramic-light.png" alt="" class="manifesto-bg-light" loading="eager">
-            <img src="images/manifesto-panoramic-dark-alt.png" alt="" class="manifesto-bg-dark" loading="eager">
+            <img src="images/manifesto-panoramic-light.webp" alt="" class="manifesto-bg-light" loading="eager">
+            <img src="images/manifesto-panoramic-dark-alt.webp" alt="" class="manifesto-bg-dark" loading="eager">
           </div>
           <div class="manifesto-scrim-overlay"></div>
         </div>
@@ -501,7 +505,7 @@
         <div class="container manifesto-inner">
           <span class="manifesto-tag">[ THE BRAVADIAN MANIFESTO ]</span>
           <blockquote class="manifesto-quote">
-            “WE CARVE THE FACE ON THE SHIRT MARK THAT SACRED ICONOGRAPHY RECONTEXTUALIZED AS MODERN INDIAN STREET ARMOR.”
+            “INDIAN ROOTS. MODERN FORM. A STORY WORTH WEARING.”
           </blockquote>
           <div class="manifesto-divider">
             <span class="divider-line"></span>
@@ -529,7 +533,7 @@
           <div class="archive-section-header">
             <div class="archive-header-left">
               <span class="figma-tag">[ SYSTEM TAXONOMY // CHRONICLING SUB-CONTINENT ]</span>
-              <h2 class="archive-title">THE TEN ARCHIVE</h2>
+              <h2 class="archive-title">THE FIVE COLLECTIONS</h2>
             </div>
             <div class="archive-header-right">
               <span class="archive-cadence">CHRONOLOGICAL CADENCE // NUMBERED EDITIONS</span>
@@ -607,7 +611,7 @@
             <div class="archive-section-header">
               <div class="archive-header-left">
                 <span class="figma-tag">[ SYSTEM TAXONOMY // CHRONICLING SUB-CONTINENT ]</span>
-                <h1 class="archive-title">THE TEN ARCHIVE</h1>
+                <h1 class="archive-title">THE FIVE COLLECTIONS</h1>
               </div>
               <div class="archive-header-right">
                 <span class="archive-cadence">CHRONOLOGICAL CADENCE // NUMBERED EDITIONS</span>
@@ -783,7 +787,7 @@
                 <h2 class="heritage-section-title">CIVILIZATIONAL MOTIFS</h2>
                 <div class="heritage-desc-wrapper">
                   <p class="heritage-section-narrative">
-                    Four codified temple artifacts meticulously vector-traced and screen-printed onto heavy cotton fibers. Every thread preserves a fragment of civilizational history.
+                    Four temple motifs, redrawn and printed onto heavyweight cotton. Every thread preserves a fragment of civilizational history.
                   </p>
                 </div>
               </div>
@@ -794,7 +798,7 @@
               <!-- M-01 -->
               <article class="motif-card">
                 <div class="motif-image-box">
-                  <img src="images/heritage/motif-belur-salabhanjika.jpg" alt="Belur Salabhanjika stone carving bracket figure" class="motif-img" loading="lazy" />
+                  <img src="images/heritage/motif-belur-salabhanjika.webp" alt="Belur Salabhanjika stone carving bracket figure" class="motif-img" loading="lazy" />
                 </div>
                 <div class="motif-specs">
                   <div class="motif-title-badge">
@@ -808,7 +812,7 @@
               <!-- M-02 -->
               <article class="motif-card">
                 <div class="motif-image-box">
-                  <img src="images/heritage/motif-halebidu-frieze.jpg" alt="Halebidu Frieze disciplined cavalry lines" class="motif-img" loading="lazy" />
+                  <img src="images/heritage/motif-halebidu-frieze.webp" alt="Halebidu Frieze disciplined cavalry lines" class="motif-img" loading="lazy" />
                 </div>
                 <div class="motif-specs">
                   <div class="motif-title-badge">
@@ -822,7 +826,7 @@
               <!-- M-03 -->
               <article class="motif-card">
                 <div class="motif-image-box">
-                  <img src="images/heritage/motif-hoysala-crest.jpg" alt="Hoysala Crest warrior Sala slaying lion" class="motif-img" loading="lazy" />
+                  <img src="images/heritage/motif-hoysala-crest.webp" alt="Hoysala Crest warrior Sala slaying lion" class="motif-img" loading="lazy" />
                 </div>
                 <div class="motif-specs">
                   <div class="motif-title-badge">
@@ -836,7 +840,7 @@
               <!-- M-04 -->
               <article class="motif-card">
                 <div class="motif-image-box">
-                  <img src="images/heritage/motif-kirtidhwaja-column.jpg" alt="Kirtidhwaja Column victory pillar relief" class="motif-img" loading="lazy" />
+                  <img src="images/heritage/motif-kirtidhwaja-column.webp" alt="Kirtidhwaja Column victory pillar relief" class="motif-img" loading="lazy" />
                 </div>
                 <div class="motif-specs">
                   <div class="motif-title-badge">
@@ -861,7 +865,7 @@
                 <h2 class="heritage-section-title">GARMENT ARTIFACTS</h2>
                 <div class="heritage-desc-wrapper">
                   <p class="heritage-section-narrative">
-                    Severe street silhouettes forged in modern Indian cities, engineered with heavyweight 280 GSM to 420 GSM fibers for structural discipline.
+                    Severe street silhouettes forged in modern Indian cities, engineered with heavyweight 240 GSM French Terry fibers for structural discipline.
                   </p>
                 </div>
               </div>
@@ -891,7 +895,7 @@
               </div>
             </div>
 
-            <!-- Swatch Strip (5 Official Colorways) -->
+            <!-- Swatch Strip (4 Official Colorways) -->
             <div class="heritage-swatches-row">
               <!-- Swatch 1: OBSIDIAN BLACK -->
               <div class="swatch-card">
@@ -903,21 +907,11 @@
                 </div>
               </div>
 
-              <!-- Swatch 2: BONE IVORY -->
-              <div class="swatch-card">
-                <div class="swatch-color-block" style="background-color: #ECE3D2;"></div>
-                <div class="swatch-details">
-                  <span class="swatch-title">02 // IVORY</span>
-                  <span class="swatch-hex">#ECE3D2</span>
-                  <span class="swatch-info">Organic unbleached combed cotton mimicking sun-baked stone.</span>
-                </div>
-              </div>
-
               <!-- Swatch 3: SACRED RED -->
               <div class="swatch-card">
                 <div class="swatch-color-block" style="background-color: #C81D25;"></div>
                 <div class="swatch-details">
-                  <span class="swatch-title">03 // RED</span>
+                  <span class="swatch-title">02 // RED</span>
                   <span class="swatch-hex">#C81D25</span>
                   <span class="swatch-info">Deep ritual vermillion inspired by temple sanctum sindhoor.</span>
                 </div>
@@ -927,7 +921,7 @@
               <div class="swatch-card">
                 <div class="swatch-color-block" style="background-color: #1852B8;"></div>
                 <div class="swatch-details">
-                  <span class="swatch-title">04 // BLUE</span>
+                  <span class="swatch-title">03 // ROYAL BLUE</span>
                   <span class="swatch-hex">#1852B8</span>
                   <span class="swatch-info">Sovereign heritage cobalt symbolizing the boundless cosmic expanse.</span>
                 </div>
@@ -937,7 +931,7 @@
               <div class="swatch-card">
                 <div class="swatch-color-block" style="background-color: #F7F7FA;"></div>
                 <div class="swatch-details">
-                  <span class="swatch-title">05 // WHITE</span>
+                  <span class="swatch-title">04 // WHITE</span>
                   <span class="swatch-hex">#F7F7FA</span>
                   <span class="swatch-info">Pristine architectural limestone base for high-contrast typography.</span>
                 </div>
@@ -952,7 +946,7 @@
   function renderHeritageGarmentCard(p, idx, settings) {
     const relicTag = p.relicTag || `RELIC 0${idx + 1}`;
     const badgeText = p.isComingSoon ? 'COMING SOON' : (p.relicBadge || 'PRE-ORDER ACTIVE');
-    const fabricText = p.fabric || '280 GSM COMBED COTTON // ARCHIVAL EMBROIDERY';
+    const fabricText = p.fabric || '240 GSM COMBED COTTON // ARCHIVAL EMBROIDERY';
     const priceFormatted = `${settings.currency || '₹'}${p.price.toLocaleString('en-IN')}`;
 
     return `
@@ -1074,20 +1068,12 @@
             ${displayedProducts.map((p, idx) => renderProductCardHTML(p, idx)).join('')}
           </div>
 
-          <!-- Bottom Pagination / Load More (Locked for now) -->
+          ${!isShowingAll ? `
           <div class="canon-load-more-wrap">
-            <button 
-              type="button" 
-              class="btn-canon-load-more is-vault-locked" 
-              id="canonLoadMoreBtn"
-              disabled
-              title="Page 2 Archive is currently locked in vault"
-              aria-disabled="true"
-            >
-              <span class="lock-icon" style="margin-right: 8px;">🔒</span>
-              <span>SYSTEM ARCHIVE ARCHETECH [PAGE 2] // LOCKED</span>
+            <button type="button" class="btn-canon-load-more" id="canonLoadMoreBtn">
+              <span>SHOW ALL ${products.length} PIECES &darr;</span>
             </button>
-          </div>
+          </div>` : ''}
         ` : `
           <div class="canon-empty-state">
             <div class="empty-state-icon">⚡</div>
@@ -1116,9 +1102,8 @@
       });
     }
 
-    // Load More Page 2 Listener (Locked for now)
     const loadMoreBtn = document.getElementById('canonLoadMoreBtn');
-    if (loadMoreBtn && !loadMoreBtn.classList.contains('is-vault-locked')) {
+    if (loadMoreBtn) {
       loadMoreBtn.addEventListener('click', () => {
         StoreState.cataloguePage = 2;
         renderShopView(colSlug);
@@ -1137,7 +1122,7 @@
     const relicTag = product.relicTag || `RELIC 0${(idx % 6) + 1}`;
     const isLocked = product.isComingSoon === true;
     const relicBadge = isLocked ? 'COMING SOON' : (product.relicBadge || (product.newDrop ? 'PRE-ORDER ACTIVATED' : 'ARCHIVAL RUN'));
-    const fabricSpec = product.fabric || '240 GSM INTERLOCK // 100% COMBED COTTON';
+    const fabricSpec = product.fabric || '240 GSM FRENCH TERRY // 100% COMBED COTTON';
 
     if (isLocked) {
       return `
@@ -1244,7 +1229,7 @@
               type="button" 
               class="btn-canon-archive" 
               onclick="event.stopPropagation(); window.BravadianStore.quickAdd('${product.slug}');"
-              aria-label="Add ${product.name} to archive bag"
+              aria-label="Add ${product.name} to bag"
             >
               <span>ADD TO ARCHIVE // +</span>
             </button>
@@ -1303,36 +1288,18 @@
     const thumb2 = pImages.back || getDiagram('back');
     const thumb3 = pImages.closeup || getDiagram('closeup');
     const mainHero = thumb1;
+    const galleryImages = [thumb1, thumb2, thumb3, pImages.lifestyle, pImages.lifestyle2]
+      .filter((src, i, arr) => src && arr.indexOf(src) === i);
 
     const allSizes = ['S', 'M', 'L', 'XL', 'XXL'];
 
     const accordions = [
-      {
-        num: '01',
-        title: 'THE STORY',
-        content: 'A homage to the 12th-century Hoysala dynasty. The print layout mirrors the friezes of Halebidu temple complex, engineered to scale with the shoulder drapery.'
-      },
-      {
-        num: '02',
-        title: 'MOTIF DECODE',
-        content: 'Features the sacred double-headed Berunda and charging temple elephants. Every motif is redrawn from hand-inked archives and silkscreened on textured cotton.'
-      },
-      {
-        num: '03',
-        title: 'FABRIC & PRINT',
-        content: `${product.fabric || '280 GSM premium long-staple Indian cotton'}. Loop-back French Terry structure. Low-impact organic active dyes.`
-      },
-      {
-        num: '04',
-        title: 'ARCHIVAL CUSTODY',
-        content: 'Washing should be conducted inside out at cold temperatures. Line dry only in natural shade. Avoid mechanical heat exposure to protect the high-density puff print.'
-      },
-      {
-        num: '05',
-        title: 'VAULT DISPATCH & RETURNS',
-        content: 'Dispatched globally from our Bengaluru node. Covered by our 7-day tactical archive verification window. Returns accepted only if security tags are intact.'
-      }
-    ];
+      { title: 'THE STORY', content: product.story || product.description },
+      product.motif ? { title: 'THE SYMBOLS', content: product.motif } : null,
+      { title: 'FABRIC & PRINT', content: `${product.fabric || '240 GSM French Terry cotton'}. ${product.gsm === 450 ? '' : 'Oversized drop-shoulder fit. DTF printed.'}` },
+      { title: 'CARE', content: 'Wash inside out in cold water. Line dry in shade. Do not iron directly on the print. Do not bleach or tumble dry.' },
+      { title: 'DELIVERY & RETURNS', content: 'All-India delivery. Your order is confirmed with you on WhatsApp before dispatch. See our Shipping and Returns policy for full details.' }
+    ].filter(Boolean).map((a, n) => ({ num: String(n + 1).padStart(2, '0'), ...a }));
 
     const relatedRelics = [
       {
@@ -1402,16 +1369,11 @@
               ` : ''}
             </div>
 
-            <div class="pdp-thumbs-row">
-              <div class="pdp-thumb-card active" data-img="${thumb1}" role="button" tabindex="0" title="Front Architectural View">
-                <img src="${thumb1}" alt="Front Architectural View" class="pdp-thumb-img">
-              </div>
-              <div class="pdp-thumb-card" data-img="${thumb2}" role="button" tabindex="0" title="Technical Rear View">
-                <img src="${thumb2}" alt="Technical Rear Typography" class="pdp-thumb-img">
-              </div>
-              <div class="pdp-thumb-card" data-img="${thumb3}" role="button" tabindex="0" title="Fabric Specimen View">
-                <img src="${thumb3}" alt="Macro Fabric loops" class="pdp-thumb-img">
-              </div>
+            <div class="pdp-thumbs-row" style="--thumbs:${galleryImages.length}">
+              ${galleryImages.map((src, n) => `
+              <div class="pdp-thumb-card ${n === 0 ? 'active' : ''}" data-img="${src}" role="button" tabindex="0" title="${product.name}, photo ${n + 1} of ${galleryImages.length}">
+                <img src="${src}" alt="${product.name}, photo ${n + 1} of ${galleryImages.length}" class="pdp-thumb-img" loading="lazy">
+              </div>`).join('')}
             </div>
           </div>
 
@@ -1432,15 +1394,26 @@
             <!-- Description -->
             <p class="pdp-figma-desc">${product.description}</p>
 
+            <!-- Colour Selection -->
+            ${(product.colors || []).length ? `
+            <div class="pdp-color-section">
+              <span class="pdp-size-label">COLOUR: <strong id="pdpColorName">${StoreState.selectedColor}</strong></span>
+              <div class="pdp-color-row" id="pdpColorRow" role="radiogroup" aria-label="Colour">
+                ${product.colors.map(c => `
+                  <button type="button" class="pdp-color-dot ${c === StoreState.selectedColor ? 'active' : ''}" data-color="${c}" style="--dot:${colourHex(c)}" role="radio" aria-checked="${c === StoreState.selectedColor}" aria-label="${c}" title="${c}"></button>
+                `).join('')}
+              </div>
+            </div>` : ''}
+
             <!-- Size Selection -->
             <div class="pdp-size-section">
               <div class="pdp-size-header">
                 <span class="pdp-size-label">SELECT SPECIFICATION (SIZE)</span>
-                <button type="button" class="pdp-size-guide-btn" id="pdpSizeGuideTrigger">SIZE GUIDE</button>
+                <button type="button" class="pdp-size-guide-btn pdp-fit-btn" id="pdpSizeGuideTrigger">${fitButtonLabel()}</button>
               </div>
               <div class="pdp-size-matrix" id="pdpSizeMatrix">
                 ${allSizes.map(sz => `
-                  <button type="button" class="pdp-size-box ${sz === StoreState.selectedSize ? 'active' : ''}" data-size="${sz}">
+                  <button type="button" class="pdp-size-box ${sz === StoreState.selectedSize ? 'active' : ''}" data-size="${sz}" ${product.isComingSoon || getVariantStock(product, StoreState.selectedColor, sz) > 0 ? '' : 'disabled'}>
                     ${sz}
                   </button>
                 `).join('')}
@@ -1450,10 +1423,10 @@
             <!-- Add to Bag CTA -->
             <div class="pdp-cta-wrap">
               <button type="button" class="pdp-cta-btn ${product.isComingSoon ? 'is-coming-soon' : ''}" id="pdpCtaBtn">
-                ${product.isComingSoon ? `[ COMING SOON ]` : `ADD TO ARCHIVE BAG — ${settings.currency}${product.price.toLocaleString('en-IN')}`}
+                ${product.isComingSoon ? `[ COMING SOON ]` : `ADD TO BAG — ${settings.currency}${product.price.toLocaleString('en-IN')}`}
               </button>
               <div class="pdp-cta-subtext">
-                ✦ SECURE ENCRYPTED PROTOCOL // DISPATCHED IN 48 HOURS // NUMBERED AUTHENTICITY CHIP INCLUDED
+                ✦ ORDER CONFIRMED ON WHATSAPP // ALL-INDIA DELIVERY // UPI, CARDS & NET BANKING
               </div>
             </div>
 
@@ -1508,7 +1481,7 @@
                     <span class="pdp-relic-price">${settings.currency}${item.price.toLocaleString('en-IN')}</span>
                   </div>
                   <div class="pdp-relic-row-bottom">
-                    <span class="pdp-relic-material">280 GSM COMBED TEXTURED COTTON</span>
+                    <span class="pdp-relic-material">240 GSM FRENCH TERRY COTTON</span>
                     <span class="pdp-relic-status">PRE-ORDER ACTIVE</span>
                   </div>
                 </div>
@@ -1569,8 +1542,53 @@
       });
     });
 
+    // Gallery autoplay: pauses on hover/touch, stops once the shopper picks a photo
+    clearInterval(StoreState.galleryTimer);
+    const galleryFrame = document.querySelector('.pdp-media-col');
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (galleryFrame && thumbCards.length > 1 && !reduceMotion) {
+      let paused = false;
+      const pause = () => { paused = true; };
+      const resume = () => { paused = false; };
+      galleryFrame.addEventListener('mouseenter', pause);
+      galleryFrame.addEventListener('mouseleave', resume);
+      galleryFrame.addEventListener('touchstart', pause, { passive: true });
+      galleryFrame.addEventListener('touchend', () => setTimeout(resume, 4000), { passive: true });
+      thumbCards.forEach(tc => tc.addEventListener('click', (e) => {
+        if (e.isTrusted) clearInterval(StoreState.galleryTimer);
+      }));
+      StoreState.galleryTimer = setInterval(() => {
+        if (paused || document.hidden || !document.body.contains(galleryFrame)) return;
+        const cards = Array.from(thumbCards);
+        const next = (cards.findIndex(c => c.classList.contains('active')) + 1) % cards.length;
+        cards[next].click();
+      }, 4000);
+    }
+
     // 2. Size Matrix Selection
     const sizeBoxes = document.querySelectorAll('.pdp-size-box');
+    const colorDots = document.querySelectorAll('.pdp-color-dot');
+    colorDots.forEach(dot => {
+      dot.addEventListener('click', () => {
+        StoreState.selectedColor = dot.dataset.color;
+        colorDots.forEach(d => {
+          const on = d === dot;
+          d.classList.toggle('active', on);
+          d.setAttribute('aria-checked', on ? 'true' : 'false');
+        });
+        const nameEl = document.getElementById('pdpColorName');
+        if (nameEl) nameEl.textContent = StoreState.selectedColor;
+        let firstOpen = null;
+        sizeBoxes.forEach(b => {
+          const open = product.isComingSoon || getVariantStock(product, StoreState.selectedColor, b.dataset.size) > 0;
+          b.disabled = !open;
+          if (open && !firstOpen) firstOpen = b;
+        });
+        const current = document.querySelector('.pdp-size-box.active');
+        if ((!current || current.disabled) && firstOpen) firstOpen.click();
+      });
+    });
+
     sizeBoxes.forEach(sb => {
       sb.addEventListener('click', () => {
         sizeBoxes.forEach(b => b.classList.remove('active'));
@@ -1654,6 +1672,10 @@
       item.color.toLowerCase() === color.toLowerCase() && item.size === size
     );
     return v ? v.stock : 0;
+  }
+
+  function colourHex(name) {
+    return { 'black': '#111111', 'white': '#FFFFFF', 'red': '#C62828', 'royal blue': '#1F4FD1' }[(name || '').toLowerCase()] || '#777777';
   }
 
   function getAvailableSizesForColor(product, color) {
@@ -1873,7 +1895,7 @@
                 <path d="M24 27V30" stroke="#FFA000" stroke-width="2"/>
               </svg>
             </div>
-            <h4 class="empty-state-title">YOUR VAULT IS EMPTY</h4>
+            <h4 class="empty-state-title">YOUR BAG IS EMPTY</h4>
             <p class="empty-state-sub">240 GSM architectural silhouettes are waiting in the drop.</p>
             <a href="#/shop" class="btn-figma-primary btn-vault-action" onclick="window.BravadianStore.closeCartDrawer();">
               <span>[ EXPLORE THE DROP ]</span>
@@ -1941,7 +1963,7 @@
                 <path d="M24 27V30" stroke="#FFA000" stroke-width="2"/>
               </svg>
             </div>
-            <h2 class="empty-state-title">YOUR VAULT IS EMPTY</h2>
+            <h2 class="empty-state-title">YOUR BAG IS EMPTY</h2>
             <p class="empty-state-sub">Discover unreleased 240 GSM architectural silhouettes in the collection archive.</p>
             <a href="#/shop" class="btn-figma-primary btn-vault-action">
               <span>[ EXPLORE THE DROP ]</span>
@@ -2027,7 +2049,7 @@
   }
 
   // Handle WhatsApp Checkout Form Submit
-  window.handleCheckoutSubmit = function (e) {
+  window.handleCheckoutSubmit = async function (e) {
     e.preventDefault();
 
     const name = document.getElementById('chkName').value.trim();
@@ -2090,8 +2112,38 @@
 
     if (hasErrors) return;
 
-    // Generate Order Message
-    const { subtotal, shipping, total, settings } = calculateCartTotals();
+    const submitBtn = e.target.querySelector('[type="submit"]');
+    if (submitBtn) submitBtn.disabled = true;
+
+    // Open the tab now: browsers block window.open once we've awaited the network.
+    const waWindow = window.open('', '_blank');
+
+    const result = await window.BravadianDB.placeOrder(
+      {
+        name, phone: cleanPhone, email, pincode, city, state, landmark,
+        address: `${address1}${address2 ? ', ' + address2 : ''}`
+      },
+      StoreState.cart.map(item => ({
+        productId: item.productId, color: item.color, size: item.size, quantity: item.quantity
+      }))
+    );
+
+    if (result.rejected) {
+      if (waWindow) waWindow.close();
+      if (submitBtn) submitBtn.disabled = false;
+      alert(`${result.message}
+
+Please update your bag and try again.`);
+      return;
+    }
+
+    // Generate Order Message (database totals win when the order was saved)
+    const totals = calculateCartTotals();
+    const settings = totals.settings;
+    const order = result.order;
+    const subtotal = order ? Number(order.subtotal) : totals.subtotal;
+    const shipping = order ? Number(order.shipping) : totals.shipping;
+    const total = order ? Number(order.total) : totals.total;
 
     const itemsText = StoreState.cart.map((item, idx) => `
 ${idx + 1}. Product: ${item.name}
@@ -2106,7 +2158,9 @@ Price: ${settings.currency}${(item.price * item.quantity).toLocaleString('en-IN'
 Hello Bravadian,
 
 I would like to place an order.
-
+${order ? `
+Order No: ${order.order_number}
+` : ''}
 ORDER DETAILS
 --------------------
 
@@ -2147,7 +2201,12 @@ Thank you.
     const encoded = encodeURIComponent(message);
     const waUrl = `https://wa.me/${settings.whatsappNumber}?text=${encoded}`;
     
-    window.open(waUrl, '_blank');
+    if (submitBtn) submitBtn.disabled = false;
+    if (!waWindow) {
+      window.location.href = waUrl;
+      return;
+    }
+    waWindow.location.href = waUrl;
 
     // Transition to Order Success View
     window.location.hash = '#/order-success';
@@ -2254,20 +2313,200 @@ Thank you.
       const guideData = window.BravadianDB.getSizeGuide();
 
       if (tableBody) {
+        const fmt = (v) => (v === null || v === undefined || v === '') ? '<span class="size-spec-na">—</span>' : `${v}" <small>(${Math.round(v * 2.54)} cm)</small>`;
         tableBody.innerHTML = guideData.map(row => `
-          <tr>
-            <td><strong>${row.size}</strong></td>
-            <td>${row.chest}"</td>
-            <td>${row.length}"</td>
-            <td>${row.shoulder}"</td>
-            <td>${row.sleeve}"</td>
+          <tr data-size="${row.size}">
+            <td class="cell-size">${row.size}</td>
+            <td>${fmt(row.chest)}</td>
+            <td>${fmt(row.length)}</td>
+            <td>${fmt(row.shoulder)}</td>
+            <td>${fmt(row.sleeve)}</td>
           </tr>
         `).join('');
       }
 
       sizeGuideModal.classList.add('is-open');
+      initFitFinder();
+      const card = sizeGuideModal.querySelector('.size-spec-card');
+      if (card) card.scrollTop = 0;
     }
   }
+
+  // ── Fit Finder ─────────────────────────────────────────────────────────
+  const FIT_SIZES = ['S', 'M', 'L', 'XL', 'XXL'];
+  const FIT_KEY = 'bravadian_fit_profile';
+  const FIT_DEFAULT = { height: 175, weight: 70, build: 'regular', fit: 'true' };
+
+  function loadFitProfile() {
+    try { return JSON.parse(localStorage.getItem(FIT_KEY)); } catch (e) { return null; }
+  }
+
+  // Weight drives chest/width, height drives body length; build and taste shift by part of a size.
+  function recommendSize(p) {
+    const build = { slim: -0.4, regular: 0, athletic: 0.3, broad: 0.6 }[p.build] || 0;
+    const taste = { neat: -0.6, true: 0, extra: 0.8 }[p.fit] || 0;
+    const v = 0.65 * ((p.weight - 55) / 10) + 0.35 * ((p.height - 165) / 6) + build + taste;
+    const idx = Math.min(4, Math.max(0, Math.round(v)));
+    const frac = v - Math.round(v);
+    let alt = null;
+    if (Math.abs(frac) >= 0.3) {
+      const j = idx + (frac > 0 ? 1 : -1);
+      if (j >= 0 && j <= 4) alt = FIT_SIZES[j];
+    }
+    return { size: FIT_SIZES[idx], alt, edge: v < -0.5 ? 'small' : (v > 4.5 ? 'large' : null) };
+  }
+
+  function fitButtonLabel() {
+    const p = loadFitProfile();
+    return p ? `YOUR SIZE: ${recommendSize(p).size} &rarr;` : 'FIND MY SIZE &rarr;';
+  }
+
+  let fitFinderBound = false;
+  function initFitFinder() {
+    const h = document.getElementById('ffHeight');
+    const w = document.getElementById('ffWeight');
+    if (!h || !w) return;
+    const state = Object.assign({}, FIT_DEFAULT, loadFitProfile() || {});
+    h.value = state.height;
+    w.value = state.weight;
+
+    const syncChips = (groupId, key) => {
+      document.querySelectorAll(`#${groupId} button`).forEach(b => {
+        const on = b.dataset.v === state[key];
+        b.classList.toggle('is-active', on);
+        b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
+    };
+
+    const update = (save) => {
+      state.height = Number(h.value);
+      state.weight = Number(w.value);
+      const totalIn = Math.round(state.height / 2.54);
+      document.getElementById('ffHeightOut').textContent = `${state.height} cm · ${Math.floor(totalIn / 12)}'${totalIn % 12}"`;
+      document.getElementById('ffWeightOut').textContent = `${state.weight} kg`;
+      syncChips('ffBuild', 'build');
+      syncChips('ffFit', 'fit');
+
+      const rec = recommendSize(state);
+      document.getElementById('ffSize').textContent = rec.size;
+
+      let note;
+      if (rec.edge === 'small') note = 'You are at the small end of our range. S will still sit loose and relaxed.';
+      else if (rec.edge === 'large') note = 'You are at the top of our range. XXL may fit closer than intended. Message us on WhatsApp for a custom size.';
+      else if (rec.alt) {
+        const bigger = FIT_SIZES.indexOf(rec.alt) > FIT_SIZES.indexOf(rec.size) ? rec.alt : rec.size;
+        const smaller = bigger === rec.alt ? rec.size : rec.alt;
+        note = `You are between ${smaller} and ${bigger}. Pick ${bigger} for more drape, ${smaller} for a neater fit.`;
+      } else note = `${rec.size} gives you the dropped-shoulder drape this tee is cut for.`;
+      document.getElementById('ffNote').textContent = note;
+
+      const row = window.BravadianDB.getSizeGuide().find(r => r.size === rec.size);
+      document.getElementById('ffSpecs').innerHTML = row ? `
+        <div><dt>Chest</dt><dd>${row.chest}"</dd></div>
+        <div><dt>Length</dt><dd>${row.length}"</dd></div>
+        ${row.shoulder ? `<div><dt>Shoulder</dt><dd>${row.shoulder}"</dd></div>` : ''}` : '';
+
+      document.querySelectorAll('#sizeGuideTableBody tr').forEach(tr => {
+        tr.classList.toggle('is-recommended', tr.dataset.size === rec.size);
+      });
+
+      const apply = document.getElementById('ffApply');
+      const pdpBox = document.querySelector(`.pdp-size-box[data-size="${rec.size}"]`);
+      apply.hidden = !document.getElementById('pdpSizeMatrix');
+      apply.disabled = !pdpBox || pdpBox.disabled || pdpBox.classList.contains('disabled');
+      apply.innerHTML = apply.disabled ? `SIZE ${rec.size} IS SOLD OUT IN THIS DESIGN` : `SELECT SIZE ${rec.size} &rarr;`;
+      apply.dataset.size = rec.size;
+
+      if (save) {
+        try { localStorage.setItem(FIT_KEY, JSON.stringify(state)); } catch (e) {}
+        const trigger = document.getElementById('pdpSizeGuideTrigger');
+        if (trigger) trigger.innerHTML = fitButtonLabel();
+      }
+    };
+
+    if (!fitFinderBound) {
+      fitFinderBound = true;
+      h.addEventListener('input', () => update(true));
+      w.addEventListener('input', () => update(true));
+      [['ffBuild', 'build'], ['ffFit', 'fit']].forEach(([id, key]) => {
+        document.getElementById(id).addEventListener('click', (e) => {
+          const b = e.target.closest('button[data-v]');
+          if (!b) return;
+          state[key] = b.dataset.v;
+          update(true);
+        });
+      });
+      document.getElementById('ffApply').addEventListener('click', (e) => {
+        const box = document.querySelector(`.pdp-size-box[data-size="${e.currentTarget.dataset.size}"]`);
+        if (box) box.click();
+        closeSizeGuideModal();
+      });
+    }
+    update(false);
+  }
+
+  // ── Lookbook ───────────────────────────────────────────────────────────
+  function renderLookbookView() {
+    const settings = window.BravadianDB.getSettings();
+    const products = window.BravadianDB.getProducts()
+      .slice()
+      .sort((a, b) => Number(!!a.isComingSoon) - Number(!!b.isComingSoon))
+      .slice(0, 6);
+    const firstSentence = (t) => (t || '').split(/(?<=\.)\s/)[0];
+
+    const looks = products.map((p, i) => `
+      <article class="lb-look ${i % 2 ? 'is-flipped' : ''}">
+        <a href="#/product/${p.slug}" class="lb-look-media" aria-label="View ${p.name}">
+          <img src="${p.images.front}" alt="${p.name}, front" loading="lazy">
+          ${p.images.back ? `<img class="lb-look-back" src="${p.images.back}" alt="${p.name}, back print" loading="lazy">` : ''}
+        </a>
+        <div class="lb-look-copy">
+          <span class="lb-look-num">LOOK ${String(i + 1).padStart(2, '0')}</span>
+          <h2 class="lb-look-name">${p.name}</h2>
+          <p class="lb-look-story">${firstSentence(p.description)}</p>
+          <p class="lb-look-meta">${(p.collection || '').toUpperCase()}${p.gsm ? ` · ${p.gsm} GSM` : ''} · ${settings.currency}${Number(p.price).toLocaleString('en-IN')}</p>
+          ${p.isComingSoon
+            ? `<span class="lb-look-soon">COMING SOON</span>`
+            : `<a href="#/product/${p.slug}" class="lb-btn lb-btn-red">SHOP THIS PIECE &rarr;</a>`}
+        </div>
+      </article>`).join('');
+
+    mainContainer.innerHTML = `
+      <div class="lookbook">
+        <header class="lb-hero">
+          <span class="lb-eyebrow">LOOKBOOK · CHAPTER 01 · ROOTED FORM</span>
+          <h1 class="lb-title">Indian roots.<br>Modern form.</h1>
+          <p class="lb-sub">A story worth wearing.</p>
+          <p class="lb-lede">Temples, myths and scripts we grew up around, redrawn as oversized heavyweight streetwear. Made to be worn every day, not kept on a shelf.</p>
+        </header>
+
+        <ul class="lb-principles" aria-label="Brand principles">
+          <li>Built with intention.</li>
+          <li>A story you can wear.</li>
+          <li>Made for everyday rebellion.</li>
+        </ul>
+
+        <section class="lb-looks" aria-label="Looks">${looks}</section>
+
+        <section class="lb-palette" aria-label="Chapter palette">
+          <span class="lb-eyebrow">THE PALETTE</span>
+          <div class="lb-swatches">
+            <div class="lb-swatch" style="--sw:#111111"><span>BRAVADIAN BLACK</span><code>#111111</code></div>
+            <div class="lb-swatch is-light" style="--sw:#FFFFFF"><span>BRAVADIAN WHITE</span><code>#FFFFFF</code></div>
+            <div class="lb-swatch" style="--sw:#C62828"><span>BRAVADIAN RED</span><code>#C62828</code></div>
+          </div>
+        </section>
+
+        <footer class="lb-close">
+          <p class="lb-close-line">You didn't just pick a T-shirt. You picked a story.</p>
+          <div class="lb-close-actions">
+            <a href="#/shop" class="lb-btn lb-btn-red">SHOP THE CHAPTER &rarr;</a>
+            <a href="https://wa.me/${settings.whatsappNumber}?text=${encodeURIComponent('Hi Bravadian, I would like to place a custom order.')}" target="_blank" rel="noopener noreferrer" class="lb-btn lb-btn-ghost">CUSTOM ORDER ON WHATSAPP</a>
+          </div>
+        </footer>
+      </div>`;
+  }
+
 
   function closeSizeGuideModal() {
     if (sizeGuideModal) sizeGuideModal.classList.remove('is-open');
@@ -2330,22 +2569,22 @@ Thank you.
         <section class="about-hero-section">
           <div class="container about-hero-container">
             <div class="about-badge-wrap">
-              <span class="figma-tag">[ 🇮🇳 MADE FOR THE BRAVE // BHARAT ]</span>
+              <span class="figma-tag">[ 🇮🇳 CONTEMPORARY INDIAN STREETWEAR ]</span>
               <span class="about-radar-dot" aria-hidden="true"></span>
             </div>
             
             <h1 class="about-hero-title">
-              <span class="about-title-lead">MADE FOR THE BRAVE</span>
-              <span class="about-title-sub">EVERYDAY CLOTHING. MADE WITH PURPOSE.</span>
+              <span class="about-title-lead">INDIAN ROOTS. MODERN FORM.</span>
+              <span class="about-title-sub">A STORY WORTH WEARING.</span>
             </h1>
 
             <p class="about-manifesto-sub">
-              Premium • Comfortable • Affordable. Engineered in 240 GSM heavy interlock cotton. Sacred architectural iconography and everyday essentials built to outlast the noise. The journey starts here.
+              Bravadian is built on one idea: Indian identity belongs in everyday streetwear. We take the myths, temples, scripts and craft we grew up around and turn them into original graphics on oversized, heavyweight tees. Made to be worn, not displayed.
             </p>
 
             <div class="about-geo-coordinates">
               <span class="geo-bar"></span>
-              <span class="geo-text">— FOUNDATIONAL TRANSMISSION // 28°36'N 77°12'E // EST. 2026 —</span>
+              <span class="geo-text">— CHAPTER 01 // ROOTED FORM // EST. 2026 —</span>
               <span class="geo-bar"></span>
             </div>
           </div>
@@ -2354,13 +2593,13 @@ Thank you.
         <!-- 2. EDITORIAL PULL-QUOTE BOX -->
         <section class="about-quote-section container">
           <div class="about-quote-card">
-            <span class="quote-tag">[ THE BRAVADIAN CREED ]</span>
+            <span class="quote-tag">[ WHAT WE MAKE ]</span>
             <blockquote class="about-quote-body">
-              “MADE FOR THE BRAVE. EVERYDAY CLOTHING CRAFTED WITH PURPOSE — BALANCING 240 GSM ARCHITECTURAL QUALITY, TIMELESS COMFORT, AND ACCESSIBLE LUXURY.”
+              “CONTEMPORARY INDIAN STREETWEAR FOR PEOPLE WHO WANT THEIR CLOTHING TO CARRY IDENTITY, STORY AND ATTITUDE.”
             </blockquote>
             <div class="quote-author-line">
               <span class="quote-line-dash"></span>
-              <span class="quote-author-text">BRAVADIAN ARCHIVE PROTOCOL // bravadian.in</span>
+              <span class="quote-author-text">BRAVADIAN // bravadian.in</span>
               <span class="quote-line-dash"></span>
             </div>
           </div>
@@ -2369,10 +2608,10 @@ Thank you.
         <!-- 3. FOUR CORE ARCHITECTURAL PILLARS -->
         <section class="about-pillars-section container">
           <div class="about-section-header">
-            <span class="figma-tag">— 01 / ENGINEERING SPECIFICATIONS</span>
-            <h2 class="about-section-title">THE ARCHITECTURAL PILLARS</h2>
+            <span class="figma-tag">— WHAT WE STAND FOR</span>
+            <h2 class="about-section-title">BUILT WITH INTENTION</h2>
             <p class="about-section-narrative">
-              Every detail is calibrated to elevate Indian streetwear beyond fast-fashion compromises.
+              Four values decide what we make, and what we don't.
             </p>
           </div>
 
@@ -2385,11 +2624,11 @@ Thank you.
                 </svg>
               </div>
               <span class="pillar-num">[ 01 ]</span>
-              <h3 class="pillar-heading">240 GSM HEAVY INTERLOCK</h3>
+              <h3 class="pillar-heading">IDENTITY</h3>
               <p class="pillar-desc">
-                Custom double-knit combed cotton with zero synthetic blend. Provides a rigid, architectural boxy drape that hangs effortlessly with monolithic physical presence.
+                Indian roots, worn the way you actually dress. No costume, no stereotypes. Culture treated as source material, used with respect.
               </p>
-              <div class="pillar-metric">DENSITY // 240 G/M² TEXTURED</div>
+              <div class="pillar-metric">INDIAN ROOTS // MODERN FORM</div>
             </div>
 
             <!-- PILLAR 2: NO-BACON RIB COLLAR -->
@@ -2402,11 +2641,11 @@ Thank you.
                 </svg>
               </div>
               <span class="pillar-num">[ 02 ]</span>
-              <h3 class="pillar-heading">1.25" REINFORCED RIB COLLAR</h3>
+              <h3 class="pillar-heading">ORIGINALITY</h3>
               <p class="pillar-desc">
-                Thick elastane-reinforced Lycra collar. Engineered to withstand intense daily wear and laundry cycles without ever stretching or curling into bacon-neck.
+                Inspiration sets the direction. The final artwork is always ours. Every design gets a name, a concept and one sentence that says why it exists.
               </p>
-              <div class="pillar-metric">COLLAR // 1.25 INCH REINFORCED</div>
+              <div class="pillar-metric">ORIGINAL ARTWORK // EVERY DESIGN</div>
             </div>
 
             <!-- PILLAR 3: HOYSALA ICONOGRAPHY -->
@@ -2417,11 +2656,11 @@ Thank you.
                 </svg>
               </div>
               <span class="pillar-num">[ 03 ]</span>
-              <h3 class="pillar-heading">AUTHENTIC STONE RELIEFS</h3>
+              <h3 class="pillar-heading">QUALITY</h3>
               <p class="pillar-desc">
-                Directly referenced from 12th-century Belur and Halebidu temple friezes. Sacred Salabhanjika maidens, celestial Garudas, and monolithic temple tiers re-imagined as wearable art.
+                Fabric, fit, print and finish have to justify the price. Every design is sampled and wash-tested before we make a full batch.
               </p>
-              <div class="pillar-metric">HERITAGE // HOYSALA ARCHITECTURE</div>
+              <div class="pillar-metric">SAMPLE-TESTED // BEFORE BULK</div>
             </div>
 
             <!-- PILLAR 4: VAULT SERIALIZATION -->
@@ -2434,11 +2673,11 @@ Thank you.
                 </svg>
               </div>
               <span class="pillar-num">[ 04 ]</span>
-              <h3 class="pillar-heading">VAULT LIMIT // 200 PIECES</h3>
+              <h3 class="pillar-heading">ACCESSIBILITY</h3>
               <p class="pillar-desc">
-                Extreme scarcity by protocol. Every piece is capped at 200 serialized units. When a numbered run sells out, it is vaulted permanently. Zero restocks.
+                A premium feel without a premium barrier. We keep prices within reach so the story is something you wear every day.
               </p>
-              <div class="pillar-metric">ALLOTMENT // 200 NUMBERED UNITS</div>
+              <div class="pillar-metric">AFFORDABLE PREMIUM // EVERYDAY</div>
             </div>
           </div>
         </section>
@@ -2447,24 +2686,24 @@ Thank you.
         <section class="about-specs-section container">
           <div class="about-spec-strip">
             <div class="about-spec-item">
-              <span class="spec-label">[ FABRIC DENSITY ]</span>
+              <span class="spec-label">[ FABRIC ]</span>
               <span class="spec-val">240 GSM</span>
-              <span class="spec-sub">Heavy Double Interlock</span>
+              <span class="spec-sub">French Terry Cotton</span>
             </div>
             <div class="about-spec-item">
-              <span class="spec-label">[ COLLAR REINFORCE ]</span>
-              <span class="spec-val">1.25 INCH</span>
-              <span class="spec-sub">Lycra Rib Zero Warp</span>
+              <span class="spec-label">[ FIT ]</span>
+              <span class="spec-val">OVERSIZED</span>
+              <span class="spec-sub">Relaxed Drop-Shoulder</span>
             </div>
             <div class="about-spec-item">
-              <span class="spec-label">[ FIBER ORIGIN ]</span>
-              <span class="spec-val">100% COMBED</span>
-              <span class="spec-sub">Indian Long-Staple Cotton</span>
+              <span class="spec-label">[ FINISH ]</span>
+              <span class="spec-val">BIO + SILICONE</span>
+              <span class="spec-sub">Washed For A Soft Hand-Feel</span>
             </div>
             <div class="about-spec-item">
-              <span class="spec-label">[ EMBARGO LIMIT ]</span>
-              <span class="spec-val">200 PCS</span>
-              <span class="spec-sub">Archival Serial Numbered</span>
+              <span class="spec-label">[ PRINT ]</span>
+              <span class="spec-val">DTF</span>
+              <span class="spec-sub">Sharp, Full-Colour Artwork</span>
             </div>
           </div>
         </section>
@@ -2472,22 +2711,22 @@ Thank you.
         <!-- 5. CALL TO ACTION WITH THEMED VAULT BUTTON -->
         <section class="about-cta-section container">
           <div class="about-cta-card">
-            <span class="figma-tag">[ DIRECT PROTOCOL ACCESS ]</span>
-            <h2 class="about-cta-title">CLAIM YOUR ARCHIVAL ARMOR</h2>
+            <span class="figma-tag">[ CHAPTER 01 IS HERE ]</span>
+            <h2 class="about-cta-title">WEAR THE STORY</h2>
             <p class="about-cta-sub">
-              Access the current active edition before the 200-piece vault embargo closes.
+              You didn't just pick a T-shirt. You picked a story.
             </p>
             <div class="about-cta-actions">
               <a href="#/shop" class="btn-figma-primary">
-                <span>[ VISIT THE VAULT ]</span>
+                <span>[ SHOP THE CHAPTER ]</span>
                 <svg class="btn-vault-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                   <line x1="5" y1="12" x2="19" y2="12"></line>
                   <polyline points="12 5 19 12 12 19"></polyline>
                 </svg>
               </a>
-              <a href="${waURL('Hi Bravadian, I have an inquiry regarding the brand and upcoming drops')}" target="_blank" rel="noopener noreferrer" class="btn-figma-whatsapp">
+              <a href="${waURL('Hi Bravadian, I have a question about the brand and upcoming drops')}" target="_blank" rel="noopener noreferrer" class="btn-figma-whatsapp">
                 ${whatsappSVG(18)}
-                <span>WHATSAPP CONCIERGE</span>
+                <span>TALK TO US ON WHATSAPP</span>
               </a>
             </div>
           </div>
@@ -2533,7 +2772,7 @@ Thank you.
             </div>
             <div style="margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
               <span style="font-family: var(--font-mono); font-size: 0.75rem; color: #8E8E9C;">OFFICIAL STOREFRONT: <strong style="color: #fff;">bravadian.in</strong></span>
-              <span style="font-family: var(--font-mono); font-size: 0.75rem; color: #FFA000;">🇮🇳 MADE FOR THE BRAVE</span>
+              <span style="font-family: var(--font-mono); font-size: 0.75rem; color: #FFA000;">🇮🇳 INDIAN ROOTS. MODERN FORM.</span>
             </div>
           </div>
         </div>
