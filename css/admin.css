@@ -798,3 +798,7 @@ body.admin-body.is-locked .static-disclaimer-banner {
   pointer-events: none;
   user-select: none;
 }
+
+.admin-upload-btn { display: inline-flex; align-items: center; justify-content: center; margin-top: 0.45rem; padding: 0.5rem 0.8rem; border: 1px dashed var(--admin-ember, #FFA000); color: var(--admin-ember, #FFA000); font-size: 0.7rem; letter-spacing: 1px; cursor: pointer; border-radius: 2px; }
+.admin-upload-btn:hover { background: rgba(255, 160, 0, 0.1); }
+.admin-upload-status { display: block; min-height: 1em; margin-top: 0.3rem; font-size: 0.7rem; color: #888; }

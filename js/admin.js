@@ -424,6 +424,10 @@
     document.getElementById('cfgWhatsapp').value = s.whatsappNumber || '';
     document.getElementById('cfgInstagram').value = s.instagramUrl || '';
     document.getElementById('cfgShippingFee').value = s.shippingFee || 99;
+    if (s.launchEndsAt && document.getElementById('cfgLaunchEndsAt')) {
+      const d = new Date(s.launchEndsAt);
+      document.getElementById('cfgLaunchEndsAt').value = new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+    }
     document.getElementById('cfgFreeShipThreshold').value = s.freeShippingThreshold || 1999;
     document.getElementById('cfgSupportEmail').value = s.supportEmail || '';
 
@@ -469,6 +473,7 @@
           whatsappNumber: document.getElementById('cfgWhatsapp').value.trim(),
           instagramUrl: document.getElementById('cfgInstagram').value.trim(),
           shippingFee: parseFloat(document.getElementById('cfgShippingFee').value) || 0,
+          launchEndsAt: document.getElementById('cfgLaunchEndsAt').value ? new Date(document.getElementById('cfgLaunchEndsAt').value).toISOString() : '',
           freeShippingThreshold: parseFloat(document.getElementById('cfgFreeShipThreshold').value) || 0,
           supportEmail: document.getElementById('cfgSupportEmail').value.trim()
         };
@@ -772,6 +777,31 @@
     const lifeImg = document.getElementById('previewImgLifestyle');
     if (lifeIn) lifeIn.oninput = () => updateImgPreview(lifeIn, lifeBox, lifeImg);
 
+    const life2In = document.getElementById('editProdImgLifestyle2');
+    const life2Box = document.getElementById('previewBoxLifestyle2');
+    const life2Img = document.getElementById('previewImgLifestyle2');
+    if (life2In) life2In.oninput = () => updateImgPreview(life2In, life2Box, life2Img);
+
+    document.querySelectorAll('.admin-img-upload').forEach(fileIn => {
+      fileIn.onchange = async () => {
+        const file = fileIn.files && fileIn.files[0];
+        if (!file) return;
+        const target = document.getElementById(fileIn.dataset.target);
+        const status = document.querySelector(`.admin-upload-status[data-for="${fileIn.dataset.target}"]`);
+        if (status) status.textContent = 'Uploading…';
+        try {
+          const slug = (document.getElementById('editProdSlug').value || 'product').trim();
+          const slot = fileIn.dataset.target.replace('editProdImg', '').toLowerCase();
+          target.value = await window.BravadianDB.uploadProductImage(file, `${slug}/${slot}`);
+          target.dispatchEvent(new Event('input'));
+          if (status) status.textContent = 'Uploaded. Save the product to publish it.';
+        } catch (err) {
+          if (status) status.textContent = `Upload failed: ${err.message}`;
+        }
+        fileIn.value = '';
+      };
+    });
+
     function openModal() {
       // Populate collection options
       const colSelect = document.getElementById('editProdCollection');
@@ -814,6 +844,7 @@
         const collection = document.getElementById('editProdCollection').value;
         const price = parseFloat(document.getElementById('editProdPrice').value) || 0;
         const comparePrice = parseFloat(document.getElementById('editProdCompare').value) || null;
+        const launchPrice = parseFloat(document.getElementById('editProdLaunch').value) || null;
         const fabric = document.getElementById('editProdFabric').value.trim();
         const gsm = parseInt(document.getElementById('editProdGSM')?.value, 10) || 240;
         const fit = document.getElementById('editProdFit').value.trim();
@@ -835,12 +866,14 @@
         const imgBackVal = backIn ? backIn.value.trim() : '';
         const imgCloseupVal = closeIn ? closeIn.value.trim() : '';
         const imgLifestyleVal = lifeIn ? lifeIn.value.trim() : '';
+        const imgLifestyle2Val = life2In ? life2In.value.trim() : '';
 
         const images = {
           front: imgFrontVal || (existing && existing.images && existing.images.front ? existing.images.front : window.BravadianDefaults.createTeeSVG(name, collection, '#121216', '#ff4d00', 'front')),
           back: imgBackVal || (existing && existing.images && existing.images.back ? existing.images.back : window.BravadianDefaults.createTeeSVG(name, collection, '#121216', '#ff4d00', 'back')),
           closeup: imgCloseupVal || (existing && existing.images && existing.images.closeup ? existing.images.closeup : window.BravadianDefaults.createTeeSVG(name, collection, '#121216', '#ff4d00', 'closeup')),
-          lifestyle: imgLifestyleVal || (existing && existing.images && existing.images.lifestyle ? existing.images.lifestyle : window.BravadianDefaults.createTeeSVG(name, collection, '#121216', '#ff4d00', 'lifestyle'))
+          lifestyle: imgLifestyleVal || (existing && existing.images && existing.images.lifestyle ? existing.images.lifestyle : window.BravadianDefaults.createTeeSVG(name, collection, '#121216', '#ff4d00', 'lifestyle')),
+          lifestyle2: imgLifestyle2Val || (existing && existing.images ? existing.images.lifestyle2 : undefined)
         };
 
         // Available Colors
@@ -870,6 +903,7 @@
           collection,
           price,
           comparePrice,
+          launchPrice,
           fabric,
           gsm,
           fit,
@@ -909,6 +943,9 @@
       document.getElementById('editProdSlug').value = p.slug;
       document.getElementById('editProdPrice').value = p.price;
       document.getElementById('editProdCompare').value = p.comparePrice || '';
+      document.getElementById('editProdLaunch').value = p.launchPrice || '';
+      const l2In = document.getElementById('editProdImgLifestyle2');
+      if (l2In) { l2In.value = (p.images && p.images.lifestyle2) || ''; l2In.dispatchEvent(new Event('input')); }
       document.getElementById('editProdFabric').value = p.fabric || '240 GSM French Interlock Combed Cotton';
       if (document.getElementById('editProdGSM')) document.getElementById('editProdGSM').value = p.gsm || 240;
       document.getElementById('editProdFit').value = p.fit || 'Oversized Boxy Silhouette';

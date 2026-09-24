@@ -29,6 +29,23 @@ BEGIN
   END LOOP;
 END $$;
 
+-- 1b. LAUNCH PRICING --------------------------------------------------------
+ALTER TABLE products ADD COLUMN IF NOT EXISTS launch_price NUMERIC(10, 2);
+INSERT INTO site_settings (key, value) VALUES ('launch', '{"ends_at": "2026-10-01T23:59:59+05:30"}')
+  ON CONFLICT (key) DO NOTHING;
+-- Regular oversized tees: MRP 799, offer 699, launch 649
+UPDATE products SET price = 699, compare_price = 799, launch_price = 649 WHERE name NOT ILIKE '%JACKET%';
+
+-- 1c. PRODUCT IMAGE STORAGE (public read, admins upload) -----------------------
+INSERT INTO storage.buckets (id, name, public) VALUES ('product-images', 'product-images', true)
+  ON CONFLICT (id) DO NOTHING;
+DROP POLICY IF EXISTS "Public read product images" ON storage.objects;
+CREATE POLICY "Public read product images" ON storage.objects FOR SELECT USING (bucket_id = 'product-images');
+DROP POLICY IF EXISTS "Admin write product images" ON storage.objects;
+CREATE POLICY "Admin write product images" ON storage.objects FOR ALL TO authenticated
+  USING (bucket_id = 'product-images' AND public.is_admin())
+  WITH CHECK (bucket_id = 'product-images' AND public.is_admin());
+
 -- 2. ORDERS ----------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS orders (
   id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -71,7 +88,11 @@ DECLARE
   threshold NUMERIC;
   ship NUMERIC;
   ord_no TEXT;
+  unit NUMERIC;
+  launch_end TIMESTAMPTZ;
 BEGIN
+  SELECT (value->>'ends_at')::TIMESTAMPTZ INTO launch_end FROM site_settings WHERE key = 'launch';
+
   IF jsonb_typeof(p_items) IS DISTINCT FROM 'array'
      OR jsonb_array_length(p_items) = 0 OR jsonb_array_length(p_items) > 20 THEN
     RAISE EXCEPTION 'Your bag is empty.';
@@ -92,7 +113,7 @@ BEGIN
       RAISE EXCEPTION 'Quantity must be between 1 and 10.';
     END IF;
 
-    SELECT id, name, price, variants, is_coming_soon INTO prod
+    SELECT id, name, price, launch_price, variants, is_coming_soon INTO prod
     FROM products WHERE id = it->>'productId' FOR UPDATE;
     IF NOT FOUND OR prod.is_coming_soon THEN
       RAISE EXCEPTION 'One item in your bag is no longer available. Please remove it and try again.';
@@ -117,10 +138,12 @@ BEGIN
      WHERE variant_id IN (SELECT id FROM product_variants
                           WHERE product_id = prod.id AND lower(color) = lower(it->>'color') AND size = it->>'size');
 
-    sub := sub + prod.price * qty;
+    unit := CASE WHEN prod.launch_price IS NOT NULL AND launch_end IS NOT NULL AND NOW() < launch_end
+                 THEN prod.launch_price ELSE prod.price END;
+    sub := sub + unit * qty;
     line_items := line_items || jsonb_build_object(
       'productId', prod.id, 'name', prod.name, 'color', it->>'color',
-      'size', it->>'size', 'quantity', qty, 'price', prod.price);
+      'size', it->>'size', 'quantity', qty, 'price', unit);
   END LOOP;
 
   SELECT (value->>'shipping_charge')::NUMERIC, (value->>'free_shipping_threshold')::NUMERIC

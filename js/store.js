@@ -365,7 +365,7 @@
 
               <div class="figma-hero-cta-wrap">
                 <a href="#/shop" class="btn-figma-primary">
-                  <span>[ VISIT THE VAULT ]</span>
+                  <span>[ SHOP THE COLLECTION ]</span>
                   <svg class="btn-vault-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <line x1="5" y1="12" x2="19" y2="12"></line>
                     <polyline points="12 5 19 12 12 19"></polyline>
@@ -373,7 +373,7 @@
                 </a>
                 <a href="${waURL('Hi Bravadian, I want VIP Order access for Protocol 01 Heritage')}" target="_blank" rel="noopener noreferrer" class="btn-figma-whatsapp">
                   ${whatsappSVG(18)}
-                  <span>WHATSAPP VIP ORDER</span>
+                  <span>ORDER ON WHATSAPP</span>
                 </a>
               </div>
             </div>
@@ -442,7 +442,7 @@
                       <span class="card-product-sub">${subText}</span>
                     </div>
                     <div class="card-action-col">
-                      <span class="card-product-price">₹${p.price.toLocaleString('en-IN')}</span>
+                      <span class="card-product-price">${priceHTML(p)}</span>
                       <button type="button" class="btn-card-vault" onclick="event.stopPropagation(); window.BravadianStore.quickAdd('${p.slug}');">
                         <span>[ PRE-ORDER VAULT ]</span>
                         <svg class="btn-vault-arrow" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -544,7 +544,10 @@
             ${(window.BravadianDB ? window.BravadianDB.getArchiveEditions() : []).map(card => {
               if (card.status === 'active') {
                 return `
-                  <a href="#/collections/${card.slug || 'all'}" class="archive-card status-active" data-edition="${card.num}">
+                  <a href="#/collections/${card.slug || 'all'}" class="archive-card status-active ${COLLECTION_IMAGES[card.slug] ? 'has-custom-img' : ''}" data-edition="${card.num}">
+                    ${COLLECTION_IMAGES[card.slug] ? `
+                    <div class="archive-card-bg-img" style="background-image: url('${COLLECTION_IMAGES[card.slug]}');"></div>
+                    <div class="archive-card-bg-overlay"></div>` : ''}
                     <div class="archive-card-top">
                       <span class="archive-num">${card.num}</span>
                       <span class="archive-plus">+</span>
@@ -628,12 +631,12 @@
         <!-- PRIORITY VIP CONCIERGE CALLOUT SECTION -->
         <section class="universe-callout-section">
           <div class="universe-callout-container">
-            <div class="universe-callout-badge">[ ARCHIVE DROP DISPATCH // PRIORITY CONCIERGE ]</div>
-            <h3 class="universe-callout-heading">Authenticate your credentials to register for imminent vault drops and archived restocks.</h3>
+            <div class="universe-callout-badge">[ NEW DROPS ]</div>
+            <h3 class="universe-callout-heading">Hear about new designs and restocks first, straight on WhatsApp.</h3>
             <div class="universe-callout-btn-wrap">
-              <a href="${waURL('Hi Bravadian Concierge, I would like to register for priority access to upcoming Universe chapter drops')}" target="_blank" rel="noopener noreferrer" class="btn-universe-callout">
+              <a href="${waURL('Hi Bravadian, please add me to your new drop alerts.')}" target="_blank" rel="noopener noreferrer" class="btn-universe-callout">
                 ${whatsappSVG(16)}
-                <span>REQUEST DIGITAL CERTIFICATION // VIP ACCESS</span>
+                <span>GET DROP ALERTS ON WHATSAPP</span>
               </a>
             </div>
           </div>
@@ -644,8 +647,18 @@
     bindUniverseWallActions();
   }
 
+  // Drop artwork at these paths to fill the collection cards; missing files fall back to plain cards.
+  const COLLECTION_IMAGES = {
+    anime: 'images/collections/anime.webp',
+    mythology: 'images/collections/mythology.webp',
+    heritage: 'images/collections/heritage.webp',
+    'street-culture': 'images/collections/street-culture.webp',
+    minimal: 'images/collections/minimal.webp'
+  };
+
   function renderUniverseArchiveCard(c) {
     const isLive = c.isLive !== false;
+    c = { ...c, image: c.image || COLLECTION_IMAGES[c.slug] };
     const hasImage = !!c.image;
 
     if (isLive) {
@@ -947,7 +960,7 @@
     const relicTag = p.relicTag || `RELIC 0${idx + 1}`;
     const badgeText = p.isComingSoon ? 'COMING SOON' : (p.relicBadge || 'PRE-ORDER ACTIVE');
     const fabricText = p.fabric || '240 GSM COMBED COTTON // ARCHIVAL EMBROIDERY';
-    const priceFormatted = `${settings.currency || '₹'}${p.price.toLocaleString('en-IN')}`;
+    const priceFormatted = priceHTML(p);
 
     return `
       <article 
@@ -982,7 +995,7 @@
     const collections = window.BravadianDB.getCollections();
     const activeCol = collections.find(c => c.slug === colSlug) || { 
       name: 'THE CANON CATALOGUE', 
-      description: 'Browse and secure your relics from our structural multi-chapter manifest. Every garment is heavily engineered and strictly numbered.' 
+      description: 'Every design across all five collections. Oversized 240 GSM French Terry tees with original Indian artwork.' 
     };
     
     // Get filtered products
@@ -1011,7 +1024,7 @@
           </div>
           <h1 class="canon-main-title">THE CANON CATALOGUE</h1>
           <p class="canon-sub-desc">
-            Browse and secure your relics from our structural multi-chapter manifest. Every garment is heavily engineered and strictly numbered.
+            Every design across all five collections. Oversized 240 GSM French Terry tees with original Indian artwork.
           </p>
         </header>
 
@@ -1038,7 +1051,7 @@
           <!-- Right Status & Filter Controls -->
           <div class="canon-toolbar-right">
             <span class="canon-index-status">
-              ACTIVE INDEXED ARTIFACTS: <strong class="canon-count-badge">[${formattedCount} // 100]</strong>
+              SHOWING <strong class="canon-count-badge">${totalCount} OF ${products.length}</strong>
             </span>
 
             <div class="canon-filter-selectors">
@@ -1158,7 +1171,7 @@
                 ${product.name}
               </h3>
               <div class="canon-card-price canon-card-price-locked">
-                ${settings.currency}${product.price.toLocaleString('en-IN')}
+                ${priceHTML(product)}
               </div>
             </div>
 
@@ -1213,7 +1226,7 @@
               ${product.name}
             </h3>
             <div class="canon-card-price">
-              ${settings.currency}${product.price.toLocaleString('en-IN')}
+              ${priceHTML(product)}
             </div>
           </div>
 
@@ -1231,7 +1244,7 @@
               onclick="event.stopPropagation(); window.BravadianStore.quickAdd('${product.slug}');"
               aria-label="Add ${product.name} to bag"
             >
-              <span>ADD TO ARCHIVE // +</span>
+              <span>ADD TO BAG +</span>
             </button>
           </div>
         </div>
@@ -1288,8 +1301,9 @@
     const thumb2 = pImages.back || getDiagram('back');
     const thumb3 = pImages.closeup || getDiagram('closeup');
     const mainHero = thumb1;
-    const galleryImages = [thumb1, thumb2, thumb3, pImages.lifestyle, pImages.lifestyle2]
-      .filter((src, i, arr) => src && arr.indexOf(src) === i);
+    const galleryImages = [[thumb1, 'contain'], [thumb2, 'contain'], [thumb3, 'contain'], [pImages.lifestyle, 'cover'], [pImages.lifestyle2, 'cover']]
+      .filter(([src], i, arr) => src && arr.findIndex(([s]) => s === src) === i)
+      .map(([src, fit]) => ({ src, fit }));
 
     const allSizes = ['S', 'M', 'L', 'XL', 'XXL'];
 
@@ -1350,7 +1364,8 @@
         : (window.BravadianDefaults ? window.BravadianDefaults.createTeeSVG(gw.title, gw.collection, '#121216', '#FFA000', 'front') : '');
       return {
         ...gw,
-        image: gImg
+        image: gImg,
+        cover: COLLECTION_IMAGES[gw.collection] || ''
       };
     });
 
@@ -1370,9 +1385,9 @@
             </div>
 
             <div class="pdp-thumbs-row" style="--thumbs:${galleryImages.length}">
-              ${galleryImages.map((src, n) => `
-              <div class="pdp-thumb-card ${n === 0 ? 'active' : ''}" data-img="${src}" role="button" tabindex="0" title="${product.name}, photo ${n + 1} of ${galleryImages.length}">
-                <img src="${src}" alt="${product.name}, photo ${n + 1} of ${galleryImages.length}" class="pdp-thumb-img" loading="lazy">
+              ${galleryImages.map(({ src, fit }, n) => `
+              <div class="pdp-thumb-card ${n === 0 ? 'active' : ''}" data-img="${src}" data-fit="${fit}" role="button" tabindex="0" title="${product.name}, photo ${n + 1} of ${galleryImages.length}">
+                <img src="${src}" alt="${product.name}, photo ${n + 1} of ${galleryImages.length}" class="pdp-thumb-img fit-${fit}" loading="lazy">
               </div>`).join('')}
             </div>
           </div>
@@ -1389,7 +1404,7 @@
             <h1 class="pdp-figma-title">${product.name}</h1>
 
             <!-- Price -->
-            <div class="pdp-figma-price">${settings.currency}${product.price.toLocaleString('en-IN')}</div>
+            <div class="pdp-figma-price">${priceHTML(product, { detail: true })}</div>
 
             <!-- Description -->
             <p class="pdp-figma-desc">${product.description}</p>
@@ -1423,7 +1438,7 @@
             <!-- Add to Bag CTA -->
             <div class="pdp-cta-wrap">
               <button type="button" class="pdp-cta-btn ${product.isComingSoon ? 'is-coming-soon' : ''}" id="pdpCtaBtn">
-                ${product.isComingSoon ? `[ COMING SOON ]` : `ADD TO BAG — ${settings.currency}${product.price.toLocaleString('en-IN')}`}
+                ${product.isComingSoon ? `[ COMING SOON ]` : `ADD TO BAG — ${settings.currency}${window.BravadianDB.effectivePrice(product).toLocaleString('en-IN')}`}
               </button>
               <div class="pdp-cta-subtext">
                 ✦ ORDER CONFIRMED ON WHATSAPP // ALL-INDIA DELIVERY // UPI, CARDS & NET BANKING
@@ -1506,7 +1521,7 @@
           <div class="pdp-gateways-grid">
             ${gateways.map(gw => `
               <div class="pdp-gateway-card" data-collection="${gw.collection}">
-                <div class="pdp-gateway-bg" style="background-image: url('${gw.image}');"></div>
+                <div class="pdp-gateway-bg" style="background-image: url('${gw.cover || gw.image}');"></div>
                 <div class="pdp-gateway-overlay"></div>
                 <div class="pdp-gateway-top">
                   <span class="pdp-gateway-num">${gw.num}</span>
@@ -1536,6 +1551,8 @@
           mainImg.style.opacity = '0.4';
           setTimeout(() => {
             mainImg.src = targetSrc;
+            mainImg.style.objectFit = tc.dataset.fit || 'contain';
+            mainImg.style.objectPosition = tc.dataset.fit === 'cover' ? 'center 12%' : 'center';
             mainImg.style.opacity = '1';
           }, 150);
         }
@@ -1674,6 +1691,20 @@
     return v ? v.stock : 0;
   }
 
+  function priceHTML(p, opts = {}) {
+    const db = window.BravadianDB;
+    const settings = db.getSettings();
+    const cur = settings.currency || '₹';
+    const f = (n) => `${cur}${Number(n).toLocaleString('en-IN')}`;
+    const now = db.effectivePrice(p);
+    const launch = db.isLaunchActive(p);
+    const mrp = p.comparePrice && Number(p.comparePrice) > now ? Number(p.comparePrice) : null;
+    const off = mrp ? Math.round((1 - now / mrp) * 100) : 0;
+    const tag = launch ? 'LAUNCH PRICE' : (off ? `${off}% OFF` : '');
+    const endDate = launch ? new Date(settings.launchEndsAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : '';
+    return `<span class="price-block"><span class="price-now">${f(now)}</span>${mrp ? `<s class="price-mrp"><span class="sr-only">MRP </span>${f(mrp)}</s>` : ''}${tag ? `<span class="price-tag">${tag}</span>` : ''}</span>${opts.detail && mrp ? `<span class="price-note">${launch ? `Launch price till ${endDate}, then ${f(p.price)}. ` : ''}MRP ${f(mrp)}, inclusive of all taxes.</span>` : ''}`;
+  }
+
   function colourHex(name) {
     return { 'black': '#111111', 'white': '#FFFFFF', 'red': '#C62828', 'royal blue': '#1F4FD1' }[(name || '').toLowerCase()] || '#777777';
   }
@@ -1773,7 +1804,7 @@
       <div class="cart-toast-body">
         <span class="cart-toast-tag">ADDED TO CART</span>
         <div class="cart-toast-title">${product.name}</div>
-        <div class="cart-toast-meta">${size} // ${color} • ${settings.currency || '₹'}${product.price.toLocaleString('en-IN')} (x${qty})</div>
+        <div class="cart-toast-meta">${size} // ${color} • ${settings.currency || '₹'}${window.BravadianDB.effectivePrice(product).toLocaleString('en-IN')} (x${qty})</div>
       </div>
       <div class="cart-toast-actions">
         <button type="button" class="cart-toast-btn" onclick="window.BravadianStore.openCartDrawer();">VIEW</button>
@@ -1810,7 +1841,7 @@
         productId: product.id,
         name: product.name,
         slug: product.slug,
-        price: product.price,
+        price: window.BravadianDB.effectivePrice(product),
         collection: product.collection,
         color: color,
         size: size,
@@ -2280,7 +2311,7 @@ Thank you.
             <img src="${p.images.front}" alt="${p.name}" class="search-result-thumb">
             <div class="search-result-info">
               <h4 class="search-result-title">${p.name}</h4>
-              <span class="search-result-price">${settings.currency}${p.price.toLocaleString('en-IN')}</span>
+              <span class="search-result-price">${priceHTML(p)}</span>
             </div>
             <span style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--color-ember);">VIEW →</span>
           </a>
@@ -2464,7 +2495,7 @@ Thank you.
           <span class="lb-look-num">LOOK ${String(i + 1).padStart(2, '0')}</span>
           <h2 class="lb-look-name">${p.name}</h2>
           <p class="lb-look-story">${firstSentence(p.description)}</p>
-          <p class="lb-look-meta">${(p.collection || '').toUpperCase()}${p.gsm ? ` · ${p.gsm} GSM` : ''} · ${settings.currency}${Number(p.price).toLocaleString('en-IN')}</p>
+          <p class="lb-look-meta">${(p.collection || '').toUpperCase()}${p.gsm ? ` · ${p.gsm} GSM` : ''} · ${settings.currency}${window.BravadianDB.effectivePrice(p).toLocaleString('en-IN')}</p>
           ${p.isComingSoon
             ? `<span class="lb-look-soon">COMING SOON</span>`
             : `<a href="#/product/${p.slug}" class="lb-btn lb-btn-red">SHOP THIS PIECE &rarr;</a>`}
@@ -2488,12 +2519,13 @@ Thank you.
 
         <section class="lb-looks" aria-label="Looks">${looks}</section>
 
-        <section class="lb-palette" aria-label="Chapter palette">
-          <span class="lb-eyebrow">THE PALETTE</span>
+        <section class="lb-palette" aria-label="Colours">
+          <span class="lb-eyebrow">EVERY TEE COMES IN</span>
           <div class="lb-swatches">
-            <div class="lb-swatch" style="--sw:#111111"><span>BRAVADIAN BLACK</span><code>#111111</code></div>
-            <div class="lb-swatch is-light" style="--sw:#FFFFFF"><span>BRAVADIAN WHITE</span><code>#FFFFFF</code></div>
-            <div class="lb-swatch" style="--sw:#C62828"><span>BRAVADIAN RED</span><code>#C62828</code></div>
+            <div class="lb-swatch" style="--sw:#111111"><span>BLACK</span></div>
+            <div class="lb-swatch is-light" style="--sw:#FFFFFF"><span>WHITE</span></div>
+            <div class="lb-swatch" style="--sw:#C62828"><span>RED</span></div>
+            <div class="lb-swatch" style="--sw:#1F4FD1"><span>ROYAL BLUE</span></div>
           </div>
         </section>
 
@@ -3012,7 +3044,7 @@ Thank you.
               <span>[ OPEN SIZE GUIDE ]</span>
             </button>
             <a href="#/shop" class="btn-figma-whatsapp" style="text-decoration: none;">
-              <span>EXPLORE THE VAULT →</span>
+              <span>EXPLORE THE COLLECTION →</span>
             </a>
           </div>
         </div>

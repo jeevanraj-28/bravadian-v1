@@ -282,6 +282,10 @@
               <input type="number" id="cfgShippingFee" class="admin-input">
             </div>
             <div class="admin-field">
+              <label>LAUNCH PRICES END ON</label>
+              <input type="datetime-local" id="cfgLaunchEndsAt" class="admin-input">
+            </div>
+            <div class="admin-field">
               <label>FREE SHIPPING THRESHOLD (₹)</label>
               <input type="number" id="cfgFreeShipThreshold" class="admin-input">
             </div>
@@ -433,12 +437,16 @@
           <select id="editProdCollection" class="admin-select"></select>
         </div>
         <div class="admin-field">
-          <label>PRICE (₹)</label>
+          <label>OFFER PRICE (₹)</label>
           <input type="number" id="editProdPrice" class="admin-input" required>
         </div>
         <div class="admin-field">
-          <label>COMPARE-AT PRICE (₹)</label>
+          <label>MRP (₹) — shown crossed out</label>
           <input type="number" id="editProdCompare" class="admin-input">
+        </div>
+        <div class="admin-field">
+          <label>LAUNCH PRICE (₹) — until launch end date</label>
+          <input type="number" id="editProdLaunch" class="admin-input" placeholder="e.g. 649">
         </div>
         <div class="admin-field">
           <label>FABRIC</label>
@@ -489,6 +497,8 @@
             <div class="image-input-card">
               <label>1. FRONT / HERO VIEW</label>
               <input type="url" id="editProdImgFront" class="admin-input admin-img-input" placeholder="https://... or images/...">
+              <label class="admin-upload-btn">UPLOAD PHOTO<input type="file" accept="image/*" class="admin-img-upload" data-target="editProdImgFront" hidden></label>
+              <span class="admin-upload-status" data-for="editProdImgFront"></span>
               <div class="img-preview-box" id="previewBoxFront">
                 <img id="previewImgFront" src="" alt="Front Preview">
                 <span class="preview-empty">NO IMAGE</span>
@@ -497,6 +507,8 @@
             <div class="image-input-card">
               <label>2. BACK / SPARK VIEW</label>
               <input type="url" id="editProdImgBack" class="admin-input admin-img-input" placeholder="https://... or images/...">
+              <label class="admin-upload-btn">UPLOAD PHOTO<input type="file" accept="image/*" class="admin-img-upload" data-target="editProdImgBack" hidden></label>
+              <span class="admin-upload-status" data-for="editProdImgBack"></span>
               <div class="img-preview-box" id="previewBoxBack">
                 <img id="previewImgBack" src="" alt="Back Preview">
                 <span class="preview-empty">NO IMAGE</span>
@@ -505,6 +517,8 @@
             <div class="image-input-card">
               <label>3. CLOSE-UP / TEXTURE</label>
               <input type="url" id="editProdImgCloseup" class="admin-input admin-img-input" placeholder="https://... or images/...">
+              <label class="admin-upload-btn">UPLOAD PHOTO<input type="file" accept="image/*" class="admin-img-upload" data-target="editProdImgCloseup" hidden></label>
+              <span class="admin-upload-status" data-for="editProdImgCloseup"></span>
               <div class="img-preview-box" id="previewBoxCloseup">
                 <img id="previewImgCloseup" src="" alt="Detail Preview">
                 <span class="preview-empty">NO IMAGE</span>
@@ -513,8 +527,20 @@
             <div class="image-input-card">
               <label>4. LIFESTYLE / DRAPE</label>
               <input type="url" id="editProdImgLifestyle" class="admin-input admin-img-input" placeholder="https://... or images/...">
+              <label class="admin-upload-btn">UPLOAD PHOTO<input type="file" accept="image/*" class="admin-img-upload" data-target="editProdImgLifestyle" hidden></label>
+              <span class="admin-upload-status" data-for="editProdImgLifestyle"></span>
               <div class="img-preview-box" id="previewBoxLifestyle">
                 <img id="previewImgLifestyle" src="" alt="Lifestyle Preview">
+                <span class="preview-empty">NO IMAGE</span>
+              </div>
+            </div>
+            <div class="image-input-card">
+              <label>5. LIFESTYLE 2</label>
+              <input type="url" id="editProdImgLifestyle2" class="admin-input admin-img-input" placeholder="https://... or images/...">
+              <label class="admin-upload-btn">UPLOAD PHOTO<input type="file" accept="image/*" class="admin-img-upload" data-target="editProdImgLifestyle2" hidden></label>
+              <span class="admin-upload-status" data-for="editProdImgLifestyle2"></span>
+              <div class="img-preview-box" id="previewBoxLifestyle2">
+                <img id="previewImgLifestyle2" src="" alt="Lifestyle 2 Preview">
                 <span class="preview-empty">NO IMAGE</span>
               </div>
             </div>

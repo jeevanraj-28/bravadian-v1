@@ -427,7 +427,7 @@
         </defs>
 
         <!-- Studio Atmosphere Backdrop -->
-        <rect width="100%" height="100%" fill="url(#bgGrad_${uniqueId})"/>
+
 
         <!-- Ambient Floor Spotlight Shadow -->
         <ellipse cx="250" cy="570" rx="150" ry="24" fill="#000000" opacity="0.6" filter="blur(10px)"/>
@@ -805,6 +805,7 @@
     instagramUrl: 'https://www.instagram.com/bravadian.in',
     supportEmail: 'bravadian.clothing@gmail.com',
     shippingFee: 99,
+    launchEndsAt: '2026-10-01T23:59:59+05:30',
     freeShippingThreshold: 1999,
     estimatedDays: '3–5 Business Days',
     supabaseUrl: '',
@@ -818,8 +819,9 @@
       name: 'BHARAT SPIRIT TEE',
       slug: 'bharat-spirit-tee',
       description: 'The peacock, the tiger, the lotus and the elephant, four symbols of India drawn together as one story. Oversized 240 GSM French Terry cotton, bio + silicone washed, with a large DTF back print and the Bi mark on the chest.',
-      price: 649,
+      price: 699,
       comparePrice: 799,
+      launchPrice: 649,
       collection: 'heritage',
       tags: ['oversized', 'heritage', 'peacock', 'tiger', 'lotus', 'elephant', '240gsm'],
       fabric: '240 GSM FRENCH TERRY // BIO + SILICONE WASH',
@@ -829,7 +831,7 @@
       story: 'Four symbols every Indian grows up with, drawn as one living composition. Built around the idea that pride in where you come from can be worn every day, not saved for special occasions.',
       motif: 'Peacock, the national bird, for grace. Tiger, the national animal, for courage. Lotus, the national flower, for rising clean from the mud. Elephant, the national heritage animal, for memory and strength.',
       relicTag: 'DESIGN 01',
-      relicBadge: 'LAUNCH PRICE',
+      relicBadge: 'NEW DROP',
       sku: 'BRVD-BHS-01',
       featured: true,
       newDrop: true,
@@ -842,7 +844,7 @@
         back: 'images/products/bharat-spirit/front.webp',
         closeup: 'images/products/bharat-spirit/closeup.webp',
         lifestyle: 'images/products/bharat-spirit/worn-studio.webp',
-        lifestyle2: 'images/products/bharat-spirit/worn-temple.webp'
+        lifestyle2: 'images/products/bharat-spirit/worn-temple.webp?v=3'
       },
       variants: [
         { color: 'Black', size: 'S', stock: 10 },
@@ -872,8 +874,9 @@
       name: 'HOYSALA OVERSIZED RELIC TEE',
       slug: 'hoysala-oversized-relic-tee',
       description: 'A severe tactical garment engineered from 240 GSM heavyweight French Terry. Imprinted with sacred architectural friezes from the historic Halebidu temple complex, modified as modern metropolitan armor.',
-      price: 4800,
-      comparePrice: 5800,
+      price: 699,
+      comparePrice: 799,
+      launchPrice: 649,
       collection: 'heritage',
       tags: ['oversized', 'hoysala', 'heavyweight', '280gsm', 'heritage'],
       fabric: '240 GSM FRENCH TERRY // BIO + SILICONE WASH',
@@ -881,7 +884,7 @@
       fit: 'Oversized Boxy',
       material: '240 GSM French Terry Cotton, Bio + Silicone Washed',
       relicTag: 'RELIC 01',
-      relicBadge: 'PRE-ORDER ACTIVATED',
+      relicBadge: 'NEW DROP',
       sku: 'BRVD-HYS-01',
       featured: true,
       newDrop: true,
@@ -923,8 +926,9 @@
       name: 'HOYSALA LINGESHWARA RELIC TEE',
       slug: 'hoysala-lingeshwara-relic-tee',
       description: 'Engineered boxy heavyweight silhouette featuring the sacred Lingeshwara stone sanctuary geometry across dropped shoulder lines.',
-      price: 3200,
-      comparePrice: 3800,
+      price: 699,
+      comparePrice: 799,
+      launchPrice: 649,
       collection: 'heritage',
       tags: ['heritage', 'hoysala', 'lingeshwara', 'heavyweight', '240gsm'],
       fabric: '240 GSM FRENCH TERRY // BIO + SILICONE WASH',
@@ -932,7 +936,7 @@
       fit: 'Boxy Drop Shoulder',
       material: '240 GSM French Terry Cotton, Bio + Silicone Washed',
       relicTag: 'RELIC 02',
-      relicBadge: '300 NUMBERED',
+      relicBadge: 'NEW DROP',
       sku: 'BRVD-LNG-02',
       featured: true,
       newDrop: true,
@@ -974,8 +978,9 @@
       name: 'SRI YOGA SARASVATHESHWARA TEE',
       slug: 'sri-yoga-sarasvatheshwara-tee',
       description: 'Monumental archival 240 GSM cotton tee presenting the multi-armed Yogic sovereign deity in pure metallic gold foil screenprint.',
-      price: 3600,
-      comparePrice: 4200,
+      price: 699,
+      comparePrice: 799,
+      launchPrice: 649,
       collection: 'mythology',
       tags: ['mythology', 'deities', 'krishna', 'shiva', 'gold-foil', '300gsm', 'yoga'],
       fabric: '240 GSM FRENCH TERRY // BIO + SILICONE WASH',
@@ -983,7 +988,7 @@
       fit: 'Architectural Boxy',
       material: '240 GSM French Terry Cotton, Bio + Silicone Washed',
       relicTag: 'RELIC 03',
-      relicBadge: 'EDITION NUMBERED',
+      relicBadge: 'NEW DROP',
       sku: 'BRVD-YOG-03',
       featured: true,
       newDrop: true,
@@ -1034,7 +1039,7 @@
       fit: 'Bomber Flight Cut',
       material: '450 GSM Heavy Canvas & Satin Lining',
       relicTag: 'ARTIFACT 04',
-      relicBadge: '150 VAULT EDITION',
+      relicBadge: 'NEW DROP',
       sku: 'BRVD-NRT-04',
       featured: true,
       newDrop: true,
@@ -1061,8 +1066,9 @@
       name: 'ASURA SOLAR FIRE OVERSIZED TEE',
       slug: 'asura-solar-fire-oversized-tee',
       description: 'Sun-burnt charcoal compact jersey featuring high-density sacred Sanskrit hymn "ॐ सह नाववतु" and radiating solar celestial sigil.',
-      price: 2900,
-      comparePrice: 3500,
+      price: 699,
+      comparePrice: 799,
+      launchPrice: 649,
       collection: 'mythology',
       tags: ['mythology', 'shiva', 'ramayana', 'solar-fire', '280gsm', 'oversized'],
       fabric: '240 GSM FRENCH TERRY // BIO + SILICONE WASH',
@@ -1070,7 +1076,7 @@
       fit: 'Relaxed Drop-Shoulder',
       material: '240 GSM French Terry Cotton, Bio + Silicone Washed',
       relicTag: 'RELIC 05',
-      relicBadge: 'PROTOTYPE LOCKED',
+      relicBadge: 'COMING SOON',
       sku: 'BRVD-ASR-05',
       featured: true,
       newDrop: true,
@@ -1112,8 +1118,9 @@
       name: 'BERUNDA DUAL VISION ARMOR TEE',
       slug: 'berunda-dual-vision-armor-tee',
       description: '240 GSM heavyweight cotton tee with monumental twin-headed Gandaberunda imperial crest rendered in antique gold embroidery.',
-      price: 3500,
-      comparePrice: 4200,
+      price: 699,
+      comparePrice: 799,
+      launchPrice: 649,
       collection: 'heritage',
       tags: ['heritage', 'berunda', 'traditional-patterns', 'cultural-symbols', 'embroidery', '280gsm', 'armor'],
       fabric: '240 GSM FRENCH TERRY // BIO + SILICONE WASH',
@@ -1163,8 +1170,9 @@
       name: 'BRAVADIAN NINETAILS',
       slug: 'bravadian-ninetails',
       description: '240 GSM heavyweight oversized silhouette featuring high-density back-print of the mythical celestial fox spirit. Constructed with double-combed long-staple yarns for architectural boxy drape.',
-      price: 1499,
-      comparePrice: 1999,
+      price: 699,
+      comparePrice: 799,
+      launchPrice: 649,
       collection: 'anime',
       tags: ['anime', 'manga', 'japanese-animation', 'ninetails', 'oversized', '240gsm'],
       fabric: '240 GSM FRENCH TERRY // BIO + SILICONE WASH',
@@ -1214,8 +1222,9 @@
       name: 'BRAVADIAN GARUDA REBEL',
       slug: 'bravadian-garuda-rebel',
       description: 'An ode to the supreme avian sovereign. Geometric feathered wingspan printed in reflective metallic pigments across dropped shoulder seams on 240 GSM heavy French cotton.',
-      price: 1699,
-      comparePrice: 2199,
+      price: 699,
+      comparePrice: 799,
+      launchPrice: 649,
       collection: 'mythology',
       tags: ['mythology', 'garuda', 'deities', 'mythological-stories', 'heavyweight', '240gsm'],
       fabric: '240 GSM FRENCH TERRY // BIO + SILICONE WASH',
@@ -1265,8 +1274,9 @@
       name: 'BRAVADIAN MONOLITH BHARAT',
       slug: 'bravadian-monolith-bharat',
       description: 'Rooted in Indian soil. 240 GSM high-density knit featuring brutalist longitude coordinates (28°36 N 77°12 E) and architectural Ashoka geometry across the back yoke.',
-      price: 1599,
-      comparePrice: 2099,
+      price: 699,
+      comparePrice: 799,
+      launchPrice: 649,
       collection: 'heritage',
       tags: ['heritage', 'bharat', 'architecture', 'cultural-symbols', 'oversized', '240gsm'],
       fabric: '240 GSM FRENCH TERRY // BIO + SILICONE WASH',
@@ -1316,8 +1326,9 @@
       name: 'BRAVADIAN CYBER REBEL',
       slug: 'bravadian-cyber-rebel',
       description: 'Underground dystopian Indian streetwear. High-impact typography with anti-surveillance warning tapes engineered on 240 GSM ultra-heavy cotton.',
-      price: 1499,
-      comparePrice: 1899,
+      price: 699,
+      comparePrice: 799,
+      launchPrice: 649,
       collection: 'street-culture',
       tags: ['street-culture', 'typography', 'graffiti', 'urban', 'rebellious', 'oversized', '240gsm'],
       fabric: '240 GSM FRENCH TERRY // BIO + SILICONE WASH',
@@ -1367,8 +1378,9 @@
       name: 'BRAVADIAN ESSENTIAL 240',
       slug: 'bravadian-essential-240',
       description: 'Zero graphics. Zero noise. Pure structural drape, thick 1.25" Lycra rib collar, and drop-shoulder presence. Designed to outlast seasonal trends.',
-      price: 1299,
-      comparePrice: 1599,
+      price: 699,
+      comparePrice: 799,
+      launchPrice: 649,
       collection: 'minimal',
       tags: ['minimal', 'essential', 'clean-graphics', 'understated', 'simple-typography', '240gsm'],
       fabric: '240 GSM FRENCH TERRY // BIO + SILICONE WASH',
@@ -1418,8 +1430,9 @@
       name: 'BRAVADIAN ASHOKA EMBER',
       slug: 'bravadian-ashoka-ember',
       description: 'Unreleased archive drop. 24-spoke Solar Chakra motif in neon solar ember across the chest and oversized drop spine. Limited to 500 numbered pieces.',
-      price: 1799,
-      comparePrice: 2299,
+      price: 699,
+      comparePrice: 799,
+      launchPrice: 649,
       collection: 'heritage',
       tags: ['heritage', 'ashoka', 'cultural-symbols', 'traditional-patterns', 'limited', '240gsm'],
       fabric: '240 GSM FRENCH TERRY // BIO + SILICONE WASH',
@@ -1477,7 +1490,7 @@
 
     init() {
       // Auto-Migration to ensure new luxury mockups, products, and collections load immediately
-      const DATA_VERSION = '4.3.0';
+      const DATA_VERSION = '4.8.0';
       const storedVer = localStorage.getItem('bravadian_data_version');
       const storedProds = localStorage.getItem('bravadian_products');
       const hasStaleJpg = storedProds && (storedProds.includes('images/relics') || storedProds.includes('.jpg'));
@@ -1527,6 +1540,36 @@
 
     isSupabaseConnected() {
       return !!this.supabaseClient;
+    },
+
+    isLaunchActive(product) {
+      const end = Date.parse(this.getSettings().launchEndsAt || '');
+      return !!(product && product.launchPrice && !isNaN(end) && Date.now() < end);
+    },
+
+    effectivePrice(product) {
+      return this.isLaunchActive(product) ? Number(product.launchPrice) : Number(product.price);
+    },
+
+    async toWebp(file, max = 1400) {
+      const bmp = await createImageBitmap(file);
+      const scale = Math.min(1, max / Math.max(bmp.width, bmp.height));
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.round(bmp.width * scale);
+      canvas.height = Math.round(bmp.height * scale);
+      canvas.getContext('2d').drawImage(bmp, 0, 0, canvas.width, canvas.height);
+      return new Promise(resolve => canvas.toBlob(b => resolve(b || file), 'image/webp', 0.82));
+    },
+
+    // Uploads to the public "product-images" bucket (admins only, see db/002) and returns its URL.
+    async uploadProductImage(file, name) {
+      if (!this.supabaseClient) throw new Error('Supabase is not connected. Add SUPABASE_URL and SUPABASE_ANON_KEY in js/data.js.');
+      const blob = await this.toWebp(file);
+      const path = `${name}-${Date.now()}.webp`;
+      const bucket = this.supabaseClient.storage.from('product-images');
+      const { error } = await bucket.upload(path, blob, { contentType: 'image/webp', upsert: true });
+      if (error) throw new Error(error.message);
+      return bucket.getPublicUrl(path).data.publicUrl;
     },
 
     // Returns { order } on success, { rejected, message } when the database refuses it
@@ -1842,6 +1885,7 @@
           description: product.description,
           price: product.price,
           compare_price: product.comparePrice,
+          launch_price: product.launchPrice || null,
           collection_slug: product.collection,
           tags: product.tags || [],
           fabric: product.fabric,
@@ -1951,7 +1995,8 @@
           { key: 'general', value: { brand_name: settings.brandName, tagline: settings.tagline, currency: settings.currency, support_email: settings.supportEmail } },
           { key: 'whatsapp', value: { phone_number: settings.whatsappNumber, business_name: 'BRAVADIAN Official' } },
           { key: 'shipping', value: { shipping_charge: settings.shippingFee, free_shipping_threshold: settings.freeShippingThreshold, estimated_days: settings.estimatedDays } },
-          { key: 'social', value: { instagram: settings.instagramUrl } }
+          { key: 'social', value: { instagram: settings.instagramUrl } },
+          { key: 'launch', value: { ends_at: settings.launchEndsAt || null } }
         ];
         await this.supabaseClient.from('site_settings').upsert(rows, { onConflict: 'key' });
       } catch (e) {
@@ -2062,6 +2107,7 @@
                 description: p.description || '',
                 price: Number(p.price),
                 comparePrice: p.compare_price ? Number(p.compare_price) : null,
+                launchPrice: p.launch_price ? Number(p.launch_price) : null,
                 collection: p.collection_slug,
                 tags: p.tags || [],
                 fabric: p.fabric,
@@ -2148,6 +2194,8 @@
                 if (s.value.shipping_charge !== undefined) remoteSettings.shippingFee = Number(s.value.shipping_charge);
                 if (s.value.free_shipping_threshold !== undefined) remoteSettings.freeShippingThreshold = Number(s.value.free_shipping_threshold);
                 if (s.value.estimated_days) remoteSettings.estimatedDays = s.value.estimated_days;
+              } else if (s.key === 'launch' && s.value) {
+                remoteSettings.launchEndsAt = s.value.ends_at || '';
               } else if (s.key === 'social' && s.value && s.value.instagram) {
                 remoteSettings.instagramUrl = s.value.instagram;
               }
