@@ -331,8 +331,8 @@
      -------------------------------------------------------------------------- */
   function renderHomeView() {
     const products = window.BravadianDB.getProducts();
-    // Get top 4 products for ROOTED IN STONE collection
-    const featuredPieces = products.slice(0, 4);
+    // Latest designs on the home page, three per row
+    const featuredPieces = products.filter(p => !p.isComingSoon).slice(0, 3);
 
     mainContainer.innerHTML = `
       <!-- HERO SECTION (Full-Width Hero Ready for Future Background Image) -->
@@ -371,7 +371,7 @@
                     <polyline points="12 5 19 12 12 19"></polyline>
                   </svg>
                 </a>
-                <a href="${waURL('Hi Bravadian, I want VIP Order access for Protocol 01 Heritage')}" target="_blank" rel="noopener noreferrer" class="btn-figma-whatsapp">
+                <a href="${waURL('Hi Bravadian, I would like to place an order')}" target="_blank" rel="noopener noreferrer" class="btn-figma-whatsapp">
                   ${whatsappSVG(18)}
                   <span>ORDER ON WHATSAPP</span>
                 </a>
@@ -408,31 +408,24 @@
         <div class="container">
           <div class="figma-section-header">
             <div class="section-header-left">
-              <span class="figma-tag">— 01 / TOTAL RELICS COLLECTION</span>
-              <h2 class="figma-section-title">ROOTED IN STONE</h2>
+              <span class="figma-tag">— 01 / LATEST DESIGNS</span>
+              <h2 class="figma-section-title">NEW DROPS</h2>
             </div>
             <div class="section-header-right">
               <p class="figma-section-narrative">
-                Sacred architectural motifs derived from Halebidu and Belur friezes, translated onto engineered drop-shoulder silhouettes.
+                Original Indian artwork on oversized 240 GSM cotton tees. Launch price for a limited time.
               </p>
             </div>
           </div>
 
           <div class="figma-product-grid">
             ${featuredPieces.map((p, idx) => {
-              const badges = ['PRE-ORDER', 'NEW DROP', 'ARCHIVE', 'PRE-ORDER'];
-              const badge = badges[idx] || 'ARCHIVE';
-              const subtitles = [
-                '240 GSM FRENCH TERRY COTTON',
-                '400 GSM FRENCH TERRY // OIL WASHED',
-                '380 GSM HEAVYWEIGHT TERRY',
-                'HEAVY CANVAS CHORE COAT'
-              ];
-              const subText = subtitles[idx] || (p.fabric ? `${p.fabric} // ${p.fit}` : '240 GSM // OVERSIZED');
+              const badge = p.relicBadge || 'NEW DROP';
+              const subText = '240 GSM COTTON // OVERSIZED FIT';
               return `
                 <div class="figma-product-card" data-slug="${p.slug}">
                   <div class="card-media-wrap" onclick="window.location.hash='#/product/${p.slug}'" role="button" aria-label="View ${p.name}">
-                    <span class="card-relic-tag">[ RELIC 0${idx + 1} ]</span>
+                    <span class="card-relic-tag">[ ${p.relicTag || `DESIGN 0${idx + 1}`} ]</span>
                     <span class="card-badge">[ ${badge} ]</span>
                     <img src="${p.images.front}" alt="${p.name}" class="card-relic-img" loading="lazy">
                   </div>
@@ -444,7 +437,7 @@
                     <div class="card-action-col">
                       <span class="card-product-price">${priceHTML(p)}</span>
                       <button type="button" class="btn-card-vault" onclick="event.stopPropagation(); window.BravadianStore.quickAdd('${p.slug}');">
-                        <span>[ PRE-ORDER VAULT ]</span>
+                        <span>[ ADD TO BAG ]</span>
                         <svg class="btn-vault-arrow" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                           <line x1="5" y1="12" x2="19" y2="12"></line>
                           <polyline points="12 5 19 12 12 19"></polyline>
@@ -503,13 +496,13 @@
 
         <!-- Center Editorial Content -->
         <div class="container manifesto-inner">
-          <span class="manifesto-tag">[ THE BRAVADIAN MANIFESTO ]</span>
+          <span class="manifesto-tag">[ WHAT WE STAND FOR ]</span>
           <blockquote class="manifesto-quote">
             “INDIAN ROOTS. MODERN FORM. A STORY WORTH WEARING.”
           </blockquote>
           <div class="manifesto-divider">
             <span class="divider-line"></span>
-            <span class="coordinates-label">— FOUNDATIONAL TRANSMISSION // 28°36'N 77°12'E —</span>
+            <span class="coordinates-label">— DESIGNED AND MADE IN INDIA —</span>
             <span class="divider-line"></span>
           </div>
         </div>
@@ -532,11 +525,11 @@
         <div class="container">
           <div class="archive-section-header">
             <div class="archive-header-left">
-              <span class="figma-tag">[ SYSTEM TAXONOMY // CHRONICLING SUB-CONTINENT ]</span>
+              <span class="figma-tag">[ SHOP BY COLLECTION ]</span>
               <h2 class="archive-title">THE FIVE COLLECTIONS</h2>
             </div>
             <div class="archive-header-right">
-              <span class="archive-cadence">CHRONOLOGICAL CADENCE // NUMBERED EDITIONS</span>
+              <span class="archive-cadence">NEW DESIGNS EVERY DROP</span>
             </div>
           </div>
 
@@ -613,11 +606,11 @@
           <div class="container">
             <div class="archive-section-header">
               <div class="archive-header-left">
-                <span class="figma-tag">[ SYSTEM TAXONOMY // CHRONICLING SUB-CONTINENT ]</span>
+                <span class="figma-tag">[ SHOP BY COLLECTION ]</span>
                 <h1 class="archive-title">THE FIVE COLLECTIONS</h1>
               </div>
               <div class="archive-header-right">
-                <span class="archive-cadence">CHRONOLOGICAL CADENCE // NUMBERED EDITIONS</span>
+                <span class="archive-cadence">NEW DESIGNS EVERY DROP</span>
               </div>
             </div>
 
@@ -669,7 +662,7 @@
           data-slug="${c.slug}" 
           data-name="${c.name}"
           data-edition="${c.num}"
-          title="${c.name} — ${c.chapter || c.desc || c.description} (Click to explore relics)"
+          title="${c.name} — ${c.chapter || c.desc || c.description} (See the designs)"
         >
           ${hasImage ? `
             <div class="archive-card-bg-img" style="background-image: url('${c.image}');"></div>
@@ -695,7 +688,7 @@
           data-edition="${c.num}"
           role="button"
           tabindex="0"
-          title="${c.name} — ${c.chapter || c.desc || c.description} (Unreleased Drop // Click for VIP Access)"
+          title="${c.name} — ${c.chapter || c.desc || c.description} (Coming soon)"
           aria-label="${c.name} - Vault Unreleased"
         >
           ${hasImage ? `
@@ -747,16 +740,26 @@
     const heritageProducts = allProducts.filter(p => 
       p.collection === 'heritage' || (p.tags && p.tags.includes('heritage'))
     );
-    // Fill up to 3 products if fewer than 3 heritage products in catalogue
-    const displayProducts = heritageProducts.length >= 3 
-      ? heritageProducts.slice(0, 3) 
-      : [...heritageProducts, ...allProducts.filter(p => !heritageProducts.some(hp => hp.id === p.id))].slice(0, 3);
+    const displayProducts = heritageProducts.filter(p => !p.isComingSoon).slice(0, 3);
+    const storyCard = (src, fallback, alt, name, code, caption) => `
+              <article class="motif-card">
+                <div class="motif-image-box">
+                  <img src="${src}" onerror="this.onerror=null;this.src='${fallback}'" alt="${alt}" class="motif-img" loading="lazy" />
+                </div>
+                <div class="motif-specs">
+                  <div class="motif-title-badge">
+                    <h3 class="motif-name">${name}</h3>
+                    <span class="motif-code">${code}</span>
+                  </div>
+                  <p class="motif-caption">${caption}</p>
+                </div>
+              </article>`;
 
     mainContainer.innerHTML = `
       <div class="heritage-chapter-page">
         <!-- FULL-WIDTH HERO SECTION (Edge-to-Edge with Zero Side Gaps) -->
         <section class="heritage-hero-section">
-          <div class="heritage-hero-backdrop" role="img" aria-label="Belur and Halebidu Temple Stone Relief"></div>
+          <div class="heritage-hero-backdrop" role="img" aria-label="Carved temple stone relief"></div>
           <div class="heritage-hero-scrim" aria-hidden="true"></div>
 
           <div class="heritage-hero-inner">
@@ -764,7 +767,7 @@
               <!-- Micro-Identity -->
               <div class="heritage-micro-identity">
                 <span class="amber-dot-square" aria-hidden="true"></span>
-                <span class="micro-identity-text">CH-01 // HOYSALA ARCHITECTURAL ARCHIVE</span>
+                <span class="micro-identity-text">HERITAGE // INDIA LIVES IN CRAFTS</span>
               </div>
 
               <!-- Titles & CTA Row -->
@@ -772,13 +775,13 @@
                 <div class="heritage-headline-group">
                   <h1 class="heritage-hero-title">HERITAGE</h1>
                   <p class="heritage-hero-desc">
-                    Severe stone carvings translated into heavyweight street armor. An architectural manifest derived from ancient Belur and Halebidu temples.
+                    Folk art, textile crafts and the symbols of India, redrawn as original prints on everyday streetwear. Two designs, one idea: wear your roots.
                   </p>
                 </div>
 
                 <div class="heritage-cta-wrapper">
                   <button type="button" class="btn-discover-protocols" onclick="document.getElementById('heritageGarmentsSection').scrollIntoView({ behavior: 'smooth' })">
-                    DISCOVER PROTOCOLS
+                    SEE THE DESIGNS
                   </button>
                 </div>
               </div>
@@ -793,76 +796,25 @@
             <div class="heritage-section-header">
               <div class="heritage-marker-row">
                 <span class="heritage-line-indicator" aria-hidden="true"></span>
-                <span class="heritage-marker-text">01 / DECODED CIVILIZATIONAL MOTIFS</span>
+                <span class="heritage-marker-text">01 / WHERE THE DESIGNS COME FROM
               </div>
 
               <div class="heritage-header-flex">
-                <h2 class="heritage-section-title">CIVILIZATIONAL MOTIFS</h2>
+                <h2 class="heritage-section-title">THE STORIES WE PRINT</h2>
                 <div class="heritage-desc-wrapper">
                   <p class="heritage-section-narrative">
-                    Four temple motifs, redrawn and printed onto heavyweight cotton. Every thread preserves a fragment of civilizational history.
+                    Indian Craft Atlas maps the country through its crafts. Bharat Spirit brings four national symbols into one composition. These are the worlds behind both.
                   </p>
                 </div>
               </div>
             </div>
 
-            <!-- Motifs Cards Row (4 Motifs) -->
+            <!-- Story Cards Row -->
             <div class="heritage-motifs-row">
-              <!-- M-01 -->
-              <article class="motif-card">
-                <div class="motif-image-box">
-                  <img src="images/heritage/motif-belur-salabhanjika.webp" alt="Belur Salabhanjika stone carving bracket figure" class="motif-img" loading="lazy" />
-                </div>
-                <div class="motif-specs">
-                  <div class="motif-title-badge">
-                    <h3 class="motif-name">BELUR SALABHANJIKA</h3>
-                    <span class="motif-code">M-01</span>
-                  </div>
-                  <p class="motif-caption">Angled bracket-figure detailing showcasing sacred symmetry.</p>
-                </div>
-              </article>
-
-              <!-- M-02 -->
-              <article class="motif-card">
-                <div class="motif-image-box">
-                  <img src="images/heritage/motif-halebidu-frieze.webp" alt="Halebidu Frieze disciplined cavalry lines" class="motif-img" loading="lazy" />
-                </div>
-                <div class="motif-specs">
-                  <div class="motif-title-badge">
-                    <h3 class="motif-name">HALEBIDU FRIEZE</h3>
-                    <span class="motif-code">M-02</span>
-                  </div>
-                  <p class="motif-caption">The relentless cavalry lines symbolizing eternal disciplined charge.</p>
-                </div>
-              </article>
-
-              <!-- M-03 -->
-              <article class="motif-card">
-                <div class="motif-image-box">
-                  <img src="images/heritage/motif-hoysala-crest.webp" alt="Hoysala Crest warrior Sala slaying lion" class="motif-img" loading="lazy" />
-                </div>
-                <div class="motif-specs">
-                  <div class="motif-title-badge">
-                    <h3 class="motif-name">HOYSALA CREST</h3>
-                    <span class="motif-code">M-03</span>
-                  </div>
-                  <p class="motif-caption">The legendary warrior Sala striking down the mythological beast.</p>
-                </div>
-              </article>
-
-              <!-- M-04 -->
-              <article class="motif-card">
-                <div class="motif-image-box">
-                  <img src="images/heritage/motif-kirtidhwaja-column.webp" alt="Kirtidhwaja Column victory pillar relief" class="motif-img" loading="lazy" />
-                </div>
-                <div class="motif-specs">
-                  <div class="motif-title-badge">
-                    <h3 class="motif-name">KIRTIDHWAJA COLUMN</h3>
-                    <span class="motif-code">M-04</span>
-                  </div>
-                  <p class="motif-caption">Pillars of architectural victory and mathematical precision.</p>
-                </div>
-              </article>
+              ${storyCard('images/heritage/story-folk-art.webp', 'images/products/craft-atlas/back-print.webp', 'Madhubani and Warli folk painting', 'FOLK ART', 'ATLAS', 'Madhubani, Warli, Gond and Pattachitra. The painted traditions behind the Craft Atlas elephant.')}
+              ${storyCard('images/heritage/story-textiles.webp', 'images/products/craft-atlas/back-print.webp', 'Kalamkari and Ikat textiles', 'TEXTILE CRAFTS', 'ATLAS', 'Kalamkari, Ikat, Phad and Pichwai. Patterns carried from loom and cloth into print.')}
+              ${storyCard('images/heritage/story-symbols.webp', 'images/products/bharat-spirit/back-print.webp', 'Peacock, tiger, lotus and elephant', 'NATIONAL SYMBOLS', 'SPIRIT', 'Peacock, tiger, lotus and elephant. The four symbols of India behind Bharat Spirit.')}
+              ${storyCard('images/heritage/story-atlas.webp', 'images/products/craft-atlas/back-print.webp', 'Indian Craft Atlas elephant artwork', 'THE ATLAS PRINT', 'ATLAS', 'People, patterns, places, purpose. A dozen crafts from across India, drawn onto one elephant.')}
             </div>
           </section>
 
@@ -871,14 +823,14 @@
             <div class="heritage-section-header">
               <div class="heritage-marker-row">
                 <span class="heritage-line-indicator" aria-hidden="true"></span>
-                <span class="heritage-marker-text">02 / ENGINEERED PATTERNS</span>
+                <span class="heritage-marker-text">02 / THE DESIGNS
               </div>
 
               <div class="heritage-header-flex">
-                <h2 class="heritage-section-title">GARMENT ARTIFACTS</h2>
+                <h2 class="heritage-section-title">THE HERITAGE TEES</h2>
                 <div class="heritage-desc-wrapper">
                   <p class="heritage-section-narrative">
-                    Severe street silhouettes forged in modern Indian cities, engineered with heavyweight 240 GSM French Terry fibers for structural discipline.
+                    Oversized 240 GSM French Terry cotton, bio + silicone washed, with large DTF back prints. Launch price ₹649, MRP ₹799.
                   </p>
                 </div>
               </div>
@@ -895,14 +847,14 @@
             <div class="heritage-section-header">
               <div class="heritage-marker-row">
                 <span class="heritage-line-indicator" aria-hidden="true"></span>
-                <span class="heritage-marker-text">03 / CHROMATIC CODES</span>
+                <span class="heritage-marker-text">03 / COLOURS
               </div>
 
               <div class="heritage-header-flex">
-                <h2 class="heritage-section-title">THE FIVE SACRED DYES</h2>
+                <h2 class="heritage-section-title">FOUR COLOURS, EVERY DESIGN</h2>
                 <div class="heritage-desc-wrapper">
                   <p class="heritage-section-narrative">
-                    The 5 canon chromatic archetypes engineered for our structural street armor. Mineral limestone, organic unbleached fiber, temple sindhoor, sovereign cobalt, and midnight obsidian.
+                    Both heritage designs come in black, red, royal blue and white. The print stays the same; the mood changes with the colour.
                   </p>
                 </div>
               </div>
@@ -916,7 +868,7 @@
                 <div class="swatch-details">
                   <span class="swatch-title">01 // BLACK</span>
                   <span class="swatch-hex">#111116</span>
-                  <span class="swatch-info">Deep carbon base replicating midnight temple stone shadows.</span>
+                  <span class="swatch-info">The boldest backdrop. Makes every colour in the print glow.</span>
                 </div>
               </div>
 
@@ -926,7 +878,7 @@
                 <div class="swatch-details">
                   <span class="swatch-title">02 // RED</span>
                   <span class="swatch-hex">#C81D25</span>
-                  <span class="swatch-info">Deep ritual vermillion inspired by temple sanctum sindhoor.</span>
+                  <span class="swatch-info">Festive and loud. The colour of celebration.</span>
                 </div>
               </div>
 
@@ -936,7 +888,7 @@
                 <div class="swatch-details">
                   <span class="swatch-title">03 // ROYAL BLUE</span>
                   <span class="swatch-hex">#1852B8</span>
-                  <span class="swatch-info">Sovereign heritage cobalt symbolizing the boundless cosmic expanse.</span>
+                  <span class="swatch-info">Rich and confident. Pairs well with the warm tones of the art.</span>
                 </div>
               </div>
 
@@ -946,7 +898,7 @@
                 <div class="swatch-details">
                   <span class="swatch-title">04 // WHITE</span>
                   <span class="swatch-hex">#F7F7FA</span>
-                  <span class="swatch-info">Pristine architectural limestone base for high-contrast typography.</span>
+                  <span class="swatch-info">Clean and bright. The print reads like a painted canvas.</span>
                 </div>
               </div>
             </div>
@@ -957,7 +909,7 @@
   }
 
   function renderHeritageGarmentCard(p, idx, settings) {
-    const relicTag = p.relicTag || `RELIC 0${idx + 1}`;
+    const relicTag = p.relicTag || `DESIGN 0${idx + 1}`;
     const badgeText = p.isComingSoon ? 'COMING SOON' : (p.relicBadge || 'PRE-ORDER ACTIVE');
     const fabricText = p.fabric || '240 GSM COMBED COTTON // ARCHIVAL EMBROIDERY';
     const priceFormatted = priceHTML(p);
@@ -994,7 +946,7 @@
   function renderShopView(colSlug = 'all') {
     const collections = window.BravadianDB.getCollections();
     const activeCol = collections.find(c => c.slug === colSlug) || { 
-      name: 'THE CANON CATALOGUE', 
+      name: 'ALL DESIGNS', 
       description: 'Every design across all five collections. Oversized 240 GSM French Terry tees with original Indian artwork.' 
     };
     
@@ -1020,16 +972,16 @@
         <header class="canon-header-block">
           <div class="canon-eyebrow">
             <span class="eyebrow-dash">—</span>
-            <span class="eyebrow-text">STREET ARMOR DIVISION // FULL SPECS</span>
+            <span class="eyebrow-text">SHOP // ALL TEES</span>
           </div>
-          <h1 class="canon-main-title">THE CANON CATALOGUE</h1>
+          <h1 class="canon-main-title">ALL DESIGNS</h1>
           <p class="canon-sub-desc">
             Every design across all five collections. Oversized 240 GSM French Terry tees with original Indian artwork.
           </p>
         </header>
 
         <!-- Chapter Filter Pills & Controls Bar -->
-        <nav class="canon-filter-toolbar" aria-label="Archive Collection Filters">
+        <nav class="canon-filter-toolbar" aria-label="Collection filters">
           <!-- Chapter Tabs Pills -->
           <div class="canon-tabs-group" role="tablist">
             ${collections.map(c => {
@@ -1091,7 +1043,7 @@
           <div class="canon-empty-state">
             <div class="empty-state-icon">⚡</div>
             <h3 class="empty-state-title">NO ARTIFACTS FOUND</h3>
-            <p class="empty-state-sub">Try clearing size filters or explore another canon chapter.</p>
+            <p class="empty-state-sub">Try clearing size filters or try another collection.</p>
             <a href="#/collections/all" class="btn-canon-load-more" style="display: inline-block;">RESET ALL FILTERS</a>
           </div>
         `}
@@ -1132,7 +1084,7 @@
   function renderProductCardHTML(product, idx = 0) {
     const isOutOfStock = !product.variants || product.variants.every(v => v.stock === 0);
     const settings = window.BravadianDB.getSettings();
-    const relicTag = product.relicTag || `RELIC 0${(idx % 6) + 1}`;
+    const relicTag = product.relicTag || `DESIGN 0${(idx % 6) + 1}`;
     const isLocked = product.isComingSoon === true;
     const relicBadge = isLocked ? 'COMING SOON' : (product.relicBadge || (product.newDrop ? 'PRE-ORDER ACTIVATED' : 'ARCHIVAL RUN'));
     const fabricSpec = product.fabric || '240 GSM FRENCH TERRY // 100% COMBED COTTON';
@@ -1298,10 +1250,11 @@
     };
 
     const thumb1 = pImages.front || getDiagram('front');
-    const thumb2 = pImages.back || getDiagram('back');
-    const thumb3 = pImages.closeup || getDiagram('closeup');
+    // Placeholder diagrams only when the product has no real photos yet
+    const thumb2 = pImages.back || (pImages.front ? '' : getDiagram('back'));
+    const thumb3 = pImages.closeup || (pImages.front ? '' : getDiagram('closeup'));
     const mainHero = thumb1;
-    const galleryImages = [[thumb1, 'contain'], [thumb2, 'contain'], [thumb3, 'contain'], [pImages.lifestyle, 'cover'], [pImages.lifestyle2, 'cover']]
+    const galleryImages = [[thumb1, 'contain'], [thumb2, 'contain'], [thumb3, 'contain'], [pImages.art, 'contain'], [pImages.lifestyle, 'cover'], [pImages.lifestyle2, 'cover']]
       .filter(([src], i, arr) => src && arr.findIndex(([s]) => s === src) === i)
       .map(([src, fit]) => ({ src, fit }));
 
@@ -1315,45 +1268,19 @@
       { title: 'DELIVERY & RETURNS', content: 'All-India delivery. Your order is confirmed with you on WhatsApp before dispatch. See our Shipping and Returns policy for full details.' }
     ].filter(Boolean).map((a, n) => ({ num: String(n + 1).padStart(2, '0'), ...a }));
 
-    const relatedRelics = [
-      {
-        badge: 'RELIC 02',
-        name: 'HOYSALA LINGESHWARA RELIC TEE',
-        price: 3200,
-        slug: 'hoysala-lingeshwara-relic-tee'
-      },
-      {
-        badge: 'RELIC 03',
-        name: 'SRI YOGA SARASVATHESHWARA TEE',
-        price: 3600,
-        slug: 'sri-yoga-sarasvatheshwara-tee'
-      },
-      {
-        badge: 'RELIC 04',
-        name: 'NRITYA PRIMACY DESCENSION JACKET',
-        price: 6500,
-        slug: 'nritya-primacy-descension-jacket'
-      }
-    ].map(item => {
-      const relProd = window.BravadianDB.getProductBySlug(item.slug);
-      const img = (relProd && relProd.images && relProd.images.front)
-        ? relProd.images.front
-        : (window.BravadianDefaults ? window.BravadianDefaults.createTeeSVG(item.name, 'Heritage', '#111116', '#FFA000', 'front') : '');
-      return {
-        ...item,
-        name: relProd ? relProd.name : item.name,
-        price: relProd ? relProd.price : item.price,
-        badge: relProd ? (relProd.relicTag || item.badge) : item.badge,
-        image: img
-      };
-    });
+    // Other designs to browse: same collection first, then the rest
+    const relatedRelics = window.BravadianDB.getProducts()
+      .filter(p => p.slug !== product.slug && !p.isComingSoon)
+      .sort((a, b) => Number(b.collection === product.collection) - Number(a.collection === product.collection))
+      .slice(0, 3)
+      .map((p, n) => ({ product: p, slug: p.slug, name: p.name, badge: p.relicTag || `DESIGN 0${n + 1}`, image: p.images.front }));
 
     const defaultChapters = [
-      { num: '01', title: 'ANIME', chapter: 'CHAPTER 01: MANGA & ANIME', collection: 'anime' },
-      { num: '02', title: 'MYTHOLOGY', chapter: 'CHAPTER 02: SACRED MYTHOLOGY', collection: 'mythology' },
-      { num: '03', title: 'HERITAGE', chapter: 'CHAPTER 03: BHARAT HERITAGE', collection: 'heritage' },
-      { num: '04', title: 'STREET CULTURE', chapter: 'CHAPTER 04: URBAN STREET CULTURE', collection: 'street-culture' },
-      { num: '05', title: 'MINIMAL', chapter: 'CHAPTER 05: MONOLITHIC MINIMAL', collection: 'minimal' }
+      { num: '01', title: 'ANIME', chapter: 'ADHYAYA 01: MANGA & ANIME', collection: 'anime' },
+      { num: '02', title: 'MYTHOLOGY', chapter: 'ADHYAYA 02: SACRED MYTHOLOGY', collection: 'mythology' },
+      { num: '03', title: 'HERITAGE', chapter: 'ADHYAYA 03: BHARAT HERITAGE', collection: 'heritage' },
+      { num: '04', title: 'STREET CULTURE', chapter: 'ADHYAYA 04: URBAN STREET CULTURE', collection: 'street-culture' },
+      { num: '05', title: 'MINIMAL', chapter: 'ADHYAYA 05: EVERYDAY MINIMAL', collection: 'minimal' }
     ];
     const gateways = defaultChapters
       .filter(gw => gw.collection !== (product.collection || 'heritage').toLowerCase())
@@ -1397,7 +1324,7 @@
             <!-- Header Eyebrow -->
             <div class="pdp-eyebrow-row">
               <span class="pdp-amber-dot"></span>
-              <span class="pdp-eyebrow-text">${(product.collection || 'HERITAGE').toUpperCase()} COLLECTION // CHAPTER 01</span>
+              <span class="pdp-eyebrow-text">${(product.collection || 'HERITAGE').toUpperCase()} COLLECTION // ADHYAYA 01</span>
             </div>
 
             <!-- Title -->
@@ -1423,7 +1350,7 @@
             <!-- Size Selection -->
             <div class="pdp-size-section">
               <div class="pdp-size-header">
-                <span class="pdp-size-label">SELECT SPECIFICATION (SIZE)</span>
+                <span class="pdp-size-label">SELECT SIZE</span>
                 <button type="button" class="pdp-size-guide-btn pdp-fit-btn" id="pdpSizeGuideTrigger">${fitButtonLabel()}</button>
               </div>
               <div class="pdp-size-matrix" id="pdpSizeMatrix">
@@ -1476,11 +1403,11 @@
             <div class="pdp-section-title-group">
               <div class="pdp-section-eyebrow">
                 <span class="pdp-line-indicator"></span>
-                <span class="pdp-section-eyebrow-text">02 / ARCHIVE RE-ROUTING</span>
+                <span class="pdp-section-eyebrow-text">02 / YOU MAY ALSO LIKE</span>
               </div>
-              <h2 class="pdp-section-heading">MORE FROM THE ${(product.collection || 'HERITAGE').toUpperCase()} UNIVERSE</h2>
+              <h2 class="pdp-section-heading">MORE DESIGNS TO EXPLORE</h2>
             </div>
-            <div class="pdp-section-header-tag">CHAPTER 01 MANIFESTED SHAPES</div>
+            <div class="pdp-section-header-tag">ADHYAYA 01</div>
           </div>
 
           <div class="pdp-relics-grid">
@@ -1493,11 +1420,11 @@
                 <div class="pdp-relic-specs">
                   <div class="pdp-relic-row-top">
                     <h3 class="pdp-relic-name">${item.name}</h3>
-                    <span class="pdp-relic-price">${settings.currency}${item.price.toLocaleString('en-IN')}</span>
+                    <span class="pdp-relic-price">${priceHTML(item.product)}</span>
                   </div>
                   <div class="pdp-relic-row-bottom">
-                    <span class="pdp-relic-material">240 GSM FRENCH TERRY COTTON</span>
-                    <span class="pdp-relic-status">PRE-ORDER ACTIVE</span>
+                    <span class="pdp-relic-material">240 GSM COTTON // OVERSIZED</span>
+                    <span class="pdp-relic-status">IN STOCK</span>
                   </div>
                 </div>
               </article>
@@ -1511,11 +1438,11 @@
             <div class="pdp-section-title-group">
               <div class="pdp-section-eyebrow">
                 <span class="pdp-line-indicator"></span>
-                <span class="pdp-section-eyebrow-text">03 / DIMENSIONAL GATEWAYS</span>
+                <span class="pdp-section-eyebrow-text">03 / OTHER COLLECTIONS</span>
               </div>
-              <h2 class="pdp-section-heading">DISCOVER NEIGHBOURING UNIVERSES</h2>
+              <h2 class="pdp-section-heading">EXPLORE THE COLLECTIONS</h2>
             </div>
-            <div class="pdp-section-header-tag">MULTI-CHAPTER MANIFEST</div>
+            <div class="pdp-section-header-tag">FIVE COLLECTIONS</div>
           </div>
 
           <div class="pdp-gateways-grid">
@@ -2479,60 +2406,82 @@ Thank you.
   // ── Lookbook ───────────────────────────────────────────────────────────
   function renderLookbookView() {
     const settings = window.BravadianDB.getSettings();
-    const products = window.BravadianDB.getProducts()
-      .slice()
-      .sort((a, b) => Number(!!a.isComingSoon) - Number(!!b.isComingSoon))
-      .slice(0, 6);
-    const firstSentence = (t) => (t || '').split(/(?<=\.)\s/)[0];
-
-    const looks = products.map((p, i) => `
-      <article class="lb-look ${i % 2 ? 'is-flipped' : ''}">
-        <a href="#/product/${p.slug}" class="lb-look-media" aria-label="View ${p.name}">
-          <img src="${p.images.front}" alt="${p.name}, front" loading="lazy">
-          ${p.images.back ? `<img class="lb-look-back" src="${p.images.back}" alt="${p.name}, back print" loading="lazy">` : ''}
-        </a>
-        <div class="lb-look-copy">
-          <span class="lb-look-num">LOOK ${String(i + 1).padStart(2, '0')}</span>
-          <h2 class="lb-look-name">${p.name}</h2>
-          <p class="lb-look-story">${firstSentence(p.description)}</p>
-          <p class="lb-look-meta">${(p.collection || '').toUpperCase()}${p.gsm ? ` · ${p.gsm} GSM` : ''} · ${settings.currency}${window.BravadianDB.effectivePrice(p).toLocaleString('en-IN')}</p>
-          ${p.isComingSoon
-            ? `<span class="lb-look-soon">COMING SOON</span>`
-            : `<a href="#/product/${p.slug}" class="lb-btn lb-btn-red">SHOP THIS PIECE &rarr;</a>`}
-        </div>
-      </article>`).join('');
+    const shopLook = window.BravadianDB.getProducts().filter(p => !p.isComingSoon && p.collection === 'heritage').slice(0, 3);
+    // New lookbook photos live in images/lookbook/; until they exist, show product photos
+    const lbImg = (name, fallback, alt, cls) =>
+      `<img src="images/lookbook/${name}.webp" onerror="this.onerror=null;this.src='${fallback}'" alt="${alt}" class="${cls}" loading="lazy">`;
+    const ticker = ['240 GSM COTTON', 'OVERSIZED FIT', 'ORIGINAL INDIAN ARTWORK', 'MADE IN INDIA', 'FOUR COLOURS']
+      .map(t => `<span>${t}</span><span class="lb2-star">&#10022;</span>`).join('');
 
     mainContainer.innerHTML = `
-      <div class="lookbook">
-        <header class="lb-hero">
-          <span class="lb-eyebrow">LOOKBOOK · CHAPTER 01 · ROOTED FORM</span>
-          <h1 class="lb-title">Indian roots.<br>Modern form.</h1>
-          <p class="lb-sub">A story worth wearing.</p>
-          <p class="lb-lede">Temples, myths and scripts we grew up around, redrawn as oversized heavyweight streetwear. Made to be worn every day, not kept on a shelf.</p>
+      <div class="lookbook lb2">
+        <header class="lb2-hero">
+          ${lbImg('lb-hero', 'images/products/bharat-spirit/worn-temple.webp?v=3', 'Bravadian heritage tees worn on the street', 'lb2-hero-img')}
+          <div class="lb2-hero-shade" aria-hidden="true"></div>
+          <div class="lb2-hero-copy">
+            <span class="lb2-eyebrow"><i></i>LOOKBOOK // ADHYAYA 01</span>
+            <h1 class="lb2-title">LOOKBOOK 01:<br>WEAR YOUR ROOTS</h1>
+            <p class="lb2-lede">The Heritage collection, out on the street. Folk art and the symbols of India, printed on oversized cotton tees made for every day.</p>
+          </div>
         </header>
 
-        <ul class="lb-principles" aria-label="Brand principles">
-          <li>Built with intention.</li>
-          <li>A story you can wear.</li>
-          <li>Made for everyday rebellion.</li>
-        </ul>
+        <div class="lb2-ticker" aria-hidden="true"><div class="lb2-ticker-track">${ticker}${ticker}${ticker}${ticker}</div></div>
 
-        <section class="lb-looks" aria-label="Looks">${looks}</section>
-
-        <section class="lb-palette" aria-label="Colours">
-          <span class="lb-eyebrow">EVERY TEE COMES IN</span>
-          <div class="lb-swatches">
-            <div class="lb-swatch" style="--sw:#111111"><span>BLACK</span></div>
-            <div class="lb-swatch is-light" style="--sw:#FFFFFF"><span>WHITE</span></div>
-            <div class="lb-swatch" style="--sw:#C62828"><span>RED</span></div>
-            <div class="lb-swatch" style="--sw:#1F4FD1"><span>ROYAL BLUE</span></div>
+        <section class="lb2-section">
+          <div class="lb2-head">
+            <div>
+              <span class="lb2-kicker">01 / THE LOOKS</span>
+              <h2 class="lb2-h2">HOW IT&rsquo;S WORN</h2>
+            </div>
+            <p class="lb2-note">Two designs, styled the way you would wear them. Loose, easy and bold.</p>
+          </div>
+          <div class="lb2-pair">
+            <figure class="lb2-fig">
+              ${lbImg('lb-look-01', 'images/products/bharat-spirit/worn-studio.webp', 'Bharat Spirit tee, styled look', 'lb2-img')}
+              <figcaption><b>LOOK 01 // BHARAT SPIRIT</b><span>BLACK · OVERSIZED</span></figcaption>
+            </figure>
+            <figure class="lb2-fig">
+              ${lbImg('lb-look-02', 'images/products/craft-atlas/closeup.webp', 'Indian Craft Atlas tee, styled look', 'lb2-img')}
+              <figcaption><b>LOOK 02 // INDIAN CRAFT ATLAS</b><span>BLACK · OVERSIZED</span></figcaption>
+            </figure>
           </div>
         </section>
 
-        <footer class="lb-close">
-          <p class="lb-close-line">You didn't just pick a T-shirt. You picked a story.</p>
-          <div class="lb-close-actions">
-            <a href="#/shop" class="lb-btn lb-btn-red">SHOP THE CHAPTER &rarr;</a>
+        <section class="lb2-section">
+          <div class="lb2-head">
+            <div>
+              <span class="lb2-kicker">02 / SHOP THE LOOK</span>
+              <h2 class="lb2-h2">WORN IN THIS LOOKBOOK</h2>
+            </div>
+            <p class="lb2-note">Launch price ends ${new Date(settings.launchEndsAt || Date.now()).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}.</p>
+          </div>
+          <div class="lb2-shop" style="--n:${Math.max(shopLook.length, 2)}">
+            ${shopLook.map((p, n) => `
+            <a href="#/product/${p.slug}" class="lb2-card">
+              <span class="lb2-card-tag">${p.relicTag || `DESIGN 0${n + 1}`}</span>
+              <div class="lb2-card-media"><img src="${p.images.front}" alt="${p.name}" loading="lazy"></div>
+              <div class="lb2-card-info">
+                <h3>${p.name}</h3>
+                <span class="lb2-card-price">${priceHTML(p)}</span>
+                <span class="lb2-card-sub">240 GSM COTTON // OVERSIZED</span>
+              </div>
+            </a>`).join('')}
+          </div>
+        </section>
+
+        <section class="lb2-section">
+          <figure class="lb2-fig lb2-wide">
+            ${lbImg('lb-panorama', 'images/heritage/heritage-hero.jpg', 'Wide view of a Bravadian look', 'lb2-img')}
+            <figcaption><b>WIDE SHOT // HERITAGE</b><span>SHOT IN INDIA</span></figcaption>
+          </figure>
+        </section>
+
+        <footer class="lb2-quote">
+          <span class="lb2-kicker">INDIAN ROOTS // MODERN FORM</span>
+          <blockquote>&ldquo;You didn&rsquo;t just pick a T-shirt. You picked a story.&rdquo;</blockquote>
+          <span class="lb2-sign">BRAVADIAN, EST. 2026</span>
+          <div class="lb2-actions">
+            <a href="#/shop" class="lb-btn lb-btn-red">SHOP ALL DESIGNS &rarr;</a>
             <a href="https://wa.me/${settings.whatsappNumber}?text=${encodeURIComponent('Hi Bravadian, I would like to place a custom order.')}" target="_blank" rel="noopener noreferrer" class="lb-btn lb-btn-ghost">CUSTOM ORDER ON WHATSAPP</a>
           </div>
         </footer>
@@ -2599,6 +2548,9 @@ Thank you.
       <div class="about-page-wrap">
         <!-- 1. HERO BRAND INTRO -->
         <section class="about-hero-section">
+          <div class="about-hero-bg" aria-hidden="true">
+            <img src="images/about/about-hero.webp" alt="" onerror="this.parentNode.remove()">
+          </div>
           <div class="container about-hero-container">
             <div class="about-badge-wrap">
               <span class="figma-tag">[ 🇮🇳 CONTEMPORARY INDIAN STREETWEAR ]</span>
@@ -2616,7 +2568,7 @@ Thank you.
 
             <div class="about-geo-coordinates">
               <span class="geo-bar"></span>
-              <span class="geo-text">— CHAPTER 01 // ROOTED FORM // EST. 2026 —</span>
+              <span class="geo-text">— ADHYAYA 01 // ROOTED FORM // EST. 2026 —</span>
               <span class="geo-bar"></span>
             </div>
           </div>
@@ -2743,14 +2695,14 @@ Thank you.
         <!-- 5. CALL TO ACTION WITH THEMED VAULT BUTTON -->
         <section class="about-cta-section container">
           <div class="about-cta-card">
-            <span class="figma-tag">[ CHAPTER 01 IS HERE ]</span>
+            <span class="figma-tag">[ ADHYAYA 01 IS HERE ]</span>
             <h2 class="about-cta-title">WEAR THE STORY</h2>
             <p class="about-cta-sub">
               You didn't just pick a T-shirt. You picked a story.
             </p>
             <div class="about-cta-actions">
               <a href="#/shop" class="btn-figma-primary">
-                <span>[ SHOP THE CHAPTER ]</span>
+                <span>[ SHOP NOW ]</span>
                 <svg class="btn-vault-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                   <line x1="5" y1="12" x2="19" y2="12"></line>
                   <polyline points="12 5 19 12 12 19"></polyline>
@@ -2833,7 +2785,7 @@ Thank you.
         <!-- 2. SECTION 04: THE FOUR MAINTENANCE PROTOCOLS -->
         <section class="size-spec-section" style="margin-bottom: 3.5rem;">
           <div class="size-spec-section-head">
-            <span class="size-spec-section-num">— 04 / MAINTENANCE PROTOCOLS</span>
+            <span class="size-spec-section-num">— 04 / CARE GUIDE</span>
             <h2 class="size-spec-section-title">DAILY CARE MATRIX</h2>
             <p class="size-spec-section-sub">
               Execute each step systematically after every active wear cycle.
@@ -2871,7 +2823,7 @@ Thank you.
               </div>
               <h3 class="care-card-title">HANG DRY ONLY</h3>
               <p class="care-card-desc">
-                Do not tumble dry. Hang flat away from direct sunlight to maintain the engineered shape.
+                Do not tumble dry. Dry flat in the shade so the tee keeps its shape.
               </p>
             </div>
 

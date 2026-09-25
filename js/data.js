@@ -621,8 +621,8 @@
         <line x1="280" y1="355" x2="280" y2="340" stroke="${strokeColor}" stroke-width="1.5"/>
         <line x1="140" y1="165" x2="160" y2="165" stroke="${strokeColor}" stroke-width="1" stroke-opacity="0.4"/>
         <line x1="150" y1="155" x2="150" y2="175" stroke="${strokeColor}" stroke-width="1" stroke-opacity="0.4"/>
-        <text x="25" y="38" fill="${textColor}" font-family="'Space Grotesk', monospace" font-size="8" font-weight="700" letter-spacing="2">CHAPTER // ${num}</text>
-        <text x="275" y="38" text-anchor="end" fill="${mutedText}" font-family="'Space Grotesk', monospace" font-size="7.5" font-weight="600" letter-spacing="1.5">RELIC SPEC [240 GSM]</text>
+        <text x="25" y="38" fill="${textColor}" font-family="'Space Grotesk', monospace" font-size="8" font-weight="700" letter-spacing="2">ADHYAYA // ${num}</text>
+        <text x="275" y="38" text-anchor="end" fill="${mutedText}" font-family="'Space Grotesk', monospace" font-size="7.5" font-weight="600" letter-spacing="1.5">240 GSM COTTON</text>
         ${emblemMarkup}
         <line x1="25" y1="325" x2="275" y2="325" stroke="${strokeColor}" stroke-width="1" stroke-opacity="0.2"/>
         <text x="25" y="342" fill="${mutedText}" font-family="'Space Grotesk', monospace" font-size="7.5" letter-spacing="1.5">SPEC: BOX FIT // 100% COMBED</text>
@@ -757,7 +757,7 @@
 
   // DEFAULT COLLECTIONS (Canon Chapters)
   const DEFAULT_COLLECTIONS = [
-    { id: 'c-all', name: 'ALL', slug: 'all', description: 'Browse and secure your relics from our structural multi-chapter manifest. Every garment is heavily engineered in 240+ GSM and strictly numbered.', isActive: true, order: 0 },
+    { id: 'c-all', name: 'ALL', slug: 'all', description: 'Every Bravadian design in one place. Oversized 240 GSM cotton tees with original Indian artwork.', isActive: true, order: 0 },
     { id: 'c-anime', name: 'ANIME', slug: 'anime', description: 'Anime characters, manga-inspired artwork, Japanese animation.', isActive: true, order: 1 },
     { id: 'c-mythology', name: 'MYTHOLOGY', slug: 'mythology', description: 'Krishna, Shiva, Hanuman, Ramayana, Mahabharata, deities, mythological stories.', isActive: true, order: 2 },
     { id: 'c-heritage', name: 'HERITAGE', slug: 'heritage', description: 'Indian crafts, folk art, traditional patterns, architecture, cultural symbols, regional traditions.', isActive: true, order: 3 },
@@ -769,22 +769,22 @@
      THE ARCHIVE UNIVERSE CHAPTERS
      ========================================================================== */
   const DEFAULT_UNIVERSE_CHAPTERS = [
-    { num: '01', name: 'ANIME', slug: 'anime', chapter: 'CHAPTER 01: MANGA & ANIME', category: 'active', statusBadge: 'ACTIVE DROP', isLive: true, image: null, description: 'Anime characters, manga-inspired artwork, Japanese animation.' },
-    { num: '02', name: 'MYTHOLOGY', slug: 'mythology', chapter: 'CHAPTER 02: SACRED MYTHOLOGY', category: 'active', statusBadge: 'ACTIVE DROP', isLive: true, image: null, description: 'Krishna, Shiva, Hanuman, Ramayana, Mahabharata, deities, mythological stories.' },
-    { num: '03', name: 'HERITAGE', slug: 'heritage', chapter: 'CHAPTER 03: BHARAT HERITAGE', category: 'active', statusBadge: 'ACTIVE DROP', isLive: true, image: null, description: 'Indian crafts, folk art, traditional patterns, architecture, cultural symbols, regional traditions.' },
-    { num: '04', name: 'STREET CULTURE', slug: 'street-culture', chapter: 'CHAPTER 04: URBAN STREET CULTURE', category: 'active', statusBadge: 'ACTIVE DROP', isLive: true, image: null, description: 'Graffiti, urban graphics, hip-hop, typography, rebellious/contemporary designs.' },
-    { num: '05', name: 'MINIMAL', slug: 'minimal', chapter: 'CHAPTER 05: MONOLITHIC MINIMAL', category: 'active', statusBadge: 'ACTIVE DROP', isLive: true, image: null, description: 'Simple typography, subtle symbols, clean graphics, understated designs.' }
+    { num: '01', name: 'ANIME', slug: 'anime', chapter: 'ADHYAYA 01: MANGA & ANIME', category: 'active', statusBadge: 'ACTIVE DROP', isLive: true, image: null, description: 'Anime characters, manga-inspired artwork, Japanese animation.' },
+    { num: '02', name: 'MYTHOLOGY', slug: 'mythology', chapter: 'ADHYAYA 02: SACRED MYTHOLOGY', category: 'active', statusBadge: 'ACTIVE DROP', isLive: true, image: null, description: 'Krishna, Shiva, Hanuman, Ramayana, Mahabharata, deities, mythological stories.' },
+    { num: '03', name: 'HERITAGE', slug: 'heritage', chapter: 'ADHYAYA 03: BHARAT HERITAGE', category: 'active', statusBadge: 'ACTIVE DROP', isLive: true, image: null, description: 'Indian crafts, folk art, traditional patterns, architecture, cultural symbols, regional traditions.' },
+    { num: '04', name: 'STREET CULTURE', slug: 'street-culture', chapter: 'ADHYAYA 04: URBAN STREET CULTURE', category: 'active', statusBadge: 'ACTIVE DROP', isLive: true, image: null, description: 'Graffiti, urban graphics, hip-hop, typography, rebellious/contemporary designs.' },
+    { num: '05', name: 'MINIMAL', slug: 'minimal', chapter: 'ADHYAYA 05: EVERYDAY MINIMAL', category: 'active', statusBadge: 'ACTIVE DROP', isLive: true, image: null, description: 'Simple typography, subtle symbols, clean graphics, understated designs.' }
   ];
 
   /* ==========================================================================
      THE ARCHIVE EDITIONS CONFIGURATION
      ========================================================================== */
   const TEN_ARCHIVE_EDITIONS = [
-    { num: '01', title: 'ANIME', desc: 'CHAPTER 01: MANGA & ANIME', status: 'active', slug: 'anime' },
-    { num: '02', title: 'MYTHOLOGY', desc: 'CHAPTER 02: SACRED MYTHOLOGY', status: 'active', slug: 'mythology' },
-    { num: '03', title: 'HERITAGE', desc: 'CHAPTER 03: BHARAT HERITAGE', status: 'active', slug: 'heritage' },
-    { num: '04', title: 'STREET CULTURE', desc: 'CHAPTER 04: URBAN STREET CULTURE', status: 'active', slug: 'street-culture' },
-    { num: '05', title: 'MINIMAL', desc: 'CHAPTER 05: MONOLITHIC MINIMAL', status: 'active', slug: 'minimal' }
+    { num: '01', title: 'ANIME', desc: 'ADHYAYA 01: MANGA & ANIME', status: 'active', slug: 'anime' },
+    { num: '02', title: 'MYTHOLOGY', desc: 'ADHYAYA 02: SACRED MYTHOLOGY', status: 'active', slug: 'mythology' },
+    { num: '03', title: 'HERITAGE', desc: 'ADHYAYA 03: BHARAT HERITAGE', status: 'active', slug: 'heritage' },
+    { num: '04', title: 'STREET CULTURE', desc: 'ADHYAYA 04: URBAN STREET CULTURE', status: 'active', slug: 'street-culture' },
+    { num: '05', title: 'MINIMAL', desc: 'ADHYAYA 05: EVERYDAY MINIMAL', status: 'active', slug: 'minimal' }
   ];
 
   // DEFAULT SIZE GUIDE
@@ -814,6 +814,59 @@
 
   // DEFAULT PRODUCTS with Variant-Level Inventory
   const DEFAULT_PRODUCTS = [
+    {
+      id: 'prod-014',
+      name: 'INDIAN CRAFT ATLAS TEE',
+      slug: 'indian-craft-atlas-tee',
+      description: 'A map of India drawn in its crafts. Kalamkari, Warli, Madhubani, Pattachitra, Phad, Gond, Cheriyal, Pichwai and Ikat come together around one elephant. Oversized 240 GSM French Terry cotton, bio + silicone washed, DTF back print.',
+      story: 'People, patterns, places, purpose. India lives in its crafts, and every region adds a pattern of its own. This design puts a dozen of them on one elephant, with the names listed alongside so you know what you are wearing.',
+      motif: 'Kalamkari from Andhra Pradesh, Warli from Maharashtra, Madhubani from Bihar, Pattachitra from Odisha, Phad from Rajasthan, Gond from Madhya Pradesh, Cheriyal from Telangana, Pichwai from Nathdwara, Ikat from Odisha and Telangana, and more.',
+      price: 699,
+      comparePrice: 799,
+      launchPrice: 649,
+      collection: 'heritage',
+      tags: ['oversized', 'heritage', 'crafts', 'kalamkari', 'madhubani', 'warli', '240gsm'],
+      fabric: '240 GSM FRENCH TERRY // BIO + SILICONE WASH',
+      gsm: 240,
+      fit: 'Oversized Drop-Shoulder',
+      material: '240 GSM French Terry Cotton, Bio + Silicone Washed',
+      relicTag: 'DESIGN 02',
+      relicBadge: 'NEW DROP',
+      sku: 'BRVD-ICA-02',
+      featured: true,
+      newDrop: true,
+      isComingSoon: false,
+      status: 'PUBLISHED',
+      colors: ['Black', 'White', 'Red', 'Royal Blue'],
+      sizes: ['S', 'M', 'L', 'XL', 'XXL'],
+      images: {
+        front: 'images/products/craft-atlas/back-print.webp?v=2',
+        closeup: 'images/products/craft-atlas/closeup.webp',
+        art: 'images/products/craft-atlas/artwork.webp'
+      },
+      variants: [
+        { color: 'Black', size: 'S', stock: 10 },
+        { color: 'Black', size: 'M', stock: 10 },
+        { color: 'Black', size: 'L', stock: 10 },
+        { color: 'Black', size: 'XL', stock: 10 },
+        { color: 'Black', size: 'XXL', stock: 10 },
+        { color: 'White', size: 'S', stock: 10 },
+        { color: 'White', size: 'M', stock: 10 },
+        { color: 'White', size: 'L', stock: 10 },
+        { color: 'White', size: 'XL', stock: 10 },
+        { color: 'White', size: 'XXL', stock: 10 },
+        { color: 'Red', size: 'S', stock: 10 },
+        { color: 'Red', size: 'M', stock: 10 },
+        { color: 'Red', size: 'L', stock: 10 },
+        { color: 'Red', size: 'XL', stock: 10 },
+        { color: 'Red', size: 'XXL', stock: 10 },
+        { color: 'Royal Blue', size: 'S', stock: 10 },
+        { color: 'Royal Blue', size: 'M', stock: 10 },
+        { color: 'Royal Blue', size: 'L', stock: 10 },
+        { color: 'Royal Blue', size: 'XL', stock: 10 },
+        { color: 'Royal Blue', size: 'XXL', stock: 10 }
+      ]
+    },
     {
       id: 'prod-013',
       name: 'BHARAT SPIRIT TEE',
@@ -883,13 +936,13 @@
       gsm: 240,
       fit: 'Oversized Boxy',
       material: '240 GSM French Terry Cotton, Bio + Silicone Washed',
-      relicTag: 'RELIC 01',
+      relicTag: 'DESIGN 01',
       relicBadge: 'NEW DROP',
       sku: 'BRVD-HYS-01',
       featured: true,
       newDrop: true,
       isComingSoon: false,
-      status: 'PUBLISHED',
+      status: 'DRAFT',
       colors: ['Black', 'White', 'Red', 'Royal Blue'],
       sizes: ['S', 'M', 'L', 'XL', 'XXL'],
       images: {
@@ -935,13 +988,13 @@
       gsm: 240,
       fit: 'Boxy Drop Shoulder',
       material: '240 GSM French Terry Cotton, Bio + Silicone Washed',
-      relicTag: 'RELIC 02',
+      relicTag: 'DESIGN 02',
       relicBadge: 'NEW DROP',
       sku: 'BRVD-LNG-02',
       featured: true,
       newDrop: true,
       isComingSoon: false,
-      status: 'PUBLISHED',
+      status: 'DRAFT',
       colors: ['Black', 'White', 'Red', 'Royal Blue'],
       sizes: ['S', 'M', 'L', 'XL', 'XXL'],
       images: {
@@ -977,7 +1030,7 @@
       id: 'prod-003',
       name: 'SRI YOGA SARASVATHESHWARA TEE',
       slug: 'sri-yoga-sarasvatheshwara-tee',
-      description: 'Monumental archival 240 GSM cotton tee presenting the multi-armed Yogic sovereign deity in pure metallic gold foil screenprint.',
+      description: 'Oversized 240 GSM cotton tee with a golden print of the many-armed goddess of learning.',
       price: 699,
       comparePrice: 799,
       launchPrice: 649,
@@ -987,7 +1040,7 @@
       gsm: 240,
       fit: 'Architectural Boxy',
       material: '240 GSM French Terry Cotton, Bio + Silicone Washed',
-      relicTag: 'RELIC 03',
+      relicTag: 'DESIGN 03',
       relicBadge: 'NEW DROP',
       sku: 'BRVD-YOG-03',
       featured: true,
@@ -1038,13 +1091,13 @@
       gsm: 450,
       fit: 'Bomber Flight Cut',
       material: '450 GSM Heavy Canvas & Satin Lining',
-      relicTag: 'ARTIFACT 04',
+      relicTag: 'DESIGN 04',
       relicBadge: 'NEW DROP',
       sku: 'BRVD-NRT-04',
       featured: true,
       newDrop: true,
       isComingSoon: false,
-      status: 'PUBLISHED',
+      status: 'DRAFT',
       colors: ['Black'],
       sizes: ['S', 'M', 'L', 'XL', 'XXL'],
       images: {
@@ -1065,7 +1118,7 @@
       id: 'prod-005',
       name: 'ASURA SOLAR FIRE OVERSIZED TEE',
       slug: 'asura-solar-fire-oversized-tee',
-      description: 'Sun-burnt charcoal compact jersey featuring high-density sacred Sanskrit hymn "ॐ सह नाववतु" and radiating solar celestial sigil.',
+      description: 'Charcoal oversized tee with the Sanskrit line "ॐ सह नाववतु" and a blazing sun printed large on the back.',
       price: 699,
       comparePrice: 799,
       launchPrice: 649,
@@ -1075,7 +1128,7 @@
       gsm: 240,
       fit: 'Relaxed Drop-Shoulder',
       material: '240 GSM French Terry Cotton, Bio + Silicone Washed',
-      relicTag: 'RELIC 05',
+      relicTag: 'DESIGN 05',
       relicBadge: 'COMING SOON',
       sku: 'BRVD-ASR-05',
       featured: true,
@@ -1127,13 +1180,13 @@
       gsm: 240,
       fit: 'Oversized',
       material: '240 GSM French Terry Cotton, Bio + Silicone Washed',
-      relicTag: 'RELIC 06',
+      relicTag: 'DESIGN 06',
       relicBadge: 'COMING SOON',
       sku: 'BRVD-BRD-06',
       featured: true,
       newDrop: true,
       isComingSoon: true,
-      status: 'PUBLISHED',
+      status: 'DRAFT',
       colors: ['Black', 'White', 'Red', 'Royal Blue'],
       sizes: ['S', 'M', 'L', 'XL', 'XXL'],
       images: {
@@ -1169,7 +1222,7 @@
       id: 'prod-007',
       name: 'BRAVADIAN NINETAILS',
       slug: 'bravadian-ninetails',
-      description: '240 GSM heavyweight oversized silhouette featuring high-density back-print of the mythical celestial fox spirit. Constructed with double-combed long-staple yarns for architectural boxy drape.',
+      description: 'Oversized 240 GSM cotton tee with a large back print of the nine-tailed fox spirit from old legends.',
       price: 699,
       comparePrice: 799,
       launchPrice: 649,
@@ -1179,7 +1232,7 @@
       gsm: 240,
       fit: 'Oversized',
       material: '240 GSM French Terry Cotton, Bio + Silicone Washed',
-      relicTag: 'ARCHIVE 07',
+      relicTag: 'DESIGN 07',
       relicBadge: 'COMING SOON',
       sku: 'BRVD-NT-07',
       featured: false,
@@ -1221,7 +1274,7 @@
       id: 'prod-008',
       name: 'BRAVADIAN GARUDA REBEL',
       slug: 'bravadian-garuda-rebel',
-      description: 'An ode to the supreme avian sovereign. Geometric feathered wingspan printed in reflective metallic pigments across dropped shoulder seams on 240 GSM heavy French cotton.',
+      description: 'Garuda, the eagle of Indian mythology, printed wing to wing across the back of an oversized 240 GSM cotton tee.',
       price: 699,
       comparePrice: 799,
       launchPrice: 649,
@@ -1231,7 +1284,7 @@
       gsm: 240,
       fit: 'Oversized',
       material: '240 GSM French Terry Cotton, Bio + Silicone Washed',
-      relicTag: 'ARCHIVE 08',
+      relicTag: 'DESIGN 08',
       relicBadge: 'COMING SOON',
       sku: 'BRVD-GRD-08',
       featured: true,
@@ -1273,7 +1326,7 @@
       id: 'prod-009',
       name: 'BRAVADIAN MONOLITH BHARAT',
       slug: 'bravadian-monolith-bharat',
-      description: 'Rooted in Indian soil. 240 GSM high-density knit featuring brutalist longitude coordinates (28°36 N 77°12 E) and architectural Ashoka geometry across the back yoke.',
+      description: 'Rooted in Indian soil. A clean oversized tee with the Ashoka chakra and the coordinates of Delhi on the back.',
       price: 699,
       comparePrice: 799,
       launchPrice: 649,
@@ -1283,7 +1336,7 @@
       gsm: 240,
       fit: 'Oversized',
       material: '240 GSM French Terry Cotton, Bio + Silicone Washed',
-      relicTag: 'ARCHIVE 09',
+      relicTag: 'DESIGN 09',
       relicBadge: 'COMING SOON',
       sku: 'BRVD-BHT-09',
       featured: true,
@@ -1325,7 +1378,7 @@
       id: 'prod-010',
       name: 'BRAVADIAN CYBER REBEL',
       slug: 'bravadian-cyber-rebel',
-      description: 'Underground dystopian Indian streetwear. High-impact typography with anti-surveillance warning tapes engineered on 240 GSM ultra-heavy cotton.',
+      description: 'Loud street typography inspired by Indian city walls, printed on an oversized 240 GSM cotton tee.',
       price: 699,
       comparePrice: 799,
       launchPrice: 649,
@@ -1335,7 +1388,7 @@
       gsm: 240,
       fit: 'Oversized',
       material: '240 GSM French Terry Cotton, Bio + Silicone Washed',
-      relicTag: 'ARCHIVE 10',
+      relicTag: 'DESIGN 10',
       relicBadge: 'COMING SOON',
       sku: 'BRVD-CR-10',
       featured: false,
@@ -1377,7 +1430,7 @@
       id: 'prod-011',
       name: 'BRAVADIAN ESSENTIAL 240',
       slug: 'bravadian-essential-240',
-      description: 'Zero graphics. Zero noise. Pure structural drape, thick 1.25" Lycra rib collar, and drop-shoulder presence. Designed to outlast seasonal trends.',
+      description: 'No graphics, just a great tee. Thick rib collar, dropped shoulders and a relaxed oversized fit in 240 GSM cotton.',
       price: 699,
       comparePrice: 799,
       launchPrice: 649,
@@ -1387,7 +1440,7 @@
       gsm: 240,
       fit: 'Oversized',
       material: '240 GSM French Terry Cotton, Bio + Silicone Washed',
-      relicTag: 'ARCHIVE 11',
+      relicTag: 'DESIGN 11',
       relicBadge: 'COMING SOON',
       sku: 'BRVD-ES-11',
       featured: false,
@@ -1429,7 +1482,7 @@
       id: 'prod-012',
       name: 'BRAVADIAN ASHOKA EMBER',
       slug: 'bravadian-ashoka-ember',
-      description: 'Unreleased archive drop. 24-spoke Solar Chakra motif in neon solar ember across the chest and oversized drop spine. Limited to 500 numbered pieces.',
+      description: 'The 24-spoke Ashoka chakra in glowing ember orange across the chest and back of an oversized cotton tee.',
       price: 699,
       comparePrice: 799,
       launchPrice: 649,
@@ -1439,7 +1492,7 @@
       gsm: 240,
       fit: 'Oversized',
       material: '240 GSM French Terry Cotton, Bio + Silicone Washed',
-      relicTag: 'ARCHIVE 12',
+      relicTag: 'DESIGN 12',
       relicBadge: 'COMING SOON',
       sku: 'BRVD-ASH-12',
       featured: true,
@@ -1490,7 +1543,7 @@
 
     init() {
       // Auto-Migration to ensure new luxury mockups, products, and collections load immediately
-      const DATA_VERSION = '4.8.0';
+      const DATA_VERSION = '4.10.0';
       const storedVer = localStorage.getItem('bravadian_data_version');
       const storedProds = localStorage.getItem('bravadian_products');
       const hasStaleJpg = storedProds && (storedProds.includes('images/relics') || storedProds.includes('.jpg'));
@@ -1594,6 +1647,11 @@
       } else {
         prods = DEFAULT_PRODUCTS;
         localStorage.setItem('bravadian_products', JSON.stringify(prods));
+      }
+
+      // Drafts stay visible in the admin panel only
+      if (!/admin/i.test(window.location.pathname)) {
+        prods = prods.filter(p => p.status !== 'DRAFT');
       }
 
       // Apply Filters
