@@ -29,6 +29,102 @@
     return `<svg class="btn-wa-icon ${extraClass}" width="${size}" height="${size}" viewBox="0 0 24 24" fill="currentColor"${ariaHidden ? ' aria-hidden="true"' : ''}><path d="${WA_SVG_PATH}"/></svg>`;
   }
 
+  // Gold glow-ring disc used on the buying buttons
+  const BAG_SVG = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 7h12l-1 13H7L6 7z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg>';
+  function glowDisc(icon) {
+    return `<span class="gr-disc" aria-hidden="true">${icon}</span>`;
+  }
+
+  // ── WhatsApp message templates (same layout as the checkout order message) ──
+  const WA_LINE = '--------------------';
+  const WA_MSG = {
+    order: `Hello Bravadian,
+
+I would like to place an order on WhatsApp.
+
+ORDER DETAILS
+${WA_LINE}
+
+Product:
+Color: (Black / White / Red / Royal Blue)
+Size: (S / M / L / XL / XXL)
+Quantity:
+
+DELIVERY DETAILS
+${WA_LINE}
+
+Name:
+City:
+Pincode:
+
+Please share the total and payment details.
+
+Thank you.`,
+    custom: `Hello Bravadian,
+
+I would like to place a custom order.
+
+CUSTOM ORDER DETAILS
+${WA_LINE}
+
+Design idea:
+Text or name to print (if any):
+T-shirt color:
+Sizes and quantity:
+Needed by (date):
+
+DELIVERY DETAILS
+${WA_LINE}
+
+Name:
+City:
+Pincode:
+
+I will share reference images in this chat.
+
+Thank you.`,
+    question: `Hello Bravadian,
+
+I have a question.
+
+Topic: (Product / Size / Delivery / Payment / Other)
+Product (if any):
+My question:
+
+Thank you.`,
+    orderHelp: `Hello Bravadian,
+
+I need help with my order.
+
+ORDER HELP
+${WA_LINE}
+
+Order No:
+Name:
+Phone:
+Help needed: (Delivery status / Change size / Cancel / Return or exchange / Other)
+Details:
+
+Thank you.`,
+    dropAlerts: `Hello Bravadian,
+
+Please add me to your new drop alerts.
+
+Name:
+Collections I like: (Anime / Mythology / Heritage / Street Culture / Minimal)
+
+Thank you.`,
+    notify: (name) => `Hello Bravadian,
+
+Please let me know when this design launches.
+
+Product: ${name}
+Preferred color:
+Preferred size:
+
+Thank you.`
+  };
+
   // ── Dynamic WhatsApp URL builder ───────────────────────────────────────
   function waURL(message) {
     const settings = window.BravadianDB ? window.BravadianDB.getSettings() : {};
@@ -96,6 +192,20 @@
      -------------------------------------------------------------------------- */
   function initRouter() {
     window.addEventListener('hashchange', handleRoute);
+    // The home hero builds a different animation for phones and desktops; rebuild it when the width crosses over
+    const phoneQuery = window.matchMedia('(max-width: 760px)');
+    let bpTimer = 0;
+    const onBreakpoint = () => {
+      clearTimeout(bpTimer);
+      bpTimer = setTimeout(() => {
+        const h = window.location.hash || '#/';
+        const onHome = h === '#/' || h === '#/home';
+        if (onHome && StoreState.heroIsPhone !== undefined && StoreState.heroIsPhone !== phoneQuery.matches) handleRoute();
+      }, 200);
+    };
+    if (phoneQuery.addEventListener) phoneQuery.addEventListener('change', onBreakpoint);
+    else if (phoneQuery.addListener) phoneQuery.addListener(onBreakpoint);
+    window.addEventListener('resize', onBreakpoint, { passive: true });
     window.addEventListener('bravadian:catalog-updated', handleRoute);
     handleRoute();
   }
@@ -104,6 +214,12 @@
     const hash = window.location.hash || '#/';
     StoreState.currentRoute = hash;
     clearInterval(StoreState.galleryTimer);
+    (StoreState.spotTimers || []).forEach(clearInterval);
+    if (StoreState.reel) { StoreState.reel.destroy(); StoreState.reel = null; }
+    if (StoreState.heroRingStop) { StoreState.heroRingStop(); StoreState.heroRingStop = null; }
+    if (StoreState.heroFanStop) { StoreState.heroFanStop(); StoreState.heroFanStop = null; }
+    if (StoreState.heroMeshStop) { StoreState.heroMeshStop(); StoreState.heroMeshStop = null; }
+    StoreState.spotTimers = [];
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
     // Hide top announcement marquee bar on Heritage collection chapter page (matches Figma full-bleed hero)
@@ -160,6 +276,8 @@
     }
 
     updateActiveNavLinks();
+    initFocusReveal(mainContainer);
+    initMobileMotion(mainContainer);
   }
 
   function updateActiveNavLinks() {
@@ -202,14 +320,27 @@
     }
 
     if (mobileList) {
+      // Swipeable collection tiles in the phone menu
       mobileList.innerHTML = filteredCollections.map(c => `
-        <li class="mobile-sub-item is-live">
-          <a href="#/collections/${c.slug}" class="mobile-sub-anchor is-live">
-            <span class="mobile-sub-dot"></span>
-            <span class="mobile-sub-text">${c.name}</span>
-          </a>
-        </li>
+        <a href="#/collections/${c.slug}" class="mnav-tile">
+          ${COLLECTION_IMAGES[c.slug] ? `<img src="${COLLECTION_IMAGES[c.slug]}" alt="" loading="lazy">` : ''}
+          <span>${c.name}</span>
+        </a>
       `).join('');
+    }
+    const mobileFeature = document.getElementById('mobileNavFeature');
+    const featured = window.BravadianDB.getProducts().find(p => p.newDrop && !p.isComingSoon);
+    if (mobileFeature && featured) {
+      mobileFeature.href = `#/product/${featured.slug}`;
+      mobileFeature.innerHTML = `
+        <div class="mnav-feature-media"><img src="${featured.images.front}" alt="" loading="lazy"></div>
+        <div class="mnav-feature-copy">
+          <span class="mnav-feature-tag">NEW DROP</span>
+          <b>${featured.name}</b>
+          <span class="mnav-feature-price">${priceHTML(featured)}</span>
+        </div>`;
+    } else if (mobileFeature) {
+      mobileFeature.remove();
     }
 
     // Collections Accordion Toggle in Mobile Drawer
@@ -251,13 +382,33 @@
       const next = current === 'dark' ? 'light' : 'dark';
       document.documentElement.setAttribute('data-theme', next);
       localStorage.setItem('bravadian-theme', next);
+      syncThemeColor();
     }
+
+    // Phone status bar matches the page background in both themes
+    function syncThemeColor() {
+      const meta = document.getElementById('themeColorMeta');
+      if (meta) meta.setAttribute('content', document.documentElement.getAttribute('data-theme') === 'light' ? '#F5ECD5' : '#060608');
+    }
+    syncThemeColor();
 
     const themeBtn = document.getElementById('themeToggleBtn');
     if (themeBtn) themeBtn.addEventListener('click', toggleThemeMode);
 
-    const drawerThemeBtn = document.getElementById('mobileDrawerThemeBtn');
-    if (drawerThemeBtn) drawerThemeBtn.addEventListener('click', toggleThemeMode);
+    // Light / Dark switch in the phone menu
+    const themeSetBtns = document.querySelectorAll('[data-theme-set]');
+    function syncThemeSwitch() {
+      const t = document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+      themeSetBtns.forEach(b => b.setAttribute('aria-pressed', String(b.dataset.themeSet === t)));
+    }
+    themeSetBtns.forEach(b => b.addEventListener('click', () => {
+      document.documentElement.setAttribute('data-theme', b.dataset.themeSet);
+      localStorage.setItem('bravadian-theme', b.dataset.themeSet);
+      syncThemeColor();
+      syncThemeSwitch();
+    }));
+    if (themeBtn) themeBtn.addEventListener('click', syncThemeSwitch);
+    syncThemeSwitch();
 
     // Mobile Hamburger & Fullscreen Drawer
     const mobileBtn = document.getElementById('mobileMenuBtn');
@@ -266,6 +417,13 @@
 
     function openMobileDrawer() {
       if (!mobileDrawer) return;
+      // Highlight the page the shopper is on
+      const here = window.location.hash || '#/';
+      mobileDrawer.querySelectorAll('.mnav-row[href], .mnav-tile').forEach(a => {
+        const on = a.getAttribute('href') === here;
+        a.classList.toggle('is-current', on);
+        if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
+      });
       mobileDrawer.classList.add('is-open');
       mobileDrawer.setAttribute('aria-hidden', 'false');
       document.body.style.overflow = 'hidden';
@@ -285,8 +443,12 @@
       });
       if (mobileClose) mobileClose.addEventListener('click', closeMobileDrawer);
       
-      mobileDrawer.querySelectorAll('a').forEach(a => {
-        a.addEventListener('click', closeMobileDrawer);
+      // Any link, search or size guide tap closes the menu first
+      mobileDrawer.addEventListener('click', (e) => {
+        const t = e.target.closest('a, [data-action]');
+        if (!t) return;
+        closeMobileDrawer();
+        if (t.dataset.action === 'open-size-guide' && window.BravadianStore) window.BravadianStore.openSizeGuideModal();
       });
 
       document.addEventListener('keydown', (e) => {
@@ -302,8 +464,7 @@
       const settings = window.BravadianDB.getSettings();
       waFloating.addEventListener('click', (e) => {
         e.preventDefault();
-        const text = encodeURIComponent('Hi Bravadian, I have a question about your products.');
-        window.open(`https://wa.me/${settings.whatsappNumber}?text=${text}`, '_blank');
+        window.open(waURL(WA_MSG.question), '_blank');
       });
     }
 
@@ -329,10 +490,59 @@
   /* --------------------------------------------------------------------------
      1. HOME VIEW (MATCHING FIGMA REDESIGN)
      -------------------------------------------------------------------------- */
+  // Phones only: collection cards become a swipeable spotlight row that advances by itself
+  function initSpotlight(grid) {
+    if (!grid || !window.matchMedia('(max-width: 600px)').matches) return;
+    const cards = [...grid.children];
+    if (cards.length < 2) return;
+    grid.classList.add('is-spotlight');
+    const dots = document.createElement('div');
+    dots.className = 'spot-dots';
+    dots.innerHTML = cards.map((_, i) => `<button type="button" aria-label="Show collection ${i + 1}"></button>`).join('');
+    grid.after(dots);
+
+    let active = -1;
+    const setActive = (i) => {
+      if (i === active) return;
+      active = i;
+      cards.forEach((c, n) => c.classList.toggle('is-active', n === i));
+      [...dots.children].forEach((d, n) => d.classList.toggle('is-on', n === i));
+    };
+    const centreIndex = () => {
+      const mid = grid.scrollLeft + grid.clientWidth / 2;
+      let best = 0, dist = Infinity;
+      cards.forEach((c, n) => {
+        const d = Math.abs(c.offsetLeft + c.offsetWidth / 2 - mid);
+        if (d < dist) { dist = d; best = n; }
+      });
+      return best;
+    };
+    const goTo = (i) => grid.scrollTo({ left: cards[i].offsetLeft - (grid.clientWidth - cards[i].offsetWidth) / 2, behavior: 'smooth' });
+
+    let resumeAt = 0;
+    const pause = () => { resumeAt = Date.now() + 6000; };
+    grid.addEventListener('scroll', () => setActive(centreIndex()), { passive: true });
+    ['touchstart', 'pointerdown', 'wheel'].forEach(ev => grid.addEventListener(ev, pause, { passive: true }));
+    [...dots.children].forEach((d, n) => d.addEventListener('click', () => { pause(); goTo(n); }));
+    setActive(0);
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    StoreState.spotTimers = StoreState.spotTimers || [];
+    StoreState.spotTimers.push(setInterval(() => {
+      if (Date.now() < resumeAt || document.hidden) return;
+      const r = grid.getBoundingClientRect();
+      if (r.bottom < 0 || r.top > window.innerHeight) return;  // only moves while on screen
+      goTo((active + 1) % cards.length);
+    }, 3200));
+  }
+
   function renderHomeView() {
     const products = window.BravadianDB.getProducts();
-    // Latest designs on the home page, three per row
-    const featuredPieces = products.filter(p => !p.isComingSoon).slice(0, 3);
+    const isPhone = window.matchMedia('(max-width: 760px)').matches;
+    StoreState.heroIsPhone = isPhone;
+    const heroItems = HERO_RING.filter(it => window.BravadianDB.getProductBySlug(it.slug));
+    // Latest designs for the home reel (worn photos first)
+    const featuredPieces = products.filter(p => !p.isComingSoon).slice(0, 8);
 
     mainContainer.innerHTML = `
       <!-- HERO SECTION (Full-Width Hero Ready for Future Background Image) -->
@@ -340,15 +550,46 @@
         <!-- Ambient Grid & Atmosphere (Active when no image is loaded) -->
         <div class="hero-brutalist-bg" aria-hidden="true"></div>
         <div class="hero-ambient-amber" aria-hidden="true"></div>
-        <div class="hero-watermark-bg" aria-hidden="true"><span>BRAVADIAN</span></div>
 
-        <!-- Full-Width Background Media Layer (Ready for future custom image) -->
-        <div class="hero-bg-media" id="heroBgMedia" role="img" aria-label="Bravadian Heavyweight Streetwear"></div>
-        <div class="hero-overlay-gradient" aria-hidden="true"></div>
+        <!-- Products gliding on a ring behind the headline -->
+        ${isPhone ? '' : `
+        <div class="hero-ring" id="heroRing" aria-hidden="true">
+          <div class="hero-ring-stage">
+            ${HERO_RING.filter(it => window.BravadianDB.getProductBySlug(it.slug)).map(it => `
+            <a href="#/product/${it.slug}" class="ring-card ${it.photo ? 'is-photo' : 'is-art'}" tabindex="-1" draggable="false">
+              <img src="images/hero-ring/${it.img}.webp" alt="" draggable="false" decoding="async">
+              <span>${titleCase(window.BravadianDB.getProductBySlug(it.slug).name.replace(/ TEE$/, ''))}</span>
+            </a>`).join('')}
+          </div>
+        </div>
+        <div class="hero-veil" aria-hidden="true"></div>
+        <div class="hero-mark" aria-hidden="true">BRAVADIAN</div>
+        <div class="hero-ring-label" aria-hidden="true">
+          <span>ADHYAYA 01 &mdash; NEW DROPS</span>
+          <i></i>
+          <span class="hero-ring-hint">&larr; DRAG TO EXPLORE &rarr;</span>
+        </div>`}
+
+        <canvas class="hero-mesh" id="heroMesh" aria-hidden="true"></canvas>
 
         <div class="container hero-container-inner">
           <div class="hero-content-row">
             <div class="hero-narrative-col">
+              ${isPhone ? `
+              <div class="hero-fan" id="heroFan" aria-roledescription="carousel" aria-label="Featured tees">
+                <div class="fan-stage">
+                  <div class="fan-bars">${heroItems.map((_, i) => `<button type="button" aria-label="Show tee ${i + 1}"><i></i></button>`).join('')}</div>
+                  ${heroItems.map((it, i) => {
+                    const p = window.BravadianDB.getProductBySlug(it.slug);
+                    const now = window.BravadianDB.effectivePrice(p);
+                    return `<a href="#/product/${it.slug}" class="fan-card ${it.photo ? 'is-photo' : 'is-art'}" data-i="${i}" draggable="false">
+                      <img src="${it.full || `images/hero-ring/${it.img}.webp`}" alt="${titleCase(p.name)}" draggable="false" decoding="async" ${i > 1 && i < heroItems.length - 1 ? 'loading="lazy"' : 'fetchpriority="high"'}>
+                      <span class="fan-meta"><b>${titleCase(p.name.replace(/ TEE$/, ''))}</b><em>${window.BravadianDB.getSettings().currency}${now.toLocaleString('en-IN')}${p.comparePrice ? ` <s>${window.BravadianDB.getSettings().currency}${p.comparePrice.toLocaleString('en-IN')}</s>` : ''}</em><span class="fan-shop">Shop now &rarr;</span></span>
+                    </a>`;
+                  }).join('')}
+                </div>
+              </div>` : ''}
+
               <div class="figma-hero-tag">
                 <span class="hero-amber-dot"></span>
                 <span>[ 🇮🇳 INDIAN ROOTS // MODERN FORM ]</span>
@@ -363,6 +604,7 @@
                 Everyday clothing made with purpose. Premium, comfortable, and affordable 240 GSM French Terry cotton silhouettes crafted for those who carry heritage forward.
               </p>
 
+
               <div class="figma-hero-cta-wrap">
                 <a href="#/shop" class="btn-figma-primary">
                   <span>[ SHOP THE COLLECTION ]</span>
@@ -371,7 +613,7 @@
                     <polyline points="12 5 19 12 12 19"></polyline>
                   </svg>
                 </a>
-                <a href="${waURL('Hi Bravadian, I would like to place an order')}" target="_blank" rel="noopener noreferrer" class="btn-figma-whatsapp">
+                <a href="${waURL(WA_MSG.order)}" target="_blank" rel="noopener noreferrer" class="btn-figma-whatsapp">
                   ${whatsappSVG(18)}
                   <span>ORDER ON WHATSAPP</span>
                 </a>
@@ -390,7 +632,7 @@
             <span>PREMIUM • COMFORTABLE • AFFORDABLE</span> <span class="marquee-star">✦</span>
             <span>240 GSM FRENCH TERRY</span> <span class="marquee-star">✦</span>
             <span>CRAFTED IN BHARAT</span> <span class="marquee-star">✦</span>
-            <span>FAST WHATSAPP CHECKOUT</span> <span class="marquee-star">✦</span>
+            <span>FREE DELIVERY ACROSS INDIA</span> <span class="marquee-star">✦</span>
           </div>
           <div class="sub-marquee-content">
             <span>🇮🇳 A STORY WORTH WEARING</span> <span class="marquee-star">✦</span>
@@ -398,7 +640,7 @@
             <span>PREMIUM • COMFORTABLE • AFFORDABLE</span> <span class="marquee-star">✦</span>
             <span>240 GSM FRENCH TERRY</span> <span class="marquee-star">✦</span>
             <span>CRAFTED IN BHARAT</span> <span class="marquee-star">✦</span>
-            <span>FAST WHATSAPP CHECKOUT</span> <span class="marquee-star">✦</span>
+            <span>FREE DELIVERY ACROSS INDIA</span> <span class="marquee-star">✦</span>
           </div>
         </div>
       </div>
@@ -413,41 +655,32 @@
             </div>
             <div class="section-header-right">
               <p class="figma-section-narrative">
-                Original Indian artwork on oversized 240 GSM cotton tees. Launch price for a limited time.
+                Original Indian artwork on oversized 240 GSM cotton tees. ₹699 each, with free delivery across India.
               </p>
             </div>
           </div>
 
-          <div class="figma-product-grid">
-            ${featuredPieces.map((p, idx) => {
-              const badge = p.relicBadge || 'NEW DROP';
-              const subText = '240 GSM COTTON // OVERSIZED FIT';
-              return `
-                <div class="figma-product-card" data-slug="${p.slug}">
-                  <div class="card-media-wrap" onclick="window.location.hash='#/product/${p.slug}'" role="button" aria-label="View ${p.name}">
-                    <span class="card-relic-tag">[ ${p.relicTag || `DESIGN 0${idx + 1}`} ]</span>
-                    <span class="card-badge">[ ${badge} ]</span>
-                    <img src="${p.images.front}" alt="${p.name}" class="card-relic-img" loading="lazy">
-                  </div>
-                  <div class="card-info-wrap">
-                    <div class="card-title-col">
-                      <h3 class="card-product-name" onclick="window.location.hash='#/product/${p.slug}'">${p.name}</h3>
-                      <span class="card-product-sub">${subText}</span>
-                    </div>
-                    <div class="card-action-col">
-                      <span class="card-product-price">${priceHTML(p)}</span>
-                      <button type="button" class="btn-card-vault" onclick="event.stopPropagation(); window.BravadianStore.quickAdd('${p.slug}');">
-                        <span>[ ADD TO BAG ]</span>
-                        <svg class="btn-vault-arrow" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                          <line x1="5" y1="12" x2="19" y2="12"></line>
-                          <polyline points="12 5 19 12 12 19"></polyline>
-                        </svg>
-                      </button>
-                    </div>
-                  </div>
+          <div class="reel" id="homeReel" aria-roledescription="carousel" aria-label="New drops">
+            <div class="reel-track">
+              ${featuredPieces.map(p => {
+                const worn = p.images.lifestyle;
+                return `
+              <a href="#/product/${p.slug}" class="reel-card">
+                <div class="reel-media ${worn ? 'is-worn' : ''}">
+                  <img src="${worn || p.images.front}" alt="${titleCase(p.name)}" loading="lazy" draggable="false">
                 </div>
-              `;
-            }).join('')}
+                <h3>${p.name.replace(/ TEE$/, '')}</h3>
+                <div class="reel-price">
+                  <b>${window.BravadianDB.getSettings().currency}${window.BravadianDB.effectivePrice(p).toLocaleString('en-IN')}</b>
+                  ${p.comparePrice ? `<s>${window.BravadianDB.getSettings().currency}${p.comparePrice.toLocaleString('en-IN')}</s>` : ''}
+                </div>
+              </a>`;
+              }).join('')}
+            </div>
+          </div>
+          <div class="reel-foot">
+            <div class="reel-progress" aria-hidden="true"><span id="homeReelBar"></span></div>
+            <a href="#/shop" class="reel-all">View all</a>
           </div>
         </div>
       </section>
@@ -497,7 +730,7 @@
         <!-- Center Editorial Content -->
         <div class="container manifesto-inner">
           <span class="manifesto-tag">[ WHAT WE STAND FOR ]</span>
-          <blockquote class="manifesto-quote">
+          <blockquote class="manifesto-quote" data-focus-reveal>
             “INDIAN ROOTS. MODERN FORM. A STORY WORTH WEARING.”
           </blockquote>
           <div class="manifesto-divider">
@@ -585,7 +818,478 @@
       </section>
     `;
 
+    initSpotlight(mainContainer.querySelector('.archive-cards-grid'));
+    initHeroMesh(document.getElementById('heroMesh'));
+    initHeroRing(document.getElementById('heroRing'));
+    initHeroFan(document.getElementById('heroFan'));
+    initFocusReveal(mainContainer);
+    initReel(document.getElementById('homeReel'), document.getElementById('homeReelBar'));
     bindProductCardActions();
+  }
+
+  // Hero mesh (after Scrolltide's Mesh Flow): a faint dot grid that bends like a rubber sheet toward a
+  // point, glowing amber where it pulls. Desktop: the point is the mouse. Phones: it drifts around the
+  // story card on its own and follows a finger. Canvas 2D, one Gaussian; redraws only while moving.
+  function initHeroMesh(canvas) {
+    if (!canvas) return;
+    const hero = canvas.closest('.figma-hero-section');
+    const ctx = canvas.getContext('2d');
+    if (!hero || !ctx) return;
+    const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const phone = window.matchMedia('(max-width: 760px)').matches;
+    let W = 0, H = 0, dpr = 1, pts = [], cols = 0, rows = 0, gap = 36;
+    let mx = 0, my = 0, tx = 0, ty = 0, str = 0, target = 0, raf = 0, inView = true, touchUntil = 0, t0 = performance.now();
+
+    const layout = () => {
+      const r = hero.getBoundingClientRect();
+      W = Math.round(r.width); H = Math.round(r.height);
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = W * dpr; canvas.height = H * dpr;
+      canvas.style.width = `${W}px`; canvas.style.height = `${H}px`;
+      gap = phone ? 44 : 60;                       // same squares as the original background grid
+      cols = Math.ceil(W / gap) + 1; rows = Math.ceil(H / gap) + 1;
+      pts = new Float32Array(cols * rows * 3);   // x, y, glow
+      if (!mx && !my) { mx = tx = W * (phone ? 0.5 : 0.72); my = ty = H * (phone ? 0.3 : 0.5); }
+    };
+
+    const draw = () => {
+      const light = document.documentElement.getAttribute('data-theme') === 'light';
+      const base = light ? '140,110,50' : '255,255,255';
+      const baseA = light ? 0.08 : 0.028;             // the original grid's strength
+      const glow = light ? '184,106,0' : '255,160,0';
+      const sigma = (phone ? 0.16 : 0.1) * Math.max(W, H * 1.6);
+      const inv = 1 / (2 * sigma * sigma);
+      for (let j = 0, k = 0; j < rows; j++) {
+        for (let i = 0; i < cols; i++, k += 3) {
+          const x = i * gap, y = j * gap, dx = x - mx, dy = y - my;
+          const g = Math.exp(-(dx * dx + dy * dy) * inv) * str;
+          pts[k] = x - dx * g * 0.32;                  // gentle pull toward the point
+          pts[k + 1] = y - dy * g * 0.32;
+          pts[k + 2] = g;
+        }
+      }
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, W, H);
+      ctx.lineWidth = 1;
+      const seg = (b, lo, hi) => {
+        ctx.beginPath();
+        for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) {
+          const k = (j * cols + i) * 3;
+          if (i + 1 < cols) { const k2 = k + 3, gm = (pts[k + 2] + pts[k2 + 2]) / 2; if (gm >= lo && gm < hi) { ctx.moveTo(pts[k], pts[k + 1]); ctx.lineTo(pts[k2], pts[k2 + 1]); } }
+          if (j + 1 < rows) { const k2 = k + cols * 3, gm = (pts[k + 2] + pts[k2 + 2]) / 2; if (gm >= lo && gm < hi) { ctx.moveTo(pts[k], pts[k + 1]); ctx.lineTo(pts[k2], pts[k2 + 1]); } }
+        }
+        ctx.stroke();
+      };
+      // untouched grid: exactly the old faint lines
+      ctx.strokeStyle = `rgba(${base},${baseA})`;
+      seg(0, -1, 0.05);
+      // where it bends: a soft amber tint, never bright
+      const BUCKETS = 4;
+      for (let b = 0; b < BUCKETS; b++) {
+        const lo = 0.05 + b * 0.95 / BUCKETS, hi = b === BUCKETS - 1 ? 2 : 0.05 + (b + 1) * 0.95 / BUCKETS;
+        ctx.strokeStyle = `rgba(${glow},${(baseA + (lo + hi) / 2 * (light ? 0.22 : 0.2)).toFixed(3)})`;
+        seg(b, lo, hi);
+      }
+    };
+
+    const tick = (now) => {
+      raf = 0;
+      if (phone && !still && now > touchUntil) {
+        const t = (now - t0) / 1000;
+        tx = W * (0.5 + 0.34 * Math.sin(t * 0.33));
+        ty = H * (0.3 + 0.16 * Math.sin(t * 0.47 + 1));
+        target = 0.75;
+      }
+      mx += (tx - mx) * 0.12; my += (ty - my) * 0.12;
+      str += (target - str) * 0.08;
+      draw();
+      const settling = Math.abs(target - str) > 0.004 || Math.abs(tx - mx) > 0.5 || Math.abs(ty - my) > 0.5;
+      if (inView && !document.hidden && (settling || (phone && !still))) raf = requestAnimationFrame(tick);
+    };
+    const kick = () => { if (!raf && inView) raf = requestAnimationFrame(tick); };
+
+    const toLocal = (e) => { const r = hero.getBoundingClientRect(); tx = e.clientX - r.left; ty = e.clientY - r.top; };
+    const onMove = (e) => {
+      if (still) return;
+      if (e.pointerType === 'mouse') { toLocal(e); target = 1; kick(); }
+      else { toLocal(e); target = 0.9; touchUntil = performance.now() + 2500; kick(); }
+    };
+    const onLeave = (e) => { if (e.pointerType === 'mouse') { target = 0; kick(); } };
+    hero.addEventListener('pointermove', onMove, { passive: true });
+    hero.addEventListener('pointerdown', onMove, { passive: true });
+    hero.addEventListener('pointerleave', onLeave);
+    const onResize = () => { layout(); draw(); };
+    window.addEventListener('resize', onResize);
+    const onTheme = new MutationObserver(() => draw());
+    onTheme.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    const io = 'IntersectionObserver' in window ? new IntersectionObserver(([en]) => { inView = en.isIntersecting; if (inView) kick(); }) : null;
+    if (io) io.observe(hero);
+
+    layout();
+    draw();
+    canvas.classList.add('is-ready');
+    if (phone && !still) kick();
+
+    StoreState.heroMeshStop = () => {
+      cancelAnimationFrame(raf);
+      if (io) io.disconnect();
+      onTheme.disconnect();
+      window.removeEventListener('resize', onResize);
+    };
+  }
+
+  // Curated hero cards (small images in images/hero-ring/): worn photos alternate with artwork
+  const HERO_RING = [
+    { slug: 'bharat-spirit-tee', img: 'bharat-worn-studio', photo: true, full: 'images/products/bharat-spirit/worn-studio.webp?v=2' },
+    { slug: 'trinetra-tee', img: 'trinetra', full: 'images/products/trinetra/preview.webp' },
+    { slug: 'indian-craft-atlas-tee', img: 'atlas-look', photo: true, full: 'images/lookbook/lb-look-02.webp' },
+    { slug: 'ganesha-tee', img: 'ganesha', full: 'images/products/ganesha/preview.webp' },
+    { slug: 'bharat-spirit-tee', img: 'bharat-look', photo: true, full: 'images/lookbook/lb-look-01.webp' },
+    { slug: 'born-to-rise-tee', img: 'born-to-rise', photo: true, full: 'images/products/born-to-rise/black-model.webp' },
+    { slug: 'bharat-spirit-tee', img: 'bharat-temple', photo: true, full: 'images/products/bharat-spirit/worn-temple.webp?v=3' },
+    { slug: 'hara-hara-mahadeva-tee', img: 'hara-hara', photo: true, full: 'images/products/hara-hara-mahadeva/black-model.webp' },
+    { slug: 'indian-craft-atlas-tee', img: 'atlas-closeup', photo: true, full: 'images/products/craft-atlas/closeup.webp' },
+    { slug: 'indian-craft-atlas-tee', img: 'atlas-tee', full: 'images/products/craft-atlas/back-print.webp?v=2' }
+  ];
+
+  // Home hero ring: portrait cards on a cylinder that curls around the viewer, smallest in the
+  // middle and leaning in at the edges (after Scrolltide's Media Gallery). Pure CSS 3D; JS only
+  // advances one angle per frame. Drag / flick to spin, tap a card to open the tee.
+  function initHeroRing(root) {
+    if (!root) return;
+    const cards = [...root.querySelectorAll('.ring-card')];
+    if (cards.length < 4) { root.remove(); return; }
+    const STEP = 360 / cards.length;
+    const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let offset = 8, vel = 0, R = 600, degPerPx = 0.2, raf = 0, last = 0, running = false;
+    let dragging = false, lastX = 0, lastT = 0, moved = 0, hover = false;
+
+    let P = 800, W = 1200, CX = 744;
+    const layout = () => {
+      const w = root.clientWidth, h = root.clientHeight;
+      const p = Math.round(w * 0.66);
+      P = p; W = w; CX = w * 0.62;
+      const cardH = Math.round(Math.min(h * 0.96, 720));
+      R = Math.round(p * 0.8);
+      degPerPx = 57.3 / (p * R / (p + R));
+      root.style.perspective = `${p}px`;
+      root.style.setProperty('--ring-h', `${cardH}px`);
+      root.style.setProperty('--ring-w', `${Math.round(cardH * 0.72)}px`);
+    };
+    const render = () => {
+      for (let i = 0; i < cards.length; i++) {
+        const a = (((i * STEP + offset) % 360) + 540) % 360 - 180;
+        const vis = Math.max(0, Math.min(1, (82 - Math.abs(a)) / 14));
+        const c = cards[i];
+        c.style.transform = `rotateY(${a.toFixed(2)}deg) translateZ(${-R}px)`;
+        // cards passing behind the headline go soft; a class flip, so the blur is applied once on the card's own GPU layer
+        const rad = a * Math.PI / 180;
+        const soft = Math.abs(a) < 90 && (CX - R * Math.sin(rad) * P / (P + R * Math.cos(rad))) < W * 0.47;
+        if (soft !== c._soft) { c._soft = soft; c.classList.toggle('is-soft', soft); }
+        c.style.opacity = vis.toFixed(3);
+        c.style.visibility = vis > 0 ? 'visible' : 'hidden';
+      }
+    };
+    const tick = (now) => {
+      const dt = last ? Math.min(0.05, (now - last) / 1000) : 0;
+      last = now;
+      if (!dragging) {
+        if (Math.abs(vel) > 1) { offset += vel * dt; vel *= Math.pow(0.03, dt); }
+        else if (!hover && !still) offset += 4.5 * dt;
+      }
+      render();
+      raf = requestAnimationFrame(tick);
+    };
+    const start = () => { if (running) return; running = true; root.dataset.playing = 'true'; last = 0; raf = requestAnimationFrame(tick); };
+    const stop = () => { running = false; root.dataset.playing = 'false'; cancelAnimationFrame(raf); };
+
+    // Drag / flick (horizontal only; vertical swipes still scroll the page)
+    const onDown = (e) => { if (e.button > 0) return; dragging = true; moved = 0; vel = 0; lastX = e.clientX; lastT = performance.now(); };
+    const onMove = (e) => {
+      if (!dragging) return;
+      const now = performance.now(), dx = e.clientX - lastX;
+      lastX = e.clientX; moved += Math.abs(dx);
+      offset -= dx * degPerPx;
+      vel = (-dx * degPerPx) / Math.max(8, now - lastT) * 1000;
+      lastT = now;
+      if (!running) render();
+    };
+    const onUp = () => { if (!dragging) return; dragging = false; if (performance.now() - lastT > 90) vel = 0; };
+    root.addEventListener('pointerdown', onDown);
+    window.addEventListener('pointermove', onMove, { passive: true });
+    window.addEventListener('pointerup', onUp);
+    window.addEventListener('pointercancel', onUp);
+    root.addEventListener('click', (e) => { if (moved > 6) { e.preventDefault(); e.stopPropagation(); } }, true);
+    root.addEventListener('pointerover', (e) => { if (e.pointerType === 'mouse' && e.target.closest('.ring-card')) hover = true; });
+    root.addEventListener('pointerout', (e) => { if (e.pointerType === 'mouse' && !e.relatedTarget?.closest?.('.ring-card')) hover = false; });
+
+    const onResize = () => { layout(); render(); };
+    window.addEventListener('resize', onResize);
+    const io = 'IntersectionObserver' in window
+      ? new IntersectionObserver(([en]) => (en.isIntersecting ? start() : stop()))
+      : null;
+    if (io) io.observe(root);
+
+    layout();
+    render();
+    start();
+    root.classList.add('is-ready');
+
+    StoreState.heroRingStop = () => {
+      stop();
+      if (io) io.disconnect();
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
+      window.removeEventListener('pointercancel', onUp);
+      window.removeEventListener('resize', onResize);
+    };
+  }
+
+  // Phones: a hand of cards dealt in an arc, the focused one lifted clear of its neighbours
+  // (after Scrolltide's Fan Carousel). Swipe to deal, tap a side card to bring it forward.
+  function initHeroFan(root) {
+    if (!root) return;
+    const cards = [...root.querySelectorAll('.fan-card')];
+    const N = cards.length;
+    if (N < 3) { root.remove(); return; }
+    const dots = [...root.querySelectorAll('.fan-bars button')];
+    const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const STEP = 10;                                       // degrees of spread per card
+    let k = 0, from = 0, to = 0, t0 = 0, dur = 0, raf = 0, shown = -1, inView = true;
+    let dragging = false, startX = 0, startK = 0, lastX = 0, lastT = 0, vel = 0, moved = 0, resumeAt = 0;
+
+    const wrap = (d) => ((((d % N) + N) % N) + N / 2) % N - N / 2;
+    const smooth = (x) => x * x * (3 - 2 * x);
+    const render = () => {
+      const w = root.clientWidth;
+      for (let i = 0; i < N; i++) {
+        const d = wrap(i - k), ad = Math.abs(d), a = d * STEP * Math.PI / 180;
+        const lift = smooth(Math.max(0, 1 - ad * 2));      // 1 on the focused card, 0 half a step away
+        // one tee fills the frame; the previous / next peek in at the edges, tilted and set back
+        const x = d * w * 0.8;
+        const y = Math.min(ad, 1.5) * 18;
+        const sc = 0.9 + 0.1 * lift;
+        const o = Math.max(0, Math.min(1, 2.2 - ad));
+        const c = cards[i];
+        c.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0) rotate(${(d * 4).toFixed(2)}deg) scale(${sc.toFixed(3)})`;
+        c.style.zIndex = String(100 - Math.round(ad * 10));
+        c.style.opacity = o.toFixed(3);
+        c.style.visibility = o > 0 ? 'visible' : 'hidden';
+        c.classList.toggle('is-focus', ad < 0.5);
+      }
+      const n = ((Math.round(k) % N) + N) % N;
+      if (n !== shown) {
+        shown = n;
+        const c = cards[n];
+        cards.forEach(x => x.classList.remove('is-glint', 'is-live'));
+        void c.offsetWidth;
+        c.classList.add('is-glint', 'is-live');              // glint + slow zoom + caption rise restart
+        dots.forEach((d, j) => { d.classList.remove('is-on'); d.classList.toggle('is-done', j < n); });
+        void root.offsetWidth;
+        if (dots[n]) dots[n].classList.add('is-on');
+      }
+    };
+    const loop = (now) => {
+      if (!dragging && dur) {
+        const p = Math.min(1, (now - t0) / dur);
+        k = from + (to - from) * (1 - Math.pow(1 - p, 3));
+        if (p >= 1) { dur = 0; k = to; }
+      }
+      render();
+      raf = (dragging || dur) ? requestAnimationFrame(loop) : 0;
+    };
+    const kick = () => { if (!raf) raf = requestAnimationFrame(loop); };
+    const goTo = (target, ms = 520) => { from = k; to = target; t0 = performance.now(); dur = still ? 1 : ms; kick(); };
+    const bringForward = (i) => goTo(Math.round(k) + Math.round(wrap(i - Math.round(k))));
+
+    const stepPx = () => root.clientWidth * 0.3;
+    const onDown = (e) => { dragging = true; dur = 0; startX = lastX = e.clientX; startK = k; moved = 0; vel = 0; lastT = performance.now(); resumeAt = Date.now() + 6000; kick(); };
+    const onMove = (e) => {
+      if (!dragging) return;
+      const now = performance.now(), dx = e.clientX - startX;
+      moved = Math.max(moved, Math.abs(dx));
+      k = startK - dx / stepPx();
+      vel = (-(e.clientX - lastX) / stepPx()) / Math.max(8, now - lastT) * 1000;
+      lastX = e.clientX; lastT = now;
+    };
+    const onUp = () => {
+      if (!dragging) return;
+      dragging = false;
+      // one swipe = one tee: a short flick or a drag past 15% of the card moves exactly one step
+      const base = Math.round(startK), moved01 = k - startK;
+      const flick = performance.now() - lastT < 120 ? vel : 0;
+      const dir = Math.abs(moved01) > 0.15 || Math.abs(flick) > 0.8 ? Math.sign(moved01 || flick) : 0;
+      goTo(base + dir, 420);
+    };
+    root.addEventListener('pointerdown', onDown);
+    window.addEventListener('pointermove', onMove, { passive: true });
+    window.addEventListener('pointerup', onUp);
+    window.addEventListener('pointercancel', onUp);
+    root.addEventListener('click', (e) => {
+      const card = e.target.closest('.fan-card');
+      if (moved > 8) { e.preventDefault(); return; }
+      if (card && !card.classList.contains('is-focus')) { e.preventDefault(); resumeAt = Date.now() + 6000; bringForward(Number(card.dataset.i)); }
+    }, true);
+    dots.forEach((d, j) => d.addEventListener('click', () => { resumeAt = Date.now() + 6000; bringForward(j); }));
+
+    const io = 'IntersectionObserver' in window ? new IntersectionObserver(([en]) => { inView = en.isIntersecting; }) : null;
+    if (io) io.observe(root);
+    const timer = still ? 0 : setInterval(() => {
+      root.classList.toggle('is-held', dragging || Date.now() < resumeAt);
+      if (!inView || dragging || document.hidden || Date.now() < resumeAt) return;
+      goTo(Math.round(k) + 1);
+    }, 3400);
+    const onResize = () => render();
+    window.addEventListener('resize', onResize);
+    render();
+
+    StoreState.heroFanStop = () => {
+      clearInterval(timer);
+      cancelAnimationFrame(raf);
+      if (io) io.disconnect();
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
+      window.removeEventListener('pointercancel', onUp);
+      window.removeEventListener('resize', onResize);
+    };
+  }
+
+  // Focus reveal (after Scrolltide's Focus Reveal): words start soft-focus, a camera-style frame
+  // travels word to word and brings each one sharp. Runs once when the quote scrolls into view;
+  // on desktop, hovering a word moves the frame back to it.
+  const FOCUS_REVEAL_TARGETS = [
+    '[data-focus-reveal]', '.figma-hero-title', '.figma-section-title', '.archive-title',
+    '.lb2-title', '.lb2-h2', '.about-hero-title', '.about-section-title', '.lab-intro h1',
+    '.canon-main-title', '.heritage-hero-title', '.heritage-section-title', '.care-page-title',
+    '.contact-page h1', '.done-page h1', '.bag-head h1', '.pdp-figma-title'
+  ].join(', ');
+  function initFocusReveal(scope) {
+    if (!scope) return;
+    const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    scope.querySelectorAll(FOCUS_REVEAL_TARGETS).forEach(el => {
+      if (el.dataset.frReady) return;
+      el.dataset.frReady = '1';
+      el.setAttribute('aria-label', (el.innerText || el.textContent).replace(/\s+/g, ' ').trim());
+      // Wrap every word in place, keeping line breaks and inner styling
+      const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+      const texts = [];
+      while (walker.nextNode()) if (walker.currentNode.nodeValue.trim()) texts.push(walker.currentNode);
+      texts.forEach(t => {
+        const frag = document.createDocumentFragment();
+        t.nodeValue.split(/(\s+)/).forEach(part => {
+          if (!part) return;
+          if (/^\s+$/.test(part)) { frag.appendChild(document.createTextNode(' ')); return; }
+          const sp = document.createElement('span');
+          sp.className = 'fr-word';
+          sp.setAttribute('aria-hidden', 'true');
+          sp.textContent = part;
+          frag.appendChild(sp);
+        });
+        t.parentNode.replaceChild(frag, t);
+      });
+      el.insertAdjacentHTML('beforeend', '<span class="fr-frame" aria-hidden="true"><i></i><i></i><i></i><i></i></span>');
+      el.classList.add('fr');
+
+      if (window.matchMedia('(max-width: 760px)').matches) {
+        // Phones: words rise from behind a line, then an amber marker sweeps under the key word
+        el.classList.remove('fr');
+        el.classList.add('mr');
+        el.querySelector('.fr-frame').remove();
+        const ws = [...el.querySelectorAll('.fr-word')];
+        ws.forEach((w, i) => {
+          const inner = document.createElement('span');
+          inner.className = 'mr-in';
+          while (w.firstChild) inner.appendChild(w.firstChild);
+          w.appendChild(inner);
+          w.style.setProperty('--i', i);
+        });
+        if (ws.length > 1) ws[ws.length - 1].classList.add('mr-key');
+        const go = () => el.classList.add('is-in');
+        if (still || !('IntersectionObserver' in window)) { go(); return; }
+        const io = new IntersectionObserver(([en]) => { if (en.isIntersecting) { go(); io.disconnect(); } }, { threshold: 0.3 });
+        io.observe(el);
+        setTimeout(() => {
+          if (el.classList.contains('is-in')) return;
+          const r = el.getBoundingClientRect();
+          if (r.top < window.innerHeight && r.bottom > 0) { go(); io.disconnect(); }
+        }, 1400);
+        return;
+      }
+      const spans = [...el.querySelectorAll('.fr-word')];
+      const frame = el.querySelector('.fr-frame');
+      if (still) { spans.forEach(w => w.classList.add('is-sharp')); return; }
+
+      const frameTo = (w) => {
+        const pad = Math.max(6, w.offsetHeight * 0.14);
+        frame.style.left = `${w.offsetLeft - pad}px`;
+        frame.style.top = `${w.offsetTop - pad * 0.6}px`;
+        frame.style.width = `${w.offsetWidth + pad * 2}px`;
+        frame.style.height = `${w.offsetHeight + pad * 1.2}px`;
+        frame.classList.add('is-on');
+      };
+      let played = false, timers = [];
+      const play = () => {
+        if (played) return;
+        played = true;
+        spans.forEach((w, i) => timers.push(setTimeout(() => { frameTo(w); w.classList.add('is-sharp'); }, 250 + i * 380)));
+        timers.push(setTimeout(() => frame.classList.remove('is-on'), 250 + spans.length * 380 + 700));
+      };
+      if ('IntersectionObserver' in window) {
+        const io = new IntersectionObserver(([en]) => { if (en.isIntersecting) { play(); io.disconnect(); } }, { threshold: 0.6 });
+        io.observe(el);
+        setTimeout(() => {
+          if (played) return;
+          const r = el.getBoundingClientRect();
+          if (r.top < window.innerHeight && r.bottom > 0) { play(); io.disconnect(); }
+        }, 1400);
+      } else play();
+
+      if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+        el.addEventListener('mouseover', (e) => {
+          const w = e.target.closest('.fr-word');
+          if (!w) return;
+          if (!played) { played = true; spans.forEach(s2 => s2.classList.add('is-sharp')); }
+          frameTo(w);
+        });
+        el.addEventListener('mouseleave', () => frame.classList.remove('is-on'));
+      }
+    });
+  }
+
+  function initMobileMotion(scope) {
+    if (!scope || !window.matchMedia('(max-width: 760px)').matches) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in window)) return;
+    const cards = [...scope.querySelectorAll('.pcard:not(.pc-anim)')];
+    if (!cards.length) return;
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(en => { if (en.isIntersecting) { en.target.classList.add('is-in'); io.unobserve(en.target); } });
+    }, { threshold: 0.15, rootMargin: '0px 0px -5% 0px' });
+    cards.forEach((c, i) => { c.style.setProperty('--i', i % 2); c.classList.add('pc-anim'); io.observe(c); });
+  }
+
+  // Home reel: Embla Carousel + Auto Scroll (github.com/davidjerleke/embla-carousel), loaded on demand.
+  // If the CDN is unreachable the row still works as a native swipe row.
+  let emblaLoad = null;
+  function initReel(root, bar) {
+    if (!root) return;
+    const syncBar = (p) => { if (bar) bar.style.transform = `scaleX(${Math.max(0.08, Math.min(1, p))})`; };
+    root.addEventListener('scroll', () => syncBar((root.scrollLeft + root.clientWidth) / root.scrollWidth), { passive: true });
+    syncBar(root.clientWidth / root.scrollWidth);
+    emblaLoad = emblaLoad || Promise.all([
+      import('https://cdn.jsdelivr.net/npm/embla-carousel@8.6.0/+esm'),
+      import('https://cdn.jsdelivr.net/npm/embla-carousel-auto-scroll@8.6.0/+esm')
+    ]);
+    emblaLoad.then(([E, A]) => {
+      if (!document.body.contains(root)) return;
+      const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const plugins = still ? [] : [A.default({ speed: 0.8, startDelay: 600, stopOnInteraction: false, stopOnMouseEnter: true, stopOnFocusIn: true })];
+      root.classList.add('is-embla');
+      const embla = E.default(root, { loop: true, dragFree: true, align: 'start', containScroll: false }, plugins);
+      const update = () => syncBar(0.08 + embla.scrollProgress() * 0.92);
+      embla.on('scroll', update).on('reInit', update);
+      update();
+      StoreState.reel = embla;
+    }).catch(() => { /* native scrolling fallback */ });
   }
 
   /* --------------------------------------------------------------------------
@@ -594,40 +1298,92 @@
   /* --------------------------------------------------------------------------
      1.5 THE TEN ARCHIVE / COLLECTIONS OVERVIEW VIEW
      -------------------------------------------------------------------------- */
+  // Collections page: featured carousel + filter chips + image-card grid (Google Labs-inspired)
   function renderUniverseWallView() {
     const chapters = (window.BravadianDB && typeof window.BravadianDB.getUniverseChapters === 'function')
       ? window.BravadianDB.getUniverseChapters()
       : (window.DEFAULT_UNIVERSE_CHAPTERS || []);
+    const products = window.BravadianDB.getProducts();
+    const cols = chapters.map(c => {
+      const count = products.filter(p => p.collection === c.slug && !p.isComingSoon).length;
+      return {
+        ...c,
+        image: c.image || COLLECTION_IMAGES[c.slug],
+        count,
+        live: count > 0,
+        label: (c.chapter || '').split(':')[0] || `ADHYAYA ${c.num}`,
+        title: titleCase(c.name)
+      };
+    });
+    const featured = cols.filter(c => c.live).sort((a, b) => b.count - a.count);
+    const designs = n => `${n} ${n === 1 ? 'design' : 'designs'}`;
+    const arrow = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>';
 
     mainContainer.innerHTML = `
-      <div class="collections-overview-page">
-        <!-- THE TEN ARCHIVE SECTION (MATCHING SCREENSHOT AESTHETIC) -->
-        <section class="figma-ten-archive-section collections-page-archive">
-          <div class="container">
-            <div class="archive-section-header">
-              <div class="archive-header-left">
-                <span class="figma-tag">[ SHOP BY COLLECTION ]</span>
-                <h1 class="archive-title">THE FIVE COLLECTIONS</h1>
-              </div>
-              <div class="archive-header-right">
-                <span class="archive-cadence">NEW DESIGNS EVERY DROP</span>
-              </div>
-            </div>
+      <div class="lab-page">
+        <header class="lab-intro">
+          <span class="bag-kicker">COLLECTIONS</span>
+          <h1>Five worlds.<br>One way to wear them.</h1>
+          <p>Every collection starts from a story we grew up with. Pick one and see the designs.</p>
+        </header>
 
-            <!-- 10 ARCHIVE CARDS GRID (NO DIAGRAMS, READY FOR SUPABASE IMAGES) -->
-            <div class="archive-cards-grid">
-              ${chapters.map(c => renderUniverseArchiveCard(c)).join('')}
+        ${featured.length ? `
+        <section class="lab-feature" aria-roledescription="carousel" aria-label="Featured collections">
+          <div class="lab-track" id="labTrack">
+            ${featured.map((c, n) => `
+            <article class="lab-slide" aria-roledescription="slide" aria-label="${n + 1} of ${featured.length}">
+              <a href="#/collections/${c.slug}" class="lab-slide-media" tabindex="-1" aria-hidden="true">
+                <img src="${c.image}" alt="" ${n ? 'loading="lazy"' : ''}>
+              </a>
+              <div class="lab-slide-copy">
+                <span class="lab-meta">${c.label} &middot; ${designs(c.count)}</span>
+                <h2>${c.title}</h2>
+                <p>${c.description || ''}</p>
+                <a href="#/collections/${c.slug}" class="lab-pill is-solid">Shop ${c.title} ${arrow}</a>
+              </div>
+            </article>`).join('')}
+          </div>
+          ${featured.length > 1 ? `
+          <div class="lab-controls">
+            <div class="lab-dots">${featured.map((_, n) => `<button type="button" aria-label="Show slide ${n + 1}"></button>`).join('')}</div>
+            <div class="lab-arrows">
+              <button type="button" class="lab-arrow" data-dir="-1" aria-label="Previous"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 6 9 12 15 18"/></svg></button>
+              <button type="button" class="lab-arrow" data-dir="1" aria-label="Next"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg></button>
             </div>
+          </div>` : ''}
+        </section>` : ''}
+
+        <section class="lab-browse" aria-label="All collections">
+          <div class="lab-chips" role="tablist" aria-label="Filter collections">
+            <button type="button" class="lab-chip is-on" data-f="all" role="tab" aria-selected="true">All</button>
+            <button type="button" class="lab-chip" data-f="live" role="tab" aria-selected="false">Available now</button>
+            <button type="button" class="lab-chip" data-f="soon" role="tab" aria-selected="false">Coming soon</button>
+          </div>
+          <div class="lab-grid">
+            ${cols.map(c => `
+            <article class="lab-card ${c.live ? '' : 'is-soon'}" data-live="${c.live}">
+              <a ${c.live ? `href="#/collections/${c.slug}"` : `href="javascript:void(0)" data-notify="${c.name}"`} class="lab-card-media" tabindex="-1" aria-hidden="true">
+                <img src="${c.image}" alt="" loading="lazy">
+                ${c.live ? '' : '<span class="lab-soon-tag">COMING SOON</span>'}
+              </a>
+              <div class="lab-card-copy">
+                <span class="lab-meta">${c.label}${c.live ? ` &middot; ${designs(c.count)}` : ''}</span>
+                <h3>${c.title}</h3>
+                <p>${c.description || ''}</p>
+                ${c.live
+                  ? `<a href="#/collections/${c.slug}" class="lab-pill">See the designs ${arrow}</a>`
+                  : `<button type="button" class="lab-pill" data-notify="${c.name}">Notify me on WhatsApp</button>`}
+              </div>
+            </article>`).join('')}
           </div>
         </section>
 
-        <!-- PRIORITY VIP CONCIERGE CALLOUT SECTION -->
         <section class="universe-callout-section">
           <div class="universe-callout-container">
             <div class="universe-callout-badge">[ NEW DROPS ]</div>
             <h3 class="universe-callout-heading">Hear about new designs and restocks first, straight on WhatsApp.</h3>
             <div class="universe-callout-btn-wrap">
-              <a href="${waURL('Hi Bravadian, please add me to your new drop alerts.')}" target="_blank" rel="noopener noreferrer" class="btn-universe-callout">
+              <a href="${waURL(WA_MSG.dropAlerts)}" target="_blank" rel="noopener noreferrer" class="btn-universe-callout">
                 ${whatsappSVG(16)}
                 <span>GET DROP ALERTS ON WHATSAPP</span>
               </a>
@@ -710,22 +1466,45 @@
   }
 
   function bindUniverseWallActions() {
-    const vaultCards = document.querySelectorAll('.collections-page-archive .archive-card.status-vault');
-    vaultCards.forEach(card => {
-      const name = card.getAttribute('data-name');
-      const handleAction = () => {
-        if (window.BravadianStore && typeof window.BravadianStore.requestVipEmbargo === 'function') {
-          window.BravadianStore.requestVipEmbargo(name);
-        }
-      };
-      card.addEventListener('click', handleAction);
-      card.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          handleAction();
-        }
+    // Coming-soon collections: ask to be told on WhatsApp
+    mainContainer.querySelectorAll('[data-notify]').forEach(el => el.addEventListener('click', (e) => {
+      e.preventDefault();
+      window.BravadianStore.requestVipEmbargo(el.dataset.notify);
+    }));
+
+    // Filter chips
+    const chips = mainContainer.querySelectorAll('.lab-chip');
+    chips.forEach(chip => chip.addEventListener('click', () => {
+      chips.forEach(c => { c.classList.toggle('is-on', c === chip); c.setAttribute('aria-selected', String(c === chip)); });
+      mainContainer.querySelectorAll('.lab-card').forEach(card => {
+        const live = card.dataset.live === 'true';
+        card.hidden = chip.dataset.f === 'live' ? !live : chip.dataset.f === 'soon' ? live : false;
       });
-    });
+    }));
+
+    // Featured carousel: native swipe, arrows, dots, gentle auto-advance
+    const track = document.getElementById('labTrack');
+    if (!track) return;
+    const slides = [...track.children];
+    const dots = [...mainContainer.querySelectorAll('.lab-dots button')];
+    let active = 0;
+    const setActive = (i) => { active = i; dots.forEach((d, n) => d.classList.toggle('is-on', n === i)); };
+    const goTo = (i) => { const n = (i + slides.length) % slides.length; track.scrollTo({ left: slides[n].offsetLeft - track.offsetLeft, behavior: 'smooth' }); };
+    track.addEventListener('scroll', () => setActive(Math.round(track.scrollLeft / track.clientWidth)), { passive: true });
+    let resumeAt = 0;
+    const pause = () => { resumeAt = Date.now() + 8000; };
+    ['touchstart', 'pointerdown', 'wheel', 'mouseenter'].forEach(ev => track.addEventListener(ev, pause, { passive: true }));
+    dots.forEach((d, n) => d.addEventListener('click', () => { pause(); goTo(n); }));
+    mainContainer.querySelectorAll('.lab-arrow').forEach(b => b.addEventListener('click', () => { pause(); goTo(active + Number(b.dataset.dir)); }));
+    setActive(0);
+    if (slides.length < 2 || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    StoreState.spotTimers = StoreState.spotTimers || [];
+    StoreState.spotTimers.push(setInterval(() => {
+      if (Date.now() < resumeAt || document.hidden) return;
+      const r = track.getBoundingClientRect();
+      if (r.bottom < 0 || r.top > window.innerHeight) return;
+      goTo(active + 1);
+    }, 6000));
   }
 
   /* --------------------------------------------------------------------------
@@ -830,15 +1609,15 @@
                 <h2 class="heritage-section-title">THE HERITAGE TEES</h2>
                 <div class="heritage-desc-wrapper">
                   <p class="heritage-section-narrative">
-                    Oversized 240 GSM French Terry cotton, bio + silicone washed, with large DTF back prints. Launch price ₹649, MRP ₹799.
+                    Oversized 240 GSM French Terry cotton, bio + silicone washed, with large DTF back prints. ₹699, MRP ₹999, with free delivery.
                   </p>
                 </div>
               </div>
             </div>
 
             <!-- Products Row (Mapped Dynamically from Shop DB) -->
-            <div class="heritage-products-row">
-              ${displayProducts.map((p, idx) => renderHeritageGarmentCard(p, idx, settings)).join('')}
+            <div class="pgrid">
+              ${displayProducts.map((p, idx) => renderProductCardHTML(p, idx)).join('')}
             </div>
           </section>
 
@@ -1029,7 +1808,7 @@
 
         <!-- Product Grid or Empty State -->
         ${totalCount > 0 ? `
-          <div class="canon-product-grid">
+          <div class="pgrid">
             ${displayedProducts.map((p, idx) => renderProductCardHTML(p, idx)).join('')}
           </div>
 
@@ -1081,127 +1860,97 @@
   /* --------------------------------------------------------------------------
      3. PRODUCT CARD COMPONENT (FIGMA CANON CARD)
      -------------------------------------------------------------------------- */
+  // Product card: mobile-first, photo-led (H&M / Souled Store pattern). Used on every grid.
+  function titleCase(t) {
+    return (t || '').toLowerCase().replace(/\b([a-z])/g, m => m.toUpperCase());
+  }
+
   function renderProductCardHTML(product, idx = 0) {
-    const isOutOfStock = !product.variants || product.variants.every(v => v.stock === 0);
-    const settings = window.BravadianDB.getSettings();
-    const relicTag = product.relicTag || `DESIGN 0${(idx % 6) + 1}`;
-    const isLocked = product.isComingSoon === true;
-    const relicBadge = isLocked ? 'COMING SOON' : (product.relicBadge || (product.newDrop ? 'PRE-ORDER ACTIVATED' : 'ARCHIVAL RUN'));
-    const fabricSpec = product.fabric || '240 GSM FRENCH TERRY // 100% COMBED COTTON';
-
-    if (isLocked) {
-      return `
-        <article class="canon-product-card is-vault-locked" data-slug="${product.slug}">
-          <!-- Media Container with Subtle Frosted Blur (No Text Overlay) -->
-          <div 
-            class="canon-card-media is-vault-media" 
-            onclick="window.BravadianStore.requestVipEmbargo('${product.name}')" 
-            role="button" 
-            tabindex="0"
-            aria-label="${product.name} — Coming Soon"
-          >
-            <span class="canon-card-tag">[ ${relicTag} // COMING SOON ]</span>
-            <img 
-              src="${product.images.front}" 
-              alt="${product.name} — Bravadian Streetwear" 
-              class="canon-card-img is-vault-blurred" 
-              loading="lazy"
-            >
-            <!-- Minimal Subtle Frosted Glass Overlay with Delicate Crosshair (No Text) -->
-            <div class="subtle-frosted-overlay" aria-hidden="true">
-              <span class="frosted-crosshair-center"></span>
-            </div>
-          </div>
-
-          <!-- Product Card Meta & Details -->
-          <div class="canon-card-info">
-            <div class="canon-card-header">
-              <h3 
-                class="canon-card-title is-locked-title" 
-                onclick="window.BravadianStore.requestVipEmbargo('${product.name}')"
-              >
-                ${product.name}
-              </h3>
-              <div class="canon-card-price canon-card-price-locked">
-                ${priceHTML(product)}
-              </div>
-            </div>
-
-            <!-- Specs Row -->
-            <div class="canon-specs-row">
-              <span class="canon-fabric-text">${fabricSpec}</span>
-              <span class="canon-badge-pill canon-badge-locked">[ COMING SOON ]</span>
-            </div>
-
-            <!-- Action Button -->
-            <div class="canon-card-action">
-              <button 
-                type="button" 
-                class="btn-canon-archive btn-canon-locked" 
-                onclick="event.stopPropagation(); window.BravadianStore.requestVipEmbargo('${product.name}');"
-                aria-label="Coming Soon — ${product.name}"
-              >
-                <span>[ COMING SOON ]</span>
-              </button>
-            </div>
-          </div>
-        </article>
-      `;
-    }
-
+    const cur = window.BravadianDB.getSettings().currency;
+    const soon = product.isComingSoon === true;
+    const now = window.BravadianDB.effectivePrice(product);
+    const mrp = product.comparePrice && product.comparePrice > now ? product.comparePrice : 0;
+    const off = mrp ? Math.round(((mrp - now) / mrp) * 100) : 0;
+    const tag = soon ? 'COMING SOON' : (window.BravadianDB.isLaunchActive(product) ? 'LAUNCH PRICE' : (product.newDrop ? 'NEW' : ''));
+    const open = soon
+      ? `href="javascript:void(0)" onclick="window.BravadianStore.requestVipEmbargo('${product.name.replace(/'/g, "\\'")}')"`
+      : `href="#/product/${product.slug}"`;
+    const name = titleCase(product.name);
     return `
-      <article class="canon-product-card" data-slug="${product.slug}">
-        <!-- Media Container -->
-        <div 
-          class="canon-card-media" 
-          onclick="window.location.hash='#/product/${product.slug}'" 
-          role="button" 
-          tabindex="0"
-          aria-label="View ${product.name}"
-        >
-          <span class="canon-card-tag">[ ${relicTag} ]</span>
-          <img 
-            src="${product.images.front}" 
-            alt="${product.name} — Bravadian Streetwear" 
-            class="canon-card-img" 
-            loading="lazy"
-          >
+      <article class="pcard ${soon ? 'is-soon' : ''}" data-slug="${product.slug}">
+        <a class="pcard-media" ${open} aria-label="${soon ? 'Get notified about' : 'View'} ${name}">
+          <img src="${product.images.front}" alt="${name}" loading="lazy">
+          ${tag ? `<span class="pcard-tag">${tag}</span>` : ''}
+        </a>
+        ${soon ? '' : `
+        <button type="button" class="pcard-add" aria-label="Quick add ${name}" onclick="window.BravadianStore.openQuickAdd('${product.slug}')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 7h12l-1 13H7L6 7z"/><path d="M9 7a3 3 0 0 1 6 0"/><path d="M12 11v5M9.5 13.5h5"/></svg>
+        </button>`}
+        <div class="pcard-info">
+          <a class="pcard-name" ${open}>${name}</a>
+          <span class="pcard-sub">Oversized T-shirt</span>
+          <div class="pcard-price">
+            ${soon ? `<span class="pcard-soon">Tap to get notified</span>` : `
+            <b>${cur}${now.toLocaleString('en-IN')}</b>
+            ${mrp ? `<s>${cur}${mrp.toLocaleString('en-IN')}</s><em>${off}% off</em>` : ''}`}
+          </div>
+          ${!soon && product.colors && product.colors.length > 1 ? `
+          <div class="pcard-dots" aria-label="${product.colors.length} colours">
+            ${product.colors.map(c => `<i style="--dot:${colourHex(c)}" title="${c}"></i>`).join('')}
+          </div>` : ''}
         </div>
+      </article>`;
+  }
 
-        <!-- Product Card Meta & Details -->
-        <div class="canon-card-info">
-          <div class="canon-card-header">
-            <h3 
-              class="canon-card-title" 
-              onclick="window.location.hash='#/product/${product.slug}'"
-            >
-              ${product.name}
-            </h3>
-            <div class="canon-card-price">
-              ${priceHTML(product)}
-            </div>
+  // Quick add: a bottom sheet on phones (centred panel on desktop) to pick colour + size
+  function openQuickAdd(slug) {
+    const product = window.BravadianDB.getProductBySlug(slug);
+    if (!product) return;
+    let sheet = document.getElementById('quickAddSheet');
+    if (!sheet) {
+      document.body.insertAdjacentHTML('beforeend', `
+        <div class="qa-backdrop" id="quickAddBackdrop"></div>
+        <div class="qa-sheet" id="quickAddSheet" role="dialog" aria-modal="true" aria-label="Choose size"></div>`);
+      sheet = document.getElementById('quickAddSheet');
+      document.getElementById('quickAddBackdrop').addEventListener('click', closeQuickAdd);
+      document.addEventListener('keydown', e => { if (e.key === 'Escape') closeQuickAdd(); });
+    }
+    const cur = window.BravadianDB.getSettings().currency;
+    let color = product.colors[0];
+    let size = null;
+    const draw = () => {
+      const avail = getAvailableSizesForColor(product, color);
+      sheet.innerHTML = `
+        <div class="qa-grab" aria-hidden="true"></div>
+        <div class="qa-head">
+          <div class="qa-thumb"><img src="${product.images.front}" alt=""></div>
+          <div class="qa-title">
+            <b>${titleCase(product.name)}</b>
+            <span>${priceHTML(product)}</span>
           </div>
-
-          <!-- Specs Row -->
-          <div class="canon-specs-row">
-            <span class="canon-fabric-text">${fabricSpec}</span>
-            <span class="canon-badge-pill">[ ${relicBadge} ]</span>
-          </div>
-
-          <!-- Action Button -->
-          <div class="canon-card-action">
-            <button 
-              type="button" 
-              class="btn-canon-archive" 
-              onclick="event.stopPropagation(); window.BravadianStore.quickAdd('${product.slug}');"
-              aria-label="Add ${product.name} to bag"
-            >
-              <span>ADD TO BAG +</span>
-            </button>
-          </div>
+          <button type="button" class="qa-close" aria-label="Close">&times;</button>
         </div>
-      </article>
-    `;
+        <span class="qa-label">Colour: <b>${color}</b></span>
+        <div class="qa-colours">
+          ${product.colors.map(c => `<button type="button" class="qa-colour ${c === color ? 'is-on' : ''}" data-c="${c}" style="--dot:${colourHex(c)}" aria-label="${c}" aria-pressed="${c === color}"></button>`).join('')}
+        </div>
+        <span class="qa-label">Size ${size ? `: <b>${size}</b>` : ''}<a href="javascript:void(0)" class="qa-guide">Size guide</a></span>
+        <div class="qa-sizes">
+          ${product.sizes.map(z => `<button type="button" class="qa-size ${z === size ? 'is-on' : ''}" data-z="${z}" ${avail.includes(z) ? '' : 'disabled'}>${z}</button>`).join('')}
+        </div>
+        <button type="button" class="gr-btn qa-add" ${size ? '' : 'disabled'}>${glowDisc(BAG_SVG)}<span class="gr-label">${size ? `ADD TO BAG — ${cur}${window.BravadianDB.effectivePrice(product).toLocaleString('en-IN')}` : 'SELECT A SIZE'}</span></button>`;
+      sheet.querySelector('.qa-close').onclick = closeQuickAdd;
+      sheet.querySelector('.qa-guide').onclick = () => { closeQuickAdd(); window.BravadianStore.openSizeGuideModal(); };
+      sheet.querySelectorAll('.qa-colour').forEach(b => b.onclick = () => { color = b.dataset.c; if (!getAvailableSizesForColor(product, color).includes(size)) size = null; draw(); });
+      sheet.querySelectorAll('.qa-size:not([disabled])').forEach(b => b.onclick = () => { size = b.dataset.z; draw(); });
+      sheet.querySelector('.qa-add').onclick = () => { if (!size) return; addToCart(product, color, size, 1); closeQuickAdd(); };
+    };
+    draw();
+    requestAnimationFrame(() => document.body.classList.add('qa-open'));
+  }
+
+  function closeQuickAdd() {
+    document.body.classList.remove('qa-open');
   }
 
   function bindProductCardActions() {
@@ -1254,9 +2003,15 @@
     const thumb2 = pImages.back || (pImages.front ? '' : getDiagram('back'));
     const thumb3 = pImages.closeup || (pImages.front ? '' : getDiagram('closeup'));
     const mainHero = thumb1;
-    const galleryImages = [[thumb1, 'contain'], [thumb2, 'contain'], [thumb3, 'contain'], [pImages.art, 'contain'], [pImages.lifestyle, 'cover'], [pImages.lifestyle2, 'cover']]
-      .filter(([src], i, arr) => src && arr.findIndex(([s]) => s === src) === i)
-      .map(([src, fit]) => ({ src, fit }));
+    // Photos for a colour: that colour's own set when it has one, otherwise the shared photos
+    const galleryFor = (colour) => {
+      const cs = pImages.colors && pImages.colors[colour];
+      const list = cs
+        ? [[cs.front, 'contain'], [cs.model, 'cover'], [cs.model2, 'cover'], [cs.closeup, 'cover'], [cs.back, 'contain']]
+        : [[thumb1, 'contain'], [thumb2, 'contain'], [thumb3, 'contain'], [pImages.lifestyle, 'cover'], [pImages.lifestyle2, 'cover']];
+      return list.filter(([src], i, arr) => src && arr.findIndex(([x]) => x === src) === i).map(([src, fit]) => ({ src, fit }));
+    };
+    const galleryImages = galleryFor(StoreState.selectedColor);
 
     const allSizes = ['S', 'M', 'L', 'XL', 'XXL'];
 
@@ -1303,7 +2058,7 @@
           <!-- Column-Media -->
           <div class="pdp-media-col">
             <div class="pdp-main-frame ${product.isComingSoon ? 'is-vault-media' : ''}">
-              <img src="${mainHero}" alt="${product.name}" id="pdpFigmaMainImg" class="pdp-main-photo ${product.isComingSoon ? 'is-vault-blurred' : ''}">
+              <img src="${galleryImages[0] ? galleryImages[0].src : mainHero}" alt="${product.name}" id="pdpFigmaMainImg" class="pdp-main-photo ${product.isComingSoon ? 'is-vault-blurred' : ''}">
               ${product.isComingSoon ? `
                 <div class="subtle-frosted-overlay" aria-hidden="true">
                   <span class="frosted-crosshair-center"></span>
@@ -1324,7 +2079,7 @@
             <!-- Header Eyebrow -->
             <div class="pdp-eyebrow-row">
               <span class="pdp-amber-dot"></span>
-              <span class="pdp-eyebrow-text">${(product.collection || 'HERITAGE').toUpperCase()} COLLECTION // ADHYAYA 01</span>
+              <span class="pdp-eyebrow-text">${(product.collection || 'HERITAGE').replace(/-/g, ' ').toUpperCase()} COLLECTION // ADHYAYA 01</span>
             </div>
 
             <!-- Title -->
@@ -1364,8 +2119,8 @@
 
             <!-- Add to Bag CTA -->
             <div class="pdp-cta-wrap">
-              <button type="button" class="pdp-cta-btn ${product.isComingSoon ? 'is-coming-soon' : ''}" id="pdpCtaBtn">
-                ${product.isComingSoon ? `[ COMING SOON ]` : `ADD TO BAG — ${settings.currency}${window.BravadianDB.effectivePrice(product).toLocaleString('en-IN')}`}
+              <button type="button" class="pdp-cta-btn ${product.isComingSoon ? 'is-coming-soon' : 'gr-btn'}" id="pdpCtaBtn">
+                ${product.isComingSoon ? `[ COMING SOON ]` : `${glowDisc(BAG_SVG)}<span class="gr-label">ADD TO BAG — ${settings.currency}${window.BravadianDB.effectivePrice(product).toLocaleString('en-IN')}</span>`}
               </button>
               <div class="pdp-cta-subtext">
                 ✦ ORDER CONFIRMED ON WHATSAPP // ALL-INDIA DELIVERY // UPI, CARDS & NET BANKING
@@ -1410,25 +2165,8 @@
             <div class="pdp-section-header-tag">ADHYAYA 01</div>
           </div>
 
-          <div class="pdp-relics-grid">
-            ${relatedRelics.map(item => `
-              <article class="pdp-relic-card" data-slug="${item.slug}">
-                <div class="pdp-relic-badge">${item.badge}</div>
-                <div class="pdp-relic-img-wrap">
-                  <img src="${item.image}" alt="${item.name}" class="pdp-relic-img">
-                </div>
-                <div class="pdp-relic-specs">
-                  <div class="pdp-relic-row-top">
-                    <h3 class="pdp-relic-name">${item.name}</h3>
-                    <span class="pdp-relic-price">${priceHTML(item.product)}</span>
-                  </div>
-                  <div class="pdp-relic-row-bottom">
-                    <span class="pdp-relic-material">240 GSM COTTON // OVERSIZED</span>
-                    <span class="pdp-relic-status">IN STOCK</span>
-                  </div>
-                </div>
-              </article>
-            `).join('')}
+          <div class="pgrid is-rail">
+            ${relatedRelics.map((item, n) => renderProductCardHTML(item.product, n)).join('')}
           </div>
         </section>
 
@@ -1468,10 +2206,11 @@
     // Event Bindings
     // 1. Thumbnail Clicking & Switching
     const mainImg = document.getElementById('pdpFigmaMainImg');
-    const thumbCards = document.querySelectorAll('.pdp-thumb-card');
-    thumbCards.forEach(tc => {
-      tc.addEventListener('click', () => {
-        thumbCards.forEach(c => c.classList.remove('active'));
+    let thumbCards = document.querySelectorAll('.pdp-thumb-card');
+    const thumbsRow = document.querySelector('.pdp-thumbs-row');
+    const showThumb = (tc) => {
+      {
+        thumbsRow.querySelectorAll('.pdp-thumb-card').forEach(c => c.classList.remove('active'));
         tc.classList.add('active');
         const targetSrc = tc.getAttribute('data-img');
         if (mainImg && targetSrc) {
@@ -1483,8 +2222,26 @@
             mainImg.style.opacity = '1';
           }, 150);
         }
-      });
+      }
+    };
+    if (thumbsRow) thumbsRow.addEventListener('click', (e) => {
+      const tc = e.target.closest('.pdp-thumb-card');
+      if (!tc) return;
+      if (e.isTrusted) clearInterval(StoreState.galleryTimer);
+      showThumb(tc);
     });
+    const renderGallery = (colour) => {
+      if (!thumbsRow) return;
+      const list = galleryFor(colour);
+      if (!list.length) return;
+      thumbsRow.style.setProperty('--thumbs', list.length);
+      thumbsRow.innerHTML = list.map(({ src, fit }, n) => `
+              <div class="pdp-thumb-card ${n === 0 ? 'active' : ''}" data-img="${src}" data-fit="${fit}" role="button" tabindex="0" title="${product.name}, photo ${n + 1} of ${list.length}">
+                <img src="${src}" alt="${product.name}, ${colour}, photo ${n + 1} of ${list.length}" class="pdp-thumb-img fit-${fit}" loading="lazy">
+              </div>`).join('');
+      thumbCards = thumbsRow.querySelectorAll('.pdp-thumb-card');
+      showThumb(thumbCards[0]);
+    };
 
     // Gallery autoplay: pauses on hover/touch, stops once the shopper picks a photo
     clearInterval(StoreState.galleryTimer);
@@ -1498,14 +2255,12 @@
       galleryFrame.addEventListener('mouseleave', resume);
       galleryFrame.addEventListener('touchstart', pause, { passive: true });
       galleryFrame.addEventListener('touchend', () => setTimeout(resume, 4000), { passive: true });
-      thumbCards.forEach(tc => tc.addEventListener('click', (e) => {
-        if (e.isTrusted) clearInterval(StoreState.galleryTimer);
-      }));
       StoreState.galleryTimer = setInterval(() => {
         if (paused || document.hidden || !document.body.contains(galleryFrame)) return;
-        const cards = Array.from(thumbCards);
+        const cards = Array.from(thumbsRow.querySelectorAll('.pdp-thumb-card'));
+        if (cards.length < 2) return;
         const next = (cards.findIndex(c => c.classList.contains('active')) + 1) % cards.length;
-        cards[next].click();
+        showThumb(cards[next]);
       }, 4000);
     }
 
@@ -1522,6 +2277,7 @@
         });
         const nameEl = document.getElementById('pdpColorName');
         if (nameEl) nameEl.textContent = StoreState.selectedColor;
+        if (pImages.colors && pImages.colors[StoreState.selectedColor]) renderGallery(StoreState.selectedColor);
         let firstOpen = null;
         sizeBoxes.forEach(b => {
           const open = product.isComingSoon || getVariantStock(product, StoreState.selectedColor, b.dataset.size) > 0;
@@ -1582,6 +2338,24 @@
         addToCart(product, StoreState.selectedColor, StoreState.selectedSize, 1);
         openCartDrawer();
       });
+
+      // Phones: once the main button scrolls away, keep Add to bag one tap away
+      if (StoreState.pdpScroll) window.removeEventListener('scroll', StoreState.pdpScroll);
+      if (!product.isComingSoon) {
+        mainContainer.insertAdjacentHTML('beforeend', `
+          <div class="pdp-sticky" id="pdpSticky">
+            <div class="pdp-sticky-info"><b>${product.name}</b><span>${priceHTML(product)}</span></div>
+            <button type="button" class="gr-btn" id="pdpStickyBtn">${glowDisc(BAG_SVG)}<span class="gr-label">ADD TO BAG</span></button>
+          </div>`);
+        const sticky = document.getElementById('pdpSticky');
+        document.getElementById('pdpStickyBtn').addEventListener('click', () => ctaBtn.click());
+        StoreState.pdpScroll = () => {
+          if (!document.body.contains(ctaBtn)) return window.removeEventListener('scroll', StoreState.pdpScroll);
+          const on = ctaBtn.getBoundingClientRect().bottom < 0;
+          if (on !== sticky.classList.contains('is-on')) sticky.classList.toggle('is-on', on);
+        };
+        window.addEventListener('scroll', StoreState.pdpScroll, { passive: true });
+      }
     }
 
     // 6. Relic Cards in "More from Universe"
@@ -1629,11 +2403,11 @@
     const off = mrp ? Math.round((1 - now / mrp) * 100) : 0;
     const tag = launch ? 'LAUNCH PRICE' : (off ? `${off}% OFF` : '');
     const endDate = launch ? new Date(settings.launchEndsAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : '';
-    return `<span class="price-block"><span class="price-now">${f(now)}</span>${mrp ? `<s class="price-mrp"><span class="sr-only">MRP </span>${f(mrp)}</s>` : ''}${tag ? `<span class="price-tag">${tag}</span>` : ''}</span>${opts.detail && mrp ? `<span class="price-note">${launch ? `Launch price till ${endDate}, then ${f(p.price)}. ` : ''}MRP ${f(mrp)}, inclusive of all taxes.</span>` : ''}`;
+    return `<span class="price-block"><span class="price-now">${f(now)}</span>${mrp ? `<s class="price-mrp"><span class="sr-only">MRP </span>${f(mrp)}</s>` : ''}${tag ? `<span class="price-tag">${tag}</span>` : ''}</span>${opts.detail && mrp ? `<span class="price-note">${launch ? `Launch price till ${endDate}, then ${f(p.price)}. ` : ''}MRP ${f(mrp)}, inclusive of all taxes. Free delivery across India.</span>` : ''}`;
   }
 
   function colourHex(name) {
-    return { 'black': '#111111', 'white': '#FFFFFF', 'red': '#C62828', 'royal blue': '#1F4FD1' }[(name || '').toLowerCase()] || '#777777';
+    return { 'black': '#111111', 'white': '#FFFFFF', 'ivory': '#EDE6D6', 'red': '#C62828', 'royal blue': '#1F4FD1' }[(name || '').toLowerCase()] || '#777777';
   }
 
   function getAvailableSizesForColor(product, color) {
@@ -1773,7 +2547,7 @@
         color: color,
         size: size,
         quantity: qty,
-        image: product.images.front
+        image: (product.images.colors && product.images.colors[color] && product.images.colors[color].front) || product.images.front
       });
     }
 
@@ -1815,12 +2589,89 @@
     return { subtotal, shipping, total, settings };
   }
 
+  // Bag line + summary, shared by the bag drawer and the bag page
+  function cartCount() {
+    return StoreState.cart.reduce((sum, item) => sum + item.quantity, 0);
+  }
+
+  function cartSavings() {
+    return StoreState.cart.reduce((sum, item) => {
+      const p = window.BravadianDB.getProductBySlug(item.slug);
+      const mrp = p && p.comparePrice ? p.comparePrice : item.price;
+      return sum + Math.max(0, mrp - item.price) * item.quantity;
+    }, 0);
+  }
+
+  function cartLineHTML(item, settings) {
+    const cur = settings.currency;
+    const go = `href="#/product/${item.slug}" onclick="window.BravadianStore.closeCartDrawer()"`;
+    return `
+      <article class="bag-line">
+        <a ${go} class="bag-line-media" aria-label="View ${item.name}"><img src="${item.image}" alt="" loading="lazy"></a>
+        <div class="bag-line-body">
+          <div class="bag-line-top">
+            <a ${go} class="bag-line-name">${item.name}</a>
+            <span class="bag-line-total">${cur}${(item.price * item.quantity).toLocaleString('en-IN')}</span>
+          </div>
+          <span class="bag-line-meta"><i style="--dot:${colourHex(item.color)}" aria-hidden="true"></i>${item.color} · Size ${item.size} · ${cur}${item.price.toLocaleString('en-IN')} each</span>
+          <div class="bag-line-actions">
+            <div class="bag-qty" role="group" aria-label="Quantity for ${item.name}">
+              <button type="button" aria-label="One less" onclick="window.BravadianStore.updateCartItemQty('${item.id}', ${item.quantity - 1})">&minus;</button>
+              <span>${item.quantity}</span>
+              <button type="button" aria-label="One more" onclick="window.BravadianStore.updateCartItemQty('${item.id}', ${item.quantity + 1})">+</button>
+            </div>
+            <button type="button" class="bag-remove" onclick="window.BravadianStore.removeFromCart('${item.id}')">Remove</button>
+          </div>
+        </div>
+      </article>`;
+  }
+
+  function cartSummaryHTML(settings) {
+    const cur = settings.currency;
+    const { subtotal, shipping, total } = calculateCartTotals();
+    const saved = cartSavings();
+    const count = cartCount();
+    const alwaysFree = !settings.shippingFee;
+    const left = settings.freeShippingThreshold - subtotal;
+    const pct = alwaysFree ? 100 : Math.min(100, Math.round((subtotal / settings.freeShippingThreshold) * 100));
+    return `
+      <div class="bag-free ${alwaysFree || left <= 0 ? 'is-done' : ''}">
+        <p>${alwaysFree ? '<b>Free delivery</b> on every order, anywhere in India' : left > 0 ? `Add <b>${cur}${left.toLocaleString('en-IN')}</b> more for free delivery` : '<b>Free delivery unlocked</b>'}</p>
+        ${alwaysFree ? '' : `<div class="bag-free-bar" aria-hidden="true"><span style="width:${pct}%"></span></div>`}
+      </div>
+      <dl class="bag-tally">
+        <div><dt>Subtotal (${count} ${count === 1 ? 'item' : 'items'})</dt><dd>${cur}${subtotal.toLocaleString('en-IN')}</dd></div>
+        ${saved > 0 ? `<div class="is-save"><dt>You save on MRP</dt><dd>&minus;${cur}${saved.toLocaleString('en-IN')}</dd></div>` : ''}
+        <div><dt>Delivery</dt><dd>${shipping === 0 ? 'FREE' : `${cur}${shipping}`}</dd></div>
+        <div class="is-total"><dt>Total</dt><dd>${cur}${total.toLocaleString('en-IN')}</dd></div>
+      </dl>
+      <button type="button" class="bag-cta gr-btn" onclick="window.BravadianStore.openCheckoutModal();">
+        ${glowDisc(whatsappSVG(17))}<span class="gr-label">PLACE ORDER ON WHATSAPP</span>
+      </button>
+      <ul class="bag-trust">
+        <li>Order confirmed with you on WhatsApp</li>
+        <li>Pay by UPI, card or net banking</li>
+        <li>Free delivery across India, dispatched in 24&ndash;48 hours</li>
+      </ul>`;
+  }
+
+  function bagEmptyHTML(inDrawer) {
+    return `
+      <div class="bag-empty">
+        <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 7h12l-1 13H7L6 7z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg>
+        <h2>Your bag is empty</h2>
+        <p>Find a design you love. ₹699 each, free delivery across India.</p>
+        <a href="#/shop" class="bag-cta" ${inDrawer ? 'onclick="window.BravadianStore.closeCartDrawer();"' : ''}><span>SHOP ALL DESIGNS</span></a>
+      </div>`;
+  }
+
   function updateCartUI() {
     // Badges in Header
     const totalCount = StoreState.cart.reduce((sum, item) => sum + item.quantity, 0);
     const badges = document.querySelectorAll('.cart-badge-count');
     badges.forEach(b => {
       b.textContent = totalCount;
+      b.dataset.zero = String(totalCount === 0);
       if (b.closest('.header-bag-btn')) {
         b.style.display = 'inline';
       } else {
@@ -1830,62 +2681,18 @@
 
     // Populate Drawer
     const drawerList = document.getElementById('cartDrawerItems');
-    const drawerSubtotal = document.getElementById('drawerSubtotal');
-    const drawerShipping = document.getElementById('drawerShipping');
-    const drawerTotal = document.getElementById('drawerTotal');
-    const checkoutBtn = document.getElementById('drawerCheckoutBtn');
-
-    const { subtotal, shipping, total, settings } = calculateCartTotals();
-
-    if (drawerSubtotal) drawerSubtotal.textContent = `${settings.currency}${subtotal.toLocaleString('en-IN')}`;
-    if (drawerShipping) drawerShipping.textContent = shipping === 0 ? 'FREE' : `${settings.currency}${shipping}`;
-    if (drawerTotal) drawerTotal.textContent = `${settings.currency}${total.toLocaleString('en-IN')}`;
-
+    const drawerFoot = document.querySelector('.cart-drawer-foot');
+    const drawerTitle = document.querySelector('.cart-drawer-title');
+    const settings = window.BravadianDB.getSettings();
+    if (drawerTitle) drawerTitle.textContent = totalCount ? `YOUR BAG (${totalCount})` : 'YOUR BAG';
     if (drawerList) {
-      if (StoreState.cart.length === 0) {
-        drawerList.innerHTML = `
-          <div class="empty-state-box" style="padding: 4rem 1rem;">
-            <div class="empty-state-icon empty-vault-icon" aria-hidden="true">
-              <svg class="vault-icon-svg" width="60" height="60" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M24 4L42 12V24C42 34 34 41 24 44C14 41 6 34 6 24V12L24 4Z" stroke="#FFA000" stroke-width="1.8" fill="rgba(255, 160, 0, 0.08)"/>
-                <path d="M17 32V23C17 19.13 20.13 16 24 16C27.87 16 31 19.13 31 23V32" stroke="currentColor" stroke-width="1.6"/>
-                <circle cx="24" cy="24" r="3" fill="#FFA000"/>
-                <path d="M24 27V30" stroke="#FFA000" stroke-width="2"/>
-              </svg>
-            </div>
-            <h4 class="empty-state-title">YOUR BAG IS EMPTY</h4>
-            <p class="empty-state-sub">240 GSM architectural silhouettes are waiting in the drop.</p>
-            <a href="#/shop" class="btn-figma-primary btn-vault-action" onclick="window.BravadianStore.closeCartDrawer();">
-              <span>[ EXPLORE THE DROP ]</span>
-              <svg class="btn-vault-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-                <polyline points="12 5 19 12 12 19"></polyline>
-              </svg>
-            </a>
-          </div>
-        `;
-        if (checkoutBtn) checkoutBtn.style.display = 'none';
-      } else {
-        if (checkoutBtn) checkoutBtn.style.display = 'inline-flex';
-        drawerList.innerHTML = StoreState.cart.map(item => `
-          <div class="cart-item-row">
-            <img src="${item.image}" alt="${item.name}" class="cart-item-thumb">
-            <div class="cart-item-body">
-              <h4 class="cart-item-name">${item.name}</h4>
-              <div class="cart-item-meta">${item.color} / SIZE ${item.size}</div>
-              <div class="cart-item-actions">
-                <div class="qty-control" style="transform: scale(0.85); transform-origin: left center;">
-                  <button type="button" class="qty-btn" onclick="window.BravadianStore.updateCartItemQty('${item.id}', ${item.quantity - 1})">-</button>
-                  <span class="qty-display">${item.quantity}</span>
-                  <button type="button" class="qty-btn" onclick="window.BravadianStore.updateCartItemQty('${item.id}', ${item.quantity + 1})">+</button>
-                </div>
-                <span class="cart-item-price">${settings.currency}${(item.price * item.quantity).toLocaleString('en-IN')}</span>
-                <button type="button" class="cart-remove-btn" onclick="window.BravadianStore.removeFromCart('${item.id}')">REMOVE</button>
-              </div>
-            </div>
-          </div>
-        `).join('');
-      }
+      drawerList.innerHTML = StoreState.cart.length
+        ? StoreState.cart.map(item => cartLineHTML(item, settings)).join('')
+        : bagEmptyHTML(true);
+    }
+    if (drawerFoot) {
+      drawerFoot.hidden = StoreState.cart.length === 0;
+      if (StoreState.cart.length) drawerFoot.innerHTML = cartSummaryHTML(settings);
     }
   }
 
@@ -1907,84 +2714,36 @@
      6. CART DEDICATED VIEW (#/cart)
      -------------------------------------------------------------------------- */
   function renderCartPageView() {
-    const { subtotal, shipping, total, settings } = calculateCartTotals();
-
+    const settings = window.BravadianDB.getSettings();
     if (StoreState.cart.length === 0) {
-      mainContainer.innerHTML = `
-        <div class="container" style="padding: 8rem 2rem;">
-          <div class="empty-state-box">
-            <div class="empty-state-icon empty-vault-icon" aria-hidden="true">
-              <svg class="vault-icon-svg" width="72" height="72" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M24 4L42 12V24C42 34 34 41 24 44C14 41 6 34 6 24V12L24 4Z" stroke="#FFA000" stroke-width="1.8" fill="rgba(255, 160, 0, 0.08)"/>
-                <path d="M17 32V23C17 19.13 20.13 16 24 16C27.87 16 31 19.13 31 23V32" stroke="currentColor" stroke-width="1.6"/>
-                <circle cx="24" cy="24" r="3" fill="#FFA000"/>
-                <path d="M24 27V30" stroke="#FFA000" stroke-width="2"/>
-              </svg>
-            </div>
-            <h2 class="empty-state-title">YOUR BAG IS EMPTY</h2>
-            <p class="empty-state-sub">Discover unreleased 240 GSM architectural silhouettes in the collection archive.</p>
-            <a href="#/shop" class="btn-figma-primary btn-vault-action">
-              <span>[ EXPLORE THE DROP ]</span>
-              <svg class="btn-vault-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-                <polyline points="12 5 19 12 12 19"></polyline>
-              </svg>
-            </a>
-          </div>
-        </div>
-      `;
+      mainContainer.innerHTML = `<div class="bag-page is-empty">${bagEmptyHTML(false)}</div>`;
       return;
     }
-
+    const { total } = calculateCartTotals();
+    const count = cartCount();
     mainContainer.innerHTML = `
-      <div class="container" style="padding: 7rem 2rem;">
-        <div class="shop-headline-block" style="text-align: left; margin-bottom: 2.5rem;">
-          <span class="shop-pill-tag">[ YOUR ORDER ARCHIVE ]</span>
-          <h1 class="shop-main-title" style="font-size: 2.5rem;">SHOPPING CART</h1>
-        </div>
-
-        <div style="display: grid; grid-template-columns: 1.8fr 1fr; gap: 3rem;">
-          <!-- Item List -->
+      <div class="bag-page">
+        <header class="bag-head">
           <div>
-            ${StoreState.cart.map(item => `
-              <div class="cart-item-row" style="padding: 1.5rem 0;">
-                <img src="${item.image}" alt="${item.name}" style="width: 100px; height: 125px; object-fit: contain; background: #08080c; border: 1px solid rgba(255,255,255,0.08); border-radius: 4px;">
-                <div class="cart-item-body" style="padding-left: 1rem;">
-                  <h3 class="cart-item-name" style="font-size: 1.4rem;">${item.name}</h3>
-                  <div class="cart-item-meta" style="font-size: 0.85rem; margin: 0.4rem 0 1rem;">
-                    COLOR: ${item.color} &nbsp;•&nbsp; SIZE: ${item.size}
-                  </div>
-                  <div class="cart-item-actions">
-                    <div class="qty-control">
-                      <button type="button" class="qty-btn" onclick="window.BravadianStore.updateCartItemQty('${item.id}', ${item.quantity - 1})">-</button>
-                      <span class="qty-display">${item.quantity}</span>
-                      <button type="button" class="qty-btn" onclick="window.BravadianStore.updateCartItemQty('${item.id}', ${item.quantity + 1})">+</button>
-                    </div>
-                    <span class="cart-item-price" style="font-size: 1.2rem;">${settings.currency}${(item.price * item.quantity).toLocaleString('en-IN')}</span>
-                    <button type="button" class="cart-remove-btn" onclick="window.BravadianStore.removeFromCart('${item.id}')">REMOVE ITEM</button>
-                  </div>
-                </div>
-              </div>
-            `).join('')}
+            <span class="bag-kicker">YOUR BAG</span>
+            <h1>${count} ${count === 1 ? 'ITEM' : 'ITEMS'} IN YOUR BAG</h1>
           </div>
-
-          <!-- Summary Deck -->
-          <div>
-            <div style="background: #101015; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 2rem;">
-              <h3 style="font-family: 'Bebas Neue', var(--font-display), sans-serif; font-size: 1.6rem; font-weight: 400; letter-spacing: 2px; margin-bottom: 1.5rem;">ORDER SUMMARY</h3>
-              <div class="cart-tally-line"><span>Subtotal:</span><span>${settings.currency}${subtotal.toLocaleString('en-IN')}</span></div>
-              <div class="cart-tally-line"><span>Shipping:</span><span>${shipping === 0 ? 'FREE' : `${settings.currency}${shipping}`}</span></div>
-              <div class="cart-tally-line total"><span>Total:</span><span>${settings.currency}${total.toLocaleString('en-IN')}</span></div>
-              
-              <button type="button" class="btn-checkout-whatsapp" onclick="window.BravadianStore.openCheckoutModal();">
-                ${whatsappSVG(18)}
-                <span>PLACE ORDER ON WHATSAPP</span>
-              </button>
-            </div>
-          </div>
+          <a href="#/shop" class="bag-back">&larr; Continue shopping</a>
+        </header>
+        <div class="bag-grid">
+          <section class="bag-lines" aria-label="Items in your bag">
+            ${StoreState.cart.map(item => cartLineHTML(item, settings)).join('')}
+          </section>
+          <aside class="bag-summary" aria-label="Order summary">
+            <h2>ORDER SUMMARY</h2>
+            ${cartSummaryHTML(settings)}
+          </aside>
         </div>
-      </div>
-    `;
+        <div class="bag-sticky">
+          <div><span>Total</span><b>${settings.currency}${total.toLocaleString('en-IN')}</b></div>
+          <button type="button" class="bag-cta gr-btn" onclick="window.BravadianStore.openCheckoutModal();">${glowDisc(whatsappSVG(16))}<span class="gr-label">PLACE ORDER</span></button>
+        </div>
+      </div>`;
   }
 
   /* --------------------------------------------------------------------------
@@ -1996,6 +2755,12 @@
       return;
     }
     if (checkoutModal) {
+      const strip = document.getElementById('checkoutSummaryStrip');
+      if (strip) {
+        const { total, settings } = calculateCartTotals();
+        const count = cartCount();
+        strip.innerHTML = `<span>${count} ${count === 1 ? 'item' : 'items'} in your bag</span><b>Total ${settings.currency}${total.toLocaleString('en-IN')}</b>`;
+      }
       checkoutModal.classList.add('is-open');
     }
   }
@@ -2195,17 +2960,21 @@ Thank you.
      -------------------------------------------------------------------------- */
   function renderOrderSuccessView() {
     mainContainer.innerHTML = `
-      <section class="order-success-section container">
-        <div class="success-icon-badge">✓</div>
-        <h1 class="success-heading">YOUR ORDER REQUEST IS READY.</h1>
-        <p class="success-subtext">
-          We've prepared your order details in WhatsApp.<br>
-          Send the generated message to complete your order with the Bravadian concierge.
-        </p>
-        <div class="success-btn-group">
-          <a href="#/shop" class="btn-primary">
-            <span>CONTINUE SHOPPING</span>
-          </a>
+      <section class="done-page">
+        <div class="done-badge" aria-hidden="true">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        </div>
+        <span class="bag-kicker">ORDER READY ON WHATSAPP</span>
+        <h1>ALMOST DONE</h1>
+        <p class="done-lede">WhatsApp has opened with your order already typed in. Press <b>send</b> so it reaches us.</p>
+        <ol class="done-steps">
+          <li><b>Send the message</b><span>Your items, sizes and address are in the chat. Just press send.</span></li>
+          <li><b>We confirm</b><span>We reply to confirm your size, total and how you would like to pay.</span></li>
+          <li><b>We dispatch</b><span>Your order ships within 24&ndash;48 hours, anywhere in India.</span></li>
+        </ol>
+        <div class="done-actions">
+          <a href="#/shop" class="bag-cta"><span>CONTINUE SHOPPING</span></a>
+          <a href="${waURL(WA_MSG.orderHelp)}" target="_blank" rel="noopener noreferrer" class="done-ghost">WhatsApp did not open? Message us</a>
         </div>
       </section>
     `;
@@ -2281,6 +3050,9 @@ Thank you.
             <td>${fmt(row.sleeve)}</td>
           </tr>
         `).join('');
+        const empty = (k) => guideData.every(r => r[k] === null || r[k] === undefined || r[k] === '');
+        const table = tableBody.closest('table');
+        if (table) { table.classList.toggle('hide-c4', empty('shoulder')); table.classList.toggle('hide-c5', empty('sleeve')); }
       }
 
       sizeGuideModal.classList.add('is-open');
@@ -2437,7 +3209,7 @@ Thank you.
           </div>
           <div class="lb2-pair">
             <figure class="lb2-fig">
-              ${lbImg('lb-look-01', 'images/products/bharat-spirit/worn-studio.webp', 'Bharat Spirit tee, styled look', 'lb2-img')}
+              ${lbImg('lb-look-01', 'images/products/bharat-spirit/worn-studio.webp?v=2', 'Bharat Spirit tee, styled look', 'lb2-img')}
               <figcaption><b>LOOK 01 // BHARAT SPIRIT</b><span>BLACK · OVERSIZED</span></figcaption>
             </figure>
             <figure class="lb2-fig">
@@ -2453,7 +3225,7 @@ Thank you.
               <span class="lb2-kicker">02 / SHOP THE LOOK</span>
               <h2 class="lb2-h2">WORN IN THIS LOOKBOOK</h2>
             </div>
-            <p class="lb2-note">Launch price ends ${new Date(settings.launchEndsAt || Date.now()).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}.</p>
+            <p class="lb2-note">₹699 each, free delivery across India.</p>
           </div>
           <div class="lb2-shop" style="--n:${Math.max(shopLook.length, 2)}">
             ${shopLook.map((p, n) => `
@@ -2478,14 +3250,15 @@ Thank you.
 
         <footer class="lb2-quote">
           <span class="lb2-kicker">INDIAN ROOTS // MODERN FORM</span>
-          <blockquote>&ldquo;You didn&rsquo;t just pick a T-shirt. You picked a story.&rdquo;</blockquote>
+          <blockquote data-focus-reveal>&ldquo;You didn&rsquo;t just pick a T-shirt. You picked a story.&rdquo;</blockquote>
           <span class="lb2-sign">BRAVADIAN, EST. 2026</span>
           <div class="lb2-actions">
             <a href="#/shop" class="lb-btn lb-btn-red">SHOP ALL DESIGNS &rarr;</a>
-            <a href="https://wa.me/${settings.whatsappNumber}?text=${encodeURIComponent('Hi Bravadian, I would like to place a custom order.')}" target="_blank" rel="noopener noreferrer" class="lb-btn lb-btn-ghost">CUSTOM ORDER ON WHATSAPP</a>
+            <a href="${waURL(WA_MSG.custom)}" target="_blank" rel="noopener noreferrer" class="lb-btn lb-btn-ghost">CUSTOM ORDER ON WHATSAPP</a>
           </div>
         </footer>
       </div>`;
+    initFocusReveal(mainContainer);
   }
 
 
@@ -2708,7 +3481,7 @@ Thank you.
                   <polyline points="12 5 19 12 12 19"></polyline>
                 </svg>
               </a>
-              <a href="${waURL('Hi Bravadian, I have a question about the brand and upcoming drops')}" target="_blank" rel="noopener noreferrer" class="btn-figma-whatsapp">
+              <a href="${waURL(WA_MSG.question)}" target="_blank" rel="noopener noreferrer" class="btn-figma-whatsapp">
                 ${whatsappSVG(18)}
                 <span>TALK TO US ON WHATSAPP</span>
               </a>
@@ -2721,46 +3494,26 @@ Thank you.
 
   function renderContactView() {
     const settings = window.BravadianDB.getSettings();
+    const card = (href, label, value, note, primary, ext) => `
+      <a href="${href}" class="contact-card ${primary ? 'is-primary' : ''}" ${ext ? 'target="_blank" rel="noopener noreferrer"' : ''}>
+        <span class="contact-label">${label}</span>
+        <span class="contact-value">${value}</span>
+        <span class="contact-note">${note}</span>
+      </a>`;
     mainContainer.innerHTML = `
-      <div class="policy-page-container">
-        <span class="shop-pill-tag">[ DIRECT TRANSMISSIONS ]</span>
-        <h1 class="policy-headline">CONTACT CONCIERGE</h1>
-        <div class="policy-body">
-          <p style="font-size: 1rem; color: #b5b5c2; margin-bottom: 1.5rem;">For custom inquiries, size consultations, order tracking, or wholesale batch allotments:</p>
-          <div style="margin: 2rem 0; padding: 2rem; background: #0E0E12; border: 1px solid rgba(255,160,0,0.25); border-radius: 4px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem;">
-              <div>
-                <span style="display: block; font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700; letter-spacing: 1.5px; color: #FFA000; margin-bottom: 0.35rem;">WHATSAPP CONCIERGE</span>
-                <a href="https://wa.me/${settings.whatsappNumber}?text=Hi%20Bravadian%20Concierge,%20I%20have%20an%20inquiry" target="_blank" rel="noopener noreferrer" style="font-family: var(--font-mono); font-size: 0.95rem; color: #fff; text-decoration: none; display: flex; align-items: center; gap: 0.5rem; transition: color 0.2s ease;">
-                  <span>+${settings.whatsappNumber}</span>
-                </a>
-              </div>
-              <div>
-                <span style="display: block; font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700; letter-spacing: 1.5px; color: #FFA000; margin-bottom: 0.35rem;">INSTAGRAM CHANNEL</span>
-                <a href="${settings.instagramUrl}" target="_blank" rel="noopener noreferrer" style="font-family: var(--font-mono); font-size: 0.95rem; color: #fff; text-decoration: none; transition: color 0.2s ease;">
-                  @bravadian.in
-                </a>
-              </div>
-              <div>
-                <span style="display: block; font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700; letter-spacing: 1.5px; color: #FFA000; margin-bottom: 0.35rem;">DIRECT CALL & LINE</span>
-                <a href="tel:+${settings.whatsappNumber}" style="font-family: var(--font-mono); font-size: 0.95rem; color: #fff; text-decoration: none;">
-                  07975 362526
-                </a>
-              </div>
-              <div>
-                <span style="display: block; font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700; letter-spacing: 1.5px; color: #FFA000; margin-bottom: 0.35rem;">CONCIERGE EMAIL</span>
-                <a href="mailto:${settings.supportEmail}" style="font-family: var(--font-mono); font-size: 0.95rem; color: #fff; text-decoration: none;">
-                  ${settings.supportEmail}
-                </a>
-              </div>
-            </div>
-            <div style="margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
-              <span style="font-family: var(--font-mono); font-size: 0.75rem; color: #8E8E9C;">OFFICIAL STOREFRONT: <strong style="color: #fff;">bravadian.in</strong></span>
-              <span style="font-family: var(--font-mono); font-size: 0.75rem; color: #FFA000;">🇮🇳 INDIAN ROOTS. MODERN FORM.</span>
-            </div>
-          </div>
+      <section class="contact-page">
+        <span class="bag-kicker">CONTACT</span>
+        <h1>TALK TO US</h1>
+        <p class="contact-lede">Questions about sizes, an order or a custom print? WhatsApp is the fastest way to reach us.</p>
+        <div class="contact-grid">
+          ${card(waURL(WA_MSG.question), 'WHATSAPP', '+91 79753 62526', 'Sizes, products, payments. Tap to chat.', true, true)}
+          ${card(waURL(WA_MSG.orderHelp), 'ORDER HELP', 'Track or change an order', 'Keep your order number handy.', false, true)}
+          ${card(waURL(WA_MSG.custom), 'CUSTOM ORDERS', 'Your design, your name', 'Team tees, gifts and one-off prints.', false, true)}
+          ${card(settings.instagramUrl, 'INSTAGRAM', '@bravadian.in', 'New drops and behind the scenes.', false, true)}
+          ${card(`mailto:${settings.supportEmail}`, 'EMAIL', settings.supportEmail, 'For longer questions and invoices.', false, false)}
+          ${card(`tel:+${settings.whatsappNumber}`, 'CALL', '079753 62526', 'Prefer to talk? Give us a ring.', false, false)}
         </div>
-      </div>
+      </section>
     `;
   }
 
@@ -2773,12 +3526,12 @@ Thank you.
         <!-- 1. HERO HEADER -->
         <div class="care-page-hero">
           <div class="about-badge-wrap" style="margin-bottom: 0.75rem;">
-            <span class="figma-tag">[ 🛡️ MAINTENANCE & PRESERVATION MANUAL ]</span>
+            <span class="figma-tag">[ CARE GUIDE ]</span>
             <span class="about-radar-dot" aria-hidden="true"></span>
           </div>
-          <h1 class="care-page-title">GARMENT CARE BOOK</h1>
+          <h1 class="care-page-title">LOOK AFTER YOUR TEE</h1>
           <p class="care-page-intro">
-            Bravadian cotton is raw, heavyweight (240–400 GSM), and highly sensitive to heat and mechanical agitation. Follow these calibrated protocols to protect fiber tensile strength, collar tension, and discharge screen print depth for decades of wear.
+            Our tees are heavy 240 GSM cotton with large printed designs. A little care keeps the colours bright, the collar firm and the print looking new for years.
           </p>
         </div>
 
@@ -2786,163 +3539,42 @@ Thank you.
         <section class="size-spec-section" style="margin-bottom: 3.5rem;">
           <div class="size-spec-section-head">
             <span class="size-spec-section-num">— 04 / CARE GUIDE</span>
-            <h2 class="size-spec-section-title">DAILY CARE MATRIX</h2>
+            <h2 class="size-spec-section-title">EVERY WASH</h2>
             <p class="size-spec-section-sub">
-              Execute each step systematically after every active wear cycle.
+              Four simple steps, every time you wash.
             </p>
           </div>
 
-          <div class="garment-care-cards-grid">
-            <!-- Card 1: Machine Wash Cold -->
-            <div class="garment-care-card">
-              <div class="care-icon-wrap">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FFA000" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
-                </svg>
-              </div>
-              <h3 class="care-card-title">MACHINE WASH COLD</h3>
-              <p class="care-card-desc">
-                Wash inside out at 30°C maximum. Cold temperatures preserve fabric fibers and color depth.
-              </p>
+          <div class="care-grid">
+            <div class="care-item">
+              <span class="care-sym"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 7l2.4 12.5h14.2L21.5 7"/><path d="M2.5 7c1.6 1.4 3.2 1.4 4.8 0s3.2-1.4 4.7 0 3.2 1.4 4.8 0 3.1-1.4 4.7 0"/><text x="12" y="16.6" font-size="6.2" font-weight="700" text-anchor="middle" fill="currentColor" stroke="none" font-family="Arial, sans-serif">30</text></svg></span>
+              <div class="care-txt"><h4>Wash cold</h4><p>Inside out, gentle cycle. Keeps the print and the colour bright.</p></div>
+              <span class="care-chip">30°C</span>
             </div>
-
-            <!-- Card 2: Hang Dry Only -->
-            <div class="garment-care-card">
-              <div class="care-icon-wrap">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FFA000" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <circle cx="12" cy="12" r="5"/>
-                  <line x1="12" y1="1" x2="12" y2="3"/>
-                  <line x1="12" y1="21" x2="12" y2="23"/>
-                  <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
-                  <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-                  <line x1="1" y1="12" x2="3" y2="12"/>
-                  <line x1="21" y1="12" x2="23" y2="12"/>
-                  <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
-                  <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-                </svg>
-              </div>
-              <h3 class="care-card-title">HANG DRY ONLY</h3>
-              <p class="care-card-desc">
-                Do not tumble dry. Dry flat in the shade so the tee keeps its shape.
-              </p>
+            <div class="care-item">
+              <span class="care-sym"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="7" y1="12" x2="17" y2="12"/><path d="M3 9L9 3M3 6l3-3"/></svg></span>
+              <div class="care-txt"><h4>Dry in the shade</h4><p>Lay it flat, away from direct sun. No tumble dryer.</p></div>
+              <span class="care-chip">Flat dry</span>
             </div>
-
-            <!-- Card 3: Do Not Bleach -->
-            <div class="garment-care-card">
-              <div class="care-icon-wrap">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FFA000" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <circle cx="12" cy="12" r="10"/>
-                  <line x1="15" y1="9" x2="9" y2="15"/>
-                  <line x1="9" y1="9" x2="15" y2="15"/>
-                </svg>
-              </div>
-              <h3 class="care-card-title">DO NOT BLEACH</h3>
-              <p class="care-card-desc">
-                Avoid chlorine or harsh chemical detergents. Spot clean locally for stains.
-              </p>
+            <div class="care-item">
+              <span class="care-sym"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.5L21.5 20h-19z"/><path d="M5 5l14 14M19 5L5 19"/></svg></span>
+              <div class="care-txt"><h4>No bleach</h4><p>Mild detergent only. Dab small stains by hand.</p></div>
+              <span class="care-chip">Mild detergent</span>
             </div>
-
-            <!-- Card 4: Iron Low -->
-            <div class="garment-care-card">
-              <div class="care-icon-wrap">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FFA000" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                </svg>
-              </div>
-              <h3 class="care-card-title">IRON LOW</h3>
-              <p class="care-card-desc">
-                Iron inside out on the lowest heat setting. Do not iron directly on raised silicone prints.
-              </p>
+            <div class="care-item">
+              <span class="care-sym"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 18h18l-1.8-6.4A3 3 0 0 0 16.3 9.5H9"/><path d="M3 18c0-4.2 2.8-7 7-7h10"/><circle cx="12" cy="14.6" r="0.9" fill="currentColor" stroke="none"/></svg></span>
+              <div class="care-txt"><h4>Iron low, inside out</h4><p>Lowest heat, never directly on the print.</p></div>
+              <span class="care-chip">Low heat</span>
             </div>
           </div>
+          <p class="care-tip"><b>Tip:</b> turn your tee inside out before every wash. It is the single best way to protect the print.</p>
         </section>
-
-        <!-- 3. CONSERVATION STANDARD BANNER (SYSTEM SPECIFICATION) -->
-        <div class="conservation-protocol-banner">
-          <div class="conservation-header-strip">
-            <div class="conservation-tag-left">
-              <span>CONSERVATION STANDARD</span>
-              <span class="conservation-bars" aria-hidden="true">// ▮▮▮▮▮▮▮▮</span>
-            </div>
-            <div class="conservation-tag-right">
-              DISCHARGE PRINTING // REACTIVE DYES // HEAVY JERSEY
-            </div>
-          </div>
-
-          <h2 class="conservation-title">GARMENT PRESERVATION PROTOCOL</h2>
-
-          <div class="conservation-protocol-grid">
-            <!-- 1. 30°C Cold Cycle -->
-            <div class="conservation-item">
-              <div class="conservation-item-head">
-                <span class="conservation-item-icon">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/>
-                  </svg>
-                </span>
-                <span>30°C COLD CYCLE</span>
-              </div>
-              <p class="conservation-item-desc">
-                Always wash inside-out at or below 30°C (86°F). Protects high-density discharge prints and prevents fiber degradation.
-              </p>
-            </div>
-
-            <!-- 2. No Tumble Dry -->
-            <div class="conservation-item">
-              <div class="conservation-item-head">
-                <span class="conservation-item-icon">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/>
-                    <line x1="1" y1="1" x2="23" y2="23"/>
-                  </svg>
-                </span>
-                <span>NO TUMBLE DRY</span>
-              </div>
-              <p class="conservation-item-desc">
-                Flat line-dry away from direct harsh midday ultraviolet. Tumble drying damages the 3.5cm collar tension rib.
-              </p>
-            </div>
-
-            <!-- 3. Reverse Steam Only -->
-            <div class="conservation-item">
-              <div class="conservation-item-head">
-                <span class="conservation-item-icon">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M12 2v8M8 6l4-4 4 4M4 14a8 8 0 0 0 16 0"/>
-                  </svg>
-                </span>
-                <span>REVERSE STEAM ONLY</span>
-              </div>
-              <p class="conservation-item-desc">
-                Iron strictly on the reverse side with moderate steam. Never apply hot metal plate directly over the Hoysala screen prints.
-              </p>
-            </div>
-
-            <!-- 4. Museum Fold -->
-            <div class="conservation-item">
-              <div class="conservation-item-head">
-                <span class="conservation-item-icon">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-                    <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
-                    <line x1="12" y1="22.08" x2="12" y2="12"/>
-                  </svg>
-                </span>
-                <span>MUSEUM FOLD</span>
-              </div>
-              <p class="conservation-item-desc">
-                Store folded horizontally in the provided dust bag. Avoid continuous thin wire hanger storage to maintain shoulder seams.
-              </p>
-            </div>
-          </div>
-        </div>
 
         <!-- 4. TECHNICAL FIBER & STRUCTURAL SPECIFICATIONS -->
         <section class="size-spec-section" style="margin-top: 3.5rem;">
           <div class="size-spec-section-head">
-            <span class="size-spec-section-num">— 05 / COMPOSITION & INTEGRITY</span>
-            <h2 class="size-spec-section-title">MATERIAL ARCHITECTURE</h2>
+            <span class="size-spec-section-num">— 05 / WHAT IT IS MADE OF</span>
+            <h2 class="size-spec-section-title">FABRIC DETAILS</h2>
           </div>
 
           <div style="overflow-x: auto;">
@@ -2950,35 +3582,35 @@ Thank you.
               <thead>
                 <tr>
                   <th>COMPONENT</th>
-                  <th>SPECIFICATION</th>
-                  <th>CARE TOLERANCE</th>
-                  <th>EXPECTED LIFESPAN</th>
+                  <th>WHAT IT IS</th>
+                  <th>HOW TO CARE</th>
+                  <th>WHY IT MATTERS</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
                   <td style="color: #FFA000; font-weight: 700;">240 GSM Body Fabric</td>
-                  <td>100% Combed Indian Long-Staple Cotton</td>
-                  <td>Max 30°C / No Agitation</td>
-                  <td>500+ Wear Cycles</td>
+                  <td>French Terry cotton, bio + silicone washed</td>
+                  <td>Cold, gentle wash</td>
+                  <td>Soft, thick and holds its shape</td>
                 </tr>
                 <tr>
                   <td style="color: #FFA000; font-weight: 700;">1.25" Collar Rib</td>
-                  <td>Lycra-Reinforced High-Elastic Ribbing</td>
-                  <td>Flat Lay Dry (Zero Stretch)</td>
-                  <td>Anti-Sag Structural Guarantee</td>
+                  <td>Thick ribbed collar</td>
+                  <td>Dry flat</td>
+                  <td>Stays neat around the neck</td>
                 </tr>
                 <tr>
-                  <td style="color: #FFA000; font-weight: 700;">Hoysala Relief Prints</td>
-                  <td>High-Density Discharge & Reactive Pigments</td>
-                  <td>Reverse Ironing Only</td>
-                  <td>Zero Cracking / Zero Peeling</td>
+                  <td style="color: #FFA000; font-weight: 700;">Printed Artwork</td>
+                  <td>Large DTF print</td>
+                  <td>Iron inside out only</td>
+                  <td>Keeps colours bright</td>
                 </tr>
                 <tr>
                   <td style="color: #FFA000; font-weight: 700;">Shoulder Drop Seams</td>
-                  <td>Overlocked Double-Needle Chainstitch</td>
-                  <td>Fold Flat / Wide Hangers Only</td>
-                  <td>Zero Seam Slippage</td>
+                  <td>Dropped shoulders, strong stitching</td>
+                  <td>Fold, or use a wide hanger</td>
+                  <td>The relaxed oversized fit</td>
                 </tr>
               </tbody>
             </table>
@@ -2988,21 +3620,163 @@ Thank you.
         <!-- 5. QUICK ACTIONS STRIP -->
         <div class="care-page-cta-strip">
           <div>
-            <span class="figma-tag">[ ARCHIVAL SYSTEM READY ]</span>
-            <h3 style="font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; color: #fff; margin: 0.35rem 0 0 0; letter-spacing: 1.5px; text-transform: uppercase;">VERIFY YOUR EXACT FIT</h3>
+            <span class="figma-tag">[ NOT SURE OF YOUR SIZE? ]</span>
+            <h3 style="font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; color: #fff; margin: 0.35rem 0 0 0; letter-spacing: 1.5px; text-transform: uppercase;">FIND YOUR FIT</h3>
           </div>
           <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
             <button type="button" onclick="window.BravadianStore.openSizeGuideModal();" class="btn-figma-primary" style="cursor: pointer;">
               <span>[ OPEN SIZE GUIDE ]</span>
             </button>
             <a href="#/shop" class="btn-figma-whatsapp" style="text-decoration: none;">
-              <span>EXPLORE THE COLLECTION →</span>
+              <span>SHOP ALL DESIGNS →</span>
             </a>
           </div>
         </div>
       </div>
     `;
   }
+
+  // Checkout: one-tap delivery address (Swiggy-style), plus pincode -> city/state lookup.
+  // Location goes only to OpenStreetMap's geocoder and India Post's pincode API; nothing is stored.
+  function initLocationAssist() {
+    const btn = document.getElementById('locBtn');
+    if (!btn) return;
+    const $ = id => document.getElementById(id);
+    const hint = $('locHint'), card = $('locCard');
+    const put = (id, v, force) => { const el = $(id); if (el && v && (force || !el.value.trim())) { el.value = v; el.dispatchEvent(new Event('input', { bubbles: true })); el.closest('.checkout-field')?.classList.remove('has-error'); } };
+    const setBusy = (on, text) => { btn.classList.toggle('is-busy', on); btn.disabled = on; hint.textContent = text; };
+
+    // Small map preview from OpenStreetMap tiles (3x3 around the point, zoom 16)
+    const mapHTML = (lat, lon) => {
+      const z = 16, n = 2 ** z;
+      const fx = (lon + 180) / 360 * n;
+      const fy = (1 - Math.log(Math.tan(lat * Math.PI / 180) + 1 / Math.cos(lat * Math.PI / 180)) / Math.PI) / 2 * n;
+      const tx = Math.floor(fx), ty = Math.floor(fy);
+      const px = Math.round((fx - tx) * 256) + 256, py = Math.round((fy - ty) * 256) + 256;
+      let tiles = '';
+      for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+        tiles += `<img src="https://tile.openstreetmap.org/${z}/${tx + dx}/${ty + dy}.png" alt="" style="left:${(dx + 1) * 256}px;top:${(dy + 1) * 256}px" loading="lazy">`;
+      }
+      return `<div class="loc-map" aria-hidden="true"><div class="loc-tiles" style="left:calc(50% - ${px}px);top:calc(50% - ${py}px)">${tiles}</div><span class="loc-pin"></span><small class="loc-credit">&copy; OpenStreetMap</small></div>`;
+    };
+
+    const showCard = (lat, lon, a) => {
+      const area = [a.road, a.neighbourhood || a.suburb].filter(Boolean).join(', ');
+      const city = a.city || a.town || a.village || a.county || '';
+      card.innerHTML = `
+        ${mapHTML(lat, lon)}
+        <div class="loc-card-body">
+          <span class="loc-card-kicker">DELIVERING TO</span>
+          <b>${area || city}</b>
+          <span>${[city, a.state].filter(Boolean).join(', ')}${a.postcode ? ` &ndash; ${a.postcode}` : ''}</span>
+          <button type="button" class="loc-change" id="locChange">Change</button>
+        </div>`;
+      card.hidden = false;
+      const or = document.querySelector('.loc-or');
+      if (or) or.hidden = true;
+      $('locChange').onclick = () => { card.hidden = true; btn.hidden = false; if (or) or.hidden = false; $('chkAddress2').focus(); };
+      btn.hidden = true;
+    };
+
+    btn.addEventListener('click', () => {
+      if (!('geolocation' in navigator)) { hint.textContent = 'Location is not available on this device. Please type your address.'; return; }
+      setBusy(true, 'Finding you…');
+      navigator.geolocation.getCurrentPosition(async (pos) => {
+        const { latitude: lat, longitude: lon } = pos.coords;
+        try {
+          setBusy(true, 'Getting your address…');
+          const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1&accept-language=en`);
+          const d = await r.json();
+          const a = d.address || {};
+          if (a.country_code && a.country_code !== 'in') { setBusy(false, 'We deliver within India only. Please type an Indian address.'); return; }
+          put('chkAddress2', [a.road, a.neighbourhood || a.suburb].filter(Boolean).join(', '), true);
+          put('chkCity', a.city || a.town || a.village || a.county, true);
+          put('chkState', a.state, true);
+          put('chkPincode', (a.postcode || '').replace(/\D/g, '').slice(0, 6), true);
+          if (a.amenity || a.shop || a.building) put('chkLandmark', `Near ${a.amenity || a.shop || a.building}`);
+          setBusy(false, 'Fills in your area, city, state and pincode');
+          showCard(lat, lon, a);
+          const flat = $('chkAddress1');
+          flat.placeholder = 'Add your house / flat no. so the courier finds you';
+          flat.focus();
+        } catch (e) {
+          setBusy(false, 'Could not fetch your address. Please type it below.');
+        }
+      }, (err) => {
+        setBusy(false, err.code === 1 ? 'Location permission is off. Allow it in your browser, or type your address.' : 'Could not find your location. Please type your address.');
+      }, { enableHighAccuracy: true, timeout: 12000, maximumAge: 60000 });
+    });
+
+    // Typing a 6-digit pincode fills city and state (India Post)
+    const pin = $('chkPincode');
+    let lastPin = '';
+    pin.addEventListener('input', async () => {
+      const v = pin.value.replace(/\D/g, '').slice(0, 6);
+      if (pin.value !== v) pin.value = v;
+      if (v.length !== 6 || v === lastPin) return;
+      lastPin = v;
+      try {
+        const r = await fetch(`https://api.postalpincode.in/pincode/${v}`);
+        const [d] = await r.json();
+        const po = d && d.Status === 'Success' && d.PostOffice && d.PostOffice[0];
+        if (po && pin.value === v) { put('chkCity', po.District); put('chkState', po.State); }
+      } catch (e) { /* offline or API down: the shopper types it */ }
+    });
+  }
+  initLocationAssist();
+
+  // Button focus: the amber camera frame from the headings glides to whichever button is pointed at
+  // (hover on desktop, a short flash on tap for phones); the icon sharpens as it lands.
+  function initIconFocus() {
+    const SEL = '.btn-figma-primary, .btn-figma-whatsapp, .gr-btn, .bag-cta, .lab-pill, .lb-btn, .btn-universe-callout, .btn-canon-load-more, .btn-checkout-whatsapp, .loc-btn, .reel-all, [data-focus-icon]';
+    const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const frame = document.createElement('span');
+    frame.className = 'icon-frame';
+    frame.setAttribute('aria-hidden', 'true');
+    frame.innerHTML = '<i></i><i></i><i></i><i></i>';
+    document.body.appendChild(frame);
+    let current = null, flash = 0;
+    const show = (el) => {
+      const r = el.getBoundingClientRect(), pad = 6;
+      const fresh = !frame.classList.contains('is-on');
+      if (fresh || still) frame.classList.add('no-move');
+      frame.style.left = `${r.left - pad}px`;
+      frame.style.top = `${r.top - pad}px`;
+      frame.style.width = `${r.width + pad * 2}px`;
+      frame.style.height = `${r.height + pad * 2}px`;
+      if (fresh || still) { void frame.offsetWidth; frame.classList.remove('no-move'); }
+      frame.classList.add('is-on');
+      if (current && current !== el) current.classList.remove('is-framed');
+      current = el;
+      el.classList.remove('is-framed'); void el.offsetWidth; el.classList.add('is-framed');
+    };
+    const hide = () => { frame.classList.remove('is-on'); if (current) current.classList.remove('is-framed'); current = null; };
+    document.addEventListener('pointerover', (e) => {
+      if (e.pointerType !== 'mouse') return;
+      const el = e.target.closest(SEL);
+      if (el) show(el);
+    });
+    document.addEventListener('pointerout', (e) => {
+      if (e.pointerType !== 'mouse') return;
+      const el = e.target.closest(SEL);
+      if (el && !(e.relatedTarget && el.contains(e.relatedTarget))) hide();
+    });
+    document.addEventListener('pointerdown', (e) => {
+      if (e.pointerType === 'mouse') return;
+      const el = e.target.closest(SEL);
+      if (!el) return;
+      show(el);
+      clearTimeout(flash);
+      flash = setTimeout(hide, 550);
+    }, { passive: true });
+    window.addEventListener('scroll', () => { if (current) hide(); }, { passive: true });
+  }
+  initIconFocus();
+
+  // Static WhatsApp links in index.html carry data-wa="<template>"
+  document.querySelectorAll('a[data-wa]').forEach(a => {
+    if (WA_MSG[a.dataset.wa] && typeof WA_MSG[a.dataset.wa] === 'string') a.href = waURL(WA_MSG[a.dataset.wa]);
+  });
 
   // Global Store API export
   window.BravadianStore = {
@@ -3020,14 +3794,13 @@ Thank you.
     },
     requestVipEmbargo(productName) {
       const settings = window.BravadianDB.getSettings();
-      const text = encodeURIComponent(`Hi Bravadian Concierge, I would like priority notification for the upcoming drop: "${productName}". Please register me for early VIP access!`);
-      const url = `https://wa.me/${settings.whatsappNumber}?text=${text}`;
-      window.open(url, '_blank');
+      window.open(waURL(WA_MSG.notify(productName)), '_blank');
     },
     updateCartItemQty,
     removeFromCart,
     openCartDrawer,
     closeCartDrawer,
+    openQuickAdd,
     openSearchModal,
     closeSearchModal,
     openCheckoutModal,

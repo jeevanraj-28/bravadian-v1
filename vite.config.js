@@ -13,5 +13,7 @@ export default defineConfig({
   server: {
     port: 3000,
     open: false,
+    // Allow preview links shared through VS Code port forwarding (dev tunnels)
+    allowedHosts: ['.devtunnels.ms'],
   },
 });

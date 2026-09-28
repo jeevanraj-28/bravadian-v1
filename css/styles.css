@@ -61,6 +61,7 @@ body {
   color: var(--color-white);
   line-height: 1.6;
   min-height: 100vh;
+  min-height: 100svh;
   position: relative;
   overflow-x: hidden;
 }
@@ -108,6 +109,7 @@ img, svg {
   left: 0;
   width: 100vw;
   height: 100vh;
+  height: 100svh;
   pointer-events: none;
   z-index: 999;
   opacity: 0.045;
@@ -198,6 +200,7 @@ img, svg {
   left: 0;
   width: 100vw;
   height: 100vh;
+  height: 100dvh;
   background-color: #050507;
   z-index: 99999;
   display: flex;
@@ -315,10 +318,10 @@ img, svg {
   transition: transform 0.3s var(--transition-smooth), filter 0.3s ease;
 }
 
-.brand-mark:hover .brand-logo-img {
+@media (hover: hover) and (pointer: fine) { .brand-mark:hover .brand-logo-img {
   transform: scale(1.03);
   filter: drop-shadow(0 0 16px rgba(255, 77, 0, 0.45));
-}
+} }
 
 @media (max-width: 768px) {
   .brand-logo-img {
@@ -373,10 +376,10 @@ img, svg {
   transition: all 0.3s ease;
 }
 
-.sound-toggle-btn:hover {
+@media (hover: hover) and (pointer: fine) { .sound-toggle-btn:hover {
   background: rgba(255, 255, 255, 0.08);
   border-color: rgba(255, 255, 255, 0.2);
-}
+} }
 
 .sound-bars {
   display: flex;
@@ -417,15 +420,15 @@ img, svg {
   font-weight: 700;
   letter-spacing: 1.5px;
   border-radius: 2px;
-  transition: all 0.3s var(--transition-smooth);
+  transition: opacity 200ms var(--transition-smooth), transform 200ms var(--transition-smooth), visibility 200ms var(--transition-smooth), color 200ms var(--transition-smooth), background-color 200ms var(--transition-smooth), border-color 200ms var(--transition-smooth), box-shadow 200ms var(--transition-smooth);
 }
 
-.nav-cta-btn:hover {
+@media (hover: hover) and (pointer: fine) { .nav-cta-btn:hover {
   background: var(--color-ember);
   color: var(--color-white);
   box-shadow: 0 0 20px var(--color-ember-glow);
   transform: translateY(-1px);
-}
+} }
 
 @media (max-width: 900px) {
   .header-center-spec {
@@ -454,6 +457,7 @@ img, svg {
 .hero-section {
   position: relative;
   min-height: 100vh;
+  min-height: 100svh;
   padding-top: calc(var(--header-height) + 3rem);
   padding-bottom: 5rem;
   display: flex;
@@ -559,10 +563,10 @@ img, svg {
   transition: transform 0.4s var(--transition-smooth), filter 0.4s ease;
 }
 
-.hero-brand-logo:hover {
+@media (hover: hover) and (pointer: fine) { .hero-brand-logo:hover {
   transform: scale(1.02);
   filter: drop-shadow(0 0 50px rgba(255, 77, 0, 0.55));
-}
+} }
 
 @media (max-width: 768px) {
   .hero-logo-wrap {
@@ -597,10 +601,10 @@ img, svg {
   letter-spacing: normal;
 }
 
-.char-span:hover {
+@media (hover: hover) and (pointer: fine) { .char-span:hover {
   color: var(--color-ember);
   transform: translateY(-4px) scale(1.05);
-}
+} }
 
 .hero-tagline-wrap {
   display: flex;
@@ -839,7 +843,7 @@ img, svg {
   letter-spacing: 2px;
   border-radius: 2px;
   overflow: hidden;
-  transition: all 0.3s var(--transition-smooth);
+  transition: opacity 200ms var(--transition-smooth), transform 200ms var(--transition-smooth), visibility 200ms var(--transition-smooth), color 200ms var(--transition-smooth), background-color 200ms var(--transition-smooth), border-color 200ms var(--transition-smooth), box-shadow 200ms var(--transition-smooth);
 }
 
 .btn-primary .btn-bg {
@@ -854,9 +858,9 @@ img, svg {
   z-index: 1;
 }
 
-.btn-primary:hover .btn-bg {
+@media (hover: hover) and (pointer: fine) { .btn-primary:hover .btn-bg {
   transform: translateY(0);
-}
+} }
 
 .btn-primary .btn-text, .btn-primary .btn-arrow {
   position: relative;
@@ -864,15 +868,15 @@ img, svg {
   transition: color 0.3s ease, transform 0.3s ease;
 }
 
-.btn-primary:hover {
+@media (hover: hover) and (pointer: fine) { .btn-primary:hover {
   color: var(--color-white);
   box-shadow: 0 10px 30px var(--color-ember-glow);
   transform: translateY(-2px);
-}
+} }
 
-.btn-primary:hover .btn-arrow {
+@media (hover: hover) and (pointer: fine) { .btn-primary:hover .btn-arrow {
   transform: translateX(4px);
-}
+} }
 
 .btn-secondary {
   display: inline-flex;
@@ -887,15 +891,15 @@ img, svg {
   font-weight: 600;
   letter-spacing: 1.5px;
   border-radius: 2px;
-  transition: all 0.3s ease;
+  transition: opacity 200ms ease, transform 200ms ease, visibility 200ms ease, color 200ms ease, background-color 200ms ease, border-color 200ms ease, box-shadow 200ms ease;
 }
 
-.btn-secondary:hover {
+@media (hover: hover) and (pointer: fine) { .btn-secondary:hover {
   color: var(--color-white);
   background: rgba(255, 255, 255, 0.08);
   border-color: rgba(255, 255, 255, 0.3);
   transform: translateY(-2px);
-}
+} }
 
 /* Quick Spec Ribbon */
 .hero-spec-strip {
@@ -1000,12 +1004,12 @@ img, svg {
   transition: all 0.3s ease;
 }
 
-.teaser-unlock-tracker:hover {
+@media (hover: hover) and (pointer: fine) { .teaser-unlock-tracker:hover {
   background: rgba(255, 77, 0, 0.16);
   border-color: var(--color-ember);
   box-shadow: 0 0 20px var(--color-ember-glow);
   transform: translateY(-1px);
-}
+} }
 
 .unlock-icon {
   color: var(--color-ember);
@@ -1192,15 +1196,15 @@ img, svg {
   border: 1px solid var(--color-card-border);
   padding: 2rem 1.5rem;
   border-radius: 4px;
-  transition: all 0.35s ease;
+  transition: opacity 240ms var(--ease-out), transform 240ms var(--ease-out), visibility 240ms var(--ease-out), color 240ms var(--ease-out), background-color 240ms var(--ease-out), border-color 240ms var(--ease-out), box-shadow 240ms var(--ease-out);
   overflow: hidden;
 }
 
-.pillar-card:hover {
+@media (hover: hover) and (pointer: fine) { .pillar-card:hover {
   border-color: var(--color-ember);
   transform: translateY(-4px);
   box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
-}
+} }
 
 .pillar-accent {
   position: absolute;
@@ -1213,9 +1217,9 @@ img, svg {
   transition: opacity 0.35s ease;
 }
 
-.pillar-card:hover .pillar-accent {
+@media (hover: hover) and (pointer: fine) { .pillar-card:hover .pillar-accent {
   opacity: 1;
-}
+} }
 
 .pillar-num {
   font-family: var(--font-mono);
@@ -1272,11 +1276,11 @@ img, svg {
   transition: border-color 0.35s ease, transform 0.35s ease, box-shadow 0.35s ease;
 }
 
-.teaser-card:hover {
+@media (hover: hover) and (pointer: fine) { .teaser-card:hover {
   border-color: rgba(255, 77, 0, 0.5);
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8), 0 0 20px rgba(255, 77, 0, 0.15);
   transform: translateY(-5px);
-}
+} }
 
 .teaser-card-media {
   position: relative;
@@ -1293,9 +1297,9 @@ img, svg {
   transition: transform 0.6s var(--transition-smooth);
 }
 
-.teaser-card:hover .teaser-svg {
+@media (hover: hover) and (pointer: fine) { .teaser-card:hover .teaser-svg {
   transform: scale(1.04);
-}
+} }
 
 .teaser-card-info {
   padding: 1.4rem;
@@ -1499,9 +1503,9 @@ img, svg {
   transition: opacity 0.3s ease;
 }
 
-.reveal-chamber:hover .shroud-center-hint {
+@media (hover: hover) and (pointer: fine) { .reveal-chamber:hover .shroud-center-hint {
   opacity: 0.15;
-}
+} }
 
 .scan-reticle {
   position: relative;
@@ -1803,7 +1807,7 @@ img, svg {
   font-family: var(--font-mono);
   font-size: 0.85rem;
   letter-spacing: 1px;
-  transition: all 0.3s ease;
+  transition: opacity 200ms ease, transform 200ms ease, visibility 200ms ease, color 200ms ease, background-color 200ms ease, border-color 200ms ease, box-shadow 200ms ease;
 }
 
 .email-input:focus {
@@ -1830,16 +1834,16 @@ img, svg {
   letter-spacing: 1.5px;
   border-radius: 3px;
   cursor: pointer;
-  transition: all 0.3s var(--transition-smooth);
+  transition: opacity 200ms var(--transition-smooth), transform 200ms var(--transition-smooth), visibility 200ms var(--transition-smooth), color 200ms var(--transition-smooth), background-color 200ms var(--transition-smooth), border-color 200ms var(--transition-smooth), box-shadow 200ms var(--transition-smooth);
   white-space: nowrap;
 }
 
-.btn-notify:hover {
+@media (hover: hover) and (pointer: fine) { .btn-notify:hover {
   background: var(--color-ember);
   color: var(--color-white);
   box-shadow: 0 0 25px var(--color-ember-glow);
   transform: translateY(-2px);
-}
+} }
 
 .form-feedback {
   margin-top: 1.25rem;
@@ -1977,10 +1981,10 @@ img, svg {
   transition: transform 0.3s var(--transition-smooth), filter 0.3s ease;
 }
 
-.footer-logo-link:hover .footer-brand-logo {
+@media (hover: hover) and (pointer: fine) { .footer-logo-link:hover .footer-brand-logo {
   transform: scale(1.03);
   filter: drop-shadow(0 0 14px rgba(255, 77, 0, 0.45));
-}
+} }
 
 .footer-brand-name {
   font-family: var(--font-display);
@@ -2074,15 +2078,15 @@ img, svg {
   font-family: var(--font-mono);
   font-size: 0.85rem;
   letter-spacing: 1px;
-  transition: all 0.3s ease;
+  transition: opacity 200ms ease, transform 200ms ease, visibility 200ms ease, color 200ms ease, background-color 200ms ease, border-color 200ms ease, box-shadow 200ms ease;
 }
 
-.instagram-link:hover {
+@media (hover: hover) and (pointer: fine) { .instagram-link:hover {
   background: rgba(255, 77, 0, 0.15);
   border-color: var(--color-ember);
   color: var(--color-ember);
   transform: translateY(-2px);
-}
+} }
 
 .social-subtext {
   display: block;

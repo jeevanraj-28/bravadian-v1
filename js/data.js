@@ -804,9 +804,9 @@
     whatsappNumber: '917975362526',
     instagramUrl: 'https://www.instagram.com/bravadian.in',
     supportEmail: 'bravadian.clothing@gmail.com',
-    shippingFee: 99,
-    launchEndsAt: '2026-10-01T23:59:59+05:30',
-    freeShippingThreshold: 1999,
+    shippingFee: 0,
+    launchEndsAt: '',
+    freeShippingThreshold: 0,
     estimatedDays: '3–5 Business Days',
     supabaseUrl: '',
     supabaseAnonKey: ''
@@ -815,6 +815,189 @@
   // DEFAULT PRODUCTS with Variant-Level Inventory
   const DEFAULT_PRODUCTS = [
     {
+      id: 'prod-018',
+      name: 'TRINETRA TEE',
+      slug: 'trinetra-tee',
+      description: "Shiva's third eye rising over the Himalaya, circled by the moon and the words See Beyond, printed large across the back, with a small BRAVADIAN mark on the front left chest. Oversized 240 GSM French Terry cotton, bio + silicone washed, DTF print.",
+      story: "Past, present, future, within. The third eye sees what the other two miss. A reminder to look past the obvious.",
+      price: 699,
+      comparePrice: 999,
+      collection: 'mythology',
+      tags: ['trinetra', 'shiva', 'third eye', 'mythology', 'oversized', '240gsm'],
+      fabric: '240 GSM FRENCH TERRY // BIO + SILICONE WASH',
+      gsm: 240,
+      fit: 'Oversized Drop-Shoulder',
+      material: '240 GSM French Terry Cotton, Bio + Silicone Washed',
+      relicTag: 'DESIGN 06',
+      relicBadge: 'NEW DROP',
+      sku: 'BRVD-TRN-06',
+      featured: true,
+      newDrop: true,
+      isComingSoon: false,
+      status: 'PUBLISHED',
+      colors: ['Black', 'White'],
+      sizes: ['S', 'M', 'L', 'XL', 'XXL'],
+      images: {
+        front: 'images/products/trinetra/preview.webp'
+      },
+      variants: [
+        { color: 'Black', size: 'S', stock: 10 },
+        { color: 'Black', size: 'M', stock: 10 },
+        { color: 'Black', size: 'L', stock: 10 },
+        { color: 'Black', size: 'XL', stock: 10 },
+        { color: 'Black', size: 'XXL', stock: 10 },
+        { color: 'White', size: 'S', stock: 10 },
+        { color: 'White', size: 'M', stock: 10 },
+        { color: 'White', size: 'L', stock: 10 },
+        { color: 'White', size: 'XL', stock: 10 },
+        { color: 'White', size: 'XXL', stock: 10 }
+      ]
+    },
+    {
+      id: 'prod-017',
+      name: 'HARA HARA MAHADEVA TEE',
+      slug: 'hara-hara-mahadeva-tee',
+      description: "Om Namah Shivaya in Devanagari beneath a trishul, printed as one vertical strip on the left chest, over the heart. Plain back. Oversized 240 GSM French Terry cotton, bio + silicone washed, DTF print.",
+      story: "A chant worn close to the heart. The trishul leads and the five syllables follow, running down the left chest like a quiet prayer.",
+      price: 699,
+      comparePrice: 999,
+      collection: 'mythology',
+      tags: ['shiva', 'om namah shivaya', 'trishul', 'mythology', 'oversized', '240gsm'],
+      fabric: '240 GSM FRENCH TERRY // BIO + SILICONE WASH',
+      gsm: 240,
+      fit: 'Oversized Drop-Shoulder',
+      material: '240 GSM French Terry Cotton, Bio + Silicone Washed',
+      relicTag: 'DESIGN 05',
+      relicBadge: 'NEW DROP',
+      sku: 'BRVD-HHM-05',
+      featured: true,
+      newDrop: true,
+      isComingSoon: false,
+      status: 'PUBLISHED',
+      colors: ['Black', 'Ivory', 'Red', 'Royal Blue', 'White'],
+      sizes: ['S', 'M', 'L', 'XL', 'XXL'],
+      images: {
+        front: 'images/products/hara-hara-mahadeva/black-front.webp',
+        closeup: 'images/products/hara-hara-mahadeva/black-closeup.webp',
+        lifestyle: 'images/products/hara-hara-mahadeva/black-model.webp',
+        lifestyle2: 'images/products/hara-hara-mahadeva/black-model2.webp',
+        colors: {
+          'Black': { front: 'images/products/hara-hara-mahadeva/black-front.webp', model: 'images/products/hara-hara-mahadeva/black-model.webp', model2: 'images/products/hara-hara-mahadeva/black-model2.webp', closeup: 'images/products/hara-hara-mahadeva/black-closeup.webp' },
+          'Ivory': { front: 'images/products/hara-hara-mahadeva/ivory-front.webp', model: 'images/products/hara-hara-mahadeva/ivory-model.webp' },
+          'Red': { front: 'images/products/hara-hara-mahadeva/red-front.webp', model: 'images/products/hara-hara-mahadeva/red-model.webp' },
+          'Royal Blue': { front: 'images/products/hara-hara-mahadeva/royal-blue-front.webp', model: 'images/products/hara-hara-mahadeva/royal-blue-model.webp' },
+          'White': { front: 'images/products/hara-hara-mahadeva/white-front.webp', model: 'images/products/hara-hara-mahadeva/white-model.webp' }
+        }
+      },
+      variants: [
+        { color: 'Black', size: 'S', stock: 10 },
+        { color: 'Black', size: 'M', stock: 10 },
+        { color: 'Black', size: 'L', stock: 10 },
+        { color: 'Black', size: 'XL', stock: 10 },
+        { color: 'Black', size: 'XXL', stock: 10 },
+        { color: 'Ivory', size: 'S', stock: 10 },
+        { color: 'Ivory', size: 'M', stock: 10 },
+        { color: 'Ivory', size: 'L', stock: 10 },
+        { color: 'Ivory', size: 'XL', stock: 10 },
+        { color: 'Ivory', size: 'XXL', stock: 10 },
+        { color: 'Red', size: 'S', stock: 10 },
+        { color: 'Red', size: 'M', stock: 10 },
+        { color: 'Red', size: 'L', stock: 10 },
+        { color: 'Red', size: 'XL', stock: 10 },
+        { color: 'Red', size: 'XXL', stock: 10 },
+        { color: 'Royal Blue', size: 'S', stock: 10 },
+        { color: 'Royal Blue', size: 'M', stock: 10 },
+        { color: 'Royal Blue', size: 'L', stock: 10 },
+        { color: 'Royal Blue', size: 'XL', stock: 10 },
+        { color: 'Royal Blue', size: 'XXL', stock: 10 },
+        { color: 'White', size: 'S', stock: 10 },
+        { color: 'White', size: 'M', stock: 10 },
+        { color: 'White', size: 'L', stock: 10 },
+        { color: 'White', size: 'XL', stock: 10 },
+        { color: 'White', size: 'XXL', stock: 10 }
+      ]
+    },
+    {
+      id: 'prod-016',
+      name: 'GANESHA TEE',
+      slug: 'ganesha-tee',
+      description: "Lord Ganesha seated before a red sun, with Om and Vakratunda in brush-stroke Devanagari. Oversized 240 GSM French Terry cotton, bio + silicone washed, DTF back print.",
+      story: "The remover of obstacles, drawn in ink and red. For every new start.",
+      price: 699,
+      comparePrice: 999,
+      collection: 'mythology',
+      tags: ['ganesha', 'vakratunda', 'om', 'mythology', 'oversized', '240gsm'],
+      fabric: '240 GSM FRENCH TERRY // BIO + SILICONE WASH',
+      gsm: 240,
+      fit: 'Oversized Drop-Shoulder',
+      material: '240 GSM French Terry Cotton, Bio + Silicone Washed',
+      relicTag: 'DESIGN 04',
+      relicBadge: 'NEW DROP',
+      sku: 'BRVD-GNS-04',
+      featured: true,
+      newDrop: true,
+      isComingSoon: false,
+      status: 'PUBLISHED',
+      colors: ['Black'],
+      sizes: ['S', 'M', 'L', 'XL', 'XXL'],
+      images: {
+        front: 'images/products/ganesha/preview.webp'
+      },
+      variants: [
+        { color: 'Black', size: 'S', stock: 10 },
+        { color: 'Black', size: 'M', stock: 10 },
+        { color: 'Black', size: 'L', stock: 10 },
+        { color: 'Black', size: 'XL', stock: 10 },
+        { color: 'Black', size: 'XXL', stock: 10 }
+      ]
+    },
+    {
+      id: 'prod-015',
+      name: 'BORN TO RISE TEE',
+      slug: 'born-to-rise-tee',
+      description: "A black eagle with blazing red wings under the words Born to Rise, printed large across the back, with a small BRAVADIAN mark on the front left chest. Oversized 240 GSM French Terry cotton, bio + silicone washed, DTF print.",
+      story: "For the days you start again. An eagle rises against the wind, not away from it.",
+      price: 699,
+      comparePrice: 999,
+      collection: 'street-culture',
+      tags: ['eagle', 'born to rise', 'street culture', 'oversized', '240gsm'],
+      fabric: '240 GSM FRENCH TERRY // BIO + SILICONE WASH',
+      gsm: 240,
+      fit: 'Oversized Drop-Shoulder',
+      material: '240 GSM French Terry Cotton, Bio + Silicone Washed',
+      relicTag: 'DESIGN 03',
+      relicBadge: 'NEW DROP',
+      sku: 'BRVD-BTR-03',
+      featured: true,
+      newDrop: true,
+      isComingSoon: false,
+      status: 'PUBLISHED',
+      colors: ['Black', 'White'],
+      sizes: ['S', 'M', 'L', 'XL', 'XXL'],
+      images: {
+        front: 'images/products/born-to-rise/black-back.webp',
+        closeup: 'images/products/born-to-rise/black-closeup.webp',
+        lifestyle: 'images/products/born-to-rise/black-model.webp',
+        lifestyle2: 'images/products/born-to-rise/white-model.webp',
+        colors: {
+          'Black': { front: 'images/products/born-to-rise/black-back.webp', model: 'images/products/born-to-rise/black-model.webp', closeup: 'images/products/born-to-rise/black-closeup.webp' },
+          'White': { front: 'images/products/born-to-rise/white-back.webp', model: 'images/products/born-to-rise/white-model.webp', closeup: 'images/products/born-to-rise/white-closeup.webp' }
+        }
+      },
+      variants: [
+        { color: 'Black', size: 'S', stock: 10 },
+        { color: 'Black', size: 'M', stock: 10 },
+        { color: 'Black', size: 'L', stock: 10 },
+        { color: 'Black', size: 'XL', stock: 10 },
+        { color: 'Black', size: 'XXL', stock: 10 },
+        { color: 'White', size: 'S', stock: 10 },
+        { color: 'White', size: 'M', stock: 10 },
+        { color: 'White', size: 'L', stock: 10 },
+        { color: 'White', size: 'XL', stock: 10 },
+        { color: 'White', size: 'XXL', stock: 10 }
+      ]
+    },
+    {
       id: 'prod-014',
       name: 'INDIAN CRAFT ATLAS TEE',
       slug: 'indian-craft-atlas-tee',
@@ -822,8 +1005,7 @@
       story: 'People, patterns, places, purpose. India lives in its crafts, and every region adds a pattern of its own. This design puts a dozen of them on one elephant, with the names listed alongside so you know what you are wearing.',
       motif: 'Kalamkari from Andhra Pradesh, Warli from Maharashtra, Madhubani from Bihar, Pattachitra from Odisha, Phad from Rajasthan, Gond from Madhya Pradesh, Cheriyal from Telangana, Pichwai from Nathdwara, Ikat from Odisha and Telangana, and more.',
       price: 699,
-      comparePrice: 799,
-      launchPrice: 649,
+      comparePrice: 999,
       collection: 'heritage',
       tags: ['oversized', 'heritage', 'crafts', 'kalamkari', 'madhubani', 'warli', '240gsm'],
       fabric: '240 GSM FRENCH TERRY // BIO + SILICONE WASH',
@@ -842,7 +1024,7 @@
       images: {
         front: 'images/products/craft-atlas/back-print.webp?v=2',
         closeup: 'images/products/craft-atlas/closeup.webp',
-        art: 'images/products/craft-atlas/artwork.webp'
+        lifestyle: 'images/lookbook/lb-look-02.webp'
       },
       variants: [
         { color: 'Black', size: 'S', stock: 10 },
@@ -873,8 +1055,7 @@
       slug: 'bharat-spirit-tee',
       description: 'The peacock, the tiger, the lotus and the elephant, four symbols of India drawn together as one story. Oversized 240 GSM French Terry cotton, bio + silicone washed, with a large DTF back print and the Bi mark on the chest.',
       price: 699,
-      comparePrice: 799,
-      launchPrice: 649,
+      comparePrice: 999,
       collection: 'heritage',
       tags: ['oversized', 'heritage', 'peacock', 'tiger', 'lotus', 'elephant', '240gsm'],
       fabric: '240 GSM FRENCH TERRY // BIO + SILICONE WASH',
@@ -896,7 +1077,7 @@
         front: 'images/products/bharat-spirit/back-print.webp',
         back: 'images/products/bharat-spirit/front.webp',
         closeup: 'images/products/bharat-spirit/closeup.webp',
-        lifestyle: 'images/products/bharat-spirit/worn-studio.webp',
+        lifestyle: 'images/products/bharat-spirit/worn-studio.webp?v=2',
         lifestyle2: 'images/products/bharat-spirit/worn-temple.webp?v=3'
       },
       variants: [
@@ -928,8 +1109,7 @@
       slug: 'hoysala-oversized-relic-tee',
       description: 'A severe tactical garment engineered from 240 GSM heavyweight French Terry. Imprinted with sacred architectural friezes from the historic Halebidu temple complex, modified as modern metropolitan armor.',
       price: 699,
-      comparePrice: 799,
-      launchPrice: 649,
+      comparePrice: 999,
       collection: 'heritage',
       tags: ['oversized', 'hoysala', 'heavyweight', '280gsm', 'heritage'],
       fabric: '240 GSM FRENCH TERRY // BIO + SILICONE WASH',
@@ -980,8 +1160,7 @@
       slug: 'hoysala-lingeshwara-relic-tee',
       description: 'Engineered boxy heavyweight silhouette featuring the sacred Lingeshwara stone sanctuary geometry across dropped shoulder lines.',
       price: 699,
-      comparePrice: 799,
-      launchPrice: 649,
+      comparePrice: 999,
       collection: 'heritage',
       tags: ['heritage', 'hoysala', 'lingeshwara', 'heavyweight', '240gsm'],
       fabric: '240 GSM FRENCH TERRY // BIO + SILICONE WASH',
@@ -1032,8 +1211,7 @@
       slug: 'sri-yoga-sarasvatheshwara-tee',
       description: 'Oversized 240 GSM cotton tee with a golden print of the many-armed goddess of learning.',
       price: 699,
-      comparePrice: 799,
-      launchPrice: 649,
+      comparePrice: 999,
       collection: 'mythology',
       tags: ['mythology', 'deities', 'krishna', 'shiva', 'gold-foil', '300gsm', 'yoga'],
       fabric: '240 GSM FRENCH TERRY // BIO + SILICONE WASH',
@@ -1084,7 +1262,7 @@
       slug: 'nritya-primacy-descension-jacket',
       description: 'Heavyweight tactical bomber constructed in 450 GSM canvas shell with custom antique brass zippers, rib knit cuffs, and tonal warrior embroidery.',
       price: 6500,
-      comparePrice: 7999,
+      comparePrice: 9999,
       collection: 'heritage',
       tags: ['heritage', 'indian-craft', 'jacket', 'bomber', 'nritya', '450gsm'],
       fabric: '450 GSM DUCK CANVAS // BOMBER ARCHITECTURE',
@@ -1120,8 +1298,7 @@
       slug: 'asura-solar-fire-oversized-tee',
       description: 'Charcoal oversized tee with the Sanskrit line "ॐ सह नाववतु" and a blazing sun printed large on the back.',
       price: 699,
-      comparePrice: 799,
-      launchPrice: 649,
+      comparePrice: 999,
       collection: 'mythology',
       tags: ['mythology', 'shiva', 'ramayana', 'solar-fire', '280gsm', 'oversized'],
       fabric: '240 GSM FRENCH TERRY // BIO + SILICONE WASH',
@@ -1172,8 +1349,7 @@
       slug: 'berunda-dual-vision-armor-tee',
       description: '240 GSM heavyweight cotton tee with monumental twin-headed Gandaberunda imperial crest rendered in antique gold embroidery.',
       price: 699,
-      comparePrice: 799,
-      launchPrice: 649,
+      comparePrice: 999,
       collection: 'heritage',
       tags: ['heritage', 'berunda', 'traditional-patterns', 'cultural-symbols', 'embroidery', '280gsm', 'armor'],
       fabric: '240 GSM FRENCH TERRY // BIO + SILICONE WASH',
@@ -1224,8 +1400,7 @@
       slug: 'bravadian-ninetails',
       description: 'Oversized 240 GSM cotton tee with a large back print of the nine-tailed fox spirit from old legends.',
       price: 699,
-      comparePrice: 799,
-      launchPrice: 649,
+      comparePrice: 999,
       collection: 'anime',
       tags: ['anime', 'manga', 'japanese-animation', 'ninetails', 'oversized', '240gsm'],
       fabric: '240 GSM FRENCH TERRY // BIO + SILICONE WASH',
@@ -1276,8 +1451,7 @@
       slug: 'bravadian-garuda-rebel',
       description: 'Garuda, the eagle of Indian mythology, printed wing to wing across the back of an oversized 240 GSM cotton tee.',
       price: 699,
-      comparePrice: 799,
-      launchPrice: 649,
+      comparePrice: 999,
       collection: 'mythology',
       tags: ['mythology', 'garuda', 'deities', 'mythological-stories', 'heavyweight', '240gsm'],
       fabric: '240 GSM FRENCH TERRY // BIO + SILICONE WASH',
@@ -1328,8 +1502,7 @@
       slug: 'bravadian-monolith-bharat',
       description: 'Rooted in Indian soil. A clean oversized tee with the Ashoka chakra and the coordinates of Delhi on the back.',
       price: 699,
-      comparePrice: 799,
-      launchPrice: 649,
+      comparePrice: 999,
       collection: 'heritage',
       tags: ['heritage', 'bharat', 'architecture', 'cultural-symbols', 'oversized', '240gsm'],
       fabric: '240 GSM FRENCH TERRY // BIO + SILICONE WASH',
@@ -1380,8 +1553,7 @@
       slug: 'bravadian-cyber-rebel',
       description: 'Loud street typography inspired by Indian city walls, printed on an oversized 240 GSM cotton tee.',
       price: 699,
-      comparePrice: 799,
-      launchPrice: 649,
+      comparePrice: 999,
       collection: 'street-culture',
       tags: ['street-culture', 'typography', 'graffiti', 'urban', 'rebellious', 'oversized', '240gsm'],
       fabric: '240 GSM FRENCH TERRY // BIO + SILICONE WASH',
@@ -1432,8 +1604,7 @@
       slug: 'bravadian-essential-240',
       description: 'No graphics, just a great tee. Thick rib collar, dropped shoulders and a relaxed oversized fit in 240 GSM cotton.',
       price: 699,
-      comparePrice: 799,
-      launchPrice: 649,
+      comparePrice: 999,
       collection: 'minimal',
       tags: ['minimal', 'essential', 'clean-graphics', 'understated', 'simple-typography', '240gsm'],
       fabric: '240 GSM FRENCH TERRY // BIO + SILICONE WASH',
@@ -1484,8 +1655,7 @@
       slug: 'bravadian-ashoka-ember',
       description: 'The 24-spoke Ashoka chakra in glowing ember orange across the chest and back of an oversized cotton tee.',
       price: 699,
-      comparePrice: 799,
-      launchPrice: 649,
+      comparePrice: 999,
       collection: 'heritage',
       tags: ['heritage', 'ashoka', 'cultural-symbols', 'traditional-patterns', 'limited', '240gsm'],
       fabric: '240 GSM FRENCH TERRY // BIO + SILICONE WASH',
@@ -1535,15 +1705,22 @@
   // BRAVADIAN DATA STORAGE CONTROLLER
   // Public project URL + anon (publishable) key. Safe to ship: access is controlled by RLS.
   // Never put the service_role key here.
+  // Live project (the owner's). Left untouched; fill in when the live database is ready.
   const SUPABASE_URL = '';
   const SUPABASE_ANON_KEY = '';
+  // Test project: used only on localhost, or on any address with ?db=test added.
+  const TEST_SUPABASE_URL = 'https://cstqxsxfcxbqcqljxlgd.supabase.co';
+  const TEST_SUPABASE_ANON_KEY = 'sb_publishable_B-T7Hk7Nb2xwXPl9m6VoZA_abqrenF9'; // public key, safe in browser code
+  const USE_TEST_DB = /^(localhost|127\.0\.0\.1)$/.test(window.location.hostname) || /[?&]db=test\b/.test(window.location.search);
+  const ACTIVE_SUPABASE_URL = USE_TEST_DB ? TEST_SUPABASE_URL : SUPABASE_URL;
+  const ACTIVE_SUPABASE_KEY = USE_TEST_DB ? TEST_SUPABASE_ANON_KEY : SUPABASE_ANON_KEY;
 
   const BravadianDB = {
     supabaseClient: null,
 
     init() {
       // Auto-Migration to ensure new luxury mockups, products, and collections load immediately
-      const DATA_VERSION = '4.10.0';
+      const DATA_VERSION = '4.13.3';
       const storedVer = localStorage.getItem('bravadian_data_version');
       const storedProds = localStorage.getItem('bravadian_products');
       const hasStaleJpg = storedProds && (storedProds.includes('images/relics') || storedProds.includes('.jpg'));
@@ -1572,16 +1749,16 @@
 
       // Load saved settings
       const settings = this.getSettings();
-      let sUrl = (SUPABASE_URL || settings.supabaseUrl || '').trim();
+      let sUrl = (ACTIVE_SUPABASE_KEY ? ACTIVE_SUPABASE_URL : (SUPABASE_URL || settings.supabaseUrl || '')).trim();
       if (sUrl && !sUrl.startsWith('http://') && !sUrl.startsWith('https://')) {
         sUrl = `https://${sUrl.replace(/\.supabase\.co.*$/, '')}.supabase.co`;
       }
-      const sKey = (SUPABASE_ANON_KEY || settings.supabaseAnonKey || '').trim();
+      const sKey = (ACTIVE_SUPABASE_KEY || SUPABASE_ANON_KEY || settings.supabaseAnonKey || '').trim();
 
       if (sUrl && sKey && window.supabase) {
         try {
           this.supabaseClient = window.supabase.createClient(sUrl, sKey);
-          console.log('[BRAVADIAN] Connected to Supabase Data Layer:', sUrl);
+          console.log(`[BRAVADIAN] Connected to Supabase (${USE_TEST_DB && ACTIVE_SUPABASE_KEY ? 'TEST' : 'LIVE'}):`, sUrl);
           this.fetchRemoteCatalog().then(res => {
             if (res && res.success) window.dispatchEvent(new Event('bravadian:catalog-updated'));
           });
@@ -2184,6 +2361,7 @@
                   : (p.colors || ['Black', 'White']),
                 sizes: ['S', 'M', 'L', 'XL', 'XXL'],
                 images: {
+                  ...dbImgs,
                   front,
                   back,
                   closeup,

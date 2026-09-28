@@ -31,10 +31,13 @@ END $$;
 
 -- 1b. LAUNCH PRICING --------------------------------------------------------
 ALTER TABLE products ADD COLUMN IF NOT EXISTS launch_price NUMERIC(10, 2);
+-- Delivery: free on every order
+UPDATE site_settings SET value = jsonb_set(jsonb_set(value, '{shipping_charge}', '0'), '{free_shipping_threshold}', '0') WHERE key = 'shipping';
+
 INSERT INTO site_settings (key, value) VALUES ('launch', '{"ends_at": "2026-10-01T23:59:59+05:30"}')
   ON CONFLICT (key) DO NOTHING;
--- Regular oversized tees: MRP 799, offer 699, launch 649
-UPDATE products SET price = 699, compare_price = 799, launch_price = 649 WHERE name NOT ILIKE '%JACKET%';
+-- Regular oversized tees: MRP 999, price 699 (no separate launch price)
+UPDATE products SET price = 699, compare_price = 999, launch_price = NULL WHERE name NOT ILIKE '%JACKET%';
 
 -- 1c. PRODUCT IMAGE STORAGE (public read, admins upload) -----------------------
 INSERT INTO storage.buckets (id, name, public) VALUES ('product-images', 'product-images', true)
@@ -148,7 +151,7 @@ BEGIN
 
   SELECT (value->>'shipping_charge')::NUMERIC, (value->>'free_shipping_threshold')::NUMERIC
     INTO fee, threshold FROM site_settings WHERE key = 'shipping';
-  ship := CASE WHEN sub >= coalesce(threshold, 1999) THEN 0 ELSE coalesce(fee, 99) END;
+  ship := CASE WHEN sub >= coalesce(threshold, 1999) THEN 0 ELSE coalesce(fee, 0) END;
 
   ord_no := 'BRV-' || to_char(NOW() AT TIME ZONE 'Asia/Kolkata', 'YYMMDD') || '-'
             || upper(substr(md5(random()::TEXT || clock_timestamp()::TEXT), 1, 5));

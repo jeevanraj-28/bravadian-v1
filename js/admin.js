@@ -782,6 +782,79 @@
     const life2Img = document.getElementById('previewImgLifestyle2');
     if (life2In) life2In.oninput = () => updateImgPreview(life2In, life2Box, life2Img);
 
+    // ---- Colour photos: one row per colour (product photo + model photo) ----
+    let colourPhotoState = {};
+    const colourKey = (c) => c.trim().toLowerCase().replace(/\s+/g, '-');
+    function readColourRows() {
+      const out = {};
+      document.querySelectorAll('#colourPhotoRows .colour-row').forEach(row => {
+        const front = row.querySelector('[data-kind="front"]').value.trim();
+        const model = row.querySelector('[data-kind="model"]').value.trim();
+        const prev = colourPhotoState[row.dataset.colour] || {};
+        if (front || model) out[row.dataset.colour] = { ...prev, front: front || undefined, model: model || undefined };
+      });
+      return out;
+    }
+    function renderColourRows() {
+      const box = document.getElementById('colourPhotoRows');
+      const input = document.getElementById('editProdColors');
+      if (!box || !input) return;
+      if (box.children.length) colourPhotoState = { ...colourPhotoState, ...readColourRows() };
+      const colours = input.value.split(',').map(c => c.trim()).filter(Boolean);
+      box.innerHTML = colours.map(c => {
+        const cur = colourPhotoState[c] || {};
+        const slot = (kind, label) => `
+          <div class="colour-slot">
+            <span class="colour-slot-label">${label}</span>
+            <div class="colour-slot-thumb">${cur[kind] ? `<img src="${cur[kind]}" alt="">` : '<span>NO IMAGE</span>'}</div>
+            <input type="text" class="admin-input" data-kind="${kind}" value="${cur[kind] || ''}" placeholder="Paste a link or upload">
+            <label class="admin-upload-btn">UPLOAD<input type="file" accept="image/*" class="colour-upload" data-kind="${kind}" hidden></label>
+          </div>`;
+        return `<div class="colour-row" data-colour="${c}">
+          <div class="colour-row-name"><i style="background:${({ black: '#111', white: '#fff', ivory: '#EDE6D6', red: '#C62828', 'royal blue': '#1F4FD1' })[c.toLowerCase()] || '#888'}"></i>${c}</div>
+          ${slot('front', 'Product photo')}${slot('model', 'Model photo')}
+        </div>`;
+      }).join('') || '<p class="colour-photos-empty">Add colours above to upload photos for each one.</p>';
+      box.querySelectorAll('input[data-kind]').forEach(inp => {
+        if (inp.type === 'file') return;
+        inp.oninput = () => {
+          const t = inp.closest('.colour-slot').querySelector('.colour-slot-thumb');
+          t.innerHTML = inp.value.trim() ? `<img src="${inp.value.trim()}" alt="">` : '<span>NO IMAGE</span>';
+        };
+      });
+      box.querySelectorAll('.colour-upload').forEach(fileIn => {
+        fileIn.onchange = async () => {
+          const file = fileIn.files && fileIn.files[0];
+          if (!file) return;
+          const row = fileIn.closest('.colour-row');
+          const target = fileIn.closest('.colour-slot').querySelector('input[type="text"]');
+          const lbl = fileIn.closest('.admin-upload-btn');
+          lbl.firstChild.textContent = 'UPLOADING…';
+          try {
+            const slug = (document.getElementById('editProdSlug').value || 'product').trim();
+            target.value = await window.BravadianDB.uploadProductImage(file, `${slug}/${colourKey(row.dataset.colour)}-${fileIn.dataset.kind}`);
+            target.dispatchEvent(new Event('input'));
+            lbl.firstChild.textContent = 'UPLOADED ✓';
+          } catch (err) {
+            lbl.firstChild.textContent = 'UPLOAD';
+            alert(`Upload failed: ${err.message}`);
+          }
+          fileIn.value = '';
+        };
+      });
+    }
+    const coloursInput = document.getElementById('editProdColors');
+    if (coloursInput) coloursInput.addEventListener('input', renderColourRows);
+    window.BravadianColourRows = {
+      load(map) {
+        colourPhotoState = map ? { ...map } : {};
+        const box = document.getElementById('colourPhotoRows');
+        if (box) box.innerHTML = '';
+        renderColourRows();
+      },
+      read: readColourRows
+    };
+
     document.querySelectorAll('.admin-img-upload').forEach(fileIn => {
       fileIn.onchange = async () => {
         const file = fileIn.files && fileIn.files[0];
@@ -822,6 +895,7 @@
       if (document.getElementById('editProdGSM')) document.getElementById('editProdGSM').value = '240';
       if (document.getElementById('editProdComingSoon')) document.getElementById('editProdComingSoon').checked = false;
       if (document.getElementById('editProdColors')) document.getElementById('editProdColors').value = 'Black, White';
+      if (window.BravadianColourRows) window.BravadianColourRows.load(null);
 
       [frontBox, backBox, closeBox, lifeBox].forEach(b => b && b.classList.remove('has-img'));
       [frontImg, backImg, closeImg, lifeImg].forEach(i => i && (i.src = ''));
@@ -870,11 +944,13 @@
 
         const images = {
           front: imgFrontVal || (existing && existing.images && existing.images.front ? existing.images.front : window.BravadianDefaults.createTeeSVG(name, collection, '#121216', '#ff4d00', 'front')),
-          back: imgBackVal || (existing && existing.images && existing.images.back ? existing.images.back : window.BravadianDefaults.createTeeSVG(name, collection, '#121216', '#ff4d00', 'back')),
-          closeup: imgCloseupVal || (existing && existing.images && existing.images.closeup ? existing.images.closeup : window.BravadianDefaults.createTeeSVG(name, collection, '#121216', '#ff4d00', 'closeup')),
-          lifestyle: imgLifestyleVal || (existing && existing.images && existing.images.lifestyle ? existing.images.lifestyle : window.BravadianDefaults.createTeeSVG(name, collection, '#121216', '#ff4d00', 'lifestyle')),
-          lifestyle2: imgLifestyle2Val || (existing && existing.images ? existing.images.lifestyle2 : undefined)
+          back: imgBackVal || undefined,
+          closeup: imgCloseupVal || undefined,
+          lifestyle: imgLifestyleVal || undefined,
+          lifestyle2: imgLifestyle2Val || undefined
         };
+        const colourPhotos = window.BravadianColourRows ? window.BravadianColourRows.read() : {};
+        if (Object.keys(colourPhotos).length) images.colors = colourPhotos;
 
         // Available Colors
         const colorsRaw = document.getElementById('editProdColors') ? document.getElementById('editProdColors').value.trim() : '';
@@ -962,6 +1038,7 @@
       // Populate Colors
       if (document.getElementById('editProdColors')) {
         document.getElementById('editProdColors').value = p.colors ? p.colors.join(', ') : 'Black, White';
+        if (window.BravadianColourRows) window.BravadianColourRows.load(p.images && p.images.colors);
       }
 
       // Populate Multi-Angle Images

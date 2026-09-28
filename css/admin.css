@@ -23,6 +23,7 @@ body.admin-body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  min-height: 100dvh;
 }
 
 /* Static CMS Disclaimer Banner */
@@ -160,6 +161,7 @@ body.admin-body {
   flex-direction: column;
   overflow-y: auto;
   max-height: 100vh;
+  max-height: 100dvh;
 }
 
 .admin-topbar {
@@ -577,6 +579,7 @@ body.admin-body {
     top: 0;
     left: -280px;
     height: 100vh;
+    height: 100dvh;
     z-index: 10005;
     transition: left 0.35s cubic-bezier(0.16, 1, 0.3, 1);
     box-shadow: 10px 0 40px rgba(0, 0, 0, 0.9);
@@ -802,3 +805,51 @@ body.admin-body.is-locked .static-disclaimer-banner {
 .admin-upload-btn { display: inline-flex; align-items: center; justify-content: center; margin-top: 0.45rem; padding: 0.5rem 0.8rem; border: 1px dashed var(--admin-ember, #FFA000); color: var(--admin-ember, #FFA000); font-size: 0.7rem; letter-spacing: 1px; cursor: pointer; border-radius: 2px; }
 .admin-upload-btn:hover { background: rgba(255, 160, 0, 0.1); }
 .admin-upload-status { display: block; min-height: 1em; margin-top: 0.3rem; font-size: 0.7rem; color: #888; }
+
+/* Product add / edit window */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 5000;
+  display: grid; place-items: center; padding: 1.5rem;
+  background: rgba(0, 0, 0, 0.7);
+  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  opacity: 0; visibility: hidden; pointer-events: none;
+  transition: opacity 220ms cubic-bezier(0.23, 1, 0.32, 1), visibility 0s linear 220ms;
+}
+.modal-overlay.is-open { opacity: 1; visibility: visible; pointer-events: auto; transition: opacity 220ms cubic-bezier(0.23, 1, 0.32, 1), visibility 0s; }
+.modal-content-card {
+  width: 100%; max-width: 720px; max-height: 90vh; max-height: 90dvh; overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain;
+  padding: 0 1.75rem 1.75rem; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px;
+  background: #121216; color: #FFFFFF; box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+  transform: translateY(12px) scale(0.98); transition: transform 240ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+.modal-overlay.is-open .modal-content-card { transform: none; }
+.modal-head {
+  position: sticky; top: 0; z-index: 2; display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  margin: 0 -1.75rem 1.25rem; padding: 1.1rem 1.75rem; background: #121216; border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.modal-title { margin: 0; font-family: 'Bebas Neue', sans-serif; font-size: 1.7rem; font-weight: 400; letter-spacing: 1px; }
+.modal-head .cart-close-btn { width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(255, 255, 255, 0.15); background: none; color: #FFFFFF; font-size: 1.4rem; line-height: 1; cursor: pointer; }
+.modal-head .cart-close-btn:hover { border-color: #FFA000; color: #FFA000; }
+body:has(.modal-overlay.is-open) { overflow: hidden; }
+@media (max-width: 700px) {
+  .modal-overlay { padding: 0; place-items: end stretch; }
+  .modal-content-card { max-width: none !important; max-height: 94dvh !important; border-radius: 16px 16px 0 0; padding: 0 1rem calc(1.25rem + env(safe-area-inset-bottom, 0px)); }
+  .modal-head { margin: 0 -1rem 1rem; padding: 1rem; }
+}
+
+/* Colour photos */
+.colour-photos-hint { display: block; margin-top: 0.3rem; font-size: 0.7rem; letter-spacing: 0.5px; text-transform: none; color: #8E8E9C; }
+.colour-photo-rows { display: grid; gap: 0.75rem; margin-top: 0.6rem; }
+.colour-row { display: grid; grid-template-columns: 120px 1fr 1fr; gap: 0.9rem; align-items: start; padding: 0.9rem; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; background: rgba(255, 255, 255, 0.02); }
+.colour-row-name { display: flex; align-items: center; gap: 0.5rem; padding-top: 0.2rem; font-size: 0.85rem; font-weight: 600; }
+.colour-row-name i { width: 16px; height: 16px; border-radius: 50%; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.35); flex: none; }
+.colour-slot { display: grid; grid-template-columns: 56px 1fr; grid-template-rows: auto auto auto; column-gap: 0.6rem; row-gap: 0.4rem; }
+.colour-slot-label { grid-column: 1 / -1; font-size: 0.66rem; letter-spacing: 1px; text-transform: uppercase; color: #8E8E9C; }
+.colour-slot-thumb { grid-row: span 2; width: 56px; height: 70px; border-radius: 6px; overflow: hidden; display: grid; place-items: center; background: #0B0B0E; border: 1px solid rgba(255, 255, 255, 0.08); font-size: 0.5rem; color: #565664; text-align: center; }
+.colour-slot-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.colour-slot .admin-input { min-width: 0; font-size: 0.75rem; }
+.colour-slot .admin-upload-btn { justify-self: start; }
+.colour-photos-empty { margin: 0; font-size: 0.8rem; color: #8E8E9C; }
+@media (max-width: 700px) {
+  .colour-row { grid-template-columns: 1fr; }
+}
