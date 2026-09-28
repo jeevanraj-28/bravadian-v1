@@ -809,7 +809,18 @@
     freeShippingThreshold: 0,
     estimatedDays: '3–5 Business Days',
     supabaseUrl: '',
-    supabaseAnonKey: ''
+    supabaseAnonKey: '',
+    // Marketing copy (admin → Site & WhatsApp). These are what the site shows until the admin
+    // changes them, and what it falls back to if a field is left empty.
+    announcementEnabled: true,
+    announcementText: '🇮🇳 BRAVADIAN BESPOKE // CUSTOM STREETWEAR ORDERS ACCEPTED // ORDER DIRECTLY VIA WHATSAPP // BESPOKE SIZING, PERSONALIZED GRAPHICS & ARTWORK COMMISSIONS // ALL-INDIA PRIORITY DISPATCH',
+    announcementWaText: 'CUSTOM ORDERS VIA WHATSAPP',
+    heroTag: '[ 🇮🇳 INDIAN ROOTS // MODERN FORM ]',
+    heroTitle: 'WEAR YOUR | ROOTS LOUD',
+    heroDesc: 'Everyday clothing made with purpose. Premium, comfortable, and affordable 240 GSM French Terry cotton silhouettes crafted for those who carry heritage forward.',
+    heroBgImage: '',
+    heroTicker: '🇮🇳 A STORY WORTH WEARING ✦ EVERYDAY CLOTHING WITH PURPOSE ✦ PREMIUM • COMFORTABLE • AFFORDABLE ✦ 240 GSM FRENCH TERRY ✦ CRAFTED IN BHARAT ✦ FREE DELIVERY ACROSS INDIA',
+    vipMessageTemplate: 'Hello Bravadian,\n\nPlease let me know when this design launches.\n\nProduct: {productName}\nPreferred color:\nPreferred size:\n\nThank you.'
   };
 
   // DEFAULT PRODUCTS with Variant-Level Inventory
@@ -838,7 +849,7 @@
       colors: ['Black', 'White'],
       sizes: ['S', 'M', 'L', 'XL', 'XXL'],
       images: {
-        front: 'images/products/trinetra/preview.webp'
+        front: '/images/products/trinetra/preview.webp'
       },
       variants: [
         { color: 'Black', size: 'S', stock: 10 },
@@ -877,16 +888,16 @@
       colors: ['Black', 'Ivory', 'Red', 'Royal Blue', 'White'],
       sizes: ['S', 'M', 'L', 'XL', 'XXL'],
       images: {
-        front: 'images/products/hara-hara-mahadeva/black-front.webp',
-        closeup: 'images/products/hara-hara-mahadeva/black-closeup.webp',
-        lifestyle: 'images/products/hara-hara-mahadeva/black-model.webp',
-        lifestyle2: 'images/products/hara-hara-mahadeva/black-model2.webp',
+        front: '/images/products/hara-hara-mahadeva/black-front.webp',
+        closeup: '/images/products/hara-hara-mahadeva/black-closeup.webp',
+        lifestyle: '/images/products/hara-hara-mahadeva/black-model.webp',
+        lifestyle2: '/images/products/hara-hara-mahadeva/black-model2.webp',
         colors: {
-          'Black': { front: 'images/products/hara-hara-mahadeva/black-front.webp', model: 'images/products/hara-hara-mahadeva/black-model.webp', model2: 'images/products/hara-hara-mahadeva/black-model2.webp', closeup: 'images/products/hara-hara-mahadeva/black-closeup.webp' },
-          'Ivory': { front: 'images/products/hara-hara-mahadeva/ivory-front.webp', model: 'images/products/hara-hara-mahadeva/ivory-model.webp' },
-          'Red': { front: 'images/products/hara-hara-mahadeva/red-front.webp', model: 'images/products/hara-hara-mahadeva/red-model.webp' },
-          'Royal Blue': { front: 'images/products/hara-hara-mahadeva/royal-blue-front.webp', model: 'images/products/hara-hara-mahadeva/royal-blue-model.webp' },
-          'White': { front: 'images/products/hara-hara-mahadeva/white-front.webp', model: 'images/products/hara-hara-mahadeva/white-model.webp' }
+          'Black': { front: '/images/products/hara-hara-mahadeva/black-front.webp', model: '/images/products/hara-hara-mahadeva/black-model.webp', model2: '/images/products/hara-hara-mahadeva/black-model2.webp', closeup: '/images/products/hara-hara-mahadeva/black-closeup.webp' },
+          'Ivory': { front: '/images/products/hara-hara-mahadeva/ivory-front.webp', model: '/images/products/hara-hara-mahadeva/ivory-model.webp' },
+          'Red': { front: '/images/products/hara-hara-mahadeva/red-front.webp', model: '/images/products/hara-hara-mahadeva/red-model.webp' },
+          'Royal Blue': { front: '/images/products/hara-hara-mahadeva/royal-blue-front.webp', model: '/images/products/hara-hara-mahadeva/royal-blue-model.webp' },
+          'White': { front: '/images/products/hara-hara-mahadeva/white-front.webp', model: '/images/products/hara-hara-mahadeva/white-model.webp' }
         }
       },
       variants: [
@@ -941,7 +952,7 @@
       colors: ['Black'],
       sizes: ['S', 'M', 'L', 'XL', 'XXL'],
       images: {
-        front: 'images/products/ganesha/preview.webp'
+        front: '/images/products/ganesha/preview.webp'
       },
       variants: [
         { color: 'Black', size: 'S', stock: 10 },
@@ -975,13 +986,13 @@
       colors: ['Black', 'White'],
       sizes: ['S', 'M', 'L', 'XL', 'XXL'],
       images: {
-        front: 'images/products/born-to-rise/black-back.webp',
-        closeup: 'images/products/born-to-rise/black-closeup.webp',
-        lifestyle: 'images/products/born-to-rise/black-model.webp',
-        lifestyle2: 'images/products/born-to-rise/white-model.webp',
+        front: '/images/products/born-to-rise/black-back.webp',
+        closeup: '/images/products/born-to-rise/black-closeup.webp',
+        lifestyle: '/images/products/born-to-rise/black-model.webp',
+        lifestyle2: '/images/products/born-to-rise/white-model.webp',
         colors: {
-          'Black': { front: 'images/products/born-to-rise/black-back.webp', model: 'images/products/born-to-rise/black-model.webp', closeup: 'images/products/born-to-rise/black-closeup.webp' },
-          'White': { front: 'images/products/born-to-rise/white-back.webp', model: 'images/products/born-to-rise/white-model.webp', closeup: 'images/products/born-to-rise/white-closeup.webp' }
+          'Black': { front: '/images/products/born-to-rise/black-back.webp', model: '/images/products/born-to-rise/black-model.webp', closeup: '/images/products/born-to-rise/black-closeup.webp' },
+          'White': { front: '/images/products/born-to-rise/white-back.webp', model: '/images/products/born-to-rise/white-model.webp', closeup: '/images/products/born-to-rise/white-closeup.webp' }
         }
       },
       variants: [
@@ -1022,9 +1033,9 @@
       colors: ['Black', 'White', 'Red', 'Royal Blue'],
       sizes: ['S', 'M', 'L', 'XL', 'XXL'],
       images: {
-        front: 'images/products/craft-atlas/back-print.webp?v=2',
-        closeup: 'images/products/craft-atlas/closeup.webp',
-        lifestyle: 'images/lookbook/lb-look-02.webp'
+        front: '/images/products/craft-atlas/back-print.webp?v=2',
+        closeup: '/images/products/craft-atlas/closeup.webp',
+        lifestyle: '/images/lookbook/lb-look-02.webp'
       },
       variants: [
         { color: 'Black', size: 'S', stock: 10 },
@@ -1074,11 +1085,11 @@
       colors: ['Black', 'White', 'Red', 'Royal Blue'],
       sizes: ['S', 'M', 'L', 'XL', 'XXL'],
       images: {
-        front: 'images/products/bharat-spirit/back-print.webp',
-        back: 'images/products/bharat-spirit/front.webp',
-        closeup: 'images/products/bharat-spirit/closeup.webp',
-        lifestyle: 'images/products/bharat-spirit/worn-studio.webp?v=2',
-        lifestyle2: 'images/products/bharat-spirit/worn-temple.webp?v=3'
+        front: '/images/products/bharat-spirit/back-print.webp',
+        back: '/images/products/bharat-spirit/front.webp',
+        closeup: '/images/products/bharat-spirit/closeup.webp',
+        lifestyle: '/images/products/bharat-spirit/worn-studio.webp?v=2',
+        lifestyle2: '/images/products/bharat-spirit/worn-temple.webp?v=3'
       },
       variants: [
         { color: 'Black', size: 'S', stock: 10 },
@@ -1705,27 +1716,57 @@
   // BRAVADIAN DATA STORAGE CONTROLLER
   // Public project URL + anon (publishable) key. Safe to ship: access is controlled by RLS.
   // Never put the service_role key here.
-  // Live project (the owner's). Left untouched; fill in when the live database is ready.
-  const SUPABASE_URL = '';
-  const SUPABASE_ANON_KEY = '';
-  // Test project: used only on localhost, or on any address with ?db=test added.
+  // Live project: every deployed site uses this one.
+  const SUPABASE_URL = 'https://ccmwfynsytaycfgfxjln.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_gkUGThWcvHoUWGM12t-Odg_OnySj07e'; // public key, safe in browser code
+  // Test project: used only on localhost. Add ?db=live on localhost to work on the live one.
   const TEST_SUPABASE_URL = 'https://cstqxsxfcxbqcqljxlgd.supabase.co';
   const TEST_SUPABASE_ANON_KEY = 'sb_publishable_B-T7Hk7Nb2xwXPl9m6VoZA_abqrenF9'; // public key, safe in browser code
-  const USE_TEST_DB = /^(localhost|127\.0\.0\.1)$/.test(window.location.hostname) || /[?&]db=test\b/.test(window.location.search);
+  const IS_LOCALHOST = /^(localhost|127\.0\.0\.1)$/.test(window.location.hostname);
+  const USE_TEST_DB = IS_LOCALHOST && !/[?&]db=live\b/.test(window.location.search);
   const ACTIVE_SUPABASE_URL = USE_TEST_DB ? TEST_SUPABASE_URL : SUPABASE_URL;
   const ACTIVE_SUPABASE_KEY = USE_TEST_DB ? TEST_SUPABASE_ANON_KEY : SUPABASE_ANON_KEY;
 
+  // Real photo addresses only. The site draws placeholder tees (data: URIs) itself when a view has
+  // no photo, so those drawings are never stored in the database.
+  const isDrawing = (v) => typeof v === 'string' && v.startsWith('data:');
+  function photosOnly(images) {
+    if (!images || typeof images !== 'object') return null;
+    const out = {};
+    Object.entries(images).forEach(([k, v]) => {
+      if (k === 'colors' && v && typeof v === 'object') {
+        const colors = {};
+        Object.entries(v).forEach(([c, set]) => {
+          const kept = Object.fromEntries(Object.entries(set || {}).filter(([, u]) => typeof u === 'string' && u && !isDrawing(u)));
+          if (Object.keys(kept).length) colors[c] = kept;
+        });
+        if (Object.keys(colors).length) out.colors = colors;
+      } else if (typeof v === 'string' && v && !isDrawing(v)) {
+        out[k] = v;
+      }
+    });
+    return Object.keys(out).length ? out : null;
+  }
+
+  // Admin settings stored together under site_settings key "content"
+  const CONTENT_SETTING_KEYS = ['announcementText', 'announcementWaText', 'announcementEnabled', 'heroTag', 'heroTitle',
+    'heroDesc', 'heroBgImage', 'heroTicker', 'vipMessageTemplate'];
+
   const BravadianDB = {
     supabaseClient: null,
+    dbLabel: USE_TEST_DB ? 'TEST' : 'LIVE',
+    dbUrl: ACTIVE_SUPABASE_URL,
 
     init() {
       // Auto-Migration to ensure new luxury mockups, products, and collections load immediately
-      const DATA_VERSION = '4.13.3';
+      const DATA_VERSION = '4.13.4';
       const storedVer = localStorage.getItem('bravadian_data_version');
       const storedProds = localStorage.getItem('bravadian_products');
-      const hasStaleJpg = storedProds && (storedProds.includes('images/relics') || storedProds.includes('.jpg'));
+      // Old caches from before the relic photos were retired. (Not ".jpg" in general: a JPG product
+      // photo is valid and would otherwise wipe the saved catalog on every visit.)
+      const hasRetiredPhotos = storedProds && storedProds.includes('images/relics');
 
-      if (storedVer !== DATA_VERSION || hasStaleJpg) {
+      if (storedVer !== DATA_VERSION || hasRetiredPhotos) {
         localStorage.setItem('bravadian_data_version', DATA_VERSION);
         // Refresh cached products with pristine diagrams and collections
         localStorage.removeItem('bravadian_products');
@@ -1758,9 +1799,14 @@
       if (sUrl && sKey && window.supabase) {
         try {
           this.supabaseClient = window.supabase.createClient(sUrl, sKey);
-          console.log(`[BRAVADIAN] Connected to Supabase (${USE_TEST_DB && ACTIVE_SUPABASE_KEY ? 'TEST' : 'LIVE'}):`, sUrl);
+          // detail.changed tells pages whether anything differs from the copy they already showed
+          const snapshot = () => ['bravadian_products', 'bravadian_collections', 'bravadian_size_guide', 'bravadian_settings']
+            .map(k => localStorage.getItem(k)).join('\u0000');
+          const before = snapshot();
           this.fetchRemoteCatalog().then(res => {
-            if (res && res.success) window.dispatchEvent(new Event('bravadian:catalog-updated'));
+            if (res && res.success) {
+              window.dispatchEvent(new CustomEvent('bravadian:catalog-updated', { detail: { changed: snapshot() !== before } }));
+            }
           });
         } catch (err) {
           console.warn('[BRAVADIAN] Supabase Init Error:', err);
@@ -1813,6 +1859,31 @@
       } catch (e) {
         return { order: null };
       }
+    },
+
+    // ORDERS (admins only: the orders table has no public read policy)
+    async getOrders(limit = 500) {
+      if (!this.supabaseClient) throw new Error('Supabase is not connected.');
+      const { data, error } = await this.supabaseClient
+        .from('orders')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(limit);
+      if (error) throw new Error(error.message);
+      return data || [];
+    },
+
+    // Stock goes back when an order is cancelled, and comes off again if it is un-cancelled (db/005)
+    async updateOrderStatus(id, status) {
+      if (!this.supabaseClient) throw new Error('Supabase is not connected.');
+      const { data, error } = await this.supabaseClient
+        .from('orders')
+        .update({ status })
+        .eq('id', id)
+        .select()
+        .single();
+      if (error) throw new Error(error.message);
+      return data;
     },
 
     // PRODUCTS
@@ -1888,9 +1959,14 @@
       return prods.find(p => p.slug === slug || p.id === slug) || null;
     },
 
-    saveProduct(product) {
+    // Saves locally, then to Supabase. Resolves once Supabase has the product and throws if it refused,
+    // so callers can report the real outcome. Stock of existing sizes is kept by the database (db/004).
+    async saveProduct(product) {
       const prods = this.getProducts();
-      const existingIdx = prods.findIndex(p => p.id === product.id || p.slug === product.slug);
+      // Match by id (a renamed slug is still the same product); by slug only for products without an id
+      const existingIdx = product.id
+        ? prods.findIndex(p => p.id === product.id)
+        : prods.findIndex(p => p.slug === product.slug);
       
       if (existingIdx >= 0) {
         prods[existingIdx] = { ...prods[existingIdx], ...product };
@@ -1902,9 +1978,8 @@
 
       localStorage.setItem('bravadian_products', JSON.stringify(prods));
 
-      // If Supabase is active, async sync
       if (this.supabaseClient) {
-        this.syncProductToSupabase(product);
+        await this.syncProductToSupabase(product);
       }
       return product;
     },
@@ -1920,23 +1995,29 @@
     },
 
     // VARIANT INVENTORY
-    updateVariantStock(productId, color, size, newStock) {
-      const prods = this.getProducts();
-      const p = prods.find(item => item.id === productId || item.slug === productId);
-      if (!p || !p.variants) return false;
+    // changes: [{ productId, color, size, stock }] for the sizes the admin edited, and nothing else.
+    // With Supabase, one admin_set_stock call (db/004) changes only those sizes, so stock that orders
+    // used up in the meantime is never overwritten. Throws if the database refuses.
+    async setStock(changes) {
+      if (!changes.length) return 0;
+      const clean = changes.map(c => ({ ...c, stock: Math.max(0, parseInt(c.stock, 10) || 0) }));
 
-      const variant = p.variants.find(v => v.color.toLowerCase() === color.toLowerCase() && v.size === size);
-      if (variant) {
-        variant.stock = Math.max(0, parseInt(newStock, 10) || 0);
-      } else {
-        p.variants.push({ color, size, stock: Math.max(0, parseInt(newStock, 10) || 0) });
-      }
-
-      localStorage.setItem('bravadian_products', JSON.stringify(prods));
       if (this.supabaseClient) {
-        this.syncProductToSupabase(p);
+        const { error } = await this.supabaseClient.rpc('admin_set_stock', { p_changes: clean });
+        if (error) throw new Error(error.message);
       }
-      return true;
+
+      const prods = this.getProducts();
+      clean.forEach(({ productId, color, size, stock }) => {
+        const p = prods.find(item => item.id === productId || item.slug === productId);
+        if (!p) return;
+        if (!p.variants) p.variants = [];
+        const variant = p.variants.find(v => v.color.toLowerCase() === color.toLowerCase() && v.size === size);
+        if (variant) variant.stock = stock;
+        else p.variants.push({ color, size, stock });
+      });
+      localStorage.setItem('bravadian_products', JSON.stringify(prods));
+      return clean.length;
     },
 
     // COLLECTIONS
@@ -2017,14 +2098,17 @@
       return DEFAULT_SETTINGS;
     },
 
-    saveSettings(newSettings) {
-      const current = this.getSettings();
-      const merged = { ...current, ...newSettings };
+    // Saves locally, then to Supabase; throws if Supabase refuses. Reconnects only when the
+    // connection details themselves change (reconnecting reloads the catalog, which would
+    // overwrite the settings just saved with the older copy from the database).
+    async saveSettings(newSettings) {
+      const merged = { ...this.getSettings(), ...newSettings };
       localStorage.setItem('bravadian_settings', JSON.stringify(merged));
-      this.init(); // re-init Supabase if keys changed
-      if (this.supabaseClient) {
-        this.syncSettingsToSupabase(merged);
+      if ('supabaseUrl' in newSettings || 'supabaseAnonKey' in newSettings) {
+        this.init();
+        return merged;
       }
+      if (this.supabaseClient) await this.syncSettingsToSupabase(merged);
       return merged;
     },
 
@@ -2101,11 +2185,7 @@
           .from('products')
           .delete()
           .or(`id.eq.${idOrSlug},slug.eq.${idOrSlug}`);
-        if (error) {
-          console.warn('[Supabase Delete Product Notice]:', error);
-        } else {
-          console.log(`[BRAVADIAN] Deleted product ${idOrSlug} from Supabase.`);
-        }
+        if (error) console.warn('[Supabase Delete Product Notice]:', error);
       } catch (e) {
         console.warn('[Supabase Delete Product Exception]:', e);
       }
@@ -2134,31 +2214,38 @@
           status: product.status || 'PUBLISHED'
         };
 
+        // Only sent when known, so saving from the admin form (which has no story field) keeps them
+        if (product.story !== undefined) prodData.story = product.story || null;
+        if (product.motif !== undefined) prodData.motif = product.motif || null;
         if (product.relicTag) prodData.relic_tag = product.relicTag;
         if (product.relicBadge) prodData.relic_badge = product.relicBadge;
-        if (product.images) prodData.images = product.images;
+        if (product.images) prodData.images = photosOnly(product.images);
         if (product.variants) prodData.variants = product.variants;
 
         if (product.id) {
           prodData.id = product.id;
         }
+        // By id, so changing a product's slug updates it instead of clashing with its own id
+        const conflictKey = prodData.id ? 'id' : 'slug';
 
         let { data: savedProd, error } = await this.supabaseClient
           .from('products')
-          .upsert(prodData, { onConflict: 'slug' })
+          .upsert(prodData, { onConflict: conflictKey })
           .select()
           .single();
 
         if (error) {
           console.warn('[Supabase Sync Notice]: Retrying with core columns:', error.message);
           delete prodData.is_coming_soon;
+          delete prodData.story;
+          delete prodData.motif;
           delete prodData.relic_tag;
           delete prodData.relic_badge;
           delete prodData.images;
           delete prodData.variants;
           const retry = await this.supabaseClient
             .from('products')
-            .upsert(prodData, { onConflict: 'slug' })
+            .upsert(prodData, { onConflict: conflictKey })
             .select()
             .single();
           if (retry.error) {
@@ -2173,7 +2260,7 @@
         // Sync to relational product_images table if valid
         if (productId && product.images && typeof product.images === 'object') {
           try {
-            const imgRows = Object.entries(product.images)
+            const imgRows = Object.entries(photosOnly(product.images) || {})
               .filter(([_, url]) => url && typeof url === 'string')
               .map(([vType, url], idx) => ({
                 product_id: productId,
@@ -2181,8 +2268,11 @@
                 view_type: ['hero', 'front', 'back', 'closeup', 'lifestyle', 'detail'].includes(vType) ? vType : 'front',
                 display_order: idx + 1
               }));
+            // Replace this product's rows (they have no stable id, so an upsert would only add duplicates)
+            await this.supabaseClient.from('product_images').delete().eq('product_id', productId);
             if (imgRows.length > 0) {
-              await this.supabaseClient.from('product_images').upsert(imgRows, { onConflict: 'id' }).catch(() => {});
+              const { error: imgError } = await this.supabaseClient.from('product_images').insert(imgRows);
+              if (imgError) console.warn('[Supabase Images Sync Notice]:', imgError.message);
             }
           } catch (imgErr) {
             console.warn('[Supabase Images Sync Notice]:', imgErr);
@@ -2205,12 +2295,14 @@
                 .single();
 
               if (savedVar && savedVar.id && typeof v.stock === 'number') {
-                await this.supabaseClient
+                // Only creates missing rows; existing counts are changed by orders and admin_set_stock
+                const { error: invError } = await this.supabaseClient
                   .from('inventory')
                   .upsert({
                     variant_id: savedVar.id,
                     stock_quantity: v.stock
-                  }, { onConflict: 'variant_id' }).catch(() => {});
+                  }, { onConflict: 'variant_id', ignoreDuplicates: true });
+                if (invError) console.warn('[Supabase Inventory Sync Notice]:', invError.message);
               }
             }
           } catch (varErr) {
@@ -2225,18 +2317,17 @@
 
     async syncSettingsToSupabase(settings) {
       if (!this.supabaseClient) return;
-      try {
-        const rows = [
-          { key: 'general', value: { brand_name: settings.brandName, tagline: settings.tagline, currency: settings.currency, support_email: settings.supportEmail } },
-          { key: 'whatsapp', value: { phone_number: settings.whatsappNumber, business_name: 'BRAVADIAN Official' } },
-          { key: 'shipping', value: { shipping_charge: settings.shippingFee, free_shipping_threshold: settings.freeShippingThreshold, estimated_days: settings.estimatedDays } },
-          { key: 'social', value: { instagram: settings.instagramUrl } },
-          { key: 'launch', value: { ends_at: settings.launchEndsAt || null } }
-        ];
-        await this.supabaseClient.from('site_settings').upsert(rows, { onConflict: 'key' });
-      } catch (e) {
-        console.warn('[Supabase Settings Sync Warning]:', e);
-      }
+      const rows = [
+        { key: 'general', value: { brand_name: settings.brandName, tagline: settings.tagline, currency: settings.currency, support_email: settings.supportEmail } },
+        { key: 'whatsapp', value: { phone_number: settings.whatsappNumber, business_name: 'BRAVADIAN Official' } },
+        { key: 'shipping', value: { shipping_charge: settings.shippingFee, free_shipping_threshold: settings.freeShippingThreshold, estimated_days: settings.estimatedDays } },
+        { key: 'social', value: { instagram: settings.instagramUrl } },
+        { key: 'launch', value: { ends_at: settings.launchEndsAt || null } },
+        // Announcement bar, hero copy and message template from the admin settings form
+        { key: 'content', value: Object.fromEntries(CONTENT_SETTING_KEYS.filter(k => settings[k] !== undefined).map(k => [k, settings[k]])) }
+      ];
+      const { error } = await this.supabaseClient.from('site_settings').upsert(rows, { onConflict: 'key' });
+      if (error) throw new Error(error.message);
     },
 
     async syncSizeGuideToSupabase(guide) {
@@ -2340,6 +2431,8 @@
                 name: p.name,
                 slug: p.slug,
                 description: p.description || '',
+                story: p.story || '',
+                motif: p.motif || '',
                 price: Number(p.price),
                 comparePrice: p.compare_price ? Number(p.compare_price) : null,
                 launchPrice: p.launch_price ? Number(p.launch_price) : null,
@@ -2367,20 +2460,14 @@
                   closeup,
                   lifestyle
                 },
-                variants: p.variants || [
-                  { color: 'Black', size: 'S', stock: 5 },
-                  { color: 'Black', size: 'M', stock: 5 },
-                  { color: 'Black', size: 'L', stock: 5 },
-                  { color: 'Black', size: 'XL', stock: 5 },
-                  { color: 'Black', size: 'XXL', stock: 5 }
-                ]
+                // No stock rows means nothing to sell: show it sold out rather than invent stock
+                variants: Array.isArray(p.variants) ? p.variants : []
               };
             });
 
             if (mapped.length > 0) {
               localStorage.setItem('bravadian_products', JSON.stringify(mapped));
               summary.products = mapped.length;
-              console.log(`[BRAVADIAN] Loaded ${mapped.length} products from Supabase cloud.`);
             }
           }
         } catch (prodEx) {
@@ -2434,6 +2521,8 @@
                 remoteSettings.launchEndsAt = s.value.ends_at || '';
               } else if (s.key === 'social' && s.value && s.value.instagram) {
                 remoteSettings.instagramUrl = s.value.instagram;
+              } else if (s.key === 'content' && s.value) {
+                CONTENT_SETTING_KEYS.forEach(k => { if (s.value[k] !== undefined) remoteSettings[k] = s.value[k]; });
               }
             }
             localStorage.setItem('bravadian_settings', JSON.stringify(remoteSettings));

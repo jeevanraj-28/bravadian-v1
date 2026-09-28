@@ -114,16 +114,44 @@ Name:
 Collections I like: (Anime / Mythology / Heritage / Street Culture / Minimal)
 
 Thank you.`,
-    notify: (name) => `Hello Bravadian,
-
-Please let me know when this design launches.
-
-Product: ${name}
-Preferred color:
-Preferred size:
-
-Thank you.`
+    // "Coming soon" enquiry: the admin's VIP message template, with {productName} filled in
+    notify: (name) => siteCopy('vipMessageTemplate').split('{productName}').join(name)
   };
+
+  // ── Marketing copy from the admin panel ─────────────────────────────────
+  // An empty field falls back to the built-in copy, so the page never shows a blank headline
+  function siteCopy(key) {
+    const v = window.BravadianDB.getSettings()[key];
+    return (typeof v === 'string' ? v.trim() : v) || window.BravadianDefaults.DEFAULT_SETTINGS[key];
+  }
+  const escapeHTML = (v) => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+  // "WEAR YOUR | ROOTS LOUD" → two lines at the "|". Without one, titles of 3+ words split in half.
+  function heroTitleHTML(title) {
+    let lines = title.split('|').map(s => s.trim()).filter(Boolean);
+    if (lines.length === 1) {
+      const words = lines[0].split(/\s+/);
+      if (words.length >= 3) {
+        const half = Math.ceil(words.length / 2);
+        lines = [words.slice(0, half).join(' '), words.slice(half).join(' ')];
+      }
+    }
+    return lines.map(escapeHTML).join('<br>\n');
+  }
+
+  // Running strip under the hero: items separated by ✦
+  function heroTickerHTML() {
+    return siteCopy('heroTicker').split(/\s*✦\s*/).filter(Boolean)
+      .map(t => `<span>${escapeHTML(t)}</span> <span class="marquee-star">✦</span>`).join('\n');
+  }
+
+  // Top announcement bar: text, WhatsApp button label, and on/off
+  function applyAnnouncementBar() {
+    const text = siteCopy('announcementText');
+    document.querySelectorAll('.top-announcement-bar .announcement-text').forEach(el => { el.textContent = text; });
+    document.querySelectorAll('.top-announcement-bar .wa-box-text').forEach(el => { el.textContent = siteCopy('announcementWaText'); });
+    return window.BravadianDB.getSettings().announcementEnabled !== false;
+  }
 
   // ── Dynamic WhatsApp URL builder ───────────────────────────────────────
   function waURL(message) {
@@ -156,10 +184,26 @@ Thank you.`
     try {
       const stored = localStorage.getItem('bravadian_cart');
       StoreState.cart = stored ? JSON.parse(stored) : [];
+      if (!Array.isArray(StoreState.cart)) StoreState.cart = [];
+      // Bag line ids go into the bag buttons' code, so keep them to plain characters
+      StoreState.cart.forEach(item => {
+        if (!/^[\w-]+$/.test(String(item.id))) item.id = bagLineId(item.productId, item.color, item.size);
+        item.quantity = Math.max(1, parseInt(item.quantity, 10) || 1);
+        item.price = Number(item.price) || 0;
+      });
     } catch (e) {
       StoreState.cart = [];
     }
+    refreshCartFromCatalog(false);
     updateCartUI();
+  }
+  // Once the live catalog arrives, prices and stock in the bag are checked against it
+  window.addEventListener('bravadian:catalog-updated', () => refreshCartFromCatalog(true));
+
+  // A bag line's id: letters, digits, - and _ only (it is used inside onclick="...('id')")
+  function bagLineId(productId, color, size) {
+    const safe = (v) => String(v ?? '').replace(/[^\w-]+/g, '_');
+    return `${safe(productId)}-${safe(color)}-${safe(size)}-${Date.now()}${Math.random().toString(36).slice(2, 6)}`;
   }
 
   function saveCart() {
@@ -206,12 +250,23 @@ Thank you.`
     if (phoneQuery.addEventListener) phoneQuery.addEventListener('change', onBreakpoint);
     else if (phoneQuery.addListener) phoneQuery.addListener(onBreakpoint);
     window.addEventListener('resize', onBreakpoint, { passive: true });
-    window.addEventListener('bravadian:catalog-updated', handleRoute);
+    // Fresh catalog from Supabase: redraw the page in place only if something actually changed
+    window.addEventListener('bravadian:catalog-updated', (e) => {
+      if (!e.detail || e.detail.changed) handleRoute({ soft: true });
+    });
     handleRoute();
   }
 
-  function handleRoute() {
+  // opts.soft: redraw the current page for new data, keeping scroll position, open drawers and
+  // the product page's colour and size. Otherwise (a real navigation) start at the top.
+  function handleRoute(opts) {
+    const soft = !!(opts && opts.soft === true);
     const hash = window.location.hash || '#/';
+    if (soft && hash === '#/checkout') return;
+    const keep = soft && StoreState.currentProduct && hash.startsWith('#/product/')
+      ? { id: StoreState.currentProduct.id, color: StoreState.selectedColor, size: StoreState.selectedSize }
+      : null;
+    const scrollY = window.scrollY;
     StoreState.currentRoute = hash;
     clearInterval(StoreState.galleryTimer);
     (StoreState.spotTimers || []).forEach(clearInterval);
@@ -220,17 +275,21 @@ Thank you.`
     if (StoreState.heroFanStop) { StoreState.heroFanStop(); StoreState.heroFanStop = null; }
     if (StoreState.heroMeshStop) { StoreState.heroMeshStop(); StoreState.heroMeshStop = null; }
     StoreState.spotTimers = [];
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (!soft) window.scrollTo({ top: 0, behavior: 'smooth' });
 
-    // Hide top announcement marquee bar on Heritage collection chapter page (matches Figma full-bleed hero)
+    // Hide top announcement marquee bar on Heritage collection chapter page (matches Figma full-bleed hero),
+    // or everywhere when the admin has switched it off
     const isHeritage = (hash === '#/collections/heritage' || hash === '#/heritage');
-    document.body.classList.toggle('hide-announcement-bar', isHeritage);
+    const announcementOn = applyAnnouncementBar();
+    document.body.classList.toggle('hide-announcement-bar', isHeritage || !announcementOn);
 
     // Close any open drawers/modals on navigation
-    closeCartDrawer();
-    closeSearchModal();
-    closeCheckoutModal();
-    closeSizeGuideModal();
+    if (!soft) {
+      closeCartDrawer();
+      closeSearchModal();
+      closeCheckoutModal();
+      closeSizeGuideModal();
+    }
 
     if (hash === '#/' || hash === '#/home' || hash === '') {
       renderHomeView();
@@ -278,6 +337,17 @@ Thank you.`
     updateActiveNavLinks();
     initFocusReveal(mainContainer);
     initMobileMotion(mainContainer);
+
+    if (soft) {
+      // Put the shopper's colour and size back (through the buttons, so gallery and stock update too)
+      if (keep && StoreState.currentProduct && StoreState.currentProduct.id === keep.id) {
+        const dot = [...document.querySelectorAll('.pdp-color-dot')].find(d => d.dataset.color === keep.color);
+        if (dot && keep.color !== StoreState.selectedColor) dot.click();
+        const box = document.querySelector(`.pdp-size-box[data-size="${keep.size}"]`);
+        if (box && !box.disabled) box.click();
+      }
+      window.scrollTo({ top: scrollY, behavior: 'instant' });
+    }
   }
 
   function updateActiveNavLinks() {
@@ -550,6 +620,7 @@ Thank you.`
         <!-- Ambient Grid & Atmosphere (Active when no image is loaded) -->
         <div class="hero-brutalist-bg" aria-hidden="true"></div>
         <div class="hero-ambient-amber" aria-hidden="true"></div>
+        ${siteCopy('heroBgImage') ? '<div class="hero-custom-bg" id="heroCustomBg" aria-hidden="true"></div>' : ''}
 
         <!-- Products gliding on a ring behind the headline -->
         ${isPhone ? '' : `
@@ -557,7 +628,7 @@ Thank you.`
           <div class="hero-ring-stage">
             ${HERO_RING.filter(it => window.BravadianDB.getProductBySlug(it.slug)).map(it => `
             <a href="#/product/${it.slug}" class="ring-card ${it.photo ? 'is-photo' : 'is-art'}" tabindex="-1" draggable="false">
-              <img src="images/hero-ring/${it.img}.webp" alt="" draggable="false" decoding="async">
+              <img src="/images/hero-ring/${it.img}.webp" alt="" draggable="false" decoding="async">
               <span>${titleCase(window.BravadianDB.getProductBySlug(it.slug).name.replace(/ TEE$/, ''))}</span>
             </a>`).join('')}
           </div>
@@ -583,7 +654,7 @@ Thank you.`
                     const p = window.BravadianDB.getProductBySlug(it.slug);
                     const now = window.BravadianDB.effectivePrice(p);
                     return `<a href="#/product/${it.slug}" class="fan-card ${it.photo ? 'is-photo' : 'is-art'}" data-i="${i}" draggable="false">
-                      <img src="${it.full || `images/hero-ring/${it.img}.webp`}" alt="${titleCase(p.name)}" draggable="false" decoding="async" ${i > 1 && i < heroItems.length - 1 ? 'loading="lazy"' : 'fetchpriority="high"'}>
+                      <img src="${it.full || `/images/hero-ring/${it.img}.webp`}" alt="${titleCase(p.name)}" draggable="false" decoding="async" ${i > 1 && i < heroItems.length - 1 ? 'loading="lazy"' : 'fetchpriority="high"'}>
                       <span class="fan-meta"><b>${titleCase(p.name.replace(/ TEE$/, ''))}</b><em>${window.BravadianDB.getSettings().currency}${now.toLocaleString('en-IN')}${p.comparePrice ? ` <s>${window.BravadianDB.getSettings().currency}${p.comparePrice.toLocaleString('en-IN')}</s>` : ''}</em><span class="fan-shop">Shop now &rarr;</span></span>
                     </a>`;
                   }).join('')}
@@ -592,16 +663,15 @@ Thank you.`
 
               <div class="figma-hero-tag">
                 <span class="hero-amber-dot"></span>
-                <span>[ 🇮🇳 INDIAN ROOTS // MODERN FORM ]</span>
+                <span>${escapeHTML(siteCopy('heroTag'))}</span>
               </div>
 
               <h1 class="figma-hero-title">
-                WEAR YOUR<br>
-                ROOTS LOUD
+                ${heroTitleHTML(siteCopy('heroTitle'))}
               </h1>
 
               <p class="figma-hero-desc">
-                Everyday clothing made with purpose. Premium, comfortable, and affordable 240 GSM French Terry cotton silhouettes crafted for those who carry heritage forward.
+                ${escapeHTML(siteCopy('heroDesc'))}
               </p>
 
 
@@ -627,20 +697,10 @@ Thank you.`
       <div class="figma-sub-marquee" aria-hidden="true">
         <div class="sub-marquee-track">
           <div class="sub-marquee-content">
-            <span>🇮🇳 A STORY WORTH WEARING</span> <span class="marquee-star">✦</span>
-            <span>EVERYDAY CLOTHING WITH PURPOSE</span> <span class="marquee-star">✦</span>
-            <span>PREMIUM • COMFORTABLE • AFFORDABLE</span> <span class="marquee-star">✦</span>
-            <span>240 GSM FRENCH TERRY</span> <span class="marquee-star">✦</span>
-            <span>CRAFTED IN BHARAT</span> <span class="marquee-star">✦</span>
-            <span>FREE DELIVERY ACROSS INDIA</span> <span class="marquee-star">✦</span>
+            ${heroTickerHTML()}
           </div>
           <div class="sub-marquee-content">
-            <span>🇮🇳 A STORY WORTH WEARING</span> <span class="marquee-star">✦</span>
-            <span>EVERYDAY CLOTHING WITH PURPOSE</span> <span class="marquee-star">✦</span>
-            <span>PREMIUM • COMFORTABLE • AFFORDABLE</span> <span class="marquee-star">✦</span>
-            <span>240 GSM FRENCH TERRY</span> <span class="marquee-star">✦</span>
-            <span>CRAFTED IN BHARAT</span> <span class="marquee-star">✦</span>
-            <span>FREE DELIVERY ACROSS INDIA</span> <span class="marquee-star">✦</span>
+            ${heroTickerHTML()}
           </div>
         </div>
       </div>
@@ -689,16 +749,16 @@ Thank you.`
       <section class="figma-manifesto-section" id="manifestoSection">
         <!-- Authentic Panoramic Heritage Architectural Backdrop (Light & Dark Theme Specific) -->
         <div class="manifesto-panoramic-wrap" aria-hidden="true">
-          <img src="images/manifesto-panoramic-light.webp" alt="" class="manifesto-panoramic-img manifesto-bg-light manifesto-img-desktop" loading="eager">
-          <img src="images/manifesto-panoramic-dark-alt.webp" alt="" class="manifesto-panoramic-img manifesto-bg-dark manifesto-img-desktop" loading="eager">
+          <img src="/images/manifesto-panoramic-light.webp" alt="" class="manifesto-panoramic-img manifesto-bg-light manifesto-img-desktop" loading="eager">
+          <img src="/images/manifesto-panoramic-dark-alt.webp" alt="" class="manifesto-panoramic-img manifesto-bg-dark manifesto-img-desktop" loading="eager">
           <!-- Mobile Flanking Architecture (Temple Left, Celestial Maiden Right) -->
           <div class="manifesto-mobile-flank manifesto-mobile-flank-left" aria-hidden="true">
-            <img src="images/manifesto-panoramic-light.webp" alt="" class="manifesto-bg-light" loading="eager">
-            <img src="images/manifesto-panoramic-dark-alt.webp" alt="" class="manifesto-bg-dark" loading="eager">
+            <img src="/images/manifesto-panoramic-light.webp" alt="" class="manifesto-bg-light" loading="eager">
+            <img src="/images/manifesto-panoramic-dark-alt.webp" alt="" class="manifesto-bg-dark" loading="eager">
           </div>
           <div class="manifesto-mobile-flank manifesto-mobile-flank-right" aria-hidden="true">
-            <img src="images/manifesto-panoramic-light.webp" alt="" class="manifesto-bg-light" loading="eager">
-            <img src="images/manifesto-panoramic-dark-alt.webp" alt="" class="manifesto-bg-dark" loading="eager">
+            <img src="/images/manifesto-panoramic-light.webp" alt="" class="manifesto-bg-light" loading="eager">
+            <img src="/images/manifesto-panoramic-dark-alt.webp" alt="" class="manifesto-bg-dark" loading="eager">
           </div>
           <div class="manifesto-scrim-overlay"></div>
         </div>
@@ -819,6 +879,10 @@ Thank you.`
     `;
 
     initSpotlight(mainContainer.querySelector('.archive-cards-grid'));
+    // Admin's hero background image, set as a style (not HTML) so the address cannot break the page
+    const heroBg = document.getElementById('heroCustomBg');
+    if (heroBg) heroBg.style.backgroundImage = `url(${JSON.stringify(siteCopy('heroBgImage'))})`;
+
     initHeroMesh(document.getElementById('heroMesh'));
     initHeroRing(document.getElementById('heroRing'));
     initHeroFan(document.getElementById('heroFan'));
@@ -892,16 +956,25 @@ Thank you.`
       }
     };
 
+    // Each redraw makes the browser re-layer the whole page, so the soft glow is drawn at most
+    // 30 times a second on desktop and 20 on phones (it drifts slowly; it reads the same). The
+    // easing is time-based, so the glow moves at the same speed whatever the frame rate.
+    const FRAME_MS = phone ? 50 : 33;
+    let lastDraw = 0;
     const tick = (now) => {
       raf = 0;
+      if (lastDraw && now - lastDraw < FRAME_MS) { raf = requestAnimationFrame(tick); return; }
+      const frames = lastDraw ? Math.min(4, (now - lastDraw) / 16.67) : 1;   // 60 fps frames since last draw
+      lastDraw = now;
       if (phone && !still && now > touchUntil) {
         const t = (now - t0) / 1000;
         tx = W * (0.5 + 0.34 * Math.sin(t * 0.33));
         ty = H * (0.3 + 0.16 * Math.sin(t * 0.47 + 1));
         target = 0.75;
       }
-      mx += (tx - mx) * 0.12; my += (ty - my) * 0.12;
-      str += (target - str) * 0.08;
+      const follow = 1 - Math.pow(0.88, frames), fade = 1 - Math.pow(0.92, frames);
+      mx += (tx - mx) * follow; my += (ty - my) * follow;
+      str += (target - str) * fade;
       draw();
       const settling = Math.abs(target - str) > 0.004 || Math.abs(tx - mx) > 0.5 || Math.abs(ty - my) > 0.5;
       if (inView && !document.hidden && (settling || (phone && !still))) raf = requestAnimationFrame(tick);
@@ -938,18 +1011,18 @@ Thank you.`
     };
   }
 
-  // Curated hero cards (small images in images/hero-ring/): worn photos alternate with artwork
+  // Curated hero cards (small images in /images/hero-ring/): worn photos alternate with artwork
   const HERO_RING = [
-    { slug: 'bharat-spirit-tee', img: 'bharat-worn-studio', photo: true, full: 'images/products/bharat-spirit/worn-studio.webp?v=2' },
-    { slug: 'trinetra-tee', img: 'trinetra', full: 'images/products/trinetra/preview.webp' },
-    { slug: 'indian-craft-atlas-tee', img: 'atlas-look', photo: true, full: 'images/lookbook/lb-look-02.webp' },
-    { slug: 'ganesha-tee', img: 'ganesha', full: 'images/products/ganesha/preview.webp' },
-    { slug: 'bharat-spirit-tee', img: 'bharat-look', photo: true, full: 'images/lookbook/lb-look-01.webp' },
-    { slug: 'born-to-rise-tee', img: 'born-to-rise', photo: true, full: 'images/products/born-to-rise/black-model.webp' },
-    { slug: 'bharat-spirit-tee', img: 'bharat-temple', photo: true, full: 'images/products/bharat-spirit/worn-temple.webp?v=3' },
-    { slug: 'hara-hara-mahadeva-tee', img: 'hara-hara', photo: true, full: 'images/products/hara-hara-mahadeva/black-model.webp' },
-    { slug: 'indian-craft-atlas-tee', img: 'atlas-closeup', photo: true, full: 'images/products/craft-atlas/closeup.webp' },
-    { slug: 'indian-craft-atlas-tee', img: 'atlas-tee', full: 'images/products/craft-atlas/back-print.webp?v=2' }
+    { slug: 'bharat-spirit-tee', img: 'bharat-worn-studio', photo: true, full: '/images/products/bharat-spirit/worn-studio.webp?v=2' },
+    { slug: 'trinetra-tee', img: 'trinetra', full: '/images/products/trinetra/preview.webp' },
+    { slug: 'indian-craft-atlas-tee', img: 'atlas-look', photo: true, full: '/images/lookbook/lb-look-02.webp' },
+    { slug: 'ganesha-tee', img: 'ganesha', full: '/images/products/ganesha/preview.webp' },
+    { slug: 'bharat-spirit-tee', img: 'bharat-look', photo: true, full: '/images/lookbook/lb-look-01.webp' },
+    { slug: 'born-to-rise-tee', img: 'born-to-rise', photo: true, full: '/images/products/born-to-rise/black-model.webp' },
+    { slug: 'bharat-spirit-tee', img: 'bharat-temple', photo: true, full: '/images/products/bharat-spirit/worn-temple.webp?v=3' },
+    { slug: 'hara-hara-mahadeva-tee', img: 'hara-hara', photo: true, full: '/images/products/hara-hara-mahadeva/black-model.webp' },
+    { slug: 'indian-craft-atlas-tee', img: 'atlas-closeup', photo: true, full: '/images/products/craft-atlas/closeup.webp' },
+    { slug: 'indian-craft-atlas-tee', img: 'atlas-tee', full: '/images/products/craft-atlas/back-print.webp?v=2' }
   ];
 
   // Home hero ring: portrait cards on a cylinder that curls around the viewer, smallest in the
@@ -961,7 +1034,7 @@ Thank you.`
     if (cards.length < 4) { root.remove(); return; }
     const STEP = 360 / cards.length;
     const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    let offset = 8, vel = 0, R = 600, degPerPx = 0.2, raf = 0, last = 0, running = false;
+    let offset = 8, vel = 0, R = 600, degPerPx = 0.2, last = 0;
     let dragging = false, lastX = 0, lastT = 0, moved = 0, hover = false;
 
     let P = 800, W = 1200, CX = 744;
@@ -975,36 +1048,76 @@ Thank you.`
       root.style.perspective = `${p}px`;
       root.style.setProperty('--ring-h', `${cardH}px`);
       root.style.setProperty('--ring-w', `${Math.round(cardH * 0.72)}px`);
+      // Each card sits at a fixed angle on the ring; turning the ring turns the stage (see render)
+      cards.forEach((c, i) => { c.style.transform = `rotateY(${(i * STEP).toFixed(2)}deg) translateZ(${-R}px)`; });
     };
-    const render = () => {
+    // Auto-spin is a browser animation that runs on the GPU, so the page does no work per frame.
+    // (Turning the ring from JavaScript made Chrome rebuild the whole page's layer list 60 times a
+    // second, which made the header banner stutter on slower machines.) JavaScript drives the angle
+    // only while the ring is dragged or flicked, and checks the cards' fade and blur a few times a second.
+    const stage = root.querySelector('.hero-ring-stage');
+    const SPEED = 4.5;                                    // degrees per second, as before
+    const TURN_MS = (360 / SPEED) * 1000;
+    const spin = stage.animate([{ transform: 'rotateY(0deg)' }, { transform: 'rotateY(360deg)' }],
+      { duration: TURN_MS, iterations: Infinity });
+    spin.pause();
+    const setAngle = (deg) => { spin.currentTime = ((((deg % 360) + 360) % 360) / 360) * TURN_MS; };
+    const angleNow = () => ((Number(spin.currentTime) || 0) / TURN_MS) * 360;
+
+    // Cards fade out at the sides of the ring and blur while passing behind the headline.
+    // Written only when a value changes; a short CSS opacity transition keeps the fades smooth.
+    const updateCards = () => {
+      const off = angleNow();
       for (let i = 0; i < cards.length; i++) {
-        const a = (((i * STEP + offset) % 360) + 540) % 360 - 180;
-        const vis = Math.max(0, Math.min(1, (82 - Math.abs(a)) / 14));
+        const a = (((i * STEP + off) % 360) + 540) % 360 - 180;
+        const vis = Math.round(Math.max(0, Math.min(1, (82 - Math.abs(a)) / 14)) * 100) / 100;
         const c = cards[i];
-        c.style.transform = `rotateY(${a.toFixed(2)}deg) translateZ(${-R}px)`;
-        // cards passing behind the headline go soft; a class flip, so the blur is applied once on the card's own GPU layer
         const rad = a * Math.PI / 180;
         const soft = Math.abs(a) < 90 && (CX - R * Math.sin(rad) * P / (P + R * Math.cos(rad))) < W * 0.47;
         if (soft !== c._soft) { c._soft = soft; c.classList.toggle('is-soft', soft); }
-        c.style.opacity = vis.toFixed(3);
-        c.style.visibility = vis > 0 ? 'visible' : 'hidden';
+        if (vis !== c._vis) {
+          c._vis = vis;
+          c.style.opacity = String(vis);
+          c.style.visibility = vis > 0 ? 'visible' : 'hidden';
+        }
       }
     };
-    const tick = (now) => {
-      const dt = last ? Math.min(0.05, (now - last) / 1000) : 0;
-      last = now;
-      if (!dragging) {
-        if (Math.abs(vel) > 1) { offset += vel * dt; vel *= Math.pow(0.03, dt); }
-        else if (!hover && !still) offset += 4.5 * dt;
+
+    // Auto-spin only when the ring is on screen, not hovered, not being moved, and motion is allowed
+    let inView = true, flickRaf = 0, cardTimer = 0;
+    const refresh = () => {
+      const auto = inView && !hover && !still && !dragging && Math.abs(vel) <= 1;
+      if (auto) {
+        if (spin.playState !== 'running') spin.play();
+        if (!cardTimer) cardTimer = setInterval(updateCards, 120);
+      } else {
+        spin.pause();
+        clearInterval(cardTimer);
+        cardTimer = 0;
       }
-      render();
-      raf = requestAnimationFrame(tick);
+      root.dataset.playing = auto ? 'true' : 'false';
+      updateCards();
     };
-    const start = () => { if (running) return; running = true; root.dataset.playing = 'true'; last = 0; raf = requestAnimationFrame(tick); };
-    const stop = () => { running = false; root.dataset.playing = 'false'; cancelAnimationFrame(raf); };
 
     // Drag / flick (horizontal only; vertical swipes still scroll the page)
-    const onDown = (e) => { if (e.button > 0) return; dragging = true; moved = 0; vel = 0; lastX = e.clientX; lastT = performance.now(); };
+    const flick = (now) => {
+      const dt = last ? Math.min(0.05, (now - last) / 1000) : 0;
+      last = now;
+      if (!dragging && Math.abs(vel) > 1) { offset += vel * dt; vel *= Math.pow(0.03, dt); }
+      setAngle(offset);
+      updateCards();
+      if (dragging || Math.abs(vel) > 1) flickRaf = requestAnimationFrame(flick);
+      else { flickRaf = 0; refresh(); }
+    };
+    const startFlick = () => { if (!flickRaf) { last = 0; flickRaf = requestAnimationFrame(flick); } };
+
+    const onDown = (e) => {
+      if (e.button > 0) return;
+      dragging = true; moved = 0; vel = 0; lastX = e.clientX; lastT = performance.now();
+      offset = angleNow();
+      refresh();
+      startFlick();
+    };
     const onMove = (e) => {
       if (!dragging) return;
       const now = performance.now(), dx = e.clientX - lastX;
@@ -1012,31 +1125,32 @@ Thank you.`
       offset -= dx * degPerPx;
       vel = (-dx * degPerPx) / Math.max(8, now - lastT) * 1000;
       lastT = now;
-      if (!running) render();
     };
-    const onUp = () => { if (!dragging) return; dragging = false; if (performance.now() - lastT > 90) vel = 0; };
+    const onUp = () => { if (!dragging) return; dragging = false; if (performance.now() - lastT > 90) vel = 0; startFlick(); };
     root.addEventListener('pointerdown', onDown);
     window.addEventListener('pointermove', onMove, { passive: true });
     window.addEventListener('pointerup', onUp);
     window.addEventListener('pointercancel', onUp);
     root.addEventListener('click', (e) => { if (moved > 6) { e.preventDefault(); e.stopPropagation(); } }, true);
-    root.addEventListener('pointerover', (e) => { if (e.pointerType === 'mouse' && e.target.closest('.ring-card')) hover = true; });
-    root.addEventListener('pointerout', (e) => { if (e.pointerType === 'mouse' && !e.relatedTarget?.closest?.('.ring-card')) hover = false; });
+    root.addEventListener('pointerover', (e) => { if (e.pointerType === 'mouse' && e.target.closest('.ring-card') && !hover) { hover = true; refresh(); } });
+    root.addEventListener('pointerout', (e) => { if (e.pointerType === 'mouse' && !e.relatedTarget?.closest?.('.ring-card')) { hover = false; refresh(); } });
 
-    const onResize = () => { layout(); render(); };
+    const onResize = () => { layout(); updateCards(); };
     window.addEventListener('resize', onResize);
     const io = 'IntersectionObserver' in window
-      ? new IntersectionObserver(([en]) => (en.isIntersecting ? start() : stop()))
+      ? new IntersectionObserver(([en]) => { inView = en.isIntersecting; refresh(); })
       : null;
     if (io) io.observe(root);
 
     layout();
-    render();
-    start();
+    setAngle(offset);
+    refresh();
     root.classList.add('is-ready');
 
     StoreState.heroRingStop = () => {
-      stop();
+      spin.cancel();
+      clearInterval(cardTimer);
+      cancelAnimationFrame(flickRaf);
       if (io) io.disconnect();
       window.removeEventListener('pointermove', onMove);
       window.removeEventListener('pointerup', onUp);
@@ -1288,6 +1402,16 @@ Thank you.`
       const update = () => syncBar(0.08 + embla.scrollProgress() * 0.92);
       embla.on('scroll', update).on('reInit', update);
       update();
+      // Auto-scroll only while the reel is on screen (it otherwise redraws every frame out of sight)
+      const auto = embla.plugins().autoScroll;
+      if (auto && 'IntersectionObserver' in window) {
+        let onScreen = true;
+        const io = new IntersectionObserver(([en]) => { onScreen = en.isIntersecting; if (onScreen) auto.play(); else auto.stop(); });
+        io.observe(root);
+        // The plugin also restarts itself when the mouse leaves the reel; keep it stopped out of sight
+        embla.on('autoScroll:play', () => { if (!onScreen) auto.stop(); });
+        embla.on('destroy', () => io.disconnect());
+      }
       StoreState.reel = embla;
     }).catch(() => { /* native scrolling fallback */ });
   }
@@ -1398,72 +1522,12 @@ Thank you.`
 
   // Drop artwork at these paths to fill the collection cards; missing files fall back to plain cards.
   const COLLECTION_IMAGES = {
-    anime: 'images/collections/anime.webp',
-    mythology: 'images/collections/mythology.webp',
-    heritage: 'images/collections/heritage.webp',
-    'street-culture': 'images/collections/street-culture.webp',
-    minimal: 'images/collections/minimal.webp'
+    anime: '/images/collections/anime.webp',
+    mythology: '/images/collections/mythology.webp',
+    heritage: '/images/collections/heritage.webp',
+    'street-culture': '/images/collections/street-culture.webp',
+    minimal: '/images/collections/minimal.webp'
   };
-
-  function renderUniverseArchiveCard(c) {
-    const isLive = c.isLive !== false;
-    c = { ...c, image: c.image || COLLECTION_IMAGES[c.slug] };
-    const hasImage = !!c.image;
-
-    if (isLive) {
-      return `
-        <a 
-          href="#/collections/${c.slug}" 
-          class="archive-card status-active universe-collection-card ${hasImage ? 'has-custom-img' : ''}" 
-          data-slug="${c.slug}" 
-          data-name="${c.name}"
-          data-edition="${c.num}"
-          title="${c.name} — ${c.chapter || c.desc || c.description} (See the designs)"
-        >
-          ${hasImage ? `
-            <div class="archive-card-bg-img" style="background-image: url('${c.image}');"></div>
-            <div class="archive-card-bg-overlay"></div>
-          ` : ''}
-          <div class="archive-card-top">
-            <span class="archive-num">${c.num}</span>
-            <span class="archive-plus">+</span>
-          </div>
-          <div class="archive-card-bottom">
-            <h3 class="archive-card-title">${c.name}</h3>
-            <span class="archive-card-desc">${c.description || c.chapter || c.desc}</span>
-          </div>
-          <span class="archive-card-corner-pip" aria-hidden="true"></span>
-        </a>
-      `;
-    } else {
-      return `
-        <div 
-          class="archive-card status-vault universe-collection-card ${hasImage ? 'has-custom-img is-vault-blurred' : ''}" 
-          data-slug="${c.slug}" 
-          data-name="${c.name}" 
-          data-edition="${c.num}"
-          role="button"
-          tabindex="0"
-          title="${c.name} — ${c.chapter || c.desc || c.description} (Coming soon)"
-          aria-label="${c.name} - Vault Unreleased"
-        >
-          ${hasImage ? `
-            <div class="archive-card-bg-img is-vault-blurred" style="background-image: url('${c.image}');"></div>
-            <div class="archive-card-bg-overlay"></div>
-            <div class="frosted-crosshair-center" aria-hidden="true"></div>
-          ` : ''}
-          <div class="archive-card-top">
-            <span class="archive-num">${c.num}</span>
-            <span class="archive-badge badge-vault">VAULT</span>
-          </div>
-          <div class="archive-card-bottom">
-            <h3 class="archive-card-title">${c.name}</h3>
-            <span class="archive-card-desc">${c.description || c.chapter || c.desc}</span>
-          </div>
-        </div>
-      `;
-    }
-  }
 
   function bindUniverseWallActions() {
     // Coming-soon collections: ask to be told on WhatsApp
@@ -1590,10 +1654,10 @@ Thank you.`
 
             <!-- Story Cards Row -->
             <div class="heritage-motifs-row">
-              ${storyCard('images/heritage/story-folk-art.webp', 'images/products/craft-atlas/back-print.webp', 'Madhubani and Warli folk painting', 'FOLK ART', 'ATLAS', 'Madhubani, Warli, Gond and Pattachitra. The painted traditions behind the Craft Atlas elephant.')}
-              ${storyCard('images/heritage/story-textiles.webp', 'images/products/craft-atlas/back-print.webp', 'Kalamkari and Ikat textiles', 'TEXTILE CRAFTS', 'ATLAS', 'Kalamkari, Ikat, Phad and Pichwai. Patterns carried from loom and cloth into print.')}
-              ${storyCard('images/heritage/story-symbols.webp', 'images/products/bharat-spirit/back-print.webp', 'Peacock, tiger, lotus and elephant', 'NATIONAL SYMBOLS', 'SPIRIT', 'Peacock, tiger, lotus and elephant. The four symbols of India behind Bharat Spirit.')}
-              ${storyCard('images/heritage/story-atlas.webp', 'images/products/craft-atlas/back-print.webp', 'Indian Craft Atlas elephant artwork', 'THE ATLAS PRINT', 'ATLAS', 'People, patterns, places, purpose. A dozen crafts from across India, drawn onto one elephant.')}
+              ${storyCard('/images/heritage/story-folk-art.webp', '/images/products/craft-atlas/back-print.webp', 'Madhubani and Warli folk painting', 'FOLK ART', 'ATLAS', 'Madhubani, Warli, Gond and Pattachitra. The painted traditions behind the Craft Atlas elephant.')}
+              ${storyCard('/images/heritage/story-textiles.webp', '/images/products/craft-atlas/back-print.webp', 'Kalamkari and Ikat textiles', 'TEXTILE CRAFTS', 'ATLAS', 'Kalamkari, Ikat, Phad and Pichwai. Patterns carried from loom and cloth into print.')}
+              ${storyCard('/images/heritage/story-symbols.webp', '/images/products/bharat-spirit/back-print.webp', 'Peacock, tiger, lotus and elephant', 'NATIONAL SYMBOLS', 'SPIRIT', 'Peacock, tiger, lotus and elephant. The four symbols of India behind Bharat Spirit.')}
+              ${storyCard('/images/heritage/story-atlas.webp', '/images/products/craft-atlas/back-print.webp', 'Indian Craft Atlas elephant artwork', 'THE ATLAS PRINT', 'ATLAS', 'People, patterns, places, purpose. A dozen crafts from across India, drawn onto one elephant.')}
             </div>
           </section>
 
@@ -1684,38 +1748,6 @@ Thank you.`
           </section>
         </div>
       </div>
-    `;
-  }
-
-  function renderHeritageGarmentCard(p, idx, settings) {
-    const relicTag = p.relicTag || `DESIGN 0${idx + 1}`;
-    const badgeText = p.isComingSoon ? 'COMING SOON' : (p.relicBadge || 'PRE-ORDER ACTIVE');
-    const fabricText = p.fabric || '240 GSM COMBED COTTON // ARCHIVAL EMBROIDERY';
-    const priceFormatted = priceHTML(p);
-
-    return `
-      <article 
-        class="heritage-product-card" 
-        onclick="window.location.hash='#/product/${p.slug}'" 
-        role="button" 
-        tabindex="0"
-        aria-label="View ${p.name}"
-      >
-        <div class="heritage-card-image-box">
-          <img src="${p.images.front}" alt="${p.name} — Bravadian Streetwear" class="heritage-card-product-img" loading="lazy" />
-          <div class="heritage-badge-pill">${relicTag}</div>
-        </div>
-        <div class="heritage-card-specs">
-          <div class="heritage-card-title-row">
-            <h3 class="heritage-card-product-name">${p.name}</h3>
-            <span class="heritage-card-price">${priceFormatted}</span>
-          </div>
-          <div class="heritage-card-sub-row">
-            <span class="heritage-card-fabric" title="${fabricText}">${fabricText}</span>
-            <span class="heritage-indicator-tag">${badgeText}</span>
-          </div>
-        </div>
-      </article>
     `;
   }
 
@@ -1943,7 +1975,7 @@ Thank you.`
       sheet.querySelector('.qa-guide').onclick = () => { closeQuickAdd(); window.BravadianStore.openSizeGuideModal(); };
       sheet.querySelectorAll('.qa-colour').forEach(b => b.onclick = () => { color = b.dataset.c; if (!getAvailableSizesForColor(product, color).includes(size)) size = null; draw(); });
       sheet.querySelectorAll('.qa-size:not([disabled])').forEach(b => b.onclick = () => { size = b.dataset.z; draw(); });
-      sheet.querySelector('.qa-add').onclick = () => { if (!size) return; addToCart(product, color, size, 1); closeQuickAdd(); };
+      sheet.querySelector('.qa-add').onclick = () => { if (!size) return; if (addToCart(product, color, size, 1)) closeQuickAdd(); };
     };
     draw();
     requestAnimationFrame(() => document.body.classList.add('qa-open'));
@@ -1963,14 +1995,32 @@ Thank you.`
   /* --------------------------------------------------------------------------
      4. PRODUCT DETAIL PAGE (PDP) — FIGMA PRECISION ARCHITECTURE
      -------------------------------------------------------------------------- */
+  // Shown for a product link that does not exist or is not on sale (drafts). If the live catalog is
+  // still loading and has it, the page redraws itself with the product once it arrives.
+  function renderProductNotFound() {
+    StoreState.currentProduct = null;
+    const picks = window.BravadianDB.getProducts().filter(p => !p.isComingSoon).slice(0, 3);
+    mainContainer.innerHTML = `
+      <section class="done-page">
+        <span class="bag-kicker">PAGE NOT FOUND</span>
+        <h1>THIS TEE ISN'T HERE</h1>
+        <p class="done-lede">The link may be old, or this design is no longer available. Here's what's in the drop right now.</p>
+        ${picks.length ? `<ol class="done-steps">${picks.map(p => `
+          <li><a href="#/product/${encodeURIComponent(p.slug)}"><b>${titleCase(p.name)}</b></a><span>${priceHTML(p)}</span></li>`).join('')}
+        </ol>` : ''}
+        <div class="done-actions">
+          <a href="#/shop" class="bag-cta"><span>SHOP ALL TEES</span></a>
+          <a href="#/" class="done-ghost">Back to home</a>
+        </div>
+      </section>
+    `;
+  }
+
   function renderPDPView(slug) {
-    let product = window.BravadianDB.getProductBySlug(slug);
+    let product = window.BravadianDB.getProductBySlug(decodeURIComponent(slug));
     if (!product) {
-      product = window.BravadianDB.getProductBySlug('hoysala-oversized-relic-tee') || window.BravadianDB.getProducts()[0];
-      if (!product) {
-        renderShopView('all');
-        return;
-      }
+      renderProductNotFound();
+      return;
     }
 
     StoreState.currentProduct = product;
@@ -2286,14 +2336,30 @@ Thank you.`
         });
         const current = document.querySelector('.pdp-size-box.active');
         if ((!current || current.disabled) && firstOpen) firstOpen.click();
+        syncPdpCta();
       });
     });
+
+    // The add button (and its phone twin) reads SOLD OUT when the chosen colour and size has no stock
+    const priceLabel = `ADD TO BAG — ${settings.currency}${window.BravadianDB.effectivePrice(product).toLocaleString('en-IN')}`;
+    function syncPdpCta() {
+      if (product.isComingSoon) return;
+      const soldOut = getVariantStock(product, StoreState.selectedColor, StoreState.selectedSize) <= 0;
+      [document.getElementById('pdpCtaBtn'), document.getElementById('pdpStickyBtn')].forEach((btn, i) => {
+        if (!btn) return;
+        btn.disabled = soldOut;
+        btn.classList.toggle('is-sold-out', soldOut);
+        const label = btn.querySelector('.gr-label');
+        if (label) label.textContent = soldOut ? 'SOLD OUT' : (i === 0 ? priceLabel : 'ADD TO BAG');
+      });
+    }
 
     sizeBoxes.forEach(sb => {
       sb.addEventListener('click', () => {
         sizeBoxes.forEach(b => b.classList.remove('active'));
         sb.classList.add('active');
         StoreState.selectedSize = sb.getAttribute('data-size');
+        syncPdpCta();
       });
     });
 
@@ -2335,8 +2401,7 @@ Thank you.`
         if (!StoreState.selectedSize) {
           StoreState.selectedSize = 'M';
         }
-        addToCart(product, StoreState.selectedColor, StoreState.selectedSize, 1);
-        openCartDrawer();
+        if (addToCart(product, StoreState.selectedColor, StoreState.selectedSize, 1)) openCartDrawer();
       });
 
       // Phones: once the main button scrolls away, keep Add to bag one tap away
@@ -2356,6 +2421,7 @@ Thank you.`
         };
         window.addEventListener('scroll', StoreState.pdpScroll, { passive: true });
       }
+      syncPdpCta();
     }
 
     // 6. Relic Cards in "More from Universe"
@@ -2417,73 +2483,6 @@ Thank you.`
       .map(v => v.size);
   }
 
-  function renderSizePills() {
-    const product = StoreState.currentProduct;
-    const sizeList = document.getElementById('pdpSizeList');
-    const addBtn = document.getElementById('addToCartBtn');
-    const badge = document.getElementById('pdpStockBadge');
-    if (!product || !sizeList) return;
-
-    const allSizes = ['S', 'M', 'L', 'XL', 'XXL'];
-
-    sizeList.innerHTML = allSizes.map(size => {
-      const stock = getVariantStock(product, StoreState.selectedColor, size);
-      const isAvailable = stock > 0;
-      const isSelected = size === StoreState.selectedSize && isAvailable;
-
-      return `
-        <button 
-          type="button" 
-          class="size-pill-btn ${!isAvailable ? 'disabled' : ''} ${isSelected ? 'active' : ''}" 
-          data-size="${size}"
-          ${!isAvailable ? 'disabled title="Sold Out"' : ''}
-        >
-          ${size}
-        </button>
-      `;
-    }).join('');
-
-    // Re-bind size clicks
-    const sizeBtns = sizeList.querySelectorAll('.size-pill-btn:not(.disabled)');
-    sizeBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        sizeList.querySelectorAll('.size-pill-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        StoreState.selectedSize = btn.getAttribute('data-size');
-        updatePDPButtonState();
-      });
-    });
-
-    updatePDPButtonState();
-  }
-
-  function updatePDPButtonState() {
-    const product = StoreState.currentProduct;
-    const addBtn = document.getElementById('addToCartBtn');
-    const badge = document.getElementById('pdpStockBadge');
-    const stock = getVariantStock(product, StoreState.selectedColor, StoreState.selectedSize);
-
-    if (stock > 0) {
-      if (addBtn) {
-        addBtn.disabled = false;
-        addBtn.querySelector('span').textContent = 'ADD TO CART';
-      }
-      if (badge) {
-        badge.className = 'card-status-indicator available';
-        badge.textContent = stock <= 3 ? `ONLY ${stock} LEFT` : 'IN STOCK';
-      }
-    } else {
-      if (addBtn) {
-        addBtn.disabled = true;
-        addBtn.querySelector('span').textContent = 'VARIANT SOLD OUT';
-      }
-      if (badge) {
-        badge.className = 'card-status-indicator sold-out';
-        badge.textContent = 'SOLD OUT';
-      }
-    }
-  }
-
   /* --------------------------------------------------------------------------
      5. CART MANAGEMENT & DRAWER
      -------------------------------------------------------------------------- */
@@ -2498,7 +2497,7 @@ Thank you.`
     }
 
     const settings = window.BravadianDB.getSettings();
-    const imgSrc = (product.images && product.images.front) ? product.images.front : (product.image || 'images/logo.png');
+    const imgSrc = (product.images && product.images.front) ? product.images.front : (product.image || '/images/logo.png');
 
     toast.innerHTML = `
       <img src="${imgSrc}" alt="${product.name}" class="cart-toast-thumb">
@@ -2529,16 +2528,56 @@ Thank you.`
     });
   }
 
+  // Plain-text message in the bag toast (for "only 2 left" and similar)
+  function showBagNotice(text) {
+    const toast = document.getElementById('cartToast');
+    if (!toast) return;
+    if (toastTimeout) clearTimeout(toastTimeout);
+    toast.innerHTML = `
+      <div class="cart-toast-body">
+        <span class="cart-toast-tag">YOUR BAG</span>
+        <div class="cart-toast-title"></div>
+      </div>
+      <div class="cart-toast-actions">
+        <button type="button" class="cart-toast-close" onclick="this.closest('.cart-toast').classList.remove('is-visible');" aria-label="Close notification">&times;</button>
+      </div>`;
+    toast.querySelector('.cart-toast-title').textContent = text;
+    toast.classList.add('is-visible');
+    toastTimeout = setTimeout(() => toast.classList.remove('is-visible'), 5000);
+  }
+
+  // The most of one colour and size a bag can hold: what is in stock, and never more than
+  // the 10 per line that the order database accepts.
+  const MAX_PER_LINE = 10;
+  function lineLimit(product, color, size) {
+    return Math.min(MAX_PER_LINE, Math.max(0, getVariantStock(product, color, size)));
+  }
+
+  // Returns true when something was added
   function addToCart(product, color, size, qty = 1) {
     const existingIdx = StoreState.cart.findIndex(
       item => item.productId === product.id && item.color === color && item.size === size
     );
+    const inBag = existingIdx >= 0 ? StoreState.cart[existingIdx].quantity : 0;
+    const limit = lineLimit(product, color, size);
+
+    if (limit === 0) {
+      showBagNotice(`${titleCase(product.name)} in ${color} / ${size} is sold out.`);
+      return false;
+    }
+    if (inBag >= limit) {
+      showBagNotice(limit < MAX_PER_LINE
+        ? `Only ${limit} left in ${color} / ${size}, and they're all in your bag.`
+        : `You can order up to ${MAX_PER_LINE} of one size at a time.`);
+      return false;
+    }
+    qty = Math.min(qty, limit - inBag);
 
     if (existingIdx >= 0) {
       StoreState.cart[existingIdx].quantity += qty;
     } else {
       StoreState.cart.push({
-        id: `${product.id}-${color}-${size}-${Date.now()}`,
+        id: bagLineId(product.id, color, size),
         productId: product.id,
         name: product.name,
         slug: product.slug,
@@ -2554,6 +2593,37 @@ Thank you.`
     saveCart();
     triggerCartBadgePulse();
     showCartToast(product, color, size, qty);
+    return true;
+  }
+
+  // Brings the bag in line with the catalog: current prices, and quantities within stock.
+  // dropMissing only once the live catalog has loaded, so the built-in list never removes anything.
+  function refreshCartFromCatalog(dropMissing) {
+    if (!StoreState.cart.length) return;
+    const notes = [];
+    const kept = [];
+    StoreState.cart.forEach(item => {
+      const product = window.BravadianDB.getProductBySlug(item.productId) || window.BravadianDB.getProductBySlug(item.slug);
+      if (!product) {
+        if (dropMissing) notes.push(`${titleCase(item.name)} is no longer available`);
+        else kept.push(item);
+        return;
+      }
+      item.price = window.BravadianDB.effectivePrice(product);
+      const limit = product.isComingSoon ? 0 : lineLimit(product, item.color, item.size);
+      if (dropMissing && limit === 0) {
+        notes.push(`${titleCase(item.name)} (${item.color} / ${item.size}) is sold out`);
+        return;
+      }
+      if (dropMissing && item.quantity > limit) {
+        item.quantity = limit;
+        notes.push(`only ${limit} of ${titleCase(item.name)} (${item.color} / ${item.size}) left`);
+      }
+      kept.push(item);
+    });
+    StoreState.cart = kept;
+    saveCart();
+    if (notes.length) showBagNotice(`Bag updated: ${notes.join('; ')}.`);
   }
 
   function removeFromCart(cartItemId) {
@@ -2571,6 +2641,16 @@ Thank you.`
     if (newQty <= 0) {
       removeFromCart(cartItemId);
     } else {
+      if (newQty > item.quantity) {
+        const product = window.BravadianDB.getProductBySlug(item.productId) || window.BravadianDB.getProductBySlug(item.slug);
+        const limit = product ? lineLimit(product, item.color, item.size) : item.quantity;
+        if (newQty > limit) {
+          showBagNotice(limit < MAX_PER_LINE
+            ? `Only ${limit} left in ${item.color} / ${item.size}.`
+            : `You can order up to ${MAX_PER_LINE} of one size at a time.`);
+          return;
+        }
+      }
       item.quantity = newQty;
       saveCart();
     }
@@ -2604,18 +2684,19 @@ Thank you.`
 
   function cartLineHTML(item, settings) {
     const cur = settings.currency;
-    const go = `href="#/product/${item.slug}" onclick="window.BravadianStore.closeCartDrawer()"`;
+    const go = `href="#/product/${encodeURIComponent(item.slug || '')}" onclick="window.BravadianStore.closeCartDrawer()"`;
+    const name = escapeHTML(item.name), color = escapeHTML(item.color), size = escapeHTML(item.size);
     return `
       <article class="bag-line">
-        <a ${go} class="bag-line-media" aria-label="View ${item.name}"><img src="${item.image}" alt="" loading="lazy"></a>
+        <a ${go} class="bag-line-media" aria-label="View ${name}"><img src="${escapeHTML(item.image)}" alt="" loading="lazy"></a>
         <div class="bag-line-body">
           <div class="bag-line-top">
-            <a ${go} class="bag-line-name">${item.name}</a>
+            <a ${go} class="bag-line-name">${name}</a>
             <span class="bag-line-total">${cur}${(item.price * item.quantity).toLocaleString('en-IN')}</span>
           </div>
-          <span class="bag-line-meta"><i style="--dot:${colourHex(item.color)}" aria-hidden="true"></i>${item.color} · Size ${item.size} · ${cur}${item.price.toLocaleString('en-IN')} each</span>
+          <span class="bag-line-meta"><i style="--dot:${colourHex(item.color)}" aria-hidden="true"></i>${color} · Size ${size} ·${cur}${item.price.toLocaleString('en-IN')} each</span>
           <div class="bag-line-actions">
-            <div class="bag-qty" role="group" aria-label="Quantity for ${item.name}">
+            <div class="bag-qty" role="group" aria-label="Quantity for ${name}">
               <button type="button" aria-label="One less" onclick="window.BravadianStore.updateCartItemQty('${item.id}', ${item.quantity - 1})">&minus;</button>
               <span>${item.quantity}</span>
               <button type="button" aria-label="One more" onclick="window.BravadianStore.updateCartItemQty('${item.id}', ${item.quantity + 1})">+</button>
@@ -3000,13 +3081,14 @@ Thank you.
       const settings = window.BravadianDB.getSettings();
 
       if (products.length === 0) {
-        resultsBox.innerHTML = `<div style="padding: 1.5rem; color: #888; font-family: var(--font-mono); font-size: 0.85rem;">No pieces matching "${q}"</div>`;
+        // What the shopper typed is shown as text, never as HTML
+        resultsBox.innerHTML = `<div style="padding: 1.5rem; color: #888; font-family: var(--font-mono); font-size: 0.85rem;">No pieces matching "${escapeHTML(q)}"</div>`;
       } else {
         resultsBox.innerHTML = products.map(p => `
-          <a href="#/product/${p.slug}" class="search-result-row" onclick="window.BravadianStore.closeSearchModal();">
-            <img src="${p.images.front}" alt="${p.name}" class="search-result-thumb">
+          <a href="#/product/${encodeURIComponent(p.slug)}" class="search-result-row" onclick="window.BravadianStore.closeSearchModal();">
+            <img src="${escapeHTML(p.images.front)}" alt="${escapeHTML(p.name)}" class="search-result-thumb">
             <div class="search-result-info">
-              <h4 class="search-result-title">${p.name}</h4>
+              <h4 class="search-result-title">${escapeHTML(p.name)}</h4>
               <span class="search-result-price">${priceHTML(p)}</span>
             </div>
             <span style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--color-ember);">VIEW →</span>
@@ -3179,16 +3261,16 @@ Thank you.
   function renderLookbookView() {
     const settings = window.BravadianDB.getSettings();
     const shopLook = window.BravadianDB.getProducts().filter(p => !p.isComingSoon && p.collection === 'heritage').slice(0, 3);
-    // New lookbook photos live in images/lookbook/; until they exist, show product photos
+    // New lookbook photos live in /images/lookbook/; until they exist, show product photos
     const lbImg = (name, fallback, alt, cls) =>
-      `<img src="images/lookbook/${name}.webp" onerror="this.onerror=null;this.src='${fallback}'" alt="${alt}" class="${cls}" loading="lazy">`;
+      `<img src="/images/lookbook/${name}.webp" onerror="this.onerror=null;this.src='${fallback}'" alt="${alt}" class="${cls}" loading="lazy">`;
     const ticker = ['240 GSM COTTON', 'OVERSIZED FIT', 'ORIGINAL INDIAN ARTWORK', 'MADE IN INDIA', 'FOUR COLOURS']
       .map(t => `<span>${t}</span><span class="lb2-star">&#10022;</span>`).join('');
 
     mainContainer.innerHTML = `
       <div class="lookbook lb2">
         <header class="lb2-hero">
-          ${lbImg('lb-hero', 'images/products/bharat-spirit/worn-temple.webp?v=3', 'Bravadian heritage tees worn on the street', 'lb2-hero-img')}
+          ${lbImg('lb-hero', '/images/products/bharat-spirit/worn-temple.webp?v=3', 'Bravadian heritage tees worn on the street', 'lb2-hero-img')}
           <div class="lb2-hero-shade" aria-hidden="true"></div>
           <div class="lb2-hero-copy">
             <span class="lb2-eyebrow"><i></i>LOOKBOOK // ADHYAYA 01</span>
@@ -3209,11 +3291,11 @@ Thank you.
           </div>
           <div class="lb2-pair">
             <figure class="lb2-fig">
-              ${lbImg('lb-look-01', 'images/products/bharat-spirit/worn-studio.webp?v=2', 'Bharat Spirit tee, styled look', 'lb2-img')}
+              ${lbImg('lb-look-01', '/images/products/bharat-spirit/worn-studio.webp?v=2', 'Bharat Spirit tee, styled look', 'lb2-img')}
               <figcaption><b>LOOK 01 // BHARAT SPIRIT</b><span>BLACK · OVERSIZED</span></figcaption>
             </figure>
             <figure class="lb2-fig">
-              ${lbImg('lb-look-02', 'images/products/craft-atlas/closeup.webp', 'Indian Craft Atlas tee, styled look', 'lb2-img')}
+              ${lbImg('lb-look-02', '/images/products/craft-atlas/closeup.webp', 'Indian Craft Atlas tee, styled look', 'lb2-img')}
               <figcaption><b>LOOK 02 // INDIAN CRAFT ATLAS</b><span>BLACK · OVERSIZED</span></figcaption>
             </figure>
           </div>
@@ -3243,7 +3325,7 @@ Thank you.
 
         <section class="lb2-section">
           <figure class="lb2-fig lb2-wide">
-            ${lbImg('lb-panorama', 'images/heritage/heritage-hero.jpg', 'Wide view of a Bravadian look', 'lb2-img')}
+            ${lbImg('lb-panorama', '/images/lookbook/lb-hero.webp', 'Wide view of a Bravadian look', 'lb2-img')}
             <figcaption><b>WIDE SHOT // HERITAGE</b><span>SHOT IN INDIA</span></figcaption>
           </figure>
         </section>
@@ -3276,11 +3358,21 @@ Thank you.
     if (type === 'privacy' || type === 'privacy-policy') {
       title = 'PRIVACY POLICY';
       content = `
-        <p>At BRAVADIAN (BRAVE INDIAN), your privacy is respected. We collect only the necessary delivery details (name, phone, address) strictly to fulfill order requests communicated via WhatsApp.</p>
-        <h3>DATA USAGE & RETENTION</h3>
-        <p>Customer delivery information entered during checkout is formatted directly into your secure WhatsApp message. We do not permanently store personal delivery or payment credentials in your browser's local storage.</p>
-        <h3>THIRD-PARTY SERVICES</h3>
-        <p>Order conversations are conducted on WhatsApp under Meta's privacy and encryption standards.</p>
+        <p>BRAVADIAN (BRAVE INDIAN) collects only what we need to deliver your order. This page explains what that is, where it is kept and who sees it.</p>
+        <h3>WHAT WE COLLECT</h3>
+        <p>When you place an order: your name, phone number, delivery address, city, state, pincode, landmark and email (if you give one), and the items you ordered. We never ask for or store card, UPI or bank details on this website.</p>
+        <h3>HOW WE USE IT</h3>
+        <p>To confirm, pack, ship and deliver your order, and to contact you about it. We do not sell your details or use them for advertising.</p>
+        <h3>WHERE IT IS KEPT</h3>
+        <p>Order details are saved in our order database, hosted by Supabase, and are visible only to the BRAVADIAN team. When you tap to order, the same details are also put into a WhatsApp message to us, which is handled under WhatsApp's own privacy terms.</p>
+        <h3>PREVENTING FAKE ORDERS</h3>
+        <p>To stop fake orders from blocking stock, we keep a scrambled (one-way hashed) form of your network address with each order and limit how many orders can be placed in a short time. We do not keep the address itself.</p>
+        <h3>"USE MY LOCATION" AT CHECKOUT</h3>
+        <p>This is optional. If you use it, your device's location is sent to OpenStreetMap to look up your address, and the map preview is loaded from OpenStreetMap. Typing a pincode looks up your city and state with India Post's pincode service. We do not store your location.</p>
+        <h3>ON YOUR DEVICE</h3>
+        <p>Your bag, light or dark theme and fit-finder answers are saved in your own browser so they are there next time. You can clear them at any time by clearing this site's data in your browser.</p>
+        <h3>YOUR CHOICES</h3>
+        <p>To see, correct or delete the details we hold about you, email us at <a href="mailto:${window.BravadianDB.getSettings().supportEmail || 'bravadian.clothing@gmail.com'}">${window.BravadianDB.getSettings().supportEmail || 'bravadian.clothing@gmail.com'}</a>.</p>
       `;
     } else if (type === 'terms' || type === 'terms-conditions') {
       title = 'TERMS & CONDITIONS';
@@ -3322,7 +3414,7 @@ Thank you.
         <!-- 1. HERO BRAND INTRO -->
         <section class="about-hero-section">
           <div class="about-hero-bg" aria-hidden="true">
-            <img src="images/about/about-hero.webp" alt="" onerror="this.parentNode.remove()">
+            <img src="/images/lookbook/lb-panorama.webp" alt="" decoding="async" onerror="this.parentNode.remove()">
           </div>
           <div class="container about-hero-container">
             <div class="about-badge-wrap">
@@ -3663,14 +3755,18 @@ Thank you.
     const showCard = (lat, lon, a) => {
       const area = [a.road, a.neighbourhood || a.suburb].filter(Boolean).join(', ');
       const city = a.city || a.town || a.village || a.county || '';
+      // Address text comes from OpenStreetMap, which anyone can edit: set it as text, never as HTML.
       card.innerHTML = `
-        ${mapHTML(lat, lon)}
+        ${mapHTML(Number(lat), Number(lon))}
         <div class="loc-card-body">
           <span class="loc-card-kicker">DELIVERING TO</span>
-          <b>${area || city}</b>
-          <span>${[city, a.state].filter(Boolean).join(', ')}${a.postcode ? ` &ndash; ${a.postcode}` : ''}</span>
+          <b data-f="area"></b>
+          <span data-f="place"></span>
           <button type="button" class="loc-change" id="locChange">Change</button>
         </div>`;
+      card.querySelector('[data-f="area"]').textContent = area || city;
+      card.querySelector('[data-f="place"]').textContent =
+        [city, a.state].filter(Boolean).join(', ') + (a.postcode ? ` – ${a.postcode}` : '');
       card.hidden = false;
       const or = document.querySelector('.loc-or');
       if (or) or.hidden = true;
@@ -3685,8 +3781,18 @@ Thank you.
         const { latitude: lat, longitude: lon } = pos.coords;
         try {
           setBusy(true, 'Getting your address…');
-          const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1&accept-language=en`);
-          const d = await r.json();
+          // OpenStreetMap's free lookup asks for few requests: reuse a result for the same spot (~10 m)
+          const key = `bravadian_geo_${lat.toFixed(4)},${lon.toFixed(4)}`;
+          let d = null;
+          try { d = JSON.parse(sessionStorage.getItem(key)); } catch (e) { /* storage blocked */ }
+          if (!d) {
+            const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1&accept-language=en`,
+              { signal: AbortSignal.timeout(10000) });
+            if (r.status === 429) { setBusy(false, 'The address lookup is busy right now. Please type your address.'); return; }
+            if (!r.ok) throw new Error(`lookup failed (${r.status})`);
+            d = await r.json();
+            try { sessionStorage.setItem(key, JSON.stringify(d)); } catch (e) { /* storage full or blocked */ }
+          }
           const a = d.address || {};
           if (a.country_code && a.country_code !== 'in') { setBusy(false, 'We deliver within India only. Please type an Indian address.'); return; }
           put('chkAddress2', [a.road, a.neighbourhood || a.suburb].filter(Boolean).join(', '), true);
@@ -3716,7 +3822,8 @@ Thank you.
       if (v.length !== 6 || v === lastPin) return;
       lastPin = v;
       try {
-        const r = await fetch(`https://api.postalpincode.in/pincode/${v}`);
+        const r = await fetch(`https://api.postalpincode.in/pincode/${v}`, { signal: AbortSignal.timeout(8000) });
+        if (!r.ok) return;
         const [d] = await r.json();
         const po = d && d.Status === 'Success' && d.PostOffice && d.PostOffice[0];
         if (po && pin.value === v) { put('chkCity', po.District); put('chkState', po.State); }
@@ -3786,8 +3893,7 @@ Thank you.
       const color = product.colors[0];
       const availableSizes = getAvailableSizesForColor(product, color);
       if (availableSizes.length > 0) {
-        addToCart(product, color, availableSizes[0], 1);
-        openCartDrawer();
+        if (addToCart(product, color, availableSizes[0], 1)) openCartDrawer();
       } else {
         window.location.hash = `#/product/${slug}`;
       }

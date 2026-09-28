@@ -15,18 +15,19 @@
   <link rel="stylesheet" href="css/admin.css">
 
   <!-- Favicon -->
-  <link rel="icon" type="image/svg+xml" href="images/favicons/favicon.svg?v=2">
-  <link rel="icon" type="image/png" sizes="32x32" href="images/favicons/favicon-32x32.png?v=2">
+  <link rel="icon" type="image/svg+xml" href="/images/favicons/favicon.svg?v=2">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicons/favicon-32x32.png?v=2">
 
   <!-- Supabase JS Client via CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Supabase client, pinned: the browser rejects the file if it ever differs (integrity) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js" integrity="sha384-Rj26LVGvoeRVR6+mwQmFfcR3QOBEwT+ZmuCWpuiqeTzJpCs0ER4ITAWGb4Hiy3Ok" crossorigin="anonymous"></script>
 </head>
 <body class="admin-body">
 
   <!-- Admin Login Gate Overlay -->
   <div id="adminLoginOverlay" class="admin-login-overlay">
     <div class="admin-login-box">
-      <img src="images/logo.png" alt="BRAVADIAN" class="admin-login-logo">
+      <img src="/images/logo.png" alt="BRAVADIAN" class="admin-login-logo">
       <div class="admin-login-tagline">COMMAND DECK // AUTHENTICATION REQUIRED</div>
       <form id="adminLoginForm" class="admin-login-form">
         <input type="email" id="adminEmailInput" class="admin-login-input" placeholder="ADMIN EMAIL" autocomplete="username" required>
@@ -39,13 +40,13 @@
 
   <!-- Top Static Disclaimer Banner -->
   <div class="static-disclaimer-banner">
-    <div>
-      <strong>STATIC DEMO / LOCAL CMS:</strong> Real-time storage is persisted in your browser and syncs directly with Supabase when configured.
+    <div id="dbBanner">
+      <strong>DATABASE:</strong> connecting…
     </div>
     <div style="display: flex; gap: 1rem; align-items: center;">
       <span id="supabasePillTopbar" class="supabase-status-pill">
         <span class="status-dot"></span>
-        <span id="supabaseStatusText">Supabase: Offline / Local</span>
+        <span id="supabaseStatusText">Database: connecting…</span>
       </span>
       <a href="index.html" target="_blank" class="view-store-link" style="color: #fff; font-weight: 700;">VIEW STOREFRONT ↗</a>
     </div>
@@ -57,7 +58,7 @@
       <div class="sidebar-header" style="position: relative;">
         <button type="button" class="admin-sidebar-close" id="adminSidebarClose" aria-label="Close Sidebar">&times;</button>
         <a href="index.html" class="sidebar-logo-link" title="View Customer Storefront">
-          <img src="images/logo.png" alt="BRAVADIAN — BRAVE INDIA" class="admin-sidebar-logo">
+          <img src="/images/logo.png" alt="BRAVADIAN — BRAVE INDIA" class="admin-sidebar-logo">
         </a>
         <div class="sidebar-tagline">COMMAND DECK // CMS</div>
       </div>
@@ -66,6 +67,11 @@
         <li class="sidebar-nav-item active" data-tab="dashboard">
           <a href="#dashboard">
             <span>⚡ DASHBOARD</span>
+          </a>
+        </li>
+        <li class="sidebar-nav-item" data-tab="orders">
+          <a href="#orders">
+            <span>🧾 ORDERS <b class="nav-count" id="ordersNavCount" hidden></b></span>
           </a>
         </li>
         <li class="sidebar-nav-item" data-tab="products">
@@ -109,6 +115,7 @@
         <a href="index.html" class="view-store-link">
           <span>← Back to Customer Store</span>
         </a>
+        <button type="button" class="sign-out-btn" id="adminSignOut">Sign out</button>
       </div>
     </aside>
 
@@ -165,6 +172,47 @@
       </section>
 
       <!-- 2. PRODUCTS PANE -->
+      <section class="admin-content-pane" id="pane-orders">
+        <div class="admin-card-container">
+          <div class="card-header-bar">
+            <div>
+              <h2 class="card-heading">ORDERS</h2>
+              <p style="font-size: 0.8rem; color: #888; margin-top: 0.3rem;">
+                Newest first. Cancelling an order puts its stock back.
+              </p>
+            </div>
+            <button type="button" class="btn-admin-secondary" id="btnRefreshOrders">↻ REFRESH</button>
+          </div>
+          <div class="orders-toolbar">
+            <div class="orders-filters" id="ordersFilters" role="group" aria-label="Filter by status">
+              <button type="button" class="orders-chip is-on" data-status="">ALL</button>
+              <button type="button" class="orders-chip" data-status="NEW">NEW</button>
+              <button type="button" class="orders-chip" data-status="CONFIRMED">CONFIRMED</button>
+              <button type="button" class="orders-chip" data-status="SHIPPED">SHIPPED</button>
+              <button type="button" class="orders-chip" data-status="DELIVERED">DELIVERED</button>
+              <button type="button" class="orders-chip" data-status="CANCELLED">CANCELLED</button>
+            </div>
+            <input type="search" id="ordersSearch" class="admin-input orders-search" placeholder="Search order no., name, phone or city">
+          </div>
+          <p class="orders-note" id="ordersNote" aria-live="polite"></p>
+          <div style="overflow-x: auto;">
+            <table class="admin-table orders-table">
+              <thead>
+                <tr>
+                  <th>ORDER</th>
+                  <th>PLACED</th>
+                  <th>CUSTOMER</th>
+                  <th>ITEMS</th>
+                  <th>TOTAL</th>
+                  <th>STATUS</th>
+                </tr>
+              </thead>
+              <tbody id="ordersTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
       <section class="admin-content-pane" id="pane-products">
         <div class="admin-card-container">
           <div class="card-header-bar">
@@ -319,24 +367,24 @@
               <p style="font-size: 0.78rem; color: #888; margin-bottom: 1rem;">Control the primary hero headline, manifesto tag, description, and running sub-marquee ticker.</p>
             </div>
             <div class="admin-field">
-              <label>HERO PROTOCOL TAG</label>
-              <input type="text" id="cfgHeroTag" class="admin-input" placeholder="[ PRE-RELEASE DROP / PROTOCOL 01: HERITAGE ]">
+              <label>HERO TAG (small line above the headline)</label>
+              <input type="text" id="cfgHeroTag" class="admin-input" placeholder="[ 🇮🇳 INDIAN ROOTS // MODERN FORM ]">
             </div>
             <div class="admin-field">
-              <label>HERO MAIN HEADLINE</label>
-              <input type="text" id="cfgHeroTitle" class="admin-input" placeholder="WEAR YOUR ROOTS LOUD">
+              <label>HERO MAIN HEADLINE (put | where the line should break)</label>
+              <input type="text" id="cfgHeroTitle" class="admin-input" placeholder="WEAR YOUR | ROOTS LOUD">
             </div>
             <div class="admin-field form-field-full">
               <label>HERO NARRATIVE DESCRIPTION</label>
               <textarea id="cfgHeroDesc" rows="2" class="admin-textarea" placeholder="Engineered heavyweight silhouettes which forward Bharat culture into raw street context..."></textarea>
             </div>
             <div class="admin-field form-field-full">
-              <label>HERO BACKGROUND IMAGE URL (OPTIONAL CUSTOM MEDIA)</label>
-              <input type="url" id="cfgHeroBgImage" class="admin-input" placeholder="https://... (Leave blank for brutalist grid pattern)">
+              <label>HERO BACKGROUND IMAGE (OPTIONAL)</label>
+              <input type="text" id="cfgHeroBgImage" class="admin-input" placeholder="https://... or /images/...  (leave empty for no photo)">
             </div>
             <div class="admin-field form-field-full">
-              <label>SUB-HEADER RUNNING MARQUEE TICKER</label>
-              <input type="text" id="cfgHeroTicker" class="admin-input" placeholder="CRAFTED IN INDIA ✦ HEAVYWEIGHT 280 GSM FRENCH TERRY ✦ 300 NUMBERED EDITIONS ONLY ✦ PRE-RELEASE VAULT ENGAGED ✦ FAST WHATSAPP CHECKOUT">
+              <label>RUNNING STRIP UNDER THE HERO (separate items with ✦)</label>
+              <input type="text" id="cfgHeroTicker" class="admin-input" placeholder="240 GSM FRENCH TERRY ✦ CRAFTED IN BHARAT ✦ FREE DELIVERY ACROSS INDIA">
             </div>
 
             <!-- WhatsApp VIP Concierge Message Template -->
@@ -345,7 +393,7 @@
               <p style="font-size: 0.78rem; color: #888; margin-bottom: 1rem;">Format the automated message dispatched when a VIP requests early drop embargo access.</p>
             </div>
             <div class="admin-field form-field-full">
-              <label>VIP DROP INQUIRY MESSAGE TEMPLATE (Use {productName} placeholder)</label>
+              <label>"COMING SOON" WHATSAPP MESSAGE ({productName} becomes the product's name)</label>
               <textarea id="cfgVipTemplate" rows="2" class="admin-textarea" placeholder="Hi Bravadian Concierge, I would like priority notification for the upcoming drop: &quot;{productName}&quot;. Please register me for early VIP access!"></textarea>
             </div>
           </form>
@@ -355,39 +403,23 @@
       <!-- 7. SUPABASE CLOUD PANE -->
       <section class="admin-content-pane" id="pane-supabase">
         <div class="supabase-box">
-          <span class="supabase-badge">⚡ SUPABASE DATA LAYER INTEGRATION</span>
-          <h2 style="font-family: var(--font-display); font-size: 1.4rem; margin-bottom: 0.5rem;">DIRECT CLIENT SYNC</h2>
-          <p style="font-size: 0.85rem; color: #aaa; line-height: 1.5; margin-bottom: 1.5rem;">
-            Connect your Supabase project to persist products, variants, collections, inventory, and site settings directly in PostgreSQL with Row Level Security.
-          </p>
+          <span class="supabase-badge">⚡ DATABASE</span>
+          <h2 style="font-family: var(--font-display); font-size: 1.4rem; margin-bottom: 0.5rem;">CONNECTED DATABASE</h2>
+          <p id="dbPaneStatus" style="font-size: 0.85rem; color: #aaa; line-height: 1.5; margin-bottom: 1.5rem;"></p>
 
-          <form id="supabaseConfigForm" class="admin-form-grid" style="margin-bottom: 1.5rem;">
-            <div class="admin-field form-field-full">
-              <label>SUPABASE PROJECT URL OR PROJECT ID</label>
-              <input type="text" id="cfgSupabaseUrl" class="admin-input" placeholder="e.g. abcdefghijklmno OR https://abcdefghijklmno.supabase.co">
-              <span style="font-family: var(--admin-mono); font-size: 0.72rem; color: #888; margin-top: 0.35rem;">
-                If you have a Project ID, paste it directly — the URL is automatically formatted to <code>https://&lt;project-id&gt;.supabase.co</code>.
-              </span>
-            </div>
-            <div class="admin-field form-field-full">
-              <label>SUPABASE ANON / PUBLISHABLE KEY</label>
-              <input type="password" id="cfgSupabaseKey" class="admin-input" placeholder="Paste your anon public key or publishable key">
-            </div>
-            <div class="form-field-full" style="display: flex; gap: 1rem; flex-wrap: wrap;">
-              <button type="button" class="btn-admin-primary" id="btnTestSupabase">TEST CONNECTION</button>
-              <button type="button" class="btn-admin-secondary" id="btnSyncToSupabase">SYNC LOCAL CATALOG TO SUPABASE</button>
-              <button type="button" class="btn-admin-secondary" id="btnPullFromSupabase">PULL CATALOG FROM SUPABASE</button>
-            </div>
-          </form>
+          <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
+            <button type="button" class="btn-admin-primary" id="btnPullFromSupabase">REFRESH FROM THE DATABASE</button>
+            <button type="button" class="btn-admin-secondary" id="btnSyncToSupabase">PUSH THIS CATALOG TO THE DATABASE</button>
+          </div>
 
           <div style="padding: 1rem; background: #111116; border-radius: 4px; border: 1px solid var(--admin-border);">
             <div style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--admin-ember); font-weight: 700; margin-bottom: 0.5rem;">
-              SQL SCHEMA SETUP
+              DATABASE CHANGES
             </div>
-            <p style="font-size: 0.8rem; color: #888; margin-bottom: 0.75rem;">
-              Download or copy <code>supabase_schema.sql</code> into your Supabase SQL Editor to set up all 7 tables and RLS policies.
+            <p style="font-size: 0.8rem; color: #888; margin: 0;">
+              Tables and security rules are changed with the numbered SQL files in the project's <code>db/</code> folder,
+              run in order in Supabase → SQL Editor. They are not part of the website.
             </p>
-            <a href="db/supabase_schema.sql" download class="btn-admin-secondary" style="font-size: 0.72rem;">DOWNLOAD SUPABASE_SCHEMA.SQL</a>
           </div>
         </div>
       </section>
@@ -496,7 +528,7 @@
           <div class="admin-image-inputs-grid">
             <div class="image-input-card">
               <label>1. FRONT / HERO VIEW</label>
-              <input type="url" id="editProdImgFront" class="admin-input admin-img-input" placeholder="https://... or images/...">
+              <input type="text" id="editProdImgFront" class="admin-input admin-img-input" placeholder="https://... or /images/...">
               <label class="admin-upload-btn">UPLOAD PHOTO<input type="file" accept="image/*" class="admin-img-upload" data-target="editProdImgFront" hidden></label>
               <span class="admin-upload-status" data-for="editProdImgFront"></span>
               <div class="img-preview-box" id="previewBoxFront">
@@ -506,7 +538,7 @@
             </div>
             <div class="image-input-card">
               <label>2. BACK / SPARK VIEW</label>
-              <input type="url" id="editProdImgBack" class="admin-input admin-img-input" placeholder="https://... or images/...">
+              <input type="text" id="editProdImgBack" class="admin-input admin-img-input" placeholder="https://... or /images/...">
               <label class="admin-upload-btn">UPLOAD PHOTO<input type="file" accept="image/*" class="admin-img-upload" data-target="editProdImgBack" hidden></label>
               <span class="admin-upload-status" data-for="editProdImgBack"></span>
               <div class="img-preview-box" id="previewBoxBack">
@@ -516,7 +548,7 @@
             </div>
             <div class="image-input-card">
               <label>3. CLOSE-UP / TEXTURE</label>
-              <input type="url" id="editProdImgCloseup" class="admin-input admin-img-input" placeholder="https://... or images/...">
+              <input type="text" id="editProdImgCloseup" class="admin-input admin-img-input" placeholder="https://... or /images/...">
               <label class="admin-upload-btn">UPLOAD PHOTO<input type="file" accept="image/*" class="admin-img-upload" data-target="editProdImgCloseup" hidden></label>
               <span class="admin-upload-status" data-for="editProdImgCloseup"></span>
               <div class="img-preview-box" id="previewBoxCloseup">
@@ -526,7 +558,7 @@
             </div>
             <div class="image-input-card">
               <label>4. LIFESTYLE / DRAPE</label>
-              <input type="url" id="editProdImgLifestyle" class="admin-input admin-img-input" placeholder="https://... or images/...">
+              <input type="text" id="editProdImgLifestyle" class="admin-input admin-img-input" placeholder="https://... or /images/...">
               <label class="admin-upload-btn">UPLOAD PHOTO<input type="file" accept="image/*" class="admin-img-upload" data-target="editProdImgLifestyle" hidden></label>
               <span class="admin-upload-status" data-for="editProdImgLifestyle"></span>
               <div class="img-preview-box" id="previewBoxLifestyle">
@@ -536,7 +568,7 @@
             </div>
             <div class="image-input-card">
               <label>5. LIFESTYLE 2</label>
-              <input type="url" id="editProdImgLifestyle2" class="admin-input admin-img-input" placeholder="https://... or images/...">
+              <input type="text" id="editProdImgLifestyle2" class="admin-input admin-img-input" placeholder="https://... or /images/...">
               <label class="admin-upload-btn">UPLOAD PHOTO<input type="file" accept="image/*" class="admin-img-upload" data-target="editProdImgLifestyle2" hidden></label>
               <span class="admin-upload-status" data-for="editProdImgLifestyle2"></span>
               <div class="img-preview-box" id="previewBoxLifestyle2">

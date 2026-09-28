@@ -12,6 +12,7 @@
     const modules = [
       ['Navigation', initNavigation],
       ['Dashboard', initDashboard],
+      ['Orders', initOrders],
       ['Products', initProductsTable],
       ['Inventory', initInventoryMatrix],
       ['Collections', initCollectionsTable],
@@ -63,17 +64,46 @@
 
     document.body.classList.add('is-locked');
 
+    // Say plainly which database this admin page is changing
+    const banner = document.getElementById('dbBanner');
+    if (banner) {
+      const live = window.BravadianDB && window.BravadianDB.dbLabel === 'LIVE';
+      banner.innerHTML = live
+        ? '<strong>LIVE DATABASE:</strong> changes you save here appear on the website straight away.'
+        : '<strong>TEST DATABASE:</strong> safe to experiment. The live website is not affected. (Add ?db=live to the address to edit the live store.)';
+    }
+
     if (!client) {
       if (loginError) loginError.textContent = 'Supabase is not configured. Add SUPABASE_URL and SUPABASE_ANON_KEY in js/data.js.';
       return;
     }
 
+    // Signing in only proves who someone is; the admin_users list (is_admin) decides who gets in
+    async function unlockIfAdmin() {
+      const { data: isAdmin, error } = await client.rpc('is_admin');
+      if (!error && isAdmin === true) {
+        unlock();
+        return true;
+      }
+      await client.auth.signOut();
+      if (loginOverlay) loginOverlay.classList.remove('is-hidden');
+      if (loginError) {
+        loginError.textContent = error
+          ? `Could not check admin access: ${error.message}`
+          : `This account is not on the admin list for the ${window.BravadianDB.dbLabel} database. Ask the owner to add your email to admin_users.`;
+      }
+      return false;
+    }
+
+    const signOut = document.getElementById('adminSignOut');
+    if (signOut) signOut.addEventListener('click', async () => {
+      await client.auth.signOut();
+      window.location.reload();
+    });
+
     // Supabase keeps the session, so a signed-in admin skips the login screen
     const { data: sessionData } = await client.auth.getSession();
-    if (sessionData && sessionData.session) {
-      unlock();
-      return;
-    }
+    if (sessionData && sessionData.session && await unlockIfAdmin()) return;
 
     if (loginForm) {
       loginForm.addEventListener('submit', async (e) => {
@@ -84,12 +114,18 @@
           password: passwordInput.value
         });
         if (error) {
-          if (loginError) loginError.textContent = 'Wrong email or password.';
+          const db = window.BravadianDB.dbLabel;
+          const reason = /not confirmed/i.test(error.message)
+            ? 'This email is not confirmed yet. In Supabase → Authentication → Users, confirm the user.'
+            : /invalid login/i.test(error.message)
+              ? 'Wrong email or password.'
+              : error.message;
+          if (loginError) loginError.textContent = `${reason} (Signing in to the ${db} database.)`;
           passwordInput.value = '';
           passwordInput.focus();
           return;
         }
-        unlock();
+        if (!(await unlockIfAdmin())) passwordInput.value = '';
       });
     }
 
@@ -144,6 +180,7 @@
 
     const titles = {
       dashboard: 'DASHBOARD OVERVIEW',
+      orders: 'ORDERS',
       products: 'PRODUCT CATALOG',
       inventory: 'VARIANT INVENTORY MATRIX',
       collections: 'COLLECTIONS ARCHIVE',
@@ -157,6 +194,7 @@
     // Refresh tab data safely
     try {
       if (tabName === 'dashboard') initDashboard();
+      if (tabName === 'orders') loadOrders();
       if (tabName === 'products') initProductsTable();
       if (tabName === 'inventory') initInventoryMatrix();
       if (tabName === 'collections') initCollectionsTable();
@@ -248,7 +286,7 @@
     if (!tbody) return;
 
     tbody.innerHTML = products.map(p => {
-      const thumb = (p.images && p.images.front) ? p.images.front : 'images/logo.png';
+      const thumb = (p.images && p.images.front) ? p.images.front : '/images/logo.png';
       const coll = (p.collection || 'General').toUpperCase();
       const price = typeof p.price === 'number' ? p.price : (parseFloat(p.price) || 0);
 
@@ -343,21 +381,203 @@
     // Save All Inventory Button
     const saveBtn = document.getElementById('btnSaveInventoryMatrix');
     if (saveBtn) {
-      saveBtn.onclick = () => {
-        const inputs = container.querySelectorAll('.matrix-input');
-        inputs.forEach(input => {
-          const prodId = input.getAttribute('data-prod');
-          const color = input.getAttribute('data-color');
-          const size = input.getAttribute('data-size');
-          const stock = parseInt(input.value, 10) || 0;
-          window.BravadianDB.updateVariantStock(prodId, color, size, stock);
-        });
+      saveBtn.onclick = async () => {
+        // Send only the cells that were edited, so stock sold since this page loaded is left alone
+        const changes = [...container.querySelectorAll('.matrix-input')]
+          .filter(input => input.value !== input.defaultValue)
+          .map(input => ({
+            productId: input.getAttribute('data-prod'),
+            color: input.getAttribute('data-color'),
+            size: input.getAttribute('data-size'),
+            stock: input.value
+          }));
+        if (!changes.length) {
+          alert('No stock numbers were changed.');
+          return;
+        }
 
-        alert('Variant Inventory Matrix saved successfully.');
-        initDashboard();
-        initInventoryMatrix();
+        const label = saveBtn.textContent;
+        saveBtn.disabled = true;
+        saveBtn.textContent = 'SAVING…';
+        try {
+          const n = await window.BravadianDB.setStock(changes);
+          await refreshFromSupabase();
+          alert(`Stock saved for ${n} size${n === 1 ? '' : 's'}.`);
+        } catch (err) {
+          alert(`Stock was NOT saved: ${err.message}`);
+        } finally {
+          saveBtn.disabled = false;
+          saveBtn.textContent = label;
+          initDashboard();
+          initInventoryMatrix();
+        }
       };
     }
+  }
+
+  /* --------------------------------------------------------------------------
+     ORDERS
+     -------------------------------------------------------------------------- */
+  // Order details are typed by shoppers, so every value is escaped before it is shown
+  const esc = (v) => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const rupees = (n) => `₹${Number(n || 0).toLocaleString('en-IN')}`;
+  const ORDER_STATUSES = ['NEW', 'CONFIRMED', 'SHIPPED', 'DELIVERED', 'CANCELLED'];
+  const ordersState = { list: [], status: '', query: '', open: null, loaded: false };
+
+  function initOrders() {
+    const refresh = document.getElementById('btnRefreshOrders');
+    const filters = document.getElementById('ordersFilters');
+    const search = document.getElementById('ordersSearch');
+    const body = document.getElementById('ordersTableBody');
+    if (!body || body.dataset.bound) return;
+    body.dataset.bound = '1';
+
+    if (refresh) refresh.onclick = () => loadOrders();
+    if (filters) filters.addEventListener('click', (e) => {
+      const chip = e.target.closest('.orders-chip');
+      if (!chip) return;
+      filters.querySelectorAll('.orders-chip').forEach(c => c.classList.toggle('is-on', c === chip));
+      ordersState.status = chip.dataset.status;
+      renderOrders();
+    });
+    if (search) search.addEventListener('input', () => { ordersState.query = search.value.trim().toLowerCase(); renderOrders(); });
+
+    body.addEventListener('click', (e) => {
+      if (e.target.closest('select, a, button')) return;
+      const row = e.target.closest('tr[data-id]');
+      if (!row) return;
+      const id = Number(row.dataset.id);
+      ordersState.open = ordersState.open === id ? null : id;
+      renderOrders();
+    });
+    body.addEventListener('change', async (e) => {
+      const sel = e.target.closest('select[data-order]');
+      if (!sel) return;
+      const id = Number(sel.dataset.order);
+      const order = ordersState.list.find(o => o.id === id);
+      const next = sel.value;
+      if (!order || next === order.status) return;
+      if (next === 'CANCELLED' && !confirm(`Cancel order ${order.order_number}? Its stock will be put back.`)) { sel.value = order.status; return; }
+      if (order.status === 'CANCELLED' && !confirm(`Re-open order ${order.order_number}? Its stock will be taken off again.`)) { sel.value = order.status; return; }
+      sel.disabled = true;
+      try {
+        const saved = await window.BravadianDB.updateOrderStatus(id, next);
+        Object.assign(order, saved);
+        await refreshFromSupabase(); // stock may have changed
+        initInventoryMatrix();
+      } catch (err) {
+        alert(`Status was NOT changed: ${err.message}`);
+      }
+      renderOrders();
+    });
+
+    loadOrders();
+  }
+
+  async function loadOrders() {
+    const note = document.getElementById('ordersNote');
+    if (!window.BravadianDB.isSupabaseConnected()) {
+      if (note) note.textContent = 'Orders are stored in Supabase. Connect it to see them.';
+      return;
+    }
+    if (note) note.textContent = 'Loading orders…';
+    try {
+      ordersState.list = await window.BravadianDB.getOrders();
+      ordersState.loaded = true;
+      if (note) note.textContent = '';
+    } catch (err) {
+      if (note) note.textContent = `Could not load orders: ${err.message}`;
+    }
+    renderOrders();
+  }
+
+  function renderOrders() {
+    const body = document.getElementById('ordersTableBody');
+    const navCount = document.getElementById('ordersNavCount');
+    const note = document.getElementById('ordersNote');
+    if (!body) return;
+
+    const newCount = ordersState.list.filter(o => o.status === 'NEW').length;
+    if (navCount) { navCount.textContent = newCount; navCount.hidden = newCount === 0; }
+
+    const q = ordersState.query;
+    const rows = ordersState.list.filter(o =>
+      (!ordersState.status || o.status === ordersState.status) &&
+      (!q || [o.order_number, o.customer_name, o.phone, o.city].some(v => String(v || '').toLowerCase().includes(q))));
+
+    if (ordersState.loaded && note && !note.textContent.startsWith('Could not')) {
+      note.textContent = rows.length === ordersState.list.length
+        ? `${rows.length} order${rows.length === 1 ? '' : 's'}${newCount ? ` · ${newCount} new` : ''}`
+        : `${rows.length} of ${ordersState.list.length} orders`;
+    }
+
+    if (!rows.length) {
+      body.innerHTML = `<tr><td colspan="6" class="orders-empty">${ordersState.loaded ? 'No orders match.' : ''}</td></tr>`;
+      return;
+    }
+
+    body.innerHTML = rows.map(o => {
+      const items = Array.isArray(o.items) ? o.items : [];
+      const qty = items.reduce((s, it) => s + (Number(it.quantity) || 0), 0);
+      const placed = new Date(o.created_at).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' });
+      const isOpen = ordersState.open === o.id;
+      const row = `
+        <tr data-id="${o.id}" class="order-row${isOpen ? ' is-open' : ''}">
+          <td><strong>${esc(o.order_number)}</strong></td>
+          <td>${esc(placed)}</td>
+          <td>${esc(o.customer_name)}<br><small class="orders-muted">${esc(o.phone)} · ${esc(o.city)}</small></td>
+          <td>${qty} item${qty === 1 ? '' : 's'}</td>
+          <td>${rupees(o.total)}</td>
+          <td>
+            <select class="admin-select order-status s-${esc(String(o.status).toLowerCase())}" data-order="${o.id}" aria-label="Status of ${esc(o.order_number)}">
+              ${ORDER_STATUSES.map(s => `<option value="${s}" ${s === o.status ? 'selected' : ''}>${s}</option>`).join('')}
+            </select>
+          </td>
+        </tr>`;
+      if (!isOpen) return row;
+
+      const address = [o.address, o.landmark && `Near ${o.landmark}`, `${o.city}, ${o.state} ${o.pincode}`].filter(Boolean).map(esc).join('<br>');
+      const phone = String(o.phone || '').replace(/\D/g, '');
+      return row + `
+        <tr class="order-detail"><td colspan="6">
+          <div class="order-detail-grid">
+            <div>
+              <h4>DELIVER TO</h4>
+              <p>${esc(o.customer_name)}<br>${address}</p>
+              <p>
+                <a href="tel:+91${esc(phone)}">📞 +91 ${esc(phone)}</a><br>
+                <a href="https://wa.me/91${esc(phone)}?text=${encodeURIComponent(`Hi ${o.customer_name}, this is BRAVADIAN about your order ${o.order_number}.`)}" target="_blank" rel="noopener">💬 WhatsApp the customer</a>
+                ${o.email ? `<br><a href="mailto:${esc(o.email)}">✉ ${esc(o.email)}</a>` : ''}
+              </p>
+            </div>
+            <div>
+              <h4>ITEMS</h4>
+              <table class="order-items">
+                ${items.map(it => `
+                  <tr>
+                    <td>${esc(it.name)}<br><small class="orders-muted">${esc(it.color)} · ${esc(it.size)}</small></td>
+                    <td>× ${esc(it.quantity)}</td>
+                    <td>${rupees(Number(it.price) * Number(it.quantity))}</td>
+                  </tr>`).join('')}
+                <tr class="order-sum"><td colspan="2">Subtotal</td><td>${rupees(o.subtotal)}</td></tr>
+                <tr class="order-sum"><td colspan="2">Delivery</td><td>${Number(o.shipping) ? rupees(o.shipping) : 'FREE'}</td></tr>
+                <tr class="order-sum order-total"><td colspan="2">Total</td><td>${rupees(o.total)}</td></tr>
+              </table>
+            </div>
+          </div>
+        </td></tr>`;
+    }).join('');
+  }
+
+  // Scrolling the page while a number box has focus would change it (599 → 569); let the page scroll instead
+  document.addEventListener('wheel', (e) => {
+    const el = document.activeElement;
+    if (el && el.type === 'number' && el === e.target) el.blur();
+  }, { passive: true });
+
+  // Reloads the catalog from Supabase so the admin sees current stock (orders change it too)
+  async function refreshFromSupabase() {
+    if (window.BravadianDB.isSupabaseConnected()) await window.BravadianDB.fetchRemoteCatalog();
   }
 
   /* --------------------------------------------------------------------------
@@ -433,10 +653,10 @@
 
     // Announcement Marquee
     if (document.getElementById('cfgAnnouncementText')) {
-      document.getElementById('cfgAnnouncementText').value = s.announcementText || '🇮🇳 BRAVADIAN BESPOKE // CUSTOM STREETWEAR ORDERS ACCEPTED // ORDER DIRECTLY VIA WHATSAPP // BESPOKE SIZING, PERSONALIZED GRAPHICS & ARTWORK COMMISSIONS // ALL-INDIA PRIORITY DISPATCH';
+      document.getElementById('cfgAnnouncementText').value = s.announcementText ?? '';
     }
     if (document.getElementById('cfgAnnouncementWaText')) {
-      document.getElementById('cfgAnnouncementWaText').value = s.announcementWaText || 'CUSTOM ORDERS VIA WHATSAPP';
+      document.getElementById('cfgAnnouncementWaText').value = s.announcementWaText ?? '';
     }
     if (document.getElementById('cfgAnnouncementEnabled')) {
       document.getElementById('cfgAnnouncementEnabled').checked = s.announcementEnabled !== false;
@@ -444,29 +664,29 @@
 
     // Hero Copy
     if (document.getElementById('cfgHeroTag')) {
-      document.getElementById('cfgHeroTag').value = s.heroTag || '[ PRE-RELEASE DROP / PROTOCOL 01: HERITAGE ]';
+      document.getElementById('cfgHeroTag').value = s.heroTag ?? '';
     }
     if (document.getElementById('cfgHeroTitle')) {
-      document.getElementById('cfgHeroTitle').value = s.heroTitle || 'WEAR YOUR ROOTS LOUD';
+      document.getElementById('cfgHeroTitle').value = s.heroTitle ?? '';
     }
     if (document.getElementById('cfgHeroDesc')) {
-      document.getElementById('cfgHeroDesc').value = s.heroDesc || 'Engineered heavyweight silhouettes which forward Bharat culture into raw street context. Each piece woven and cut from 240 GSM organic cotton.';
+      document.getElementById('cfgHeroDesc').value = s.heroDesc ?? '';
     }
     if (document.getElementById('cfgHeroBgImage')) {
-      document.getElementById('cfgHeroBgImage').value = s.heroBgImage || '';
+      document.getElementById('cfgHeroBgImage').value = s.heroBgImage ?? '';
     }
     if (document.getElementById('cfgHeroTicker')) {
-      document.getElementById('cfgHeroTicker').value = s.heroTicker || 'CRAFTED IN INDIA ✦ HEAVYWEIGHT 280 GSM FRENCH TERRY ✦ 300 NUMBERED EDITIONS ONLY ✦ PRE-RELEASE VAULT ENGAGED ✦ COD ON ACTIVATION ✦ FAST WHATSAPP CHECKOUT';
+      document.getElementById('cfgHeroTicker').value = s.heroTicker ?? '';
     }
 
     // WhatsApp VIP Concierge Message Template
     if (document.getElementById('cfgVipTemplate')) {
-      document.getElementById('cfgVipTemplate').value = s.vipMessageTemplate || 'Hi Bravadian Concierge, I would like priority notification for the upcoming drop: "{productName}". Please register me for early VIP access!';
+      document.getElementById('cfgVipTemplate').value = s.vipMessageTemplate ?? '';
     }
 
     const saveBtn = document.getElementById('btnSaveSettings');
     if (saveBtn) {
-      saveBtn.onclick = () => {
+      saveBtn.onclick = async () => {
         const payload = {
           brandName: document.getElementById('cfgBrandName').value.trim(),
           tagline: document.getElementById('cfgTagline').value.trim(),
@@ -506,8 +726,17 @@
           payload.vipMessageTemplate = document.getElementById('cfgVipTemplate').value.trim();
         }
 
-        window.BravadianDB.saveSettings(payload);
-        alert('Store & marketing settings saved successfully.');
+        saveBtn.disabled = true;
+        try {
+          await window.BravadianDB.saveSettings(payload);
+          alert('Store & marketing settings saved.');
+        } catch (err) {
+          alert(`Settings were NOT saved to the database: ${err.message}
+
+They are saved on this computer only. Fix the problem and save again.`);
+        } finally {
+          saveBtn.disabled = false;
+        }
       };
     }
   }
@@ -516,90 +745,26 @@
      8. SUPABASE CLOUD PANEL & SYNC
      -------------------------------------------------------------------------- */
   function initSupabasePanel() {
-    const s = window.BravadianDB.getSettings();
-    const urlInput = document.getElementById('cfgSupabaseUrl');
-    const keyInput = document.getElementById('cfgSupabaseKey');
-
-    if (urlInput && s.supabaseUrl) urlInput.value = s.supabaseUrl;
-    if (keyInput && s.supabaseAnonKey) keyInput.value = s.supabaseAnonKey;
-
-    checkSupabaseStatus();
-
-    // Test Connection Button
-    const testBtn = document.getElementById('btnTestSupabase');
-    if (testBtn) {
-      testBtn.onclick = async () => {
-        let url = (urlInput ? urlInput.value : '').trim();
-        let key = (keyInput ? keyInput.value : '').trim();
-
-        if (!url || !key) {
-          alert('Please enter both your Supabase Project ID (or URL) and your Anon / Publishable Key.');
-          return;
-        }
-
-        // Clean trailing slashes
-        url = url.replace(/\/+$/, '');
-
-        // If user entered only Project ID (e.g. "zxcvbnmasdfghjk"), convert to full URL
-        if (!url.startsWith('http://') && !url.startsWith('https://')) {
-          const cleanId = url.replace(/\.supabase\.co.*$/, '').trim();
-          url = `https://${cleanId}.supabase.co`;
-          if (urlInput) urlInput.value = url;
-        }
-
-        testBtn.textContent = 'CONNECTING...';
-        try {
-          if (!window.supabase) {
-            throw new Error('Supabase client library failed to load. Please check your internet connection.');
-          }
-
-          const client = window.supabase.createClient(url, key);
-
-          // Test query against collections table
-          const { data, error } = await client.from('collections').select('id').limit(1);
-
-          if (error) {
-            // Case 1: Table doesn't exist yet (PostgreSQL error 42P01)
-            // This confirms Project URL & API Key ARE 100% VALID!
-            if (error.code === '42P01' || (error.message && error.message.includes('does not exist'))) {
-              window.BravadianDB.saveSettings({ supabaseUrl: url, supabaseAnonKey: key });
-              checkSupabaseStatus();
-              alert('✓ CONNECTED TO SUPABASE!\n\nYour Project URL and API Key are 100% valid and verified.\n\nNEXT STEP TO ENABLE RLS & TABLES:\nOpen your Supabase project -> Click SQL Editor -> Run "supabase_schema.sql". This creates the tables and sets up the RLS policies automatically.');
-              return;
-            }
-
-            // Case 2: Authentication / Key error
-            if (error.code === 'PGRST301' || error.message.includes('API key') || error.message.includes('JWT') || error.message.includes('apikey')) {
-              throw new Error('Invalid API Key. Please ensure you are pasting your "anon public" key (a long token starting with "eyJhbGci...").');
-            }
-
-            // Case 3: RLS or other notice
-            window.BravadianDB.saveSettings({ supabaseUrl: url, supabaseAnonKey: key });
-            checkSupabaseStatus();
-            alert(`✓ CONNECTED TO SUPABASE!\n\nStatus note: ${error.message}\nIf tables are not synced, run "supabase_schema.sql" in your Supabase SQL Editor.`);
-            return;
-          }
-
-          // Case 4: Complete success! Tables and RLS are active!
-          window.BravadianDB.saveSettings({ supabaseUrl: url, supabaseAnonKey: key });
-          checkSupabaseStatus();
-          alert('✓ SUPABASE CONNECTED & FULLY VERIFIED!\n\nAll database tables and RLS permissions are active and ready for live catalog sync.');
-        } catch (err) {
-          alert(`Supabase Connection Error:\n${err.message || err}`);
-        } finally {
-          testBtn.textContent = 'TEST CONNECTION';
-        }
-      };
+    // The database is fixed in js/data.js (live on the website, test on localhost); this tab shows
+    // which one is in use and can refresh from it or push this browser's catalog to it.
+    const status = document.getElementById('dbPaneStatus');
+    if (status) {
+      const db = window.BravadianDB;
+      status.textContent = db.isSupabaseConnected()
+        ? `Connected to the ${db.dbLabel} database (${db.dbUrl}).`
+        : 'Not connected. The catalog below is the copy saved in this browser.';
     }
+    checkSupabaseStatus();
 
     // Sync Local Catalog to Supabase
     const syncBtn = document.getElementById('btnSyncToSupabase');
     if (syncBtn) {
       syncBtn.onclick = async () => {
         if (!window.BravadianDB.isSupabaseConnected()) {
-          alert('Please test and connect to Supabase first before syncing.');
+          alert('Not connected to the database, so there is nothing to sync to.');
           return;
         }
+        if (!confirm(`Push every product, collection, size guide row and setting saved in this browser to the ${window.BravadianDB.dbLabel} database?\n\nThis overwrites what is there now (stock counts are kept). Use it only to restore from this browser's copy.`)) return;
 
         syncBtn.textContent = 'SYNCING COLLECTIONS...';
         try {
@@ -628,7 +793,7 @@
         } catch (err) {
           alert(`Sync failed: ${err.message || err}`);
         } finally {
-          syncBtn.textContent = 'SYNC LOCAL CATALOG TO SUPABASE';
+          syncBtn.textContent = 'PUSH THIS CATALOG TO THE DATABASE';
         }
       };
     }
@@ -638,7 +803,7 @@
     if (pullBtn) {
       pullBtn.onclick = async () => {
         if (!window.BravadianDB.isSupabaseConnected()) {
-          alert('Please test and connect to Supabase first before pulling data.');
+          alert('Not connected to the database, so there is nothing to refresh from.');
           return;
         }
 
@@ -659,7 +824,7 @@
         } catch (err) {
           alert(`Failed to pull from Supabase: ${err.message || err}`);
         } finally {
-          pullBtn.textContent = 'PULL CATALOG FROM SUPABASE';
+          pullBtn.textContent = 'REFRESH FROM THE DATABASE';
         }
       };
     }
@@ -672,10 +837,10 @@
 
     if (isConn) {
       if (pill) pill.classList.add('connected');
-      if (text) text.textContent = 'Supabase: Connected';
+      if (text) text.textContent = `${window.BravadianDB.dbLabel} database: connected`;
     } else {
       if (pill) pill.classList.remove('connected');
-      if (text) text.textContent = 'Supabase: Offline / Local';
+      if (text) text.textContent = 'Database: not connected';
     }
   }
 
@@ -910,7 +1075,7 @@
 
     // Handle Form Submit
     if (form) {
-      form.onsubmit = (e) => {
+      form.onsubmit = async (e) => {
         e.preventDefault();
         const id = document.getElementById('editProdId').value || 'prod-' + Date.now();
         const name = document.getElementById('editProdName').value.trim();
@@ -965,38 +1130,58 @@
           sizes.forEach(sz => {
             const hasVar = variants.some(v => v.color.toLowerCase() === col.toLowerCase() && v.size === sz);
             if (!hasVar) {
-              variants.push({ color: col, size: sz, stock: 5 });
+              // New colours start sold out; set real numbers on the stock screen
+              variants.push({ color: col, size: sz, stock: 0 });
             }
           });
         });
         // Filter out variants of colors that were removed
         variants = variants.filter(v => colors.some(col => col.toLowerCase() === v.color.toLowerCase()));
 
-        const saved = window.BravadianDB.saveProduct({
-          id,
-          name,
-          slug,
-          collection,
-          price,
-          comparePrice,
-          launchPrice,
-          fabric,
-          gsm,
-          fit,
-          material,
-          sku,
-          status,
-          description: desc,
-          featured,
-          newDrop,
-          isComingSoon,
-          relicTag: relicTag || (existing ? existing.relicTag : null),
-          relicBadge: relicBadge || (existing ? existing.relicBadge : null),
-          colors,
-          sizes,
-          variants,
-          images
-        });
+        // The slug is the product's web address, so no two products may share one
+        const clash = window.BravadianDB.getProducts().find(p => p.slug === slug && p.id !== id);
+        if (clash) {
+          alert(`The link "${slug}" is already used by "${clash.name}". Choose a different slug.`);
+          return;
+        }
+
+        const submitBtn = form.querySelector('[type="submit"]');
+        if (submitBtn) submitBtn.disabled = true;
+        let saved;
+        try {
+          saved = await window.BravadianDB.saveProduct({
+            id,
+            name,
+            slug,
+            collection,
+            price,
+            comparePrice,
+            launchPrice,
+            fabric,
+            gsm,
+            fit,
+            material,
+            sku,
+            status,
+            description: desc,
+            featured,
+            newDrop,
+            isComingSoon,
+            relicTag: relicTag || (existing ? existing.relicTag : null),
+            relicBadge: relicBadge || (existing ? existing.relicBadge : null),
+            colors,
+            sizes,
+            variants,
+            images
+          });
+          // The database keeps live stock for existing sizes, so reload to show the real numbers
+          await refreshFromSupabase();
+        } catch (err) {
+          alert(`Product was NOT saved to the database: ${err.message || err}\n\nIt is saved on this computer only. Fix the problem and save again.`);
+          return;
+        } finally {
+          if (submitBtn) submitBtn.disabled = false;
+        }
 
         closeModal();
         initProductsTable();
@@ -1057,8 +1242,10 @@
       const closeImg = document.getElementById('previewImgCloseup');
       const lifeImg = document.getElementById('previewImgLifestyle');
 
+      // Placeholder drawings (data: URIs) are previewed but not put in the field, so the field
+      // shows only real photo addresses
       const setValAndPreview = (inp, box, img, val) => {
-        if (inp) inp.value = val || '';
+        if (inp) inp.value = val && !String(val).startsWith('data:') ? val : '';
         if (box && img) {
           if (val) {
             img.src = val;

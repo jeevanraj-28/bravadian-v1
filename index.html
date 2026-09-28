@@ -34,14 +34,14 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="BRAVADIAN">
-  <link rel="manifest" href="manifest.json">
+  <link rel="manifest" href="/manifest.json">
 
   <!-- Favicon Suite -->
-  <link rel="icon" type="image/svg+xml" href="images/favicons/favicon.svg?v=2">
-  <link rel="icon" type="image/png" sizes="32x32" href="images/favicons/favicon-32x32.png?v=2">
-  <link rel="icon" type="image/png" sizes="16x16" href="images/favicons/favicon-16x16.png?v=2">
-  <link rel="apple-touch-icon" sizes="180x180" href="images/favicons/apple-touch-icon.png?v=2">
-  <link rel="shortcut icon" href="images/favicons/favicon.ico?v=2">
+  <link rel="icon" type="image/svg+xml" href="/images/favicons/favicon.svg?v=2">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicons/favicon-32x32.png?v=2">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicons/favicon-16x16.png?v=2">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/favicons/apple-touch-icon.png?v=2">
+  <link rel="shortcut icon" href="/images/favicons/favicon.ico?v=2">
 
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website">
@@ -186,7 +186,8 @@
   <link rel="stylesheet" href="css/store.css">
 
   <!-- Supabase JS Client via CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Supabase client, pinned: the browser rejects the file if it ever differs (integrity) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js" integrity="sha384-Rj26LVGvoeRVR6+mwQmFfcR3QOBEwT+ZmuCWpuiqeTzJpCs0ER4ITAWGb4Hiy3Ok" crossorigin="anonymous"></script>
 </head>
 <body>
 
@@ -206,8 +207,8 @@
       <div class="header-container">
         <!-- Brand Logo -->
         <a href="#/" class="brand-mark" aria-label="BRAVADIAN Home">
-          <img src="images/logo.png" alt="BRAVADIAN — BRAVE INDIA" class="brand-logo-img logo-theme-dark">
-          <img src="images/logo-dark.png" alt="BRAVADIAN — BRAVE INDIA" class="brand-logo-img logo-theme-light">
+          <img src="/images/logo.png" alt="BRAVADIAN — BRAVE INDIA" class="brand-logo-img logo-theme-dark">
+          <img src="/images/logo-dark.png" alt="BRAVADIAN — BRAVE INDIA" class="brand-logo-img logo-theme-light">
         </a>
 
         <!-- Center Navigation (Matching Figma: SHOP, COLLECTIONS, LOOKBOOK, ABOUT) -->
@@ -334,8 +335,8 @@
   <div class="mobile-nav-drawer mnav" id="mobileNavDrawer" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Menu">
     <div class="mnav-top">
       <a href="#/" class="mobile-drawer-brand" aria-label="BRAVADIAN Home">
-        <img src="images/logo.png" alt="BRAVADIAN" class="mobile-drawer-logo logo-theme-dark">
-        <img src="images/logo-dark.png" alt="BRAVADIAN" class="mobile-drawer-logo logo-theme-light">
+        <img src="/images/logo.png" alt="BRAVADIAN" class="mobile-drawer-logo logo-theme-dark">
+        <img src="/images/logo-dark.png" alt="BRAVADIAN" class="mobile-drawer-logo logo-theme-light">
       </a>
       <button type="button" class="mnav-close" id="closeMobileNavBtn" aria-label="Close menu">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
@@ -617,7 +618,7 @@
           <div class="size-spec-blueprint-box">
             <!-- Technical Blueprint Vector Image -->
             <div class="size-spec-blueprint-canvas">
-              <img src="images/size-blueprint.webp" alt="Technical Garment Blueprint & Measurement Boundaries" class="size-spec-blueprint-img" loading="lazy">
+              <img src="/images/size-blueprint.webp" alt="Technical Garment Blueprint & Measurement Boundaries" class="size-spec-blueprint-img" loading="lazy">
             </div>
             <div class="size-spec-blueprint-caption">
               REFERENCE GRAPH // MEASUREMENT BOUNDARIES
@@ -651,7 +652,7 @@
             <!-- Card 1: Compact Slouch -->
             <div class="size-fit-card">
               <div class="size-fit-img-wrap">
-                <img src="images/fit-slouch.webp" alt="Fit Profile Compact Slouch" class="size-fit-img" loading="lazy">
+                <img src="/images/fit-slouch.webp" alt="Fit Profile Compact Slouch" class="size-fit-img" loading="lazy">
               </div>
               <div class="size-fit-content">
                 <h4 class="size-fit-name">FIT PROFILE // COMPACT SLOUCH</h4>
@@ -664,7 +665,7 @@
             <!-- Card 2: Engineered Drape -->
             <div class="size-fit-card">
               <div class="size-fit-img-wrap">
-                <img src="images/fit-drape.webp" alt="Relaxed fit" class="size-fit-img" loading="lazy">
+                <img src="/images/fit-drape.webp" alt="Relaxed fit" class="size-fit-img" loading="lazy">
               </div>
               <div class="size-fit-content">
                 <h4 class="size-fit-name">FIT // RELAXED</h4>
@@ -677,7 +678,7 @@
             <!-- Card 3: Severe Armor -->
             <div class="size-fit-card">
               <div class="size-fit-img-wrap">
-                <img src="images/fit-armor.webp" alt="Extra roomy fit" class="size-fit-img" loading="lazy">
+                <img src="/images/fit-armor.webp" alt="Extra roomy fit" class="size-fit-img" loading="lazy">
               </div>
               <div class="size-fit-content">
                 <h4 class="size-fit-name">FIT // EXTRA ROOMY</h4>
@@ -741,8 +742,8 @@
       <div class="footer-top">
         <div class="footer-brand-col">
           <a href="#/" class="footer-logo-link" aria-label="BRAVADIAN Home">
-            <img src="images/logo.png" alt="BRAVADIAN" class="footer-brand-logo logo-theme-dark">
-            <img src="images/logo-dark.png" alt="BRAVADIAN" class="footer-brand-logo logo-theme-light">
+            <img src="/images/logo.png" alt="BRAVADIAN" class="footer-brand-logo logo-theme-dark">
+            <img src="/images/logo-dark.png" alt="BRAVADIAN" class="footer-brand-logo logo-theme-light">
           </a>
           <h4 class="footer-archive-brand-title">BRAVADIAN</h4>
           <p class="footer-brand-desc">
