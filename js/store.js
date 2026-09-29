@@ -497,40 +497,37 @@ Thank you.`,
     const searchClose = document.getElementById('closeSearchBtn');
     if (searchClose) searchClose.addEventListener('click', closeSearchModal);
 
-    // Dark & White Theme Switcher (Header & Mobile Drawer)
-    function toggleThemeMode(e) {
-      if (e) e.preventDefault();
-      const current = document.documentElement.getAttribute('data-theme') || 'light';
-      const next = current === 'dark' ? 'light' : 'dark';
-      document.documentElement.setAttribute('data-theme', next);
-      localStorage.setItem('bravadian-theme', next);
-      syncThemeColor();
-    }
-
-    // Phone status bar matches the page background in both themes
-    function syncThemeColor() {
-      const meta = document.getElementById('themeColorMeta');
-      if (meta) meta.setAttribute('content', document.documentElement.getAttribute('data-theme') === 'light' ? '#EDE8D0' : '#000000');
-    }
-    syncThemeColor();
-
+    // Theme: automatic by default (device dark mode, else light 6 AM – 6 PM); see the script in index.html
+    const Theme = window.BravadianTheme;
     const themeBtn = document.getElementById('themeToggleBtn');
-    if (themeBtn) themeBtn.addEventListener('click', toggleThemeMode);
-
-    // Light / Dark switch in the phone menu
     const themeSetBtns = document.querySelectorAll('[data-theme-set]');
-    function syncThemeSwitch() {
-      const t = document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
-      themeSetBtns.forEach(b => b.setAttribute('aria-pressed', String(b.dataset.themeSet === t)));
+
+    // Phone status bar matches the page background, and the menu switch shows the current mode
+    function syncTheme() {
+      const theme = document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+      const meta = document.getElementById('themeColorMeta');
+      if (meta) meta.setAttribute('content', theme === 'light' ? '#EDE8D0' : '#000000');
+      const mode = Theme ? Theme.getMode() : theme;
+      themeSetBtns.forEach(b => b.setAttribute('aria-pressed', String(b.dataset.themeSet === mode)));
+      if (themeBtn) {
+        const label = `Switch to ${theme === 'light' ? 'dark' : 'light'} theme`;
+        themeBtn.title = label;
+        themeBtn.setAttribute('aria-label', label);
+      }
     }
+    new MutationObserver(syncTheme).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    syncTheme();
+
+    if (themeBtn && Theme) themeBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      Theme.toggle();
+      syncTheme();
+    });
     themeSetBtns.forEach(b => b.addEventListener('click', () => {
-      document.documentElement.setAttribute('data-theme', b.dataset.themeSet);
-      localStorage.setItem('bravadian-theme', b.dataset.themeSet);
-      syncThemeColor();
-      syncThemeSwitch();
+      if (!Theme) return;
+      Theme.setMode(b.dataset.themeSet);
+      syncTheme();
     }));
-    if (themeBtn) themeBtn.addEventListener('click', syncThemeSwitch);
-    syncThemeSwitch();
 
     // Mobile Hamburger & Fullscreen Drawer
     const mobileBtn = document.getElementById('mobileMenuBtn');
@@ -583,11 +580,36 @@ Thank you.`,
     // Floating WhatsApp Button
     const waFloating = document.getElementById('floatingWhatsAppBtn');
     if (waFloating) {
-      const settings = window.BravadianDB.getSettings();
       waFloating.addEventListener('click', (e) => {
         e.preventDefault();
         window.open(waURL(WA_MSG.question), '_blank');
       });
+      waFloating.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); waFloating.click(); }
+      });
+
+      // Keep the button off the home page's first screen (the hero has its own WhatsApp button and
+      // the float sat on the headline), tuck it away while the shopper scrolls down to read, and
+      // bring it back as soon as they scroll up or reach the end of the page.
+      let lastY = window.scrollY;
+      let goingDown = false;
+      const onHero = () => {
+        const hero = document.querySelector('.figma-hero-section');
+        return !!hero && hero.getBoundingClientRect().bottom > window.innerHeight * 0.4;
+      };
+      const syncFloat = () => {
+        const y = window.scrollY;
+        const atEnd = window.innerHeight + y >= document.documentElement.scrollHeight - 80;
+        if (Math.abs(y - lastY) >= 8 || atEnd) {
+          goingDown = y > lastY && y > 240 && !atEnd;
+          lastY = y;
+        }
+        waFloating.classList.toggle('is-tucked', onHero() || goingDown);
+      };
+      window.addEventListener('scroll', syncFloat, { passive: true });
+      // Pages are drawn after the address changes; check once the new page is on screen
+      window.addEventListener('hashchange', () => { goingDown = false; setTimeout(syncFloat, 60); });
+      setTimeout(syncFloat, 60);
     }
 
     // Size Guide Modal Close
@@ -688,7 +710,7 @@ Thank you.`,
         <div class="hero-veil" aria-hidden="true"></div>
         <div class="hero-mark" aria-hidden="true">BRAVADIAN</div>
         <div class="hero-ring-label" aria-hidden="true">
-          <span>ADHYAYA 01 &mdash; THE FIRST CHAPTER</span>
+          <span>ADHYAYA 01 &middot; OUR FIRST DROP</span>
           <i></i>
           <span class="hero-ring-hint">&larr; DRAG TO EXPLORE &rarr;</span>
         </div>`}
@@ -1607,53 +1629,61 @@ Thank you.`,
       ]
     },
     mythology: {
-      photo: '/images/collections/mythology.webp',
+      photo: '/images/mythology/hero.webp',
+      photoFallback: '/images/collections/mythology.webp',
+      photoPos: '72% center',
       tag: 'MYTHOLOGY · GODS AND EPICS WE GREW UP WITH',
       intro: 'Krishna, Shiva, Hanuman, the Ramayana and the Mahabharata. The gods and epics told at home, redrawn bold on everyday tees.',
       storyTitle: 'THE LEGENDS WE PRINT',
       storyNote: 'Every design starts from one moment in the story: a chant, a symbol, a form of the god. This is what each print carries, with more gods and epics to come.',
       stories: [
-        { img: '/images/products/trinetra/preview.webp', alt: 'Trinetra artwork: the third eye over the Himalaya', name: 'THE THIRD EYE', code: 'TRINETRA', caption: 'Shiva’s third eye sees past, present and future at once. A reminder to look past the obvious.' },
-        { img: '/images/products/hara-hara-mahadeva/black-closeup.webp', alt: 'Om Namah Shivaya printed down the chest', name: 'THE FIVE SYLLABLES', code: 'HARA HARA MAHADEVA', caption: 'Om Namah Shivaya, the five-syllable chant, running down the left chest like a quiet prayer.' },
-        { img: '/images/products/ganesha/preview.webp', alt: 'Ganesha seated before a red sun', name: 'THE NEW BEGINNING', code: 'GANESHA', caption: 'Vakratunda, the curved-trunk Ganesha, remembered before every new start.' },
+        { img: '/images/mythology/story-third-eye.webp', fallback: '/images/products/trinetra/preview.webp', pos: '72% center', alt: 'Stone carving of Shiva with the third eye marked in sandalwood and kumkum', name: 'THE THIRD EYE', code: 'TRINETRA', caption: 'Shiva’s third eye sees past, present and future at once. A reminder to look past the obvious.' },
+        { img: '/images/mythology/story-five-syllables.webp', fallback: '/images/products/hara-hara-mahadeva/black-closeup.webp', pos: '40% center', alt: 'Rudraksha mala, brass lamp, bilva leaves and sacred ash on a temple step', name: 'THE FIVE SYLLABLES', code: 'HARA HARA MAHADEVA', caption: 'Om Namah Shivaya, the five-syllable chant, running down the left chest like a quiet prayer.' },
+        { img: '/images/mythology/story-new-beginning.webp', fallback: '/images/products/ganesha/preview.webp', pos: '62% center', alt: 'An artisan shaping the curved trunk of a clay Ganesha idol', name: 'THE NEW BEGINNING', code: 'GANESHA', caption: 'Vakratunda, the curved-trunk Ganesha, remembered before every new start.' },
         { img: '/images/products/hara-hara-mahadeva/black-model2.webp', alt: 'Hara Hara Mahadeva tee worn', name: 'WORN CLOSE', code: 'HARA HARA MAHADEVA', caption: 'A chant over the heart and a plain back. A quiet way to carry it every day.' }
       ]
     },
     'street-culture': {
-      photo: '/images/collections/street-culture.webp',
+      photo: '/images/street-culture/hero.webp',
+      photoFallback: '/images/collections/street-culture.webp',
+      photoPos: '78% center',
       tag: 'STREET CULTURE · GRAFFITI, HIP-HOP, TYPE',
       intro: 'Graffiti, urban graphics, hip-hop and bold typography, printed big. Rebellious designs for the days you want to be heard.',
       storyTitle: 'FROM THE STREET',
       storyNote: 'The street talks through graffiti, posters, hand-painted letters and beats. These designs talk back.',
       stories: [
-        { img: '/images/products/born-to-rise/black-model.webp', alt: 'Born to Rise tee worn on a city street', name: 'RISE AGAIN', code: 'BORN TO RISE', caption: 'An eagle rises against the wind, not away from it. For the days you start again.' },
+        { img: '/images/street-culture/story-rise-again.webp', fallback: '/images/products/born-to-rise/black-model.webp', pos: '38% center', alt: 'A black kite soaring over Mumbai rooftops at sunset', name: 'RISE AGAIN', code: 'BORN TO RISE', caption: 'An eagle rises against the wind, not away from it. For the days you start again.' },
         { img: '/images/products/born-to-rise/black-closeup.webp', alt: 'Close-up of the red-winged eagle print', name: 'THE PRINT', code: 'BORN TO RISE', caption: 'Blazing red wings, printed large across the back in full colour.' },
         { img: '/images/products/born-to-rise/white-model.webp', alt: 'Born to Rise in white', name: 'TWO WAYS TO WEAR', code: 'BORN TO RISE', caption: 'Black or white. The same eagle, a different mood.' },
-        { img: '/images/collections/street-culture.webp', alt: 'Painted city wall at night', name: 'CITY WALLS', code: 'COMING SOON', caption: 'Graffiti and bold street typography. Cyber Rebel is on its way.' }
+        { img: '/images/street-culture/story-city-walls.webp', fallback: '/images/collections/street-culture.webp', alt: 'A weathered city wall layered with paint and graffiti', name: 'CITY WALLS', code: 'COMING SOON', caption: 'Graffiti and bold street typography. Cyber Rebel is on its way.' }
       ]
     },
     anime: {
-      photo: '/images/collections/anime.webp',
+      photo: '/images/anime/hero.webp',
+      photoFallback: '/images/collections/anime.webp',
+      photoPos: '75% center',
       tag: 'ANIME · MANGA-INSPIRED ARTWORK',
       intro: 'Anime characters and manga-inspired artwork, drawn in the style of Japanese animation. The first designs are on their way.',
       storyTitle: 'WHAT’S COMING',
       storyNote: 'Bold linework, big colour and characters that feel straight out of your favourite series. Tap notify and we will message you on WhatsApp the day they drop.',
       stories: [
-        { name: 'MANGA LINEWORK', code: 'THE STYLE', caption: 'Clean ink lines and bold colour, the way your favourite panels are drawn.' },
-        { name: 'ANIME CHARACTERS', code: 'THE STORY', caption: 'Original characters and spirits, like the nine-tailed fox, drawn the way Japanese animation draws its heroes.' },
-        { name: 'SAME HEAVY TEE', code: 'THE FEEL', caption: 'Oversized 240 GSM cotton, washed soft, like every Bravadian tee.' }
+        { img: '/images/anime/story-linework.webp', alt: 'An artist inking a manga action panel at night', name: 'MANGA LINEWORK', code: 'THE STYLE', caption: 'Clean ink lines and bold colour, the way your favourite panels are drawn.' },
+        { img: '/images/anime/story-characters.webp', alt: 'Ink and watercolour painting of a nine-tailed fox with sketches', name: 'ANIME CHARACTERS', code: 'THE STORY', caption: 'Original characters and spirits, like the nine-tailed fox, drawn the way Japanese animation draws its heroes.' },
+        { img: '/images/anime/story-heavy-tee.webp', alt: 'Close-up of a thick rib collar on a heavyweight black tee', name: 'SAME HEAVY TEE', code: 'THE FEEL', caption: 'Oversized 240 GSM cotton, washed soft, like every Bravadian tee.' }
       ]
     },
     minimal: {
-      photo: '/images/collections/minimal.webp',
+      photo: '/images/minimal/hero.webp',
+      photoFallback: '/images/collections/minimal.webp',
+      photoPos: '80% center',
       tag: 'MINIMAL · SIMPLE AND UNDERSTATED',
       intro: 'Simple typography, subtle symbols and clean graphics. Understated tees that go with everything. The first designs are on their way.',
       storyTitle: 'WHAT’S COMING',
       storyNote: 'Less print, same quality. Tap notify and we will message you on WhatsApp the day they drop.',
       stories: [
-        { name: 'THE ESSENTIAL', code: 'ESSENTIAL 240', caption: 'No graphics, just a great tee: thick rib collar, dropped shoulders, relaxed fit.' },
-        { name: 'SAME HEAVY COTTON', code: 'THE FEEL', caption: '240 GSM French Terry, washed soft from the first wear.' },
-        { name: 'SUBTLE SYMBOLS', code: 'THE STYLE', caption: 'Simple type or one small symbol instead of a big print. Clean graphics that say just enough.' }
+        { img: '/images/minimal/story-essential.webp', alt: 'A plain black oversized tee laid flat on concrete', name: 'THE ESSENTIAL', code: 'ESSENTIAL 240', caption: 'No graphics, just a great tee: thick rib collar, dropped shoulders, relaxed fit.' },
+        { img: '/images/minimal/story-heavy-cotton.webp', alt: 'Macro of French terry cotton loops', name: 'SAME HEAVY COTTON', code: 'THE FEEL', caption: '240 GSM French Terry, washed soft from the first wear.' },
+        { img: '/images/minimal/story-subtle-symbols.webp', pos: '40% center', alt: 'A small tone-on-tone lotus on the chest of a black tee', name: 'SUBTLE SYMBOLS', code: 'THE STYLE', caption: 'Simple type or one small symbol instead of a big print. Clean graphics that say just enough.' }
       ]
     }
   };
@@ -1680,7 +1710,7 @@ Thank you.`,
     const storyCard = (s) => s.img ? `
               <article class="motif-card">
                 <div class="motif-image-box">
-                  <img src="${s.img}" ${s.fallback ? `onerror="this.onerror=null;this.src='${s.fallback}'"` : ''} alt="${esc(s.alt || s.name)}" class="motif-img" loading="lazy" />
+                  <img src="${s.img}" ${s.fallback ? `onerror="this.onerror=null;this.src='${s.fallback}'"` : ''} alt="${esc(s.alt || s.name)}" class="motif-img" loading="lazy"${s.pos ? ` style="object-position: ${s.pos}"` : ''} />
                 </div>
                 <div class="motif-specs">
                   <div class="motif-title-badge">
@@ -1719,7 +1749,7 @@ Thank you.`,
     mainContainer.innerHTML = `
       <div class="heritage-chapter-page collection-story" data-collection="${slug}">
         <section class="heritage-hero-section">
-          <div class="heritage-hero-backdrop ${story.photo ? 'has-photo' : ''}" ${story.photo ? `style="--hero-photo: url('${story.photo}')"` : ''} role="img" aria-label="${esc(title)} collection"></div>
+          <div class="heritage-hero-backdrop ${story.photo ? 'has-photo' : ''}" ${story.photo ? `style="--hero-photo: url('${story.photo}')${story.photoFallback ? `, url('${story.photoFallback}')` : ''}; --hero-pos: ${story.photoPos || 'center 35%'}"` : ''} role="img" aria-label="${esc(title)} collection"></div>
           <div class="heritage-hero-scrim" aria-hidden="true"></div>
           <div class="heritage-hero-inner">
             <div class="heritage-hero-foreground">
@@ -1802,7 +1832,7 @@ Thank you.`,
     };
     
     // Get filtered products
-    const products = window.BravadianDB.getProducts({
+    const found = window.BravadianDB.getProducts({
       collection: colSlug,
       color: StoreState.activeFilters.color,
       size: StoreState.activeFilters.size,
@@ -1810,12 +1840,11 @@ Thank you.`,
       inStockOnly: StoreState.activeFilters.inStockOnly,
       search: StoreState.activeFilters.search
     });
-
-    const pageSize = 6;
-    const isShowingAll = StoreState.cataloguePage > 1 || colSlug !== 'all' || products.length <= pageSize;
-    const displayedProducts = isShowingAll ? products : products.slice(0, pageSize);
-    const totalCount = displayedProducts.length;
-    const formattedCount = String(totalCount).padStart(2, '0');
+    // Tees you can buy come first; "coming soon" ones follow, each group keeping the chosen sort.
+    // Every tee is shown at once (the range is small), so there is no "show all" step.
+    const products = [...found.filter(p => !p.isComingSoon), ...found.filter(p => p.isComingSoon)];
+    const soonCount = products.filter(p => p.isComingSoon).length;
+    const buyable = products.length - soonCount;
 
     mainContainer.innerHTML = `
       <div class="canon-catalogue-container">
@@ -1854,7 +1883,7 @@ Thank you.`,
           <!-- Right Status & Filter Controls -->
           <div class="canon-toolbar-right">
             <span class="canon-index-status">
-              SHOWING <strong class="canon-count-badge">${totalCount} OF ${products.length}</strong>
+              <strong class="canon-count-badge">${buyable} ${buyable === 1 ? 'TEE' : 'TEES'} AVAILABLE</strong>${soonCount ? ` · ${soonCount} COMING SOON` : ''}
             </span>
 
             <div class="canon-filter-selectors">
@@ -1879,17 +1908,10 @@ Thank you.`,
         </nav>
 
         <!-- Product Grid or Empty State -->
-        ${totalCount > 0 ? `
+        ${products.length > 0 ? `
           <div class="pgrid">
-            ${displayedProducts.map((p, idx) => renderProductCardHTML(p, idx)).join('')}
+            ${products.map((p, idx) => renderProductCardHTML(p, idx)).join('')}
           </div>
-
-          ${!isShowingAll ? `
-          <div class="canon-load-more-wrap">
-            <button type="button" class="btn-canon-load-more" id="canonLoadMoreBtn">
-              <span>SHOW ALL ${products.length} TEES &darr;</span>
-            </button>
-          </div>` : ''}
         ` : `
           <div class="canon-empty-state">
             <div class="empty-state-icon">✦</div>
@@ -1914,14 +1936,6 @@ Thank you.`,
     if (sortSelect) {
       sortSelect.addEventListener('change', (e) => {
         StoreState.activeFilters.sort = e.target.value;
-        renderShopView(colSlug);
-      });
-    }
-
-    const loadMoreBtn = document.getElementById('canonLoadMoreBtn');
-    if (loadMoreBtn) {
-      loadMoreBtn.addEventListener('click', () => {
-        StoreState.cataloguePage = 2;
         renderShopView(colSlug);
       });
     }
@@ -2177,7 +2191,7 @@ Thank you.`,
             <!-- Header Eyebrow -->
             <div class="pdp-eyebrow-row">
               <span class="pdp-amber-dot"></span>
-              <span class="pdp-eyebrow-text">${(product.collection || 'HERITAGE').replace(/-/g, ' ').toUpperCase()} COLLECTION · ADHYAYA 01</span>
+              <span class="pdp-eyebrow-text">${(product.collection || 'HERITAGE').replace(/-/g, ' ').toUpperCase()} COLLECTION · FIRST DROP</span>
             </div>
 
             <!-- Title -->
@@ -2220,9 +2234,20 @@ Thank you.`,
               <button type="button" class="pdp-cta-btn ${product.isComingSoon ? 'is-coming-soon' : 'gr-btn'}" id="pdpCtaBtn">
                 ${product.isComingSoon ? `COMING SOON` : `${glowDisc(BAG_SVG)}<span class="gr-label">ADD TO BAG — ${settings.currency}${window.BravadianDB.effectivePrice(product).toLocaleString('en-IN')}</span>`}
               </button>
-              <div class="pdp-cta-subtext">
-                ✦ FREE DELIVERY ACROSS INDIA · CONFIRMED ON WHATSAPP · PAY BY UPI
-              </div>
+              <ul class="pdp-promise" aria-label="Delivery, exchange and payment">
+                <li>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7h11v9H3z"/><path d="M14 10h4l3 3v3h-7"/><circle cx="7" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></svg>
+                  <span><b>Free delivery</b> Ships in 24–48 hrs, arrives in 2–6 working days</span>
+                </li>
+                <li>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9a8 8 0 0 1 14-4l2 2"/><path d="M20 3v4h-4"/><path d="M20 15a8 8 0 0 1-14 4l-2-2"/><path d="M4 21v-4h4"/></svg>
+                  <span><b>Wrong size?</b> Exchange within 7 days of delivery. <a href="#/policy/returns">How it works</a></span>
+                </li>
+                <li>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/><path d="M7 15h3"/></svg>
+                  <span><b>Pay after we confirm</b> by UPI, once we check your order with you on WhatsApp</span>
+                </li>
+              </ul>
             </div>
 
             <!-- Line Divider -->
@@ -2260,7 +2285,7 @@ Thank you.`,
               </div>
               <h2 class="pdp-section-heading">MORE DESIGNS TO EXPLORE</h2>
             </div>
-            <div class="pdp-section-header-tag">ADHYAYA 01</div>
+            <div class="pdp-section-header-tag">FROM OUR FIRST DROP</div>
           </div>
 
           <div class="pgrid is-rail">
@@ -2536,9 +2561,38 @@ Thank you.`,
      -------------------------------------------------------------------------- */
   let toastTimeout = null;
 
+  // Phones: swipe the notice up to dismiss it, like a phone notification. It stays while touched.
+  function enableToastSwipe(toast) {
+    if (toast.dataset.swipe) return;
+    toast.dataset.swipe = '1';
+    let startY = null;
+    let dy = 0;
+    toast.addEventListener('touchstart', (e) => {
+      startY = e.touches[0].clientY;
+      dy = 0;
+      if (toastTimeout) clearTimeout(toastTimeout);
+      toast.classList.add('is-swiping');
+    }, { passive: true });
+    toast.addEventListener('touchmove', (e) => {
+      if (startY === null) return;
+      dy = Math.min(0, e.touches[0].clientY - startY);
+      toast.style.transform = `translateY(${dy}px)`;
+      toast.style.opacity = String(Math.max(0, 1 + dy / 120));
+    }, { passive: true });
+    toast.addEventListener('touchend', () => {
+      toast.classList.remove('is-swiping');
+      toast.style.transform = '';
+      toast.style.opacity = '';
+      if (dy < -40) toast.classList.remove('is-visible');
+      else toastTimeout = setTimeout(() => toast.classList.remove('is-visible'), 2500);
+      startY = null;
+    });
+  }
+
   function showCartToast(product, color, size, qty) {
     const toast = document.getElementById('cartToast');
     if (!toast) return;
+    enableToastSwipe(toast);
 
     if (toastTimeout) {
       clearTimeout(toastTimeout);
@@ -2580,6 +2634,7 @@ Thank you.`,
   function showBagNotice(text) {
     const toast = document.getElementById('cartToast');
     if (!toast) return;
+    enableToastSwipe(toast);
     if (toastTimeout) clearTimeout(toastTimeout);
     toast.innerHTML = `
       <div class="cart-toast-body">
@@ -2781,6 +2836,7 @@ Thank you.`,
         <li>Order confirmed with you on WhatsApp</li>
         <li>Pay by UPI, on WhatsApp once we confirm</li>
         <li>Free delivery across India, dispatched in 24&ndash;48 hours</li>
+        <li>Wrong size? Exchange within 7 days of delivery</li>
       </ul>`;
   }
 
@@ -3198,27 +3254,68 @@ Thank you.
   }
 
   // ── Fit Finder ─────────────────────────────────────────────────────────
-  const FIT_SIZES = ['S', 'M', 'L', 'XL', 'XXL'];
+  // Works from the size chart itself: estimate the shopper's chest from height, weight and build
+  // (tuned on Indian men's sizing: about 36" at 55 kg, 38" at 65 kg, 40" at 75 kg, 42" at 85 kg),
+  // add the room an oversized tee is cut with, and pick the size whose chest comes closest.
+  // So if the chart in the admin changes, the advice changes with it.
   const FIT_KEY = 'bravadian_fit_profile';
-  const FIT_DEFAULT = { height: 175, weight: 70, build: 'regular', fit: 'true' };
+  const FIT_DEFAULT = { height: 168, weight: 65, build: 'regular', fit: 'true' };
+  const FIT_BUILD = { slim: -1.5, regular: 0, athletic: 1.5, broad: 3 };   // inches of chest
+  const FIT_EASE = { neat: 5, true: 7, extra: 9.5 };                        // inches of room over the body
 
   function loadFitProfile() {
     try { return JSON.parse(localStorage.getItem(FIT_KEY)); } catch (e) { return null; }
   }
 
-  // Weight drives chest/width, height drives body length; build and taste shift by part of a size.
+  function fitChart() {
+    const rows = window.BravadianDB.getSizeGuide().filter(r => Number(r.chest) > 0);
+    return rows.length ? rows : window.BravadianDefaults.DEFAULT_SIZE_GUIDE;
+  }
+
+  function estimateChest(p) {
+    return 36.5 + 0.2 * (p.weight - 55) - 0.05 * (p.height - 168) + (FIT_BUILD[p.build] || 0);
+  }
+
   function recommendSize(p) {
-    const build = { slim: -0.4, regular: 0, athletic: 0.3, broad: 0.6 }[p.build] || 0;
-    const taste = { neat: -0.6, true: 0, extra: 0.8 }[p.fit] || 0;
-    const v = 0.65 * ((p.weight - 55) / 10) + 0.35 * ((p.height - 165) / 6) + build + taste;
-    const idx = Math.min(4, Math.max(0, Math.round(v)));
-    const frac = v - Math.round(v);
-    let alt = null;
-    if (Math.abs(frac) >= 0.3) {
-      const j = idx + (frac > 0 ? 1 : -1);
-      if (j >= 0 && j <= 4) alt = FIT_SIZES[j];
+    const chart = fitChart();
+    const chests = chart.map(r => Number(r.chest));
+    const last = chart.length - 1;
+    const body = estimateChest(p);
+    const target = body + (FIT_EASE[p.fit] ?? FIT_EASE.true);
+
+    // Where the target sits on the chart: 0 = first size, 1 = second, 1.5 = halfway between them…
+    let pos;
+    if (last === 0) pos = 0;
+    else if (target <= chests[0]) pos = (target - chests[0]) / (chests[1] - chests[0]);
+    else if (target >= chests[last]) pos = last + (target - chests[last]) / (chests[last] - chests[last - 1]);
+    else {
+      let i = 0;
+      while (target > chests[i + 1]) i++;
+      pos = i + (target - chests[i]) / (chests[i + 1] - chests[i]);
     }
-    return { size: FIT_SIZES[idx], alt, edge: v < -0.5 ? 'small' : (v > 4.5 ? 'large' : null) };
+
+    const idx = Math.min(last, Math.max(0, Math.round(pos)));
+    const frac = pos - Math.round(pos);
+    let alt = null;
+    let reason = null;
+    if (pos > -0.5 && pos < last + 0.5 && Math.abs(frac) >= 0.3) {
+      const j = idx + (frac > 0 ? 1 : -1);
+      if (j >= 0 && j <= last) { alt = chart[j].size; reason = 'between'; }
+    }
+
+    // Tall shoppers: the tee should reach about mid-hip. If this size runs short, suggest the next one up.
+    const wantLength = (p.height / 2.54) * 0.425;
+    const len = Number(chart[idx].length);
+    if (!alt && len && len < wantLength - 1.5 && idx < last) { alt = chart[idx + 1].size; reason = 'length'; }
+
+    return {
+      size: chart[idx].size,
+      alt,
+      reason,
+      body,
+      row: chart[idx],
+      edge: pos < -0.5 ? 'small' : (pos > last + 0.5 ? 'large' : null)
+    };
   }
 
   function fitButtonLabel() {
@@ -3255,21 +3352,24 @@ Thank you.
       const rec = recommendSize(state);
       document.getElementById('ffSize').textContent = rec.size;
 
+      const order = fitChart().map(r => r.size);
       let note;
-      if (rec.edge === 'small') note = 'You are at the small end of our range. S will still sit loose and relaxed.';
-      else if (rec.edge === 'large') note = 'You are at the top of our range. XXL may fit closer than intended. Message us on WhatsApp for a custom size.';
+      if (rec.edge === 'small') note = `You are at the small end of our range. ${rec.size} will still sit loose and relaxed.`;
+      else if (rec.edge === 'large') note = `You are at the top of our range. ${rec.size} may fit closer than intended. Message us on WhatsApp and we will help you choose.`;
+      else if (rec.reason === 'length') note = `${rec.size} fits your chest. You are tall, so pick ${rec.alt} if you want the tee to sit lower.`;
       else if (rec.alt) {
-        const bigger = FIT_SIZES.indexOf(rec.alt) > FIT_SIZES.indexOf(rec.size) ? rec.alt : rec.size;
+        const bigger = order.indexOf(rec.alt) > order.indexOf(rec.size) ? rec.alt : rec.size;
         const smaller = bigger === rec.alt ? rec.size : rec.alt;
         note = `You are between ${smaller} and ${bigger}. Pick ${bigger} for more drape, ${smaller} for a neater fit.`;
-      } else note = `${rec.size} gives you the dropped-shoulder drape this tee is cut for.`;
+      } else note = `${rec.size} gives you the relaxed, dropped-shoulder fit this tee is cut for.`;
       document.getElementById('ffNote').textContent = note;
 
-      const row = window.BravadianDB.getSizeGuide().find(r => r.size === rec.size);
-      document.getElementById('ffSpecs').innerHTML = row ? `
-        <div><dt>Chest</dt><dd>${row.chest}"</dd></div>
-        <div><dt>Length</dt><dd>${row.length}"</dd></div>
-        ${row.shoulder ? `<div><dt>Shoulder</dt><dd>${row.shoulder}"</dd></div>` : ''}` : '';
+      const row = rec.row;
+      const inch = (v) => `${Math.round(v * 2) / 2}"`;
+      document.getElementById('ffSpecs').innerHTML = `
+        <div><dt>Your chest (approx.)</dt><dd>${inch(rec.body)}</dd></div>
+        ${row.chest ? `<div><dt>Tee chest</dt><dd>${inch(row.chest)}</dd></div>` : ''}
+        ${row.length ? `<div><dt>Length</dt><dd>${inch(row.length)}</dd></div>` : ''}`;
 
       document.querySelectorAll('#sizeGuideTableBody tr').forEach(tr => {
         tr.classList.toggle('is-recommended', tr.dataset.size === rec.size);
@@ -3326,7 +3426,7 @@ Thank you.
           ${lbImg('lb-hero', '/images/products/bharat-spirit/worn-temple.webp?v=3', 'Bravadian heritage tees worn on the street', 'lb2-hero-img')}
           <div class="lb2-hero-shade" aria-hidden="true"></div>
           <div class="lb2-hero-copy">
-            <span class="lb2-eyebrow"><i></i>LOOKBOOK · ADHYAYA 01</span>
+            <span class="lb2-eyebrow"><i></i>LOOKBOOK · FIRST DROP</span>
             <h1 class="lb2-title">LOOKBOOK 01:<br>WEAR YOUR ROOTS</h1>
             <p class="lb2-lede">The Heritage collection, out on the street. Folk art and the symbols of India, printed on oversized cotton tees made for every day.</p>
           </div>
@@ -3491,10 +3591,11 @@ Thank you.
             <p class="about-manifesto-sub">
               Bravadian is built on one idea: Indian identity belongs in everyday streetwear. We take the myths, temples, scripts and craft we grew up around and turn them into original graphics on oversized, heavyweight tees. Made to be worn, not displayed.
             </p>
+            <p class="about-manifesto-sub about-adhyaya-note">We release our designs in chapters. Each one is an <em>Adhyaya</em>, Sanskrit for &ldquo;chapter&rdquo;. Adhyaya 01, <em>Rooted Form</em>, is our first drop.</p>
 
             <div class="about-geo-coordinates">
               <span class="geo-bar"></span>
-              <span class="geo-text">— ADHYAYA 01: ROOTED FORM · EST. 2026 —</span>
+              <span class="geo-text">— ADHYAYA 01 (CHAPTER ONE): ROOTED FORM · EST. 2026 —</span>
               <span class="geo-bar"></span>
             </div>
           </div>
@@ -3621,7 +3722,7 @@ Thank you.
         <!-- 5. CALL TO ACTION WITH THEMED VAULT BUTTON -->
         <section class="about-cta-section container">
           <div class="about-cta-card">
-            <span class="figma-tag">[ ADHYAYA 01 IS HERE ]</span>
+            <span class="figma-tag">[ OUR FIRST DROP IS HERE ]</span>
             <h2 class="about-cta-title">WEAR THE STORY</h2>
             <p class="about-cta-sub">
               You didn't just pick a T-shirt. You picked a story.

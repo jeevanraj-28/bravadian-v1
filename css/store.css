@@ -11443,6 +11443,13 @@ body.qa-open .qa-sheet { transform: translateY(0); visibility: visible; transiti
 }
 .mnav-foot { grid-template-columns: auto minmax(0, 1fr); }
 .mnav-wa { min-width: 0; }
+/* Light / Auto / Dark: three pills beside WhatsApp; narrow phones keep the icons and drop the words */
+.mnav-theme button { padding: 0 0.7rem; }
+@media (max-width: 400px) {
+  .mnav-theme button { padding: 0 0.8rem; }
+  .mnav-theme button span { display: none; }
+  .mnav-theme button[aria-pressed="true"] span { display: inline; }
+}
 @media (max-width: 600px) {
   .care-fabric-matrix-table td { background: none !important; }
   .size-spec-table-wrap { overflow-x: visible !important; }
@@ -11575,7 +11582,8 @@ body { font-family: var(--font-body); }
 .heritage-hero-backdrop.has-photo,
 [data-theme="light"] .heritage-hero-backdrop.has-photo {
   background-image: var(--hero-photo) !important;
-  background-position: center 35%;
+  /* each collection anchors its photo on the subject, so phones crop to the temple, the street, the group */
+  background-position: var(--hero-pos, center 35%);
   filter: none !important;
 }
 .heritage-motifs-row.cols-3 { grid-template-columns: repeat(3, 1fr); }
@@ -11614,3 +11622,532 @@ body { font-family: var(--font-body); }
   .figma-hero-section .figma-hero-cta-wrap .btn-vault-arrow { display: none; }
 }
 @media (max-width: 380px) { .figma-hero-section .cta-long { display: none; } }
+
+/* ==========================================================================
+   TYPOGRAPHY: COLLECTION STORY PAGES AND LONG-FORM TEXT
+   Rajdhani (--font-mono) is a narrow, squared label face: good for short tags,
+   hard to read in sentences at 11–15px. The roles below:
+     tags and codes  → Rajdhani, bold, tracked, in the theme accent
+     headlines       → Yatra One (unchanged)
+     intro lines     → Eczar, the Indian serif, for a printed-editorial feel
+     reading text    → Mukta, larger and with stronger contrast in both themes
+   ========================================================================== */
+.collection-story {
+  --story-read: #B9B4A8;
+  --story-read-strong: #D9D5CA;
+  --story-tag: #FF3B42;          /* brand red lifted to 5.5:1 on the dark cards (brand red is 4.4:1) */
+  --story-rule: rgba(237, 28, 36, 0.35);
+}
+[data-theme="light"] .collection-story {
+  --story-read: #4F493D;
+  --story-read-strong: #2B2720;
+  --story-tag: #B8121A;          /* 5.3:1 on the cream cards */
+  --story-rule: rgba(208, 20, 27, 0.3);
+}
+
+/* Tags: "HERITAGE · CRAFTS, ART AND ARCHITECTURE", "01 / WHERE THE DESIGNS COME FROM" */
+.collection-story .micro-identity-text {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 13px;
+  line-height: 1.3;
+  letter-spacing: 0.2em;
+  color: var(--story-tag);
+}
+.collection-story .heritage-micro-identity {
+  gap: 10px;
+}
+.collection-story .heritage-micro-identity::after {
+  content: '';
+  flex: 0 1 56px;
+  height: 1px;
+  background: var(--story-rule);
+}
+.collection-story .heritage-marker-text {
+  font-size: 12.5px;
+  letter-spacing: 0.18em;
+  color: var(--story-tag);
+}
+
+/* Intro under the big title: serif, the way a printed catalogue opens */
+.collection-story .heritage-hero-desc {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: clamp(1.05rem, 0.95rem + 0.45vw, 1.3rem);
+  line-height: 1.55;
+  letter-spacing: 0;
+  max-width: 34em;
+  color: var(--story-read-strong);
+  text-wrap: pretty;
+}
+
+.collection-story .heritage-section-title {
+  letter-spacing: 0.02em;
+  text-wrap: balance;
+}
+.collection-story .heritage-section-narrative {
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--story-read);
+  text-wrap: pretty;
+}
+
+/* Story cards: code as a small eyebrow above the name, then the caption */
+.collection-story .motif-specs {
+  gap: 10px;
+  padding: 20px 20px 22px;
+}
+.collection-story .motif-title-badge {
+  flex-direction: column-reverse;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 6px;
+}
+.collection-story .motif-code {
+  font-size: 11.5px;
+  line-height: 1.2;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--story-tag);
+}
+.collection-story .motif-name {
+  font-size: 23px;
+  line-height: 1.15;
+  letter-spacing: 0.02em;
+}
+.collection-story .motif-caption {
+  font-family: var(--font-body);
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: var(--story-read);
+  text-wrap: pretty;
+}
+
+/* Colour swatches under the designs */
+.collection-story .swatch-title {
+  letter-spacing: 0.14em;
+}
+.collection-story .swatch-info {
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.5;
+  letter-spacing: 0;
+  color: var(--story-read);
+}
+
+/* Main button: the deeper brand red keeps white text above 4.5:1, and 48px is a comfortable tap */
+.collection-story .btn-discover-protocols {
+  background: #D0141B;
+  min-height: 48px;
+  font-size: 13px;
+}
+.collection-story .btn-discover-protocols:focus-visible,
+.collection-story a:focus-visible,
+.collection-story button:focus-visible {
+  outline: 2px solid var(--story-tag);
+  outline-offset: 3px;
+}
+
+/* Product page and universe paragraphs: same reading face as above */
+.pdp-figma-desc,
+.universe-sub-desc {
+  font-family: var(--font-body);
+  font-size: 15.5px;
+  line-height: 1.65;
+  letter-spacing: 0;
+}
+.pdp-accordion-text {
+  font-family: var(--font-body);
+  font-size: 14.5px;
+  line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+  .collection-story .micro-identity-text { font-size: 11.5px; letter-spacing: 0.16em; }
+  .collection-story .heritage-micro-identity::after { display: none; }
+  .collection-story .heritage-hero-desc { font-size: 16px; line-height: 1.5; }
+  .collection-story .heritage-section-narrative { font-size: 15px; }
+  .collection-story .motif-specs { padding: 14px 12px 16px; gap: 8px; }
+  .collection-story .motif-code { font-size: 10.5px; letter-spacing: 0.12em; }
+  .collection-story .motif-name { font-size: 18px; }
+  .collection-story .motif-caption { font-size: 13px; line-height: 1.5; }
+}
+@media (max-width: 480px) {
+  .collection-story .heritage-hero-desc { font-size: 15px; }
+  .collection-story .motif-specs { padding: 12px 10px 14px; }
+  .collection-story .motif-name { font-size: 16px; }
+  .collection-story .motif-caption { font-size: 12.5px; }
+}
+
+/* ==========================================================================
+   SHOPPER PASS: buying buttons, WhatsApp, product page, checkout
+   Found by walking the site on a 390px phone in both themes.
+   ========================================================================== */
+
+/* Buying buttons (Add to bag, Place order, Send my order).
+   Before: white text on a bright red gradient (3–4:1), a dark disc with a dim red icon, heavy glow.
+   Now: deeper brand red that keeps white text above 5.5:1, larger label, a disc that reads at a glance. */
+.gr-btn.gr-btn {
+  background: linear-gradient(180deg, #D8161E 0%, #B8121A 100%) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22), 0 6px 16px -8px rgba(160, 14, 20, 0.7);
+  font-size: 0.9rem;
+  letter-spacing: 0.1em;
+  min-height: 56px;
+  padding: 0 calc(0.5rem + 40px) 0 0.5rem;   /* mirrors the 40px disc so the label stays centred */
+}
+.pdp-sticky .gr-btn.gr-btn { padding-right: 1.1rem; }
+@media (hover: hover) and (pointer: fine) {
+  .gr-btn.gr-btn:hover { filter: none; background: linear-gradient(180deg, #E01820 0%, #C0131B 100%) !important; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 10px 22px -10px rgba(160, 14, 20, 0.8); }
+}
+.gr-btn.gr-btn:focus-visible { outline: 2px solid var(--theme-text-primary); outline-offset: 3px; }
+.gr-btn.gr-btn[disabled] { filter: saturate(0.4); opacity: 0.7; cursor: not-allowed; }
+
+/* Bag disc: white with a red bag */
+.gr-disc {
+  width: 40px;
+  height: 40px;
+  background: #FFFFFF;
+  color: #B8121A;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+}
+.gr-disc::before { opacity: 0.55; }
+.gr-disc svg { width: 19px; height: 19px; }
+
+/* Buttons that open WhatsApp: the disc is WhatsApp's own green, so shoppers know where they're going */
+.bag-cta.gr-btn .gr-disc,
+.btn-checkout-whatsapp.gr-btn .gr-disc {
+  background: #25D366;
+  color: #FFFFFF;
+}
+.bag-cta.gr-btn .gr-disc::before,
+.btn-checkout-whatsapp.gr-btn .gr-disc::before { display: none; }
+.bag-cta.gr-btn .gr-disc svg,
+.btn-checkout-whatsapp.gr-btn .gr-disc svg { width: 21px; height: 21px; }
+
+/* Plain WhatsApp order button in the bag drawer: same deeper red, larger label */
+.btn-checkout-whatsapp:not(.gr-btn) {
+  background: #C0131B;
+  border-color: #C0131B;
+  font-size: 0.9rem;
+  letter-spacing: 0.1em;
+  min-height: 54px;
+  box-shadow: 0 6px 16px -8px rgba(160, 14, 20, 0.7);
+}
+.btn-checkout-whatsapp:not(.gr-btn) .btn-wa-icon { width: 20px; height: 20px; }
+
+/* Floating WhatsApp: WhatsApp green in both themes (it was a dark disc with a red glyph that
+   didn't read as WhatsApp), a little smaller on phones, and it slides away while scrolling down. */
+.floating-whatsapp-btn.gr-float,
+[data-theme="light"] .floating-whatsapp-btn.gr-float {
+  background: #25D366 !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 8px 20px -6px rgba(0, 0, 0, 0.45), 0 0 0 3px rgba(37, 211, 102, 0.18) !important;
+  transition: transform 260ms var(--ease-out), opacity 200ms var(--ease-out);
+}
+.floating-whatsapp-btn.gr-float svg,
+[data-theme="light"] .floating-whatsapp-btn.gr-float svg { color: #FFFFFF !important; fill: currentColor !important; }
+.gr-float::before, [data-theme="light"] .gr-float::before { display: none; }
+.floating-whatsapp-btn.is-tucked { transform: translateY(140%); opacity: 0; pointer-events: none; }
+.floating-whatsapp-btn:focus-visible { outline: 2px solid var(--theme-text-primary); outline-offset: 4px; }
+@media (hover: hover) and (pointer: fine) {
+  .floating-whatsapp-btn.gr-float:hover,
+  [data-theme="light"] .floating-whatsapp-btn.gr-float:hover { background: #1EBE5A !important; transform: translateY(-2px); }
+  .floating-whatsapp-btn.gr-float:hover svg { filter: none !important; transform: none; color: #FFFFFF !important; fill: #FFFFFF !important; }
+}
+@media (max-width: 760px) {
+  .floating-whatsapp-btn { width: 52px; height: 52px; right: 16px; bottom: 16px; }
+  .floating-whatsapp-btn svg { width: 26px; height: 26px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .floating-whatsapp-btn.is-tucked { transform: none; }
+}
+
+/* Product page: labels a shopper has to read before buying */
+.pdp-size-label { font-size: 13px; line-height: 1.3; letter-spacing: 0.06em; }
+.pdp-size-guide-btn.pdp-fit-btn {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 0 14px;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-size: 12.5px;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+}
+.pdp-size-header { align-items: center; }
+.pdp-size-box { height: 48px; font-size: 14px; }
+.pdp-size-box.active { background: #C0131B; border-color: #C0131B; }
+.pdp-cta-subtext { font-size: 12px; line-height: 1.5; color: var(--theme-text-muted); letter-spacing: 0.02em; }
+.pdp-accordion-header { min-height: 44px; }
+.pdp-accordion-title { font-size: 14px; letter-spacing: 0.06em; }
+
+/* Checkout: 16px inputs stop iPhones zooming in on every tap; labels and errors readable */
+.checkout-input,
+[data-theme="light"] .checkout-input {
+  font-family: var(--font-body);
+  font-size: 16px;
+  letter-spacing: 0;
+  min-height: 48px;
+}
+.checkout-input::placeholder { color: var(--theme-text-subtle); opacity: 1; }
+[data-theme="light"] .checkout-input::placeholder { color: #8A8577; }
+.checkout-label { font-size: 0.8rem; letter-spacing: 0.08em; }
+.field-error-msg { font-family: var(--font-body); font-size: 0.85rem; }
+.policy-agreement-text { font-size: 0.9rem; }
+
+/* Bag: trust lines and the sticky total */
+.bag-trust li { font-size: 0.85rem; }
+@media (max-width: 860px) {
+  .bag-sticky div span { font-size: 0.8rem; }
+}
+
+/* Collection hero: the tag sat straight on a busy photo; give it a quiet backing */
+.collection-story .heritage-hero-section .heritage-micro-identity {
+  align-self: flex-start;
+  padding: 6px 12px 6px 10px;
+  border-radius: 999px;
+  background: rgba(10, 10, 10, 0.62);
+}
+[data-theme="light"] .collection-story .heritage-hero-section .heritage-micro-identity { background: rgba(245, 236, 213, 0.88); }
+.collection-story .heritage-hero-section .heritage-micro-identity::after { display: none; }
+
+/* ==========================================================================
+   SHOPPER PASS 2: promises under Add to bag, readable labels, the flag
+   ========================================================================== */
+
+/* Delivery / exchange / payment promises right under the Add to bag button */
+.pdp-promise {
+  list-style: none;
+  width: 100%;
+  margin: 6px 0 0;
+  padding: 14px 16px;
+  display: grid;
+  gap: 12px;
+  border: 1px solid var(--theme-border-subtle);
+  border-radius: 10px;
+  background: var(--theme-bg-card);
+}
+.pdp-promise li {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--theme-text-muted);
+}
+.pdp-promise svg { margin-top: 2px; color: var(--theme-accent, var(--brand-red)); }
+.pdp-promise b { display: block; font-weight: 600; color: var(--theme-text-primary); }
+.pdp-promise a { color: var(--theme-text-primary); text-decoration: underline; text-underline-offset: 2px; }
+.pdp-promise a:focus-visible { outline: 2px solid var(--theme-accent, var(--brand-red)); outline-offset: 2px; }
+
+/* Labels shoppers actually read: nothing under ~11px, a little less letter-spacing */
+.announcement-text,
+.sub-marquee-content { font-size: 0.8rem; letter-spacing: 0.12em; }
+.announcement-wa-box { font-size: 0.74rem; }
+.figma-hero-tag,
+.figma-hero-section .figma-hero-tag { font-size: 0.8rem; letter-spacing: 0.14em; }
+.figma-tag { font-size: 0.8rem; letter-spacing: 0.14em; }
+.hero-ring-label { font-size: 0.76rem; }
+.pcard-tag { font-size: 0.68rem; letter-spacing: 0.08em; }
+.price-tag { font-size: 0.7rem; }
+.pcard-sub { font-size: 0.8rem; }
+.lab-meta { font-size: 0.74rem; }
+.lab-soon-tag { font-size: 0.7rem; }
+.canon-eyebrow { font-size: 0.8rem; }
+.canon-tab-pill { font-size: 0.78rem; min-height: 40px; }
+.canon-index-status { font-size: 0.8rem; }
+.canon-select { font-size: 0.8rem; }
+.pdp-eyebrow-text,
+.pdp-section-eyebrow-text,
+.pdp-section-header-tag { font-size: 12.5px; letter-spacing: 0.1em; }
+.bag-kicker { font-size: 0.78rem; }
+.contact-label { font-size: 0.76rem; }
+@media (max-width: 760px) {
+  /* iPhones zoom into any form control under 16px */
+  .canon-select { font-size: 16px; letter-spacing: 0.04em; }
+}
+
+/* The 🇮🇳 in the announcement bar and hero tag: use the flag font first (it only covers the flag) */
+.announcement-text,
+.figma-hero-tag,
+.sub-marquee-content { font-family: 'Noto Color Emoji', var(--font-mono); }
+
+/* Checkout: how the order works, before anything is sent */
+.checkout-steps {
+  list-style: none;
+  counter-reset: step;
+  margin: 0.25rem 0 1.5rem;
+  padding: 0;
+  display: grid;
+  gap: 0;
+}
+.checkout-steps li {
+  counter-increment: step;
+  position: relative;
+  display: grid;
+  grid-template-columns: 26px minmax(0, 1fr);
+  column-gap: 12px;
+  padding-bottom: 12px;
+  font-family: var(--font-body);
+  line-height: 1.35;
+}
+.checkout-steps li:last-child { padding-bottom: 0; }
+.checkout-steps li::before {
+  content: counter(step);
+  grid-row: span 2;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--theme-text-muted);
+  border: 1px solid var(--theme-border-subtle);
+  background: var(--theme-bg-card);
+  position: relative;
+  z-index: 1;
+}
+/* the line joining the numbers */
+.checkout-steps li:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: 12.5px;
+  top: 26px;
+  bottom: 0;
+  width: 1px;
+  background: var(--theme-border-subtle);
+}
+.checkout-steps b { font-size: 0.95rem; font-weight: 600; color: var(--theme-text-primary); }
+.checkout-steps span { font-size: 0.85rem; color: var(--theme-text-muted); }
+.checkout-steps li.is-now::before { background: #C0131B; border-color: #C0131B; color: #FFFFFF; }
+.checkout-intro { font-size: 0.95rem; }
+
+/* ==========================================================================
+   READABILITY FLOOR
+   Measured on a 390px phone: every visible label below 12px, on every page.
+   Labels (tags, codes, kickers) go to 12–13px; lines people read go to 13–14px.
+   "body" in front lifts these over older rules of the same weight, including phone overrides.
+   ========================================================================== */
+body .social-label,
+body .footer-copy,
+body .wa-box-text,
+body .reel-all,
+body .lab-meta,
+body .archive-cadence,
+body .size-spec-section-num,
+body .pillar-num,
+body .quote-author-text,
+body .about-geo-coordinates .geo-text,
+body .universe-callout-badge,
+body .swatch-title,
+body .lb2-eyebrow,
+body .lb2-kicker,
+body .lb2-sign,
+body .manifesto-tag,
+body .spec-label,
+body .pillar-metric { font-size: 12.5px; letter-spacing: 0.1em; }
+
+body .pcard-tag,
+body .lb2-card-tag,
+body .price-tag,
+body .care-chip { font-size: 12px; letter-spacing: 0.06em; }
+
+body .archive-card-desc,
+body .pdp-gateway-sub,
+body .coordinates-label { font-size: 12.5px; letter-spacing: 0.08em; }
+
+body .lb2-fig figcaption { font-size: 13px; }
+body .lb2-fig figcaption b { font-size: 13px; }
+
+/* Collection story tags and card codes, all widths (the phone rules had taken them to 10.5px) */
+body .collection-story .micro-identity-text { font-size: 12.5px; }
+body .collection-story .motif-code { font-size: 12px; letter-spacing: 0.12em; }
+
+/* Button labels */
+body .btn-universe-callout span,
+body .figma-hero-section .figma-hero-cta-wrap > a { font-size: 12.5px; }
+.footer-copy { line-height: 1.6; }
+/* Hero: "ORDER ON WHATSAPP" was cut off on most phones; the short "WHATSAPP" label fits up to 430px wide */
+@media (max-width: 430px) { .figma-hero-section .cta-long { display: none; } }
+
+/* Collection pages on phones */
+@media (max-width: 768px) {
+  /* Three story cards: the first one wide, the other two side by side (was one tall card per row) */
+  .collection-story .heritage-motifs-row.cols-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .collection-story .heritage-motifs-row.cols-3 > :first-child { grid-column: span 2; }
+  .collection-story .heritage-motifs-row.cols-3 > :first-child .motif-image-box { aspect-ratio: 3 / 2; }
+}
+@media (max-width: 480px) {
+  /* Long names like MYTHOLOGY touched the screen edge at 3.4rem */
+  body .collection-story .heritage-hero-title { font-size: clamp(2.5rem, 12.5vw, 3.4rem); }
+}
+/* A long tag can wrap to two lines; a softer corner keeps the backing tidy when it does */
+.collection-story .heritage-hero-section .heritage-micro-identity { border-radius: 14px; }
+
+/* "Added to bag" notice: it sat bottom-right, on top of the bag's total and order button.
+   Computers: bottom-left, clear of the bag drawer and the WhatsApp button, sliding in from the left.
+   Phones: drops in under the header like a phone notification, clear of the sticky buy bars. */
+.cart-toast {
+  right: auto;
+  left: 2rem;
+  bottom: 2rem;
+  transform: translateX(-24px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55);
+}
+.cart-toast.is-visible { transform: translateX(0); }
+/* Light theme: a cream card instead of the black one */
+[data-theme="light"] .cart-toast {
+  background: var(--theme-bg-card);
+  border-color: rgba(192, 19, 27, 0.35);
+  box-shadow: 0 14px 34px rgba(60, 40, 10, 0.18);
+}
+[data-theme="light"] .cart-toast-title { color: var(--theme-text-primary); }
+[data-theme="light"] .cart-toast-meta { color: var(--theme-text-muted); }
+[data-theme="light"] .cart-toast-thumb { border-color: var(--theme-border-subtle); background: #fff; }
+.cart-toast-tag { font-size: 12px; letter-spacing: 0.14em; color: #FF3B42; }
+[data-theme="light"] .cart-toast-tag { color: #B8121A; }
+.cart-toast-meta { font-size: 13px; }
+.cart-toast-btn { background: #C0131B; min-height: 40px; padding: 0 1rem; border-radius: 999px; font-size: 12.5px; }
+.cart-toast-close { width: 40px; height: 40px; display: grid; place-items: center; padding: 0; font-size: 1.5rem; border-radius: 50%; }
+
+/* Phones: a notification card under the pinned header (64px header + 34px announcement bar) */
+@media (max-width: 760px) {
+  .cart-toast {
+    top: calc(106px + env(safe-area-inset-top, 0px));
+    bottom: auto;
+    left: 12px;
+    right: 12px;
+    max-width: none;
+    gap: 0.75rem;
+    padding: 10px 8px 10px 10px;
+    border-radius: 14px;
+    transform: translateY(-16px);
+    touch-action: pan-x;   /* the vertical swipe dismisses it (js/store.js) */
+  }
+  body.hide-announcement-bar .cart-toast { top: calc(72px + env(safe-area-inset-top, 0px)); }
+  .cart-toast.is-visible { transform: translateY(0); }
+  .cart-toast.is-swiping { transition: none; }
+  .cart-toast-thumb { width: 44px; height: 54px; border-radius: 8px; }
+  .cart-toast-body { gap: 2px; }
+  /* Full name on up to two lines instead of "HARA HARA MAH…" */
+  .cart-toast-title {
+    font-size: 1rem !important;
+    letter-spacing: 0.04em !important;
+    line-height: 1.2 !important;
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+  .cart-toast-actions { gap: 0; margin-left: 0; }
+  /* The bag drawer fills the phone screen: no need for the notice on top of it */
+  body:has(.cart-drawer.is-open) .cart-toast { opacity: 0; pointer-events: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cart-toast, .cart-toast.is-visible { transform: none; }
+}
