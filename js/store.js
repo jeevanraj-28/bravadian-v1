@@ -309,11 +309,12 @@ Thank you.`,
     StoreState.spotTimers = [];
     if (!soft) window.scrollTo({ top: 0, behavior: 'smooth' });
 
-    // Hide top announcement marquee bar on Heritage collection chapter page (matches Figma full-bleed hero),
-    // or everywhere when the admin has switched it off
-    const isHeritage = (hash === '#/collections/heritage' || hash === '#/heritage');
+    // Collection story pages (#/collections/<slug>) have a full-bleed banner, so the announcement bar
+    // is hidden there; it is also hidden everywhere when the admin has switched it off
+    const storySlug = hash === '#/heritage' ? 'heritage' : (hash.match(/^#\/collections\/([a-z-]+)\/?$/) || [])[1];
+    const isStory = !!(storySlug && COLLECTION_STORIES[storySlug]);
     const announcementOn = applyAnnouncementBar();
-    document.body.classList.toggle('hide-announcement-bar', isHeritage || !announcementOn);
+    document.body.classList.toggle('hide-announcement-bar', isStory || !announcementOn);
 
     // Close any open drawers/modals on navigation
     if (!soft) {
@@ -327,9 +328,10 @@ Thank you.`,
       renderHomeView();
     } else if (hash === '#/collections' || hash === '#/collections/' || hash === '#/universe-wall') {
       renderUniverseWallView();
-    } else if (hash === '#/collections/heritage' || hash === '#/heritage') {
-      renderHeritageChapterView();
-    } else if (hash.startsWith('#/collections/') || hash === '#/shop') {
+    } else if (isStory) {
+      renderCollectionStoryView(storySlug);
+    } else if (hash.startsWith('#/collections/') || hash === '#/shop' || hash.startsWith('#/shop/')) {
+      // Product grid: #/shop, #/shop/<slug>, and #/collections/all
       const parts = hash.split('/');
       let colSlug = parts[2] || 'all';
       // 5 Official Categories + ALL
@@ -1483,7 +1485,7 @@ Thank you.`,
           <div class="lab-grid">
             ${cols.map(c => `
             <article class="lab-card ${c.live ? '' : 'is-soon'}" data-live="${c.live}">
-              <a ${c.live ? `href="#/collections/${c.slug}"` : `href="javascript:void(0)" data-notify="${c.name}"`} class="lab-card-media" tabindex="-1" aria-hidden="true">
+              <a href="#/collections/${c.slug}" class="lab-card-media" tabindex="-1" aria-hidden="true">
                 <img src="${c.image}" alt="" loading="lazy">
                 ${c.live ? '' : '<span class="lab-soon-tag">COMING SOON</span>'}
               </a>
@@ -1493,7 +1495,7 @@ Thank you.`,
                 <p>${c.description || ''}</p>
                 ${c.live
                   ? `<a href="#/collections/${c.slug}" class="lab-pill">See the designs ${arrow}</a>`
-                  : `<button type="button" class="lab-pill" data-notify="${c.name}">Notify me on WhatsApp</button>`}
+                  : `<a href="#/collections/${c.slug}" class="lab-pill">See what&rsquo;s coming ${arrow}</a>`}
               </div>
             </article>`).join('')}
           </div>
@@ -1569,59 +1571,152 @@ Thank you.`,
   }
 
   /* --------------------------------------------------------------------------
-     1.6 HERITAGE CHAPTER VIEW (#/collections/heritage)
-     Matches Figma Auto-Layout Spec for collection-heritage
+     1.6 COLLECTION STORY PAGES (#/collections/<slug>)
+     One layout for every collection: banner, where the designs come from, the designs, the colours.
+     The filtered product grid lives at #/shop/<slug>.
      -------------------------------------------------------------------------- */
-  function renderHeritageChapterView() {
-    const settings = window.BravadianDB.getSettings();
-    const allProducts = window.BravadianDB.getProducts();
+  const COLLECTION_STORIES = {
+    heritage: {
+      tag: 'HERITAGE · INDIA LIVES IN ITS CRAFTS',
+      intro: 'Folk art, textile crafts and the symbols of India, redrawn as original prints on everyday tees. One idea runs through all of them: wear your roots.',
+      storyTitle: 'THE STORIES WE PRINT',
+      storyNote: 'Indian Craft Atlas maps the country through its crafts. Bharat Spirit brings four national symbols into one composition. These are the worlds behind both.',
+      stories: [
+        { img: '/images/heritage/story-folk-art.webp', fallback: '/images/products/craft-atlas/back-print.webp', alt: 'Madhubani and Warli folk painting', name: 'FOLK ART', code: 'CRAFT ATLAS', caption: 'Madhubani, Warli, Gond and Pattachitra. The painted traditions behind the Craft Atlas elephant.' },
+        { img: '/images/heritage/story-textiles.webp', fallback: '/images/products/craft-atlas/back-print.webp', alt: 'Kalamkari and Ikat textiles', name: 'TEXTILE CRAFTS', code: 'CRAFT ATLAS', caption: 'Kalamkari, Ikat, Phad and Pichwai. Patterns carried from loom and cloth into print.' },
+        { img: '/images/heritage/story-symbols.webp', fallback: '/images/products/bharat-spirit/back-print.webp', alt: 'Peacock, tiger, lotus and elephant', name: 'NATIONAL SYMBOLS', code: 'BHARAT SPIRIT', caption: 'Peacock, tiger, lotus and elephant. The four symbols of India behind Bharat Spirit.' },
+        { img: '/images/heritage/story-atlas.webp', fallback: '/images/products/craft-atlas/back-print.webp', alt: 'Indian Craft Atlas elephant artwork', name: 'THE ATLAS PRINT', code: 'CRAFT ATLAS', caption: 'People, patterns, places, purpose. A dozen crafts from across India, drawn onto one elephant.' }
+      ]
+    },
+    mythology: {
+      photo: '/images/collections/mythology.webp',
+      tag: 'MYTHOLOGY · THE STORIES WE GREW UP HEARING',
+      intro: 'Shiva, Ganesha, Garuda and the old stories told at home, redrawn bold on everyday tees. Wear the legends you grew up with.',
+      storyTitle: 'THE LEGENDS WE PRINT',
+      storyNote: 'Every design starts from one idea in the story: a chant, a symbol, a form of the god. This is what each print carries.',
+      stories: [
+        { img: '/images/products/trinetra/preview.webp', alt: 'Trinetra artwork: the third eye over the Himalaya', name: 'THE THIRD EYE', code: 'TRINETRA', caption: 'Shiva’s third eye sees past, present and future at once. A reminder to look past the obvious.' },
+        { img: '/images/products/hara-hara-mahadeva/black-closeup.webp', alt: 'Om Namah Shivaya printed down the chest', name: 'THE FIVE SYLLABLES', code: 'HARA HARA MAHADEVA', caption: 'Om Namah Shivaya, the five-syllable chant, running down the left chest like a quiet prayer.' },
+        { img: '/images/products/ganesha/preview.webp', alt: 'Ganesha seated before a red sun', name: 'THE NEW BEGINNING', code: 'GANESHA', caption: 'Vakratunda, the curved-trunk Ganesha, remembered before every new start.' },
+        { img: '/images/products/hara-hara-mahadeva/black-model2.webp', alt: 'Hara Hara Mahadeva tee worn', name: 'WORN CLOSE', code: 'HARA HARA MAHADEVA', caption: 'A chant over the heart and a plain back. A quiet way to carry it every day.' }
+      ]
+    },
+    'street-culture': {
+      photo: '/images/collections/street-culture.webp',
+      tag: 'STREET CULTURE · WHAT THE CITY SAYS',
+      intro: 'Loud type, painted walls and the energy of Indian streets, printed big. For the days you want to be heard.',
+      storyTitle: 'FROM THE STREET',
+      storyNote: 'Indian cities talk through their walls: shop signs, posters, hand-painted letters. These designs talk back.',
+      stories: [
+        { img: '/images/products/born-to-rise/black-model.webp', alt: 'Born to Rise tee worn on a city street', name: 'RISE AGAIN', code: 'BORN TO RISE', caption: 'An eagle rises against the wind, not away from it. For the days you start again.' },
+        { img: '/images/products/born-to-rise/black-closeup.webp', alt: 'Close-up of the red-winged eagle print', name: 'THE PRINT', code: 'BORN TO RISE', caption: 'Blazing red wings, printed large across the back in full colour.' },
+        { img: '/images/products/born-to-rise/white-model.webp', alt: 'Born to Rise in white', name: 'TWO WAYS TO WEAR', code: 'BORN TO RISE', caption: 'Black or white. The same eagle, a different mood.' },
+        { img: '/images/collections/street-culture.webp', alt: 'Painted city wall at night', name: 'CITY WALLS', code: 'COMING SOON', caption: 'Street typography inspired by the painted walls of Indian cities. Cyber Rebel is on its way.' }
+      ]
+    },
+    anime: {
+      photo: '/images/collections/anime.webp',
+      tag: 'ANIME · DRAWN WITH AN INDIAN HEART',
+      intro: 'Anime and manga-style art that meets the legends of India. The first designs are on their way.',
+      storyTitle: 'WHAT’S COMING',
+      storyNote: 'Bold linework, big colour and characters with roots in Indian legend. Tap notify and we will message you on WhatsApp the day they drop.',
+      stories: [
+        { name: 'MANGA LINEWORK', code: 'THE STYLE', caption: 'Clean ink lines and bold colour, the way your favourite panels are drawn.' },
+        { name: 'INDIAN LEGENDS', code: 'THE STORY', caption: 'Characters from old stories, like the nine-tailed fox, drawn as anime heroes.' },
+        { name: 'SAME HEAVY TEE', code: 'THE FEEL', caption: 'Oversized 240 GSM cotton, washed soft, like every Bravadian tee.' }
+      ]
+    },
+    minimal: {
+      photo: '/images/collections/minimal.webp',
+      tag: 'MINIMAL · QUIET, EVERY DAY',
+      intro: 'Clean designs, small symbols and plain tees that go with everything. The first designs are on their way.',
+      storyTitle: 'WHAT’S COMING',
+      storyNote: 'Less print, same quality. Tap notify and we will message you on WhatsApp the day they drop.',
+      stories: [
+        { name: 'THE ESSENTIAL', code: 'ESSENTIAL 240', caption: 'No graphics, just a great tee: thick rib collar, dropped shoulders, relaxed fit.' },
+        { name: 'SAME HEAVY COTTON', code: 'THE FEEL', caption: '240 GSM French Terry, washed soft from the first wear.' },
+        { name: 'MADE TO LAST', code: 'EVERY DAY', caption: 'The tee you reach for every morning, made to outlast the trend.' }
+      ]
+    }
+  };
 
-    // Dynamically map heritage products from shop database (Supabase synced / local)
-    const heritageProducts = allProducts.filter(p => 
-      p.collection === 'heritage' || (p.tags && p.tags.includes('heritage'))
-    );
-    const displayProducts = heritageProducts.filter(p => !p.isComingSoon).slice(0, 3);
-    const storyCard = (src, fallback, alt, name, code, caption) => `
+  const COLOUR_NOTES = {
+    black: 'The boldest backdrop. Makes every colour in the print glow.',
+    red: 'Festive and loud. The colour of celebration.',
+    'royal blue': 'Rich and confident. Pairs well with the warm tones of the art.',
+    white: 'Clean and bright. The print reads like a painted canvas.',
+    ivory: 'Soft and warm. An easy, everyday base for the print.'
+  };
+
+  function renderCollectionStoryView(slug) {
+    const story = COLLECTION_STORIES[slug];
+    const collection = window.BravadianDB.getCollections().find(c => c.slug === slug) || { name: slug.replace(/-/g, ' ').toUpperCase() };
+    const inCollection = window.BravadianDB.getProducts().filter(p => p.collection === slug);
+    const live = inCollection.filter(p => !p.isComingSoon);
+    const soon = inCollection.filter(p => p.isComingSoon);
+    const shown = live.length ? live : soon;
+    const colours = [...new Set(live.flatMap(p => p.colors || []))];
+    const title = collection.name;
+    const esc = escapeHTML;
+
+    const storyCard = (s) => s.img ? `
               <article class="motif-card">
                 <div class="motif-image-box">
-                  <img src="${src}" onerror="this.onerror=null;this.src='${fallback}'" alt="${alt}" class="motif-img" loading="lazy" />
+                  <img src="${s.img}" ${s.fallback ? `onerror="this.onerror=null;this.src='${s.fallback}'"` : ''} alt="${esc(s.alt || s.name)}" class="motif-img" loading="lazy" />
                 </div>
                 <div class="motif-specs">
                   <div class="motif-title-badge">
-                    <h3 class="motif-name">${name}</h3>
-                    <span class="motif-code">${code}</span>
+                    <h3 class="motif-name">${s.name}</h3>
+                    <span class="motif-code">${s.code}</span>
                   </div>
-                  <p class="motif-caption">${caption}</p>
+                  <p class="motif-caption">${s.caption}</p>
+                </div>
+              </article>` : `
+              <article class="motif-card is-text">
+                <div class="motif-specs">
+                  <span class="motif-code">${s.code}</span>
+                  <h3 class="motif-name">${s.name}</h3>
+                  <p class="motif-caption">${s.caption}</p>
                 </div>
               </article>`;
+    const marker = (n, label) => `
+              <div class="heritage-marker-row">
+                <span class="heritage-line-indicator" aria-hidden="true"></span>
+                <span class="heritage-marker-text">${n} / ${label}</span>
+              </div>`;
+    const header = (n, label, heading, note) => `
+            <div class="heritage-section-header">
+              ${marker(n, label)}
+              <div class="heritage-header-flex">
+                <h2 class="heritage-section-title">${heading}</h2>
+                <div class="heritage-desc-wrapper">
+                  <p class="heritage-section-narrative">${note}</p>
+                </div>
+              </div>
+            </div>`;
+    const list = (arr) => arr.length < 2 ? arr.join('') : `${arr.slice(0, -1).join(', ')} and ${arr[arr.length - 1]}`;
+    const n = (k) => `0${k}`;
+    let step = 1;
 
     mainContainer.innerHTML = `
-      <div class="heritage-chapter-page">
-        <!-- FULL-WIDTH HERO SECTION (Edge-to-Edge with Zero Side Gaps) -->
+      <div class="heritage-chapter-page collection-story" data-collection="${slug}">
         <section class="heritage-hero-section">
-          <div class="heritage-hero-backdrop" role="img" aria-label="Carved temple stone relief"></div>
+          <div class="heritage-hero-backdrop ${story.photo ? 'has-photo' : ''}" ${story.photo ? `style="--hero-photo: url('${story.photo}')"` : ''} role="img" aria-label="${esc(title)} collection"></div>
           <div class="heritage-hero-scrim" aria-hidden="true"></div>
-
           <div class="heritage-hero-inner">
             <div class="heritage-hero-foreground">
-              <!-- Micro-Identity -->
               <div class="heritage-micro-identity">
                 <span class="amber-dot-square" aria-hidden="true"></span>
-                <span class="micro-identity-text">HERITAGE · INDIA LIVES IN ITS CRAFTS</span>
+                <span class="micro-identity-text">${story.tag}</span>
               </div>
-
-              <!-- Titles & CTA Row -->
               <div class="heritage-titles-cta-row">
                 <div class="heritage-headline-group">
-                  <h1 class="heritage-hero-title">HERITAGE</h1>
-                  <p class="heritage-hero-desc">
-                    Folk art, textile crafts and the symbols of India, redrawn as original prints on everyday tees. One idea runs through all of them: wear your roots.
-                  </p>
+                  <h1 class="heritage-hero-title">${esc(title)}</h1>
+                  <p class="heritage-hero-desc">${story.intro}</p>
                 </div>
-
                 <div class="heritage-cta-wrapper">
-                  <button type="button" class="btn-discover-protocols" onclick="document.getElementById('heritageGarmentsSection').scrollIntoView({ behavior: 'smooth' })">
-                    SEE THE DESIGNS
+                  <button type="button" class="btn-discover-protocols" onclick="document.getElementById('collectionDesigns').scrollIntoView({ behavior: 'smooth' })">
+                    ${live.length ? 'SEE THE DESIGNS' : 'SEE WHAT’S COMING'}
                   </button>
                 </div>
               </div>
@@ -1629,119 +1724,53 @@ Thank you.`,
           </div>
         </section>
 
-        <!-- MAIN VIEWPORT CONTAINER (1280px Centered) -->
         <div class="heritage-viewport-container">
-          <!-- SECTION 2: 01 / DECODED CIVILIZATIONAL MOTIFS -->
-          <section class="heritage-section heritage-motifs-section" id="heritageMotifsSection">
-            <div class="heritage-section-header">
-              <div class="heritage-marker-row">
-                <span class="heritage-line-indicator" aria-hidden="true"></span>
-                <span class="heritage-marker-text">01 / WHERE THE DESIGNS COME FROM
-              </div>
-
-              <div class="heritage-header-flex">
-                <h2 class="heritage-section-title">THE STORIES WE PRINT</h2>
-                <div class="heritage-desc-wrapper">
-                  <p class="heritage-section-narrative">
-                    Indian Craft Atlas maps the country through its crafts. Bharat Spirit brings four national symbols into one composition. These are the worlds behind both.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <!-- Story Cards Row -->
-            <div class="heritage-motifs-row">
-              ${storyCard('/images/heritage/story-folk-art.webp', '/images/products/craft-atlas/back-print.webp', 'Madhubani and Warli folk painting', 'FOLK ART', 'CRAFT ATLAS', 'Madhubani, Warli, Gond and Pattachitra. The painted traditions behind the Craft Atlas elephant.')}
-              ${storyCard('/images/heritage/story-textiles.webp', '/images/products/craft-atlas/back-print.webp', 'Kalamkari and Ikat textiles', 'TEXTILE CRAFTS', 'CRAFT ATLAS', 'Kalamkari, Ikat, Phad and Pichwai. Patterns carried from loom and cloth into print.')}
-              ${storyCard('/images/heritage/story-symbols.webp', '/images/products/bharat-spirit/back-print.webp', 'Peacock, tiger, lotus and elephant', 'NATIONAL SYMBOLS', 'BHARAT SPIRIT', 'Peacock, tiger, lotus and elephant. The four symbols of India behind Bharat Spirit.')}
-              ${storyCard('/images/heritage/story-atlas.webp', '/images/products/craft-atlas/back-print.webp', 'Indian Craft Atlas elephant artwork', 'THE ATLAS PRINT', 'CRAFT ATLAS', 'People, patterns, places, purpose. A dozen crafts from across India, drawn onto one elephant.')}
+          <section class="heritage-section heritage-motifs-section">
+            ${header(n(step++), 'WHERE THE DESIGNS COME FROM', story.storyTitle, story.storyNote)}
+            <div class="heritage-motifs-row cols-${Math.min(story.stories.length, 4)}">
+              ${story.stories.map(storyCard).join('')}
             </div>
           </section>
 
-          <!-- SECTION 3: 02 / THE DESIGNS -->
-          <section class="heritage-section heritage-garments-section" id="heritageGarmentsSection">
-            <div class="heritage-section-header">
-              <div class="heritage-marker-row">
-                <span class="heritage-line-indicator" aria-hidden="true"></span>
-                <span class="heritage-marker-text">02 / THE DESIGNS
-              </div>
-
-              <div class="heritage-header-flex">
-                <h2 class="heritage-section-title">THE HERITAGE TEES</h2>
-                <div class="heritage-desc-wrapper">
-                  <p class="heritage-section-narrative">
-                    Heavy, oversized cotton tees with large, full-colour back prints. Free delivery across India.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <!-- Products Row (Mapped Dynamically from Shop DB) -->
+          <section class="heritage-section heritage-garments-section" id="collectionDesigns">
+            ${header(n(step++), live.length ? 'THE DESIGNS' : 'COMING SOON',
+              live.length ? `THE ${esc(title)} TEES` : 'FIRST DESIGNS, ON THEIR WAY',
+              live.length
+                ? `${live.length} ${live.length === 1 ? 'design' : 'designs'} available now${soon.length ? `, ${soon.length} more coming soon` : ''}. Heavy, oversized cotton tees with full-colour prints. Free delivery across India.`
+                : 'Tap a design to be told on WhatsApp the day it drops.')}
+            ${shown.length ? `
             <div class="pgrid">
-              ${displayProducts.map((p, idx) => renderProductCardHTML(p, idx)).join('')}
+              ${shown.map((p, idx) => renderProductCardHTML(p, idx)).join('')}
+            </div>` : ''}
+            <div class="collection-story-actions">
+              ${live.length
+                ? `<a href="#/shop/${slug}" class="btn-canon-load-more">SHOP ALL ${esc(title)} TEES &rarr;</a>`
+                : `<button type="button" class="btn-canon-load-more" data-notify="${esc(title)}">NOTIFY ME ON WHATSAPP</button>`}
+              <a href="#/collections" class="collection-story-link">See all five collections</a>
             </div>
           </section>
 
-          <!-- SECTION 4: 03 / COLOURS -->
+          ${colours.length ? `
           <section class="heritage-section heritage-swatches-section">
-            <div class="heritage-section-header">
-              <div class="heritage-marker-row">
-                <span class="heritage-line-indicator" aria-hidden="true"></span>
-                <span class="heritage-marker-text">03 / COLOURS
-              </div>
-
-              <div class="heritage-header-flex">
-                <h2 class="heritage-section-title">FOUR COLOURS, EVERY DESIGN</h2>
-                <div class="heritage-desc-wrapper">
-                  <p class="heritage-section-narrative">
-                    Both heritage designs come in black, red, royal blue and white. The print stays the same; the mood changes with the colour.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <!-- Swatch Strip (4 Official Colorways) -->
+            ${header(n(step++), 'COLOURS', colours.length === 1 ? 'ONE COLOUR' : `${['', '', 'TWO', 'THREE', 'FOUR', 'FIVE', 'SIX'][colours.length] || colours.length} COLOURS`,
+              `${live.length === 1 ? 'This design comes' : 'The designs here come'} in ${list(colours.map(c => c.toLowerCase()))}. The print stays the same; the mood changes with the colour.`)}
             <div class="heritage-swatches-row">
-              <!-- Swatch 1: OBSIDIAN BLACK -->
+              ${colours.map(c => `
               <div class="swatch-card">
-                <div class="swatch-color-block" style="background-color: #111116;"></div>
+                <div class="swatch-color-block" style="background-color: ${colourHex(c)};"></div>
                 <div class="swatch-details">
-                  <span class="swatch-title">BLACK</span>
-                  <span class="swatch-info">The boldest backdrop. Makes every colour in the print glow.</span>
+                  <span class="swatch-title">${esc(c.toUpperCase())}</span>
+                  <span class="swatch-info">${COLOUR_NOTES[c.toLowerCase()] || ''}</span>
                 </div>
-              </div>
-
-              <!-- Swatch 3: SACRED RED -->
-              <div class="swatch-card">
-                <div class="swatch-color-block" style="background-color: #C81D25;"></div>
-                <div class="swatch-details">
-                  <span class="swatch-title">RED</span>
-                  <span class="swatch-info">Festive and loud. The colour of celebration.</span>
-                </div>
-              </div>
-
-              <!-- Swatch 4: ROYAL SAPPHIRE BLUE -->
-              <div class="swatch-card">
-                <div class="swatch-color-block" style="background-color: #1852B8;"></div>
-                <div class="swatch-details">
-                  <span class="swatch-title">ROYAL BLUE</span>
-                  <span class="swatch-info">Rich and confident. Pairs well with the warm tones of the art.</span>
-                </div>
-              </div>
-
-              <!-- Swatch 5: CHALK WHITE -->
-              <div class="swatch-card">
-                <div class="swatch-color-block" style="background-color: #F7F7FA;"></div>
-                <div class="swatch-details">
-                  <span class="swatch-title">WHITE</span>
-                  <span class="swatch-info">Clean and bright. The print reads like a painted canvas.</span>
-                </div>
-              </div>
+              </div>`).join('')}
             </div>
-          </section>
+          </section>` : ''}
         </div>
       </div>
     `;
+
+    bindProductCardActions();
+    mainContainer.querySelectorAll('.collection-story-actions [data-notify]').forEach(el => el.addEventListener('click', () => window.BravadianStore.requestVipEmbargo(el.dataset.notify)));
   }
 
   /* --------------------------------------------------------------------------
@@ -1776,11 +1805,11 @@ Thank you.`,
         <header class="canon-header-block">
           <div class="canon-eyebrow">
             <span class="eyebrow-dash">—</span>
-            <span class="eyebrow-text">SHOP · ALL TEES</span>
+            <span class="eyebrow-text">SHOP · ${colSlug === 'all' ? 'ALL TEES' : `${escapeHTML(activeCol.name)} COLLECTION`}</span>
           </div>
-          <h1 class="canon-main-title">ALL TEES</h1>
+          <h1 class="canon-main-title">${colSlug === 'all' ? 'ALL TEES' : `${escapeHTML(activeCol.name)} TEES`}</h1>
           <p class="canon-sub-desc">
-            Every Bravadian tee, from all five collections. Original Indian artwork on heavy, oversized cotton.
+            ${escapeHTML(activeCol.description || 'Every Bravadian tee, from all five collections. Original Indian artwork on heavy, oversized cotton.')}${colSlug !== 'all' ? ` <a href="#/collections/${colSlug}" class="canon-story-link">Read the story &rarr;</a>` : ''}
           </p>
         </header>
 
@@ -1792,7 +1821,7 @@ Thank you.`,
               const isActive = c.slug === colSlug;
               return `
                 <a 
-                  href="#/collections/${c.slug}" 
+                  href="#/shop/${c.slug}" 
                   class="canon-tab-pill ${isActive ? 'active' : ''}" 
                   role="tab"
                   aria-selected="${isActive ? 'true' : 'false'}"
@@ -1848,7 +1877,7 @@ Thank you.`,
             <div class="empty-state-icon">✦</div>
             <h3 class="empty-state-title">NO TEES MATCH THESE FILTERS</h3>
             <p class="empty-state-sub">Try another size, or look through a different collection.</p>
-            <a href="#/collections/all" class="btn-canon-load-more" style="display: inline-block;">CLEAR FILTERS</a>
+            <a href="#/shop" class="btn-canon-load-more" style="display: inline-block;">CLEAR FILTERS</a>
           </div>
         `}
       </div>

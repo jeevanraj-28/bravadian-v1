@@ -11568,3 +11568,26 @@ body { font-family: var(--font-body); }
 @media (min-width: 1024px) and (max-width: 1279px) {
   .figma-hero-section .figma-hero-desc { max-width: 38vw; }
 }
+
+/* ==========================================================================
+   COLLECTION STORY PAGES (shared layout; Heritage keeps its temple pillar banner)
+   ========================================================================== */
+.heritage-hero-backdrop.has-photo,
+[data-theme="light"] .heritage-hero-backdrop.has-photo {
+  background-image: var(--hero-photo) !important;
+  background-position: center 35%;
+  filter: none !important;
+}
+.heritage-motifs-row.cols-3 { grid-template-columns: repeat(3, 1fr); }
+.motif-card.is-text { display: flex; align-items: stretch; min-height: 200px; border-top: 3px solid var(--theme-accent); }
+.motif-card.is-text .motif-specs { display: flex; flex-direction: column; gap: 0.6rem; justify-content: flex-start; padding: 1.4rem; }
+.motif-card.is-text .motif-code { align-self: flex-start; }
+.collection-story-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem 1.75rem; margin-top: 2rem; }
+.collection-story-actions .btn-canon-load-more { display: inline-block; text-decoration: none; }
+.collection-story-link, .canon-story-link { color: var(--theme-accent); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+@media (max-width: 1023px) { .heritage-motifs-row.cols-3 { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px) { .heritage-motifs-row.cols-3 { grid-template-columns: 1fr; } }
+.collection-story .heritage-swatches-row { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+[data-theme="dark"] .swatch-color-block { box-shadow: inset 0 0 0 1px rgba(237, 232, 208, 0.18); }
+/* Shop heading now names the collection ("STREET CULTURE TEES"): let it wrap and shrink on small phones */
+@media (max-width: 420px) { .canon-main-title { font-size: clamp(1.9rem, 10vw, 2.6rem); overflow-wrap: anywhere; } }
