@@ -1,6 +1,6 @@
 # Test copy of the site on GitHub Pages (production stays on Vercel).
-# Built for the "/bravadian-v1/" address and wired to the TEST Supabase project,
-# so testing never touches live orders or products (add ?db=live to view the live catalog).
+# Built for the "/bravadian-v1/" address and connected to the LIVE Supabase project, like the real site
+# (add ?db=test to the address to use the test project instead).
 name: Deploy test copy to GitHub Pages
 
 on:
@@ -31,7 +31,6 @@ jobs:
         run: npm run build
         env:
           PAGES_BASE: /${{ github.event.repository.name }}/
-          VITE_DB: test
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

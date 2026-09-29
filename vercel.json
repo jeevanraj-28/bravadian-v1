@@ -4,6 +4,12 @@
   "outputDirectory": "dist",
   "cleanUrls": true,
   "trailingSlash": false,
+  "rewrites": [
+    {
+      "source": "/wall",
+      "destination": "/wall/index.html"
+    }
+  ],
   "redirects": [
     {
       "source": "/cms",

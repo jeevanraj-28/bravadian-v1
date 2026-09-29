@@ -13,6 +13,8 @@
   
   <link rel="stylesheet" href="css/styles.css">
   <link rel="stylesheet" href="css/admin.css">
+  <link rel="stylesheet" href="css/wall.css">
+  <link rel="stylesheet" href="css/admin-wall.css">
 
   <!-- Favicon -->
   <link rel="icon" type="image/svg+xml" href="/images/favicons/favicon.svg?v=2">
@@ -69,6 +71,23 @@
             <span>⚡ DASHBOARD</span>
           </a>
         </li>
+        <li class="sidebar-nav-label" aria-hidden="true">THE WALL</li>
+        <li class="sidebar-nav-item" data-tab="wall">
+          <a href="#wall"><span>🧱 WALL DASHBOARD</span></a>
+        </li>
+        <li class="sidebar-nav-item" data-tab="wallposts">
+          <a href="#wallposts"><span>🗂️ WALL POSTS <b class="nav-count" id="wallNavCount" hidden></b></span></a>
+        </li>
+        <li class="sidebar-nav-item" data-tab="walleditor">
+          <a href="#walleditor"><span>➕ ADD CUSTOMER</span></a>
+        </li>
+        <li class="sidebar-nav-item" data-tab="wallfeatured">
+          <a href="#wallfeatured"><span>⭐ FEATURED</span></a>
+        </li>
+        <li class="sidebar-nav-item" data-tab="wallmedia">
+          <a href="#wallmedia"><span>🖼️ WALL MEDIA</span></a>
+        </li>
+        <li class="sidebar-nav-label" aria-hidden="true">STORE</li>
         <li class="sidebar-nav-item" data-tab="orders">
           <a href="#orders">
             <span>🧾 ORDERS <b class="nav-count" id="ordersNavCount" hidden></b></span>
@@ -127,6 +146,8 @@
           <h1 class="topbar-page-title" id="adminPageTitle">DASHBOARD OVERVIEW</h1>
         </div>
         <div class="topbar-actions">
+          <a class="btn-admin-secondary wa-view-wall" href="wall" target="_blank" rel="noopener">VIEW WALL ↗</a>
+          <button type="button" class="btn-admin-secondary" data-wall-new>+ ADD CUSTOMER</button>
           <button type="button" class="btn-admin-primary" id="btnAddNewProduct">
             <span>+ ADD NEW PRODUCT</span>
           </button>
@@ -170,6 +191,226 @@
           <div id="dashboardRecentTable"></div>
         </div>
       </section>
+
+      <!-- THE BRAVADIAN WALL (js/admin-wall.js) -->
+      <section class="admin-content-pane" id="pane-wall">
+        <div class="wa-setup" id="waSetup" hidden></div>
+        <p class="wa-muted wa-intro">Real customers wearing Bravadian. Nothing reaches the Wall without the customer's permission and your publish.</p>
+        <div class="metrics-grid wa-metrics" id="waMetrics" aria-live="polite"></div>
+        <div class="wa-dash-grid">
+          <div class="admin-card-container wa-span-2">
+            <div class="card-header-bar">
+              <h3 class="card-heading">RECENT SUBMISSIONS</h3>
+              <button type="button" class="btn-admin-secondary" data-wall-tab="wallposts">ALL WALL POSTS →</button>
+            </div>
+            <div id="waRecent"></div>
+          </div>
+          <div class="admin-card-container">
+            <div class="card-header-bar"><h3 class="card-heading">RECENT ACTIVITY</h3></div>
+            <ol class="wa-activity" id="waActivity"></ol>
+          </div>
+          <div class="admin-card-container">
+            <div class="card-header-bar"><h3 class="card-heading">ON THE WALL, BY CITY</h3></div>
+            <div id="waCities"></div>
+          </div>
+          <div class="admin-card-container wa-qr">
+            <div class="card-header-bar"><h3 class="card-heading">THANK-YOU CARD QR CODE</h3></div>
+            <div class="wa-qr-body">
+              <img src="/images/qr/bravadian-wall-qr.svg" alt="QR code that opens bravadian.in/wall" width="148" height="148">
+              <div>
+                <p class="wa-muted">Print this on the thank-you card. It opens <b>bravadian.in/wall</b>.</p>
+                <div class="wa-qr-links">
+                  <a class="btn-admin-secondary" href="/images/qr/bravadian-wall-qr.svg" download="bravadian-wall-qr.svg">DOWNLOAD SVG (PRINT)</a>
+                  <a class="btn-admin-secondary" href="/images/qr/bravadian-wall-qr.png" download="bravadian-wall-qr.png">DOWNLOAD PNG</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="admin-content-pane" id="pane-wallposts">
+        <div class="admin-card-container">
+          <div class="card-header-bar">
+            <div>
+              <h2 class="card-heading">WALL POSTS</h2>
+              <p class="wa-muted" id="waPostsNote" aria-live="polite"></p>
+            </div>
+            <div class="wa-head-actions">
+              <button type="button" class="btn-admin-secondary" id="waRemoveDemo" hidden>REMOVE DEMO POSTS</button>
+              <button type="button" class="btn-admin-primary" data-wall-new>+ ADD CUSTOMER</button>
+            </div>
+          </div>
+          <div class="orders-toolbar wa-toolbar">
+            <div class="orders-filters" id="waFilters" role="group" aria-label="Filter wall posts">
+              <button type="button" class="orders-chip is-on" data-f="all" aria-pressed="true">ALL</button>
+              <button type="button" class="orders-chip" data-f="published" aria-pressed="false">PUBLISHED</button>
+              <button type="button" class="orders-chip" data-f="draft" aria-pressed="false">DRAFTS</button>
+              <button type="button" class="orders-chip" data-f="pending" aria-pressed="false">PENDING REVIEW</button>
+              <button type="button" class="orders-chip" data-f="approved" aria-pressed="false">APPROVED</button>
+              <button type="button" class="orders-chip" data-f="rejected" aria-pressed="false">REJECTED</button>
+              <button type="button" class="orders-chip" data-f="featured" aria-pressed="false">FEATURED</button>
+            </div>
+            <div class="wa-toolbar-right">
+              <input type="search" id="waSearch" class="admin-input orders-search" placeholder="Search name, city or tee" aria-label="Search wall posts">
+              <div class="wa-view-toggle" role="group" aria-label="Layout">
+                <button type="button" data-view="grid" aria-pressed="true">GRID</button>
+                <button type="button" data-view="list" aria-pressed="false">LIST</button>
+              </div>
+            </div>
+          </div>
+          <div id="waPosts" class="wa-posts is-grid"></div>
+        </div>
+      </section>
+
+      <section class="admin-content-pane" id="pane-walleditor">
+        <form id="waForm" class="wa-editor" novalidate autocomplete="off">
+          <div class="wa-editor-main">
+            <div class="admin-card-container">
+              <div class="card-header-bar">
+                <div>
+                  <h2 class="card-heading" id="waEditorTitle">ADD CUSTOMER TO THE WALL</h2>
+                  <p class="wa-muted" id="waEditorState"></p>
+                </div>
+                <button type="button" class="btn-admin-secondary" data-wall-tab="wallposts">← ALL POSTS</button>
+              </div>
+
+              <fieldset class="wa-set">
+                <legend>PHOTOS <span class="wa-hint">The first photo is the cover. Up to 6.</span></legend>
+                <div class="wa-drop" id="waDrop">
+                  <input type="file" id="waFiles" accept="image/jpeg,image/png,image/webp,image/avif" multiple hidden>
+                  <label for="waFiles" class="btn-admin-primary">CHOOSE PHOTOS</label>
+                  <span>or drag them here</span>
+                  <small>JPG, PNG, WebP or AVIF · up to 20 MB · at least 800 px on the short side. Each photo is resized to 480, 960 and 1600 px WebP; the original is not stored.</small>
+                </div>
+                <p class="wa-field-error" id="waPhotosError" role="alert"></p>
+                <div class="wa-photos" id="waPhotoList"></div>
+              </fieldset>
+
+              <fieldset class="wa-set">
+                <legend>CUSTOMER <span class="wa-hint">Shown on the Wall</span></legend>
+                <div class="admin-form-grid">
+                  <div class="admin-field"><label for="waName">DISPLAY NAME *</label><input id="waName" class="admin-input" maxlength="60" required placeholder="Arjun"><p class="wa-field-error" data-for="waName"></p></div>
+                  <div class="admin-field"><label for="waCity">CITY *</label><input id="waCity" class="admin-input" maxlength="60" required placeholder="Bengaluru" list="waCityList"><datalist id="waCityList"></datalist><p class="wa-field-error" data-for="waCity"></p></div>
+                  <div class="admin-field"><label for="waState">STATE</label><input id="waState" class="admin-input" maxlength="60" placeholder="Karnataka"></div>
+                  <div class="admin-field"><label for="waCountry">COUNTRY</label><input id="waCountry" class="admin-input" maxlength="60" value="India"></div>
+                  <div class="admin-field"><label for="waDate">SUBMISSION DATE</label><input id="waDate" class="admin-input" type="date"></div>
+                  <div class="admin-field form-field-full"><label for="waQuote">THEIR WORDS <span class="wa-hint" id="waQuoteCount">0 / 280</span></label><textarea id="waQuote" class="admin-textarea" rows="2" maxlength="280" placeholder="More than a shirt. It's something I connect with."></textarea><p class="wa-field-error" data-for="waQuote"></p></div>
+                </div>
+              </fieldset>
+
+              <fieldset class="wa-set">
+                <legend>WHAT THEY'RE WEARING</legend>
+                <div class="admin-form-grid">
+                  <div class="admin-field"><label for="waProduct">TEE</label><select id="waProduct" class="admin-select"></select></div>
+                  <div class="admin-field"><label for="waCollection">COLLECTION</label><select id="waCollection" class="admin-select"></select></div>
+                  <div class="admin-field wa-manual" hidden><label for="waProductName">PRODUCT NAME</label><input id="waProductName" class="admin-input" maxlength="80" placeholder="Custom Bravadian tee"><p class="wa-field-error" data-for="waProductName"></p></div>
+                  <div class="admin-field wa-manual" hidden><label for="waProductUrl">PRODUCT LINK</label><input id="waProductUrl" class="admin-input" maxlength="300" placeholder="https://... or /#/product/..." spellcheck="false"><p class="wa-field-error" data-for="waProductUrl"></p></div>
+                </div>
+              </fieldset>
+
+              <fieldset class="wa-set">
+                <legend>FEATURED STORY</legend>
+                <label class="wa-switch"><input type="checkbox" id="waFeatured"> <span>Feature this customer as a mini story at the top of the Wall</span></label>
+                <div class="admin-form-grid wa-featured-fields" id="waFeaturedFields" hidden>
+                  <div class="admin-field form-field-full"><label for="waHeadline">FEATURED HEADLINE</label><input id="waHeadline" class="admin-input" maxlength="80" placeholder="THIS IS WHAT BRAVADIAN LOOKS LIKE."></div>
+                  <div class="admin-field form-field-full"><label for="waFeaturedQuote">FEATURED QUOTE <span class="wa-hint">leave empty to use their words</span></label><textarea id="waFeaturedQuote" class="admin-textarea" rows="2" maxlength="280"></textarea></div>
+                  <div class="admin-field"><label for="waFeaturedImage">FEATURED PHOTO</label><select id="waFeaturedImage" class="admin-select"></select></div>
+                </div>
+              </fieldset>
+
+              <fieldset class="wa-set wa-private">
+                <legend>PERMISSION &amp; PRIVATE NOTES <span class="wa-lock">🔒 PRIVATE · never shown on the Wall</span></legend>
+                <div class="admin-form-grid">
+                  <div class="admin-field"><label for="waPermission">PERMISSION TO FEATURE *</label>
+                    <select id="waPermission" class="admin-select">
+                      <option value="pending">Pending: not asked or no answer yet</option>
+                      <option value="granted">Granted: they said yes</option>
+                      <option value="rejected">Rejected: they said no</option>
+                    </select>
+                  </div>
+                  <div class="admin-field"><label for="waOrderRef">ORDER REFERENCE</label><input id="waOrderRef" class="admin-input" maxlength="60" placeholder="BRV-260928-XXXXX"></div>
+                  <div class="admin-field form-field-full"><label for="waPermissionNote">PERMISSION NOTE</label><textarea id="waPermissionNote" class="admin-textarea" rows="2" maxlength="500" placeholder="How and when they agreed, e.g. yes by Instagram DM on 28 Sep"></textarea></div>
+                </div>
+              </fieldset>
+
+              <fieldset class="wa-set">
+                <legend>REVIEW &amp; ORDER</legend>
+                <div class="admin-form-grid">
+                  <div class="admin-field"><label for="waStatus">REVIEW STATUS</label>
+                    <select id="waStatus" class="admin-select">
+                      <option value="draft">Draft</option>
+                      <option value="pending">Pending review</option>
+                      <option value="approved">Approved</option>
+                      <option value="rejected">Rejected</option>
+                      <option value="published" disabled>Published (use Publish)</option>
+                    </select>
+                  </div>
+                  <div class="admin-field"><label for="waOrder">DISPLAY ORDER <span class="wa-hint">lower comes first; 0 = newest first</span></label><input id="waOrder" class="admin-input" type="number" step="1" value="0"></div>
+                </div>
+              </fieldset>
+            </div>
+          </div>
+
+          <aside class="wa-editor-side" aria-label="Live preview and publishing">
+            <div class="admin-card-container wa-preview-box">
+              <div class="card-header-bar">
+                <h3 class="card-heading">LIVE PREVIEW</h3>
+                <div class="wa-view-toggle" role="group" aria-label="Preview">
+                  <button type="button" data-preview="card" aria-pressed="true">CARD</button>
+                  <button type="button" data-preview="featured" aria-pressed="false">FEATURED</button>
+                  <button type="button" data-preview-theme aria-pressed="false" title="Show the dark theme">DARK</button>
+                </div>
+              </div>
+              <div class="wall-preview" id="waPreview" data-theme="light"></div>
+              <ul class="wa-checklist" id="waChecklist" aria-label="Ready to publish"></ul>
+              <p class="wa-save-state" id="waSaveState" role="status" aria-live="polite"></p>
+              <div class="wa-actions" id="waActions"></div>
+            </div>
+          </aside>
+        </form>
+      </section>
+
+      <section class="admin-content-pane" id="pane-wallfeatured">
+        <div class="admin-card-container">
+          <div class="card-header-bar">
+            <div>
+              <h2 class="card-heading">FEATURED ORDER</h2>
+              <p class="wa-muted">The top three published stories lead the Wall. Drag to reorder, or use the arrows.</p>
+            </div>
+            <button type="button" class="btn-admin-primary" id="waSaveOrder" disabled>SAVE ORDER</button>
+          </div>
+          <ol class="wa-featured-list" id="waFeaturedList"></ol>
+        </div>
+      </section>
+
+      <section class="admin-content-pane" id="pane-wallmedia">
+        <div class="admin-card-container">
+          <div class="card-header-bar">
+            <div>
+              <h2 class="card-heading">WALL MEDIA</h2>
+              <p class="wa-muted" id="waMediaNote"></p>
+            </div>
+          </div>
+          <div class="wa-media" id="waMedia"></div>
+        </div>
+      </section>
+
+      <dialog class="wa-dialog" id="waConfirm" aria-labelledby="waConfirmTitle">
+        <form method="dialog">
+          <h3 id="waConfirmTitle"></h3>
+          <p id="waConfirmBody"></p>
+          <div class="wa-dialog-actions">
+            <button value="cancel" class="btn-admin-secondary" id="waConfirmCancel">CANCEL</button>
+            <button value="ok" class="btn-admin-primary" id="waConfirmOk">CONFIRM</button>
+          </div>
+        </form>
+      </dialog>
+      <dialog class="wa-dialog wa-photo-dialog" id="waPhotoDialog" aria-label="Photo">
+        <button type="button" class="wa-dialog-close" id="waPhotoClose" aria-label="Close">&times;</button>
+        <div id="waPhotoBody"></div>
+      </dialog>
+      <div class="wa-toast" id="waToast" role="status" aria-live="polite"></div>
 
       <!-- 2. PRODUCTS PANE -->
       <section class="admin-content-pane" id="pane-orders">
@@ -608,5 +849,6 @@
 
   <script type="module" src="js/data.js"></script>
   <script type="module" src="js/admin.js"></script>
+  <script type="module" src="js/admin-wall.js"></script>
 </body>
 </html>

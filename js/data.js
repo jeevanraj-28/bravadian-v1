@@ -1538,15 +1538,12 @@
   // Live project: every deployed site uses this one.
   const SUPABASE_URL = 'https://ccmwfynsytaycfgfxjln.supabase.co';
   const SUPABASE_ANON_KEY = 'sb_publishable_gkUGThWcvHoUWGM12t-Odg_OnySj07e'; // public key, safe in browser code
-  // Test project: used only on localhost. Add ?db=live on localhost to work on the live one.
+  // Test project: used only when the address has ?db=test (before any #). Everything else,
+  // localhost included, works on the live project.
   const TEST_SUPABASE_URL = 'https://cstqxsxfcxbqcqljxlgd.supabase.co';
   const TEST_SUPABASE_ANON_KEY = 'sb_publishable_B-T7Hk7Nb2xwXPl9m6VoZA_abqrenF9'; // public key, safe in browser code
-  const IS_LOCALHOST = /^(localhost|127\.0\.0\.1)$/.test(window.location.hostname);
-  // Build settings (Vite): the GitHub Pages test copy is built with VITE_DB=test, so it uses the
-  // test project too. Vercel/production builds leave it unset and use the live project.
   const BUILD_ENV = (typeof import.meta !== 'undefined' && import.meta.env) || {};
-  const TEST_BUILD = BUILD_ENV.VITE_DB === 'test';
-  const USE_TEST_DB = (IS_LOCALHOST || TEST_BUILD) && !/[?&]db=live\b/.test(window.location.search);
+  const USE_TEST_DB = /[?&]db=test\b/.test(window.location.search);
 
   // The site's address prefix: "/" in production, "/bravadian-v1/" on the GitHub Pages copy.
   // Photo paths are stored in the database without it ("/images/...") and get it when shown.

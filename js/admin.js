@@ -20,7 +20,8 @@
       ['Settings', initSettingsForm],
       ['Supabase', initSupabasePanel],
       ['ExportImport', initExportImport],
-      ['Modals', initModals]
+      ['Modals', initModals],
+      ['Wall', () => window.BravadianWallAdmin && window.BravadianWallAdmin.init()]
     ];
 
     modules.forEach(([name, fn]) => {
@@ -70,7 +71,7 @@
       const live = window.BravadianDB && window.BravadianDB.dbLabel === 'LIVE';
       banner.innerHTML = live
         ? '<strong>LIVE DATABASE:</strong> changes you save here appear on the website straight away.'
-        : '<strong>TEST DATABASE:</strong> safe to experiment. The live website is not affected. (Add ?db=live to the address to edit the live store.)';
+        : '<strong>TEST DATABASE:</strong> safe to experiment. The live website is not affected. (Remove ?db=test from the address to edit the live store.)';
     }
 
     if (!client) {
@@ -163,6 +164,12 @@
 
   function switchTab(tabName) {
     if (!tabName) return;
+    // Leaving the Wall editor with unsaved changes asks first
+    const wall = window.BravadianWallAdmin;
+    if (wall && !wall.canLeave(tabName)) {
+      if (window.location.hash !== '#walleditor') history.replaceState(null, '', '#walleditor');
+      return;
+    }
 
     document.querySelectorAll('.sidebar-nav-item').forEach(i => i.classList.remove('active'));
     document.querySelectorAll('.admin-content-pane').forEach(p => p.classList.remove('active'));
@@ -173,6 +180,8 @@
 
     if (navItem) navItem.classList.add('active');
     if (pane) pane.classList.add('active');
+    // The top bar shows the Wall's buttons on Wall screens and the product button elsewhere
+    document.body.classList.toggle('is-wall-tab', tabName.startsWith('wall'));
 
     // Close mobile drawer on tab select
     const sidebar = document.querySelector('.admin-sidebar');
@@ -187,7 +196,12 @@
       sizeguide: 'SIZE GUIDE SPECIFICATIONS',
       settings: 'SITE & WHATSAPP SETTINGS',
       supabase: 'SUPABASE CLOUD SYNC',
-      dataio: 'BACKUP & DATA IMPORT'
+      dataio: 'BACKUP & DATA IMPORT',
+      wall: 'THE BRAVADIAN WALL',
+      wallposts: 'WALL POSTS',
+      walleditor: 'WALL · CUSTOMER',
+      wallfeatured: 'WALL · FEATURED ORDER',
+      wallmedia: 'WALL · MEDIA'
     };
     if (pageTitle && titles[tabName]) pageTitle.textContent = titles[tabName];
 
@@ -204,6 +218,7 @@
         initSupabasePanel();
         checkSupabaseStatus();
       }
+      if (tabName.startsWith('wall') && wall) wall.show(tabName);
     } catch (err) {
       console.warn(`[BRAVADIAN CMS] Tab refresh error (${tabName}):`, err);
     }

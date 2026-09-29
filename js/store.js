@@ -230,9 +230,26 @@ Thank you.`,
     loadCart();
     initImageFallbacks();
     initHeaderEvents();
-    initRouter();
+    if (IS_WALL_PAGE) initWallPage(); else initRouter();
     initSearchEvents();
   });
+
+  // The Bravadian Wall (/wall) is its own page: js/wall.js draws it. Store routes opened there
+  // (#/shop, #/product/..., links in the bag or search) continue on the home page.
+  const IS_WALL_PAGE = document.body.dataset.page === 'wall';
+  function initWallPage() {
+    const home = (import.meta.env && import.meta.env.BASE_URL) || '/';
+    const leave = () => {
+      const h = window.location.hash;
+      if (h.startsWith('#/')) window.location.assign(home + h);
+    };
+    window.addEventListener('hashchange', leave);
+    leave();
+    const bar = () => document.body.classList.toggle('hide-announcement-bar', !applyAnnouncementBar());
+    bar();
+    window.addEventListener('bravadian:catalog-updated', bar);
+    document.querySelectorAll('.nav-link[aria-current="page"]').forEach(a => a.classList.add('active'));
+  }
 
   // A tee photo that fails to load (moved or deleted file, bad address saved in admin) is swapped
   // for the same tee's next photo, and finally for its drawing, so no broken image ever shows.
@@ -525,7 +542,7 @@ Thank you.`,
       // Highlight the page the shopper is on
       const here = window.location.hash || '#/';
       mobileDrawer.querySelectorAll('.mnav-row[href], .mnav-tile').forEach(a => {
-        const on = a.getAttribute('href') === here;
+        const on = IS_WALL_PAGE ? a.hasAttribute('href') && /wall$/.test(a.getAttribute('href')) : a.getAttribute('href') === here;
         a.classList.toggle('is-current', on);
         if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
       });
