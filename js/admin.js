@@ -305,7 +305,7 @@
             <span class="table-pill ${p.status === 'PUBLISHED' ? 'pub' : (p.status === 'SOLD_OUT' ? 'sold' : 'draft')}">
               ${p.status || 'DRAFT'}
             </span>
-            ${p.isComingSoon ? '<span class="table-pill" style="margin-left: 4px; background: rgba(255, 160, 0, 0.15); color: #FFA000; border: 1px solid rgba(255, 160, 0, 0.3);">SOON</span>' : ''}
+            ${p.isComingSoon ? '<span class="table-pill" style="margin-left: 4px; background: rgba(237, 28, 36, 0.15); color: #ED1C24; border: 1px solid rgba(237, 28, 36, 0.3);">SOON</span>' : ''}
           </td>
           <td>${p.newDrop ? '⚡ YES' : '—'}</td>
           <td>
@@ -643,12 +643,12 @@
     document.getElementById('cfgTagline').value = s.tagline || 'BRAVE INDIAN';
     document.getElementById('cfgWhatsapp').value = s.whatsappNumber || '';
     document.getElementById('cfgInstagram').value = s.instagramUrl || '';
-    document.getElementById('cfgShippingFee').value = s.shippingFee || 99;
+    document.getElementById('cfgShippingFee').value = s.shippingFee ?? 0;   // 0 = free delivery; || would turn it into 99
     if (s.launchEndsAt && document.getElementById('cfgLaunchEndsAt')) {
       const d = new Date(s.launchEndsAt);
       document.getElementById('cfgLaunchEndsAt').value = new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
     }
-    document.getElementById('cfgFreeShipThreshold').value = s.freeShippingThreshold || 1999;
+    document.getElementById('cfgFreeShipThreshold').value = s.freeShippingThreshold ?? 0;
     document.getElementById('cfgSupportEmail').value = s.supportEmail || '';
 
     // Announcement Marquee
@@ -1108,7 +1108,7 @@ They are saved on this computer only. Fix the problem and save again.`);
         const imgLifestyle2Val = life2In ? life2In.value.trim() : '';
 
         const images = {
-          front: imgFrontVal || (existing && existing.images && existing.images.front ? existing.images.front : window.BravadianDefaults.createTeeSVG(name, collection, '#121216', '#ff4d00', 'front')),
+          front: imgFrontVal || (existing && existing.images && existing.images.front ? existing.images.front : window.BravadianDefaults.createTeeSVG(name, collection, '#121216', '#ED1C24', 'front')),
           back: imgBackVal || undefined,
           closeup: imgCloseupVal || undefined,
           lifestyle: imgLifestyleVal || undefined,

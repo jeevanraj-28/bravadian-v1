@@ -5,7 +5,7 @@
 
 :root {
   /* Color System */
-  --color-black: #060608;
+  --color-black: var(--brand-black);
   --color-void: #09090c;
   --color-charcoal: #121216;
   --color-card-bg: #15151a;
@@ -16,18 +16,31 @@
   --color-text-muted: #8e8e9c;
   --color-text-subtle: #565664;
   
-  /* Indian Streetwear Identity Accents */
-  --color-ember: #ff4d00;
-  --color-ember-glow: rgba(255, 77, 0, 0.35);
-  --color-saffron: #f59e0b;
-  --color-gold: #e5a93c;
-  --color-accent-border: rgba(255, 77, 0, 0.4);
+  /* Brand palette: Red · Black · Cream · Navy (store.css repeats these for its themes) */
+  --brand-red: #ED1C24;
+  --brand-red-deep: #C4161D;
+  --brand-black: #000000;
+  --brand-cream: #EDE8D0;
+  --brand-navy: #002366;
 
-  /* Fonts */
-  --font-display: 'Bebas Neue', sans-serif;
-  --font-heading: 'Bebas Neue', sans-serif;
-  --font-mono: 'Space Grotesk', monospace;
-  --font-body: 'Plus Jakarta Sans', sans-serif;
+  /* Accents (old names kept; all point at the brand red) */
+  --color-ember: var(--brand-red);
+  --color-ember-glow: rgba(237, 28, 36, 0.35);
+  --color-saffron: var(--brand-red);
+  --color-gold: var(--brand-red);
+  --color-accent-border: rgba(237, 28, 36, 0.4);
+
+  /* Fonts: all four are Indian-designed and also cover Devanagari (loaded from Google Fonts in the HTML)
+     display = Yatra One, Devanagari-inspired lettering, like hand-painted Indian signage (headlines)
+     serif   = Eczar, strong Indian serif (classical titles and quotes)
+     mono    = Rajdhani, squared labels, tags and buttons
+     body    = Mukta, clean reading text */
+  --font-display: 'Yatra One', 'Eczar', serif;
+  --font-heading: 'Yatra One', 'Eczar', serif;
+  --font-serif: 'Eczar', Georgia, serif;
+  --font-mono: 'Rajdhani', 'Mukta', sans-serif;
+  --font-body: 'Mukta', system-ui, sans-serif;
+  --font-sans: var(--font-body);
   --font-devanagari: 'Tiro Devanagari Hindi', serif;
 
   /* Spacing & Layout */
@@ -123,7 +136,7 @@ img, svg {
   transform: translateX(-50%);
   width: 900px;
   height: 600px;
-  background: radial-gradient(ellipse at center, rgba(255, 77, 0, 0.08) 0%, rgba(20, 20, 26, 0.4) 45%, rgba(6, 6, 8, 0) 75%);
+  background: radial-gradient(ellipse at center, rgba(237, 28, 36, 0.08) 0%, rgba(20, 20, 26, 0.4) 45%, rgba(6, 6, 8, 0) 75%);
   pointer-events: none;
   z-index: 0;
   filter: blur(60px);
@@ -320,7 +333,7 @@ img, svg {
 
 @media (hover: hover) and (pointer: fine) { .brand-mark:hover .brand-logo-img {
   transform: scale(1.03);
-  filter: drop-shadow(0 0 16px rgba(255, 77, 0, 0.45));
+  filter: drop-shadow(0 0 16px rgba(237, 28, 36, 0.45));
 } }
 
 @media (max-width: 768px) {
@@ -493,7 +506,7 @@ img, svg {
   display: block;
   font-family: var(--font-devanagari);
   font-size: clamp(3rem, 12vw, 10rem);
-  color: rgba(255, 77, 0, 0.02);
+  color: rgba(237, 28, 36, 0.02);
   line-height: 1;
 }
 
@@ -559,13 +572,13 @@ img, svg {
   width: 100%;
   height: auto;
   object-fit: contain;
-  filter: drop-shadow(0 0 35px rgba(255, 77, 0, 0.35));
+  filter: drop-shadow(0 0 35px rgba(237, 28, 36, 0.35));
   transition: transform 0.4s var(--transition-smooth), filter 0.4s ease;
 }
 
 @media (hover: hover) and (pointer: fine) { .hero-brand-logo:hover {
   transform: scale(1.02);
-  filter: drop-shadow(0 0 50px rgba(255, 77, 0, 0.55));
+  filter: drop-shadow(0 0 50px rgba(237, 28, 36, 0.55));
 } }
 
 @media (max-width: 768px) {
@@ -665,7 +678,7 @@ img, svg {
 }
 
 .gradient-text {
-  background: linear-gradient(135deg, #ffffff 20%, #ff5100 80%);
+  background: linear-gradient(135deg, #ffffff 20%, var(--brand-red) 80%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -700,7 +713,7 @@ img, svg {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 77, 0, 0.15), transparent);
+  background: linear-gradient(90deg, transparent, rgba(237, 28, 36, 0.15), transparent);
   animation: bannerShimmer 4s infinite ease-in-out;
 }
 
@@ -717,7 +730,7 @@ img, svg {
   top: 1.2rem;
   left: 2.5rem;
   color: transparent;
-  -webkit-text-stroke: 1px rgba(255, 77, 0, 0.4);
+  -webkit-text-stroke: 1px rgba(237, 28, 36, 0.4);
   transform: translate(3px, 3px);
   pointer-events: none;
 }
@@ -725,7 +738,7 @@ img, svg {
 .cs-front {
   position: relative;
   color: var(--color-white);
-  text-shadow: 0 0 20px rgba(255, 77, 0, 0.4);
+  text-shadow: 0 0 20px rgba(237, 28, 36, 0.4);
 }
 
 .cs-sub-label {
@@ -996,8 +1009,8 @@ img, svg {
   gap: 0.75rem;
   margin-top: 1.5rem;
   padding: 0.55rem 1.25rem;
-  background: rgba(255, 77, 0, 0.08);
-  border: 1px solid rgba(255, 77, 0, 0.35);
+  background: rgba(237, 28, 36, 0.08);
+  border: 1px solid rgba(237, 28, 36, 0.35);
   border-radius: 100px;
   cursor: pointer;
   user-select: none;
@@ -1005,7 +1018,7 @@ img, svg {
 }
 
 @media (hover: hover) and (pointer: fine) { .teaser-unlock-tracker:hover {
-  background: rgba(255, 77, 0, 0.16);
+  background: rgba(237, 28, 36, 0.16);
   border-color: var(--color-ember);
   box-shadow: 0 0 20px var(--color-ember-glow);
   transform: translateY(-1px);
@@ -1070,8 +1083,8 @@ img, svg {
    FULLY REVEALED TEASER STATE (Triggered after 3 clicks)
    ========================================================================== */
 .teaser-section.is-fully-revealed .teaser-card {
-  border-color: rgba(255, 77, 0, 0.6);
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.9), 0 0 30px rgba(255, 77, 0, 0.25);
+  border-color: rgba(237, 28, 36, 0.6);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.9), 0 0 30px rgba(237, 28, 36, 0.25);
 }
 
 /* Card 1: Full Silhouette Illumination */
@@ -1079,14 +1092,14 @@ img, svg {
   fill: #1b1b24;
   stroke: #ffffff;
   stroke-width: 2.5;
-  filter: drop-shadow(0 0 25px rgba(255, 77, 0, 0.6)) drop-shadow(0 20px 40px rgba(0, 0, 0, 0.9));
+  filter: drop-shadow(0 0 25px rgba(237, 28, 36, 0.6)) drop-shadow(0 20px 40px rgba(0, 0, 0, 0.9));
   transition: all 0.8s var(--transition-smooth);
 }
 
 .teaser-section.is-fully-revealed .card-silhouette .tee-neck-path {
-  stroke: #ff5100;
+  stroke: var(--brand-red);
   stroke-width: 6;
-  filter: drop-shadow(0 0 10px #ff5100);
+  filter: drop-shadow(0 0 10px var(--brand-red));
   transition: all 0.8s var(--transition-smooth);
 }
 
@@ -1117,9 +1130,9 @@ img, svg {
 }
 
 .teaser-section.is-fully-revealed .card-fabric path[stroke-dasharray] {
-  stroke: #ff7722;
+  stroke: var(--brand-red);
   stroke-width: 2.5;
-  filter: drop-shadow(0 0 6px #ff5100);
+  filter: drop-shadow(0 0 6px var(--brand-red));
 }
 
 /* Card 3: Rib Collar Details Revealed */
@@ -1149,8 +1162,8 @@ img, svg {
 }
 
 .teaser-section.is-fully-revealed .embargo-txt-3 {
-  fill: #ff5100;
-  filter: drop-shadow(0 0 25px rgba(255, 77, 0, 0.9));
+  fill: var(--brand-red);
+  filter: drop-shadow(0 0 25px rgba(237, 28, 36, 0.9));
   transition: fill 0.8s ease, filter 0.8s ease;
 }
 
@@ -1277,8 +1290,8 @@ img, svg {
 }
 
 @media (hover: hover) and (pointer: fine) { .teaser-card:hover {
-  border-color: rgba(255, 77, 0, 0.5);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8), 0 0 20px rgba(255, 77, 0, 0.15);
+  border-color: rgba(237, 28, 36, 0.5);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8), 0 0 20px rgba(237, 28, 36, 0.15);
   transform: translateY(-5px);
 } }
 
@@ -1447,7 +1460,7 @@ img, svg {
   font-weight: 900;
   letter-spacing: 0.08em;
   color: var(--color-white);
-  text-shadow: 0 0 30px rgba(255, 77, 0, 0.8), 0 0 60px rgba(255, 77, 0, 0.4);
+  text-shadow: 0 0 30px rgba(237, 28, 36, 0.8), 0 0 60px rgba(237, 28, 36, 0.4);
   line-height: 1.15;
 }
 
@@ -1562,7 +1575,7 @@ img, svg {
   align-items: center;
   gap: 0.6rem;
   padding: 0.8rem 1.5rem;
-  background: rgba(255, 77, 0, 0.12);
+  background: rgba(237, 28, 36, 0.12);
   border: 1px solid var(--color-ember);
   color: var(--color-white);
   font-family: var(--font-mono);
@@ -1650,7 +1663,7 @@ img, svg {
 .story-highlight {
   display: block;
   margin-top: 0.5rem;
-  background: linear-gradient(90deg, #ff4d00, #ff9900, #ffffff);
+  background: linear-gradient(90deg, var(--brand-red), var(--brand-red), #ffffff);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -1722,7 +1735,7 @@ img, svg {
   transform: translateX(-50%);
   width: 400px;
   height: 200px;
-  background: radial-gradient(ellipse, rgba(255, 77, 0, 0.25) 0%, transparent 70%);
+  background: radial-gradient(ellipse, rgba(237, 28, 36, 0.25) 0%, transparent 70%);
   pointer-events: none;
   filter: blur(40px);
 }
@@ -1732,8 +1745,8 @@ img, svg {
   align-items: center;
   gap: 0.5rem;
   padding: 0.35rem 0.85rem;
-  background: rgba(255, 77, 0, 0.1);
-  border: 1px solid rgba(255, 77, 0, 0.3);
+  background: rgba(237, 28, 36, 0.1);
+  border: 1px solid rgba(237, 28, 36, 0.3);
   border-radius: 100px;
   font-family: var(--font-mono);
   font-size: 0.7rem;
@@ -1865,7 +1878,7 @@ img, svg {
 .vip-ticket-preview {
   margin-top: 2rem;
   background: #08080a;
-  border: 1px dashed rgba(255, 77, 0, 0.4);
+  border: 1px dashed rgba(237, 28, 36, 0.4);
   border-radius: 4px;
   padding: 1.5rem;
   text-align: left;
@@ -1983,7 +1996,7 @@ img, svg {
 
 @media (hover: hover) and (pointer: fine) { .footer-logo-link:hover .footer-brand-logo {
   transform: scale(1.03);
-  filter: drop-shadow(0 0 14px rgba(255, 77, 0, 0.45));
+  filter: drop-shadow(0 0 14px rgba(237, 28, 36, 0.45));
 } }
 
 .footer-brand-name {
@@ -2082,7 +2095,7 @@ img, svg {
 }
 
 @media (hover: hover) and (pointer: fine) { .instagram-link:hover {
-  background: rgba(255, 77, 0, 0.15);
+  background: rgba(237, 28, 36, 0.15);
   border-color: var(--color-ember);
   color: var(--color-ember);
   transform: translateY(-2px);

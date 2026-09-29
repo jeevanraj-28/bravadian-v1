@@ -82,6 +82,8 @@ Pincode:
 
 I will share reference images in this chat.
 
+I understand custom orders are made just for me and cannot be exchanged or returned once placed.
+
 Thank you.`,
     question: `Hello Bravadian,
 
@@ -226,10 +228,40 @@ Thank you.`,
     checkoutModal = document.getElementById('checkoutModal');
 
     loadCart();
+    initImageFallbacks();
     initHeaderEvents();
     initRouter();
     initSearchEvents();
   });
+
+  // A tee photo that fails to load (moved or deleted file, bad address saved in admin) is swapped
+  // for the same tee's next photo, and finally for its drawing, so no broken image ever shows.
+  function initImageFallbacks() {
+    const failed = new Set();
+    const abs = (u) => { try { return new URL(u, location.href).href; } catch (e) { return u; } };
+    const photosOf = (p) => {
+      const out = [];
+      const walk = (o) => Object.values(o || {}).forEach(v => {
+        if (v && typeof v === 'object') walk(v);
+        else if (typeof v === 'string' && v && !v.startsWith('data:')) out.push(v);
+      });
+      walk(p.images);
+      return [...new Set(out)];
+    };
+    document.addEventListener('error', (e) => {
+      const img = e.target;
+      if (!(img instanceof HTMLImageElement) || !window.BravadianDB) return;
+      const src = abs(img.getAttribute('src') || '');
+      if (!src || src.startsWith('data:')) return;
+      failed.add(src);
+      const product = window.BravadianDB.getProducts().find(p => photosOf(p).some(u => abs(u) === src));
+      if (!product) return;
+      const next = photosOf(product).find(u => !failed.has(abs(u)));
+      if (next) { img.src = next; return; }
+      const draw = window.BravadianDefaults && window.BravadianDefaults.createTeeSVG;
+      if (draw) img.src = draw(product.name, product.collection || 'Heritage', '#111116', '#ED1C24', 'front');
+    }, true);
+  }
 
   /* --------------------------------------------------------------------------
      ROUTER
@@ -237,7 +269,7 @@ Thank you.`,
   function initRouter() {
     window.addEventListener('hashchange', handleRoute);
     // The home hero builds a different animation for phones and desktops; rebuild it when the width crosses over
-    const phoneQuery = window.matchMedia('(max-width: 760px)');
+    const phoneQuery = window.matchMedia('(max-width: 1023px)');
     let bpTimer = 0;
     const onBreakpoint = () => {
       clearTimeout(bpTimer);
@@ -458,7 +490,7 @@ Thank you.`,
     // Phone status bar matches the page background in both themes
     function syncThemeColor() {
       const meta = document.getElementById('themeColorMeta');
-      if (meta) meta.setAttribute('content', document.documentElement.getAttribute('data-theme') === 'light' ? '#F5ECD5' : '#060608');
+      if (meta) meta.setAttribute('content', document.documentElement.getAttribute('data-theme') === 'light' ? '#EDE8D0' : '#000000');
     }
     syncThemeColor();
 
@@ -608,7 +640,7 @@ Thank you.`,
 
   function renderHomeView() {
     const products = window.BravadianDB.getProducts();
-    const isPhone = window.matchMedia('(max-width: 760px)').matches;
+    const isPhone = window.matchMedia('(max-width: 1023px)').matches;   // phones and tablets get the swipe card; the 3D ring needs laptop width
     StoreState.heroIsPhone = isPhone;
     const heroItems = HERO_RING.filter(it => window.BravadianDB.getProductBySlug(it.slug));
     // Latest designs for the home reel (worn photos first)
@@ -636,7 +668,7 @@ Thank you.`,
         <div class="hero-veil" aria-hidden="true"></div>
         <div class="hero-mark" aria-hidden="true">BRAVADIAN</div>
         <div class="hero-ring-label" aria-hidden="true">
-          <span>ADHYAYA 01 &mdash; NEW DROPS</span>
+          <span>ADHYAYA 01 &mdash; THE FIRST CHAPTER</span>
           <i></i>
           <span class="hero-ring-hint">&larr; DRAG TO EXPLORE &rarr;</span>
         </div>`}
@@ -677,7 +709,7 @@ Thank you.`,
 
               <div class="figma-hero-cta-wrap">
                 <a href="#/shop" class="btn-figma-primary">
-                  <span>[ SHOP THE COLLECTION ]</span>
+                  <span>SHOP ALL TEES</span>
                   <svg class="btn-vault-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <line x1="5" y1="12" x2="19" y2="12"></line>
                     <polyline points="12 5 19 12 12 19"></polyline>
@@ -710,12 +742,12 @@ Thank you.`,
         <div class="container">
           <div class="figma-section-header">
             <div class="section-header-left">
-              <span class="figma-tag">— 01 / LATEST DESIGNS</span>
+              <span class="figma-tag">— JUST DROPPED</span>
               <h2 class="figma-section-title">NEW DROPS</h2>
             </div>
             <div class="section-header-right">
               <p class="figma-section-narrative">
-                Original Indian artwork on oversized 240 GSM cotton tees. ₹699 each, with free delivery across India.
+                Original Indian artwork on heavy, oversized cotton tees. Every design has a story behind it. Free delivery across India.
               </p>
             </div>
           </div>
@@ -723,7 +755,7 @@ Thank you.`,
           <div class="reel" id="homeReel" aria-roledescription="carousel" aria-label="New drops">
             <div class="reel-track">
               ${featuredPieces.map(p => {
-                const worn = p.images.lifestyle;
+                const worn = p.images.lifestyle && !String(p.images.lifestyle).startsWith('data:') ? p.images.lifestyle : null;
                 return `
               <a href="#/product/${p.slug}" class="reel-card">
                 <div class="reel-media ${worn ? 'is-worn' : ''}">
@@ -740,7 +772,7 @@ Thank you.`,
           </div>
           <div class="reel-foot">
             <div class="reel-progress" aria-hidden="true"><span id="homeReelBar"></span></div>
-            <a href="#/shop" class="reel-all">View all</a>
+            <a href="#/shop" class="reel-all">View all tees</a>
           </div>
         </div>
       </section>
@@ -763,30 +795,6 @@ Thank you.`,
           <div class="manifesto-scrim-overlay"></div>
         </div>
 
-        <!-- Left Side Editorial Ribbon -->
-        <div class="manifesto-margin-left" aria-hidden="true">
-          <div class="margin-star-wrap">
-            <span class="margin-hairline-top"></span>
-            <svg class="margin-star-icon" width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2L14.2 9.8L22 12L14.2 14.2L12 22L9.8 14.2L2 12L9.8 9.8L12 2Z"/>
-            </svg>
-            <span class="margin-hairline-bottom"></span>
-          </div>
-          <span class="margin-vertical-text">ROOTED &nbsp;•&nbsp; REIMAGINED &nbsp;•&nbsp; BRAVADIAN &nbsp;•</span>
-        </div>
-
-        <!-- Right Side Editorial Ribbon -->
-        <div class="manifesto-margin-right" aria-hidden="true">
-          <div class="margin-star-wrap">
-            <span class="margin-hairline-top"></span>
-            <svg class="margin-star-icon" width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2L14.2 9.8L22 12L14.2 14.2L12 22L9.8 14.2L2 12L9.8 9.8L12 2Z"/>
-            </svg>
-            <span class="margin-hairline-bottom"></span>
-          </div>
-          <span class="margin-vertical-text">BRAVADIAN &nbsp;•</span>
-        </div>
-
         <!-- Center Editorial Content -->
         <div class="container manifesto-inner">
           <span class="manifesto-tag">[ WHAT WE STAND FOR ]</span>
@@ -800,17 +808,6 @@ Thank you.`,
           </div>
         </div>
 
-        <!-- Bottom Editorial Corners -->
-        <div class="manifesto-bottom-row" aria-hidden="true">
-          <div class="manifesto-corner-left">
-            <span class="corner-brand-text">CULTURE &nbsp;&nbsp; WEARS &nbsp;&nbsp; FORWARD</span>
-            <span class="corner-hairline"></span>
-          </div>
-          <div class="manifesto-corner-right">
-            <span class="corner-subline">MORE THAN CLOTHING</span>
-            <span class="corner-subline">A CONTINUUM</span>
-          </div>
-        </div>
       </section>
 
       <!-- THE TEN ARCHIVE SECTION -->
@@ -822,7 +819,7 @@ Thank you.`,
               <h2 class="archive-title">THE FIVE COLLECTIONS</h2>
             </div>
             <div class="archive-header-right">
-              <span class="archive-cadence">NEW DESIGNS EVERY DROP</span>
+              <span class="archive-cadence">NEW DESIGNS IN EVERY CHAPTER</span>
             </div>
           </div>
 
@@ -847,10 +844,10 @@ Thank you.`,
                 `;
               } else if (card.status === 'next') {
                 return `
-                  <div class="archive-card status-next" data-edition="${card.num}" aria-disabled="true" role="region" aria-label="${card.title} - Upcoming Release">
+                  <div class="archive-card status-next" data-edition="${card.num}" aria-disabled="true" role="region" aria-label="${card.title}, coming soon">
                     <div class="archive-card-top">
                       <span class="archive-num">${card.num}</span>
-                      <span class="archive-badge badge-next">NEXT</span>
+                      <span class="archive-badge badge-next">COMING SOON</span>
                     </div>
                     <div class="archive-card-bottom">
                       <h3 class="archive-card-title">${card.title}</h3>
@@ -860,10 +857,10 @@ Thank you.`,
                 `;
               } else {
                 return `
-                  <div class="archive-card status-vault" data-edition="${card.num}" aria-disabled="true" role="region" aria-label="${card.title} - Vault Unreleased">
+                  <div class="archive-card status-vault" data-edition="${card.num}" aria-disabled="true" role="region" aria-label="${card.title}, coming later">
                     <div class="archive-card-top">
                       <span class="archive-num">${card.num}</span>
-                      <span class="archive-badge badge-vault">VAULT</span>
+                      <span class="archive-badge badge-vault">COMING LATER</span>
                     </div>
                     <div class="archive-card-bottom">
                       <h3 class="archive-card-title">${card.title}</h3>
@@ -920,7 +917,7 @@ Thank you.`,
       const light = document.documentElement.getAttribute('data-theme') === 'light';
       const base = light ? '140,110,50' : '255,255,255';
       const baseA = light ? 0.08 : 0.028;             // the original grid's strength
-      const glow = light ? '184,106,0' : '255,160,0';
+      const glow = light ? '196,22,29' : '237,28,36';
       const sigma = (phone ? 0.16 : 0.1) * Math.max(W, H * 1.6);
       const inv = 1 / (2 * sigma * sigma);
       for (let j = 0, k = 0; j < rows; j++) {
@@ -1435,7 +1432,7 @@ Thank you.`,
         image: c.image || COLLECTION_IMAGES[c.slug],
         count,
         live: count > 0,
-        label: (c.chapter || '').split(':')[0] || `ADHYAYA ${c.num}`,
+        label: c.chapter || `COLLECTION ${c.num}`,
         title: titleCase(c.name)
       };
     });
@@ -1610,7 +1607,7 @@ Thank you.`,
               <!-- Micro-Identity -->
               <div class="heritage-micro-identity">
                 <span class="amber-dot-square" aria-hidden="true"></span>
-                <span class="micro-identity-text">HERITAGE // INDIA LIVES IN CRAFTS</span>
+                <span class="micro-identity-text">HERITAGE · INDIA LIVES IN ITS CRAFTS</span>
               </div>
 
               <!-- Titles & CTA Row -->
@@ -1618,7 +1615,7 @@ Thank you.`,
                 <div class="heritage-headline-group">
                   <h1 class="heritage-hero-title">HERITAGE</h1>
                   <p class="heritage-hero-desc">
-                    Folk art, textile crafts and the symbols of India, redrawn as original prints on everyday streetwear. Two designs, one idea: wear your roots.
+                    Folk art, textile crafts and the symbols of India, redrawn as original prints on everyday tees. One idea runs through all of them: wear your roots.
                   </p>
                 </div>
 
@@ -1654,14 +1651,14 @@ Thank you.`,
 
             <!-- Story Cards Row -->
             <div class="heritage-motifs-row">
-              ${storyCard('/images/heritage/story-folk-art.webp', '/images/products/craft-atlas/back-print.webp', 'Madhubani and Warli folk painting', 'FOLK ART', 'ATLAS', 'Madhubani, Warli, Gond and Pattachitra. The painted traditions behind the Craft Atlas elephant.')}
-              ${storyCard('/images/heritage/story-textiles.webp', '/images/products/craft-atlas/back-print.webp', 'Kalamkari and Ikat textiles', 'TEXTILE CRAFTS', 'ATLAS', 'Kalamkari, Ikat, Phad and Pichwai. Patterns carried from loom and cloth into print.')}
-              ${storyCard('/images/heritage/story-symbols.webp', '/images/products/bharat-spirit/back-print.webp', 'Peacock, tiger, lotus and elephant', 'NATIONAL SYMBOLS', 'SPIRIT', 'Peacock, tiger, lotus and elephant. The four symbols of India behind Bharat Spirit.')}
-              ${storyCard('/images/heritage/story-atlas.webp', '/images/products/craft-atlas/back-print.webp', 'Indian Craft Atlas elephant artwork', 'THE ATLAS PRINT', 'ATLAS', 'People, patterns, places, purpose. A dozen crafts from across India, drawn onto one elephant.')}
+              ${storyCard('/images/heritage/story-folk-art.webp', '/images/products/craft-atlas/back-print.webp', 'Madhubani and Warli folk painting', 'FOLK ART', 'CRAFT ATLAS', 'Madhubani, Warli, Gond and Pattachitra. The painted traditions behind the Craft Atlas elephant.')}
+              ${storyCard('/images/heritage/story-textiles.webp', '/images/products/craft-atlas/back-print.webp', 'Kalamkari and Ikat textiles', 'TEXTILE CRAFTS', 'CRAFT ATLAS', 'Kalamkari, Ikat, Phad and Pichwai. Patterns carried from loom and cloth into print.')}
+              ${storyCard('/images/heritage/story-symbols.webp', '/images/products/bharat-spirit/back-print.webp', 'Peacock, tiger, lotus and elephant', 'NATIONAL SYMBOLS', 'BHARAT SPIRIT', 'Peacock, tiger, lotus and elephant. The four symbols of India behind Bharat Spirit.')}
+              ${storyCard('/images/heritage/story-atlas.webp', '/images/products/craft-atlas/back-print.webp', 'Indian Craft Atlas elephant artwork', 'THE ATLAS PRINT', 'CRAFT ATLAS', 'People, patterns, places, purpose. A dozen crafts from across India, drawn onto one elephant.')}
             </div>
           </section>
 
-          <!-- SECTION 3: 02 / ENGINEERED PATTERNS // GARMENT ARTIFACTS -->
+          <!-- SECTION 3: 02 / THE DESIGNS -->
           <section class="heritage-section heritage-garments-section" id="heritageGarmentsSection">
             <div class="heritage-section-header">
               <div class="heritage-marker-row">
@@ -1673,7 +1670,7 @@ Thank you.`,
                 <h2 class="heritage-section-title">THE HERITAGE TEES</h2>
                 <div class="heritage-desc-wrapper">
                   <p class="heritage-section-narrative">
-                    Oversized 240 GSM French Terry cotton, bio + silicone washed, with large DTF back prints. ₹699, MRP ₹999, with free delivery.
+                    Heavy, oversized cotton tees with large, full-colour back prints. Free delivery across India.
                   </p>
                 </div>
               </div>
@@ -1685,7 +1682,7 @@ Thank you.`,
             </div>
           </section>
 
-          <!-- SECTION 4: 03 / CHROMATIC CODES // ARCHITECTURAL INK & DYE -->
+          <!-- SECTION 4: 03 / COLOURS -->
           <section class="heritage-section heritage-swatches-section">
             <div class="heritage-section-header">
               <div class="heritage-marker-row">
@@ -1709,8 +1706,7 @@ Thank you.`,
               <div class="swatch-card">
                 <div class="swatch-color-block" style="background-color: #111116;"></div>
                 <div class="swatch-details">
-                  <span class="swatch-title">01 // BLACK</span>
-                  <span class="swatch-hex">#111116</span>
+                  <span class="swatch-title">BLACK</span>
                   <span class="swatch-info">The boldest backdrop. Makes every colour in the print glow.</span>
                 </div>
               </div>
@@ -1719,8 +1715,7 @@ Thank you.`,
               <div class="swatch-card">
                 <div class="swatch-color-block" style="background-color: #C81D25;"></div>
                 <div class="swatch-details">
-                  <span class="swatch-title">02 // RED</span>
-                  <span class="swatch-hex">#C81D25</span>
+                  <span class="swatch-title">RED</span>
                   <span class="swatch-info">Festive and loud. The colour of celebration.</span>
                 </div>
               </div>
@@ -1729,8 +1724,7 @@ Thank you.`,
               <div class="swatch-card">
                 <div class="swatch-color-block" style="background-color: #1852B8;"></div>
                 <div class="swatch-details">
-                  <span class="swatch-title">03 // ROYAL BLUE</span>
-                  <span class="swatch-hex">#1852B8</span>
+                  <span class="swatch-title">ROYAL BLUE</span>
                   <span class="swatch-info">Rich and confident. Pairs well with the warm tones of the art.</span>
                 </div>
               </div>
@@ -1739,8 +1733,7 @@ Thank you.`,
               <div class="swatch-card">
                 <div class="swatch-color-block" style="background-color: #F7F7FA;"></div>
                 <div class="swatch-details">
-                  <span class="swatch-title">04 // WHITE</span>
-                  <span class="swatch-hex">#F7F7FA</span>
+                  <span class="swatch-title">WHITE</span>
                   <span class="swatch-info">Clean and bright. The print reads like a painted canvas.</span>
                 </div>
               </div>
@@ -1757,8 +1750,8 @@ Thank you.`,
   function renderShopView(colSlug = 'all') {
     const collections = window.BravadianDB.getCollections();
     const activeCol = collections.find(c => c.slug === colSlug) || { 
-      name: 'ALL DESIGNS', 
-      description: 'Every design across all five collections. Oversized 240 GSM French Terry tees with original Indian artwork.' 
+      name: 'ALL TEES', 
+      description: 'Every Bravadian tee, from all five collections. Original Indian artwork on heavy, oversized cotton.' 
     };
     
     // Get filtered products
@@ -1783,11 +1776,11 @@ Thank you.`,
         <header class="canon-header-block">
           <div class="canon-eyebrow">
             <span class="eyebrow-dash">—</span>
-            <span class="eyebrow-text">SHOP // ALL TEES</span>
+            <span class="eyebrow-text">SHOP · ALL TEES</span>
           </div>
-          <h1 class="canon-main-title">ALL DESIGNS</h1>
+          <h1 class="canon-main-title">ALL TEES</h1>
           <p class="canon-sub-desc">
-            Every design across all five collections. Oversized 240 GSM French Terry tees with original Indian artwork.
+            Every Bravadian tee, from all five collections. Original Indian artwork on heavy, oversized cotton.
           </p>
         </header>
 
@@ -1847,15 +1840,15 @@ Thank you.`,
           ${!isShowingAll ? `
           <div class="canon-load-more-wrap">
             <button type="button" class="btn-canon-load-more" id="canonLoadMoreBtn">
-              <span>SHOW ALL ${products.length} PIECES &darr;</span>
+              <span>SHOW ALL ${products.length} TEES &darr;</span>
             </button>
           </div>` : ''}
         ` : `
           <div class="canon-empty-state">
-            <div class="empty-state-icon">⚡</div>
-            <h3 class="empty-state-title">NO ARTIFACTS FOUND</h3>
-            <p class="empty-state-sub">Try clearing size filters or try another collection.</p>
-            <a href="#/collections/all" class="btn-canon-load-more" style="display: inline-block;">RESET ALL FILTERS</a>
+            <div class="empty-state-icon">✦</div>
+            <h3 class="empty-state-title">NO TEES MATCH THESE FILTERS</h3>
+            <p class="empty-state-sub">Try another size, or look through a different collection.</p>
+            <a href="#/collections/all" class="btn-canon-load-more" style="display: inline-block;">CLEAR FILTERS</a>
           </div>
         `}
       </div>
@@ -2043,7 +2036,7 @@ Thank you.`,
     const pImages = product.images || {};
     const getDiagram = (view) => {
       if (window.BravadianDefaults && window.BravadianDefaults.createTeeSVG) {
-        return window.BravadianDefaults.createTeeSVG(product.name, product.collection || 'Heritage', '#111116', '#FFA000', view);
+        return window.BravadianDefaults.createTeeSVG(product.name, product.collection || 'Heritage', '#111116', '#ED1C24', view);
       }
       return '';
     };
@@ -2059,7 +2052,10 @@ Thank you.`,
       const list = cs
         ? [[cs.front, 'contain'], [cs.model, 'cover'], [cs.model2, 'cover'], [cs.closeup, 'cover'], [cs.back, 'contain']]
         : [[thumb1, 'contain'], [thumb2, 'contain'], [thumb3, 'contain'], [pImages.lifestyle, 'cover'], [pImages.lifestyle2, 'cover']];
-      return list.filter(([src], i, arr) => src && arr.findIndex(([x]) => x === src) === i).map(([src, fit]) => ({ src, fit }));
+      const all = list.filter(([src], i, arr) => src && arr.findIndex(([x]) => x === src) === i).map(([src, fit]) => ({ src, fit }));
+      // Generated drawings only fill in when the tee has no real photo at all
+      const photos = all.filter(({ src }) => !String(src).startsWith('data:'));
+      return photos.length ? photos : all;
     };
     const galleryImages = galleryFor(StoreState.selectedColor);
 
@@ -2068,9 +2064,9 @@ Thank you.`,
     const accordions = [
       { title: 'THE STORY', content: product.story || product.description },
       product.motif ? { title: 'THE SYMBOLS', content: product.motif } : null,
-      { title: 'FABRIC & PRINT', content: `${product.fabric || '240 GSM French Terry cotton'}. ${product.gsm === 450 ? '' : 'Oversized drop-shoulder fit. DTF printed.'}` },
-      { title: 'CARE', content: 'Wash inside out in cold water. Line dry in shade. Do not iron directly on the print. Do not bleach or tumble dry.' },
-      { title: 'DELIVERY & RETURNS', content: 'All-India delivery. Your order is confirmed with you on WhatsApp before dispatch. See our Shipping and Returns policy for full details.' }
+      { title: 'FABRIC & PRINT', content: '240 GSM French Terry cotton: thick and soft, and it holds its shape. Bio + silicone washed, so it feels soft from the first wear. DTF printed for sharp, full-colour artwork that stays bright with the right care. Oversized fit with dropped shoulders.' },
+      { title: 'CARE', content: 'Wash inside out in cold water, up to 30°C. Dry flat in the shade. Iron on low heat, inside out, never directly on the print. No bleach and no tumble dryer.' },
+      { title: 'DELIVERY & RETURNS', content: 'Free delivery anywhere in India. We confirm your order with you on WhatsApp, then dispatch it within 24–48 hours. See our Shipping and Returns policies for the details.' }
     ].filter(Boolean).map((a, n) => ({ num: String(n + 1).padStart(2, '0'), ...a }));
 
     // Other designs to browse: same collection first, then the rest
@@ -2081,11 +2077,11 @@ Thank you.`,
       .map((p, n) => ({ product: p, slug: p.slug, name: p.name, badge: p.relicTag || `DESIGN 0${n + 1}`, image: p.images.front }));
 
     const defaultChapters = [
-      { num: '01', title: 'ANIME', chapter: 'ADHYAYA 01: MANGA & ANIME', collection: 'anime' },
-      { num: '02', title: 'MYTHOLOGY', chapter: 'ADHYAYA 02: SACRED MYTHOLOGY', collection: 'mythology' },
-      { num: '03', title: 'HERITAGE', chapter: 'ADHYAYA 03: BHARAT HERITAGE', collection: 'heritage' },
-      { num: '04', title: 'STREET CULTURE', chapter: 'ADHYAYA 04: URBAN STREET CULTURE', collection: 'street-culture' },
-      { num: '05', title: 'MINIMAL', chapter: 'ADHYAYA 05: EVERYDAY MINIMAL', collection: 'minimal' }
+      { num: '01', title: 'ANIME', chapter: 'MANGA & ANIME', collection: 'anime' },
+      { num: '02', title: 'MYTHOLOGY', chapter: 'MYTHS & LEGENDS', collection: 'mythology' },
+      { num: '03', title: 'HERITAGE', chapter: 'CRAFTS & SYMBOLS', collection: 'heritage' },
+      { num: '04', title: 'STREET CULTURE', chapter: 'CITY STREETS', collection: 'street-culture' },
+      { num: '05', title: 'MINIMAL', chapter: 'EVERYDAY BASICS', collection: 'minimal' }
     ];
     const gateways = defaultChapters
       .filter(gw => gw.collection !== (product.collection || 'heritage').toLowerCase())
@@ -2093,7 +2089,7 @@ Thank you.`,
       const colProd = window.BravadianDB.getProducts({ collection: gw.collection })[0];
       const gImg = (colProd && colProd.images && colProd.images.front)
         ? colProd.images.front
-        : (window.BravadianDefaults ? window.BravadianDefaults.createTeeSVG(gw.title, gw.collection, '#121216', '#FFA000', 'front') : '');
+        : (window.BravadianDefaults ? window.BravadianDefaults.createTeeSVG(gw.title, gw.collection, '#121216', '#ED1C24', 'front') : '');
       return {
         ...gw,
         image: gImg,
@@ -2129,7 +2125,7 @@ Thank you.`,
             <!-- Header Eyebrow -->
             <div class="pdp-eyebrow-row">
               <span class="pdp-amber-dot"></span>
-              <span class="pdp-eyebrow-text">${(product.collection || 'HERITAGE').replace(/-/g, ' ').toUpperCase()} COLLECTION // ADHYAYA 01</span>
+              <span class="pdp-eyebrow-text">${(product.collection || 'HERITAGE').replace(/-/g, ' ').toUpperCase()} COLLECTION · ADHYAYA 01</span>
             </div>
 
             <!-- Title -->
@@ -2170,10 +2166,10 @@ Thank you.`,
             <!-- Add to Bag CTA -->
             <div class="pdp-cta-wrap">
               <button type="button" class="pdp-cta-btn ${product.isComingSoon ? 'is-coming-soon' : 'gr-btn'}" id="pdpCtaBtn">
-                ${product.isComingSoon ? `[ COMING SOON ]` : `${glowDisc(BAG_SVG)}<span class="gr-label">ADD TO BAG — ${settings.currency}${window.BravadianDB.effectivePrice(product).toLocaleString('en-IN')}</span>`}
+                ${product.isComingSoon ? `COMING SOON` : `${glowDisc(BAG_SVG)}<span class="gr-label">ADD TO BAG — ${settings.currency}${window.BravadianDB.effectivePrice(product).toLocaleString('en-IN')}</span>`}
               </button>
               <div class="pdp-cta-subtext">
-                ✦ ORDER CONFIRMED ON WHATSAPP // ALL-INDIA DELIVERY // UPI, CARDS & NET BANKING
+                ✦ FREE DELIVERY ACROSS INDIA · CONFIRMED ON WHATSAPP · PAY BY UPI
               </div>
             </div>
 
@@ -2185,9 +2181,9 @@ Thank you.`,
               ${accordions.map((acc, i) => `
                 <div class="pdp-accordion-item ${i === 0 ? 'is-open' : ''}" data-index="${i}">
                   <button type="button" class="pdp-accordion-header" aria-expanded="${i === 0 ? 'true' : 'false'}">
-                    <span class="pdp-accordion-title">${acc.num} // ${acc.title}</span>
+                    <span class="pdp-accordion-title">${acc.title}</span>
                     <span class="pdp-accordion-icon">
-                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#FFA000" stroke-width="2">
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#ED1C24" stroke-width="2">
                         <line x1="8" y1="2" x2="8" y2="14" class="pdp-icon-v"></line>
                         <line x1="2" y1="8" x2="14" y2="8"></line>
                       </svg>
@@ -2208,7 +2204,7 @@ Thank you.`,
             <div class="pdp-section-title-group">
               <div class="pdp-section-eyebrow">
                 <span class="pdp-line-indicator"></span>
-                <span class="pdp-section-eyebrow-text">02 / YOU MAY ALSO LIKE</span>
+                <span class="pdp-section-eyebrow-text">YOU MAY ALSO LIKE</span>
               </div>
               <h2 class="pdp-section-heading">MORE DESIGNS TO EXPLORE</h2>
             </div>
@@ -2226,7 +2222,7 @@ Thank you.`,
             <div class="pdp-section-title-group">
               <div class="pdp-section-eyebrow">
                 <span class="pdp-line-indicator"></span>
-                <span class="pdp-section-eyebrow-text">03 / OTHER COLLECTIONS</span>
+                <span class="pdp-section-eyebrow-text">KEEP EXPLORING</span>
               </div>
               <h2 class="pdp-section-heading">EXPLORE THE COLLECTIONS</h2>
             </div>
@@ -2502,9 +2498,9 @@ Thank you.`,
     toast.innerHTML = `
       <img src="${imgSrc}" alt="${product.name}" class="cart-toast-thumb">
       <div class="cart-toast-body">
-        <span class="cart-toast-tag">ADDED TO CART</span>
+        <span class="cart-toast-tag">ADDED TO BAG</span>
         <div class="cart-toast-title">${product.name}</div>
-        <div class="cart-toast-meta">${size} // ${color} • ${settings.currency || '₹'}${window.BravadianDB.effectivePrice(product).toLocaleString('en-IN')} (x${qty})</div>
+        <div class="cart-toast-meta">${size} · ${color} · ${settings.currency || '₹'}${window.BravadianDB.effectivePrice(product).toLocaleString('en-IN')} (x${qty})</div>
       </div>
       <div class="cart-toast-actions">
         <button type="button" class="cart-toast-btn" onclick="window.BravadianStore.openCartDrawer();">VIEW</button>
@@ -2731,7 +2727,7 @@ Thank you.`,
       </button>
       <ul class="bag-trust">
         <li>Order confirmed with you on WhatsApp</li>
-        <li>Pay by UPI, card or net banking</li>
+        <li>Pay by UPI, on WhatsApp once we confirm</li>
         <li>Free delivery across India, dispatched in 24&ndash;48 hours</li>
       </ul>`;
   }
@@ -2741,8 +2737,8 @@ Thank you.`,
       <div class="bag-empty">
         <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 7h12l-1 13H7L6 7z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg>
         <h2>Your bag is empty</h2>
-        <p>Find a design you love. ₹699 each, free delivery across India.</p>
-        <a href="#/shop" class="bag-cta" ${inDrawer ? 'onclick="window.BravadianStore.closeCartDrawer();"' : ''}><span>SHOP ALL DESIGNS</span></a>
+        <p>Find a design you love. Every order ships free across India.</p>
+        <a href="#/shop" class="bag-cta" ${inDrawer ? 'onclick="window.BravadianStore.closeCartDrawer();"' : ''}><span>SHOP ALL TEES</span></a>
       </div>`;
   }
 
@@ -2832,7 +2828,7 @@ Thank you.`,
      -------------------------------------------------------------------------- */
   function openCheckoutModal() {
     if (StoreState.cart.length === 0) {
-      alert('Your cart is empty. Add a product first.');
+      alert('Your bag is empty. Add a tee first.');
       return;
     }
     if (checkoutModal) {
@@ -2910,7 +2906,7 @@ Thank you.`,
 
     // Validate Agreement
     if (!agreement) {
-      alert('Please agree to the Bravadian Terms & Conditions and Privacy Policy to proceed.');
+      alert('Please tick the box to agree to our Terms & Conditions and Privacy Policy.');
       return;
     }
 
@@ -2972,7 +2968,7 @@ ${itemsText}
 
 --------------------
 Subtotal: ${settings.currency}${subtotal.toLocaleString('en-IN')}
-Shipping: ${shipping === 0 ? 'FREE' : `${settings.currency}${shipping}`}
+Delivery: ${shipping === 0 ? 'FREE' : `${settings.currency}${shipping}`}
 TOTAL: ${settings.currency}${total.toLocaleString('en-IN')}
 
 DELIVERY DETAILS
@@ -3050,7 +3046,7 @@ Thank you.
         <p class="done-lede">WhatsApp has opened with your order already typed in. Press <b>send</b> so it reaches us.</p>
         <ol class="done-steps">
           <li><b>Send the message</b><span>Your items, sizes and address are in the chat. Just press send.</span></li>
-          <li><b>We confirm</b><span>We reply to confirm your size, total and how you would like to pay.</span></li>
+          <li><b>We confirm</b><span>We reply to confirm your size and total, and send our UPI details to pay.</span></li>
           <li><b>We dispatch</b><span>Your order ships within 24&ndash;48 hours, anywhere in India.</span></li>
         </ol>
         <div class="done-actions">
@@ -3082,7 +3078,7 @@ Thank you.
 
       if (products.length === 0) {
         // What the shopper typed is shown as text, never as HTML
-        resultsBox.innerHTML = `<div style="padding: 1.5rem; color: #888; font-family: var(--font-mono); font-size: 0.85rem;">No pieces matching "${escapeHTML(q)}"</div>`;
+        resultsBox.innerHTML = `<div style="padding: 1.5rem; color: #888; font-family: var(--font-mono); font-size: 0.85rem;">No tees match "${escapeHTML(q)}". Try a name, a collection or a symbol like Shiva or elephant.</div>`;
       } else {
         resultsBox.innerHTML = products.map(p => `
           <a href="#/product/${encodeURIComponent(p.slug)}" class="search-result-row" onclick="window.BravadianStore.closeSearchModal();">
@@ -3273,7 +3269,7 @@ Thank you.
           ${lbImg('lb-hero', '/images/products/bharat-spirit/worn-temple.webp?v=3', 'Bravadian heritage tees worn on the street', 'lb2-hero-img')}
           <div class="lb2-hero-shade" aria-hidden="true"></div>
           <div class="lb2-hero-copy">
-            <span class="lb2-eyebrow"><i></i>LOOKBOOK // ADHYAYA 01</span>
+            <span class="lb2-eyebrow"><i></i>LOOKBOOK · ADHYAYA 01</span>
             <h1 class="lb2-title">LOOKBOOK 01:<br>WEAR YOUR ROOTS</h1>
             <p class="lb2-lede">The Heritage collection, out on the street. Folk art and the symbols of India, printed on oversized cotton tees made for every day.</p>
           </div>
@@ -3284,7 +3280,7 @@ Thank you.
         <section class="lb2-section">
           <div class="lb2-head">
             <div>
-              <span class="lb2-kicker">01 / THE LOOKS</span>
+              <span class="lb2-kicker">THE LOOKS</span>
               <h2 class="lb2-h2">HOW IT&rsquo;S WORN</h2>
             </div>
             <p class="lb2-note">Two designs, styled the way you would wear them. Loose, easy and bold.</p>
@@ -3292,11 +3288,11 @@ Thank you.
           <div class="lb2-pair">
             <figure class="lb2-fig">
               ${lbImg('lb-look-01', '/images/products/bharat-spirit/worn-studio.webp?v=2', 'Bharat Spirit tee, styled look', 'lb2-img')}
-              <figcaption><b>LOOK 01 // BHARAT SPIRIT</b><span>BLACK · OVERSIZED</span></figcaption>
+              <figcaption><b>LOOK 01 · BHARAT SPIRIT</b><span>BLACK · OVERSIZED</span></figcaption>
             </figure>
             <figure class="lb2-fig">
               ${lbImg('lb-look-02', '/images/products/craft-atlas/closeup.webp', 'Indian Craft Atlas tee, styled look', 'lb2-img')}
-              <figcaption><b>LOOK 02 // INDIAN CRAFT ATLAS</b><span>BLACK · OVERSIZED</span></figcaption>
+              <figcaption><b>LOOK 02 · INDIAN CRAFT ATLAS</b><span>BLACK · OVERSIZED</span></figcaption>
             </figure>
           </div>
         </section>
@@ -3304,10 +3300,10 @@ Thank you.
         <section class="lb2-section">
           <div class="lb2-head">
             <div>
-              <span class="lb2-kicker">02 / SHOP THE LOOK</span>
+              <span class="lb2-kicker">SHOP THE LOOK</span>
               <h2 class="lb2-h2">WORN IN THIS LOOKBOOK</h2>
             </div>
-            <p class="lb2-note">₹699 each, free delivery across India.</p>
+            <p class="lb2-note">Tap a tee to see its story. Free delivery across India.</p>
           </div>
           <div class="lb2-shop" style="--n:${Math.max(shopLook.length, 2)}">
             ${shopLook.map((p, n) => `
@@ -3317,7 +3313,7 @@ Thank you.
               <div class="lb2-card-info">
                 <h3>${p.name}</h3>
                 <span class="lb2-card-price">${priceHTML(p)}</span>
-                <span class="lb2-card-sub">240 GSM COTTON // OVERSIZED</span>
+                <span class="lb2-card-sub">HEAVY COTTON · OVERSIZED</span>
               </div>
             </a>`).join('')}
           </div>
@@ -3326,16 +3322,16 @@ Thank you.
         <section class="lb2-section">
           <figure class="lb2-fig lb2-wide">
             ${lbImg('lb-panorama', '/images/lookbook/lb-hero.webp', 'Wide view of a Bravadian look', 'lb2-img')}
-            <figcaption><b>WIDE SHOT // HERITAGE</b><span>SHOT IN INDIA</span></figcaption>
+            <figcaption><b>HERITAGE, WIDE</b><span>SHOT IN INDIA</span></figcaption>
           </figure>
         </section>
 
         <footer class="lb2-quote">
-          <span class="lb2-kicker">INDIAN ROOTS // MODERN FORM</span>
+          <span class="lb2-kicker">INDIAN ROOTS. MODERN FORM.</span>
           <blockquote data-focus-reveal>&ldquo;You didn&rsquo;t just pick a T-shirt. You picked a story.&rdquo;</blockquote>
           <span class="lb2-sign">BRAVADIAN, EST. 2026</span>
           <div class="lb2-actions">
-            <a href="#/shop" class="lb-btn lb-btn-red">SHOP ALL DESIGNS &rarr;</a>
+            <a href="#/shop" class="lb-btn lb-btn-red">SHOP ALL TEES &rarr;</a>
             <a href="${waURL(WA_MSG.custom)}" target="_blank" rel="noopener noreferrer" class="lb-btn lb-btn-ghost">CUSTOM ORDER ON WHATSAPP</a>
           </div>
         </footer>
@@ -3360,7 +3356,7 @@ Thank you.
       content = `
         <p>BRAVADIAN (BRAVE INDIAN) collects only what we need to deliver your order. This page explains what that is, where it is kept and who sees it.</p>
         <h3>WHAT WE COLLECT</h3>
-        <p>When you place an order: your name, phone number, delivery address, city, state, pincode, landmark and email (if you give one), and the items you ordered. We never ask for or store card, UPI or bank details on this website.</p>
+        <p>When you place an order: your name, phone number, delivery address, city, state, pincode, landmark and email (if you give one), and the items you ordered. Payment is by UPI, arranged with you on WhatsApp. We never ask for or store payment details on this website.</p>
         <h3>HOW WE USE IT</h3>
         <p>To confirm, pack, ship and deliver your order, and to contact you about it. We do not sell your details or use them for advertising.</p>
         <h3>WHERE IT IS KEPT</h3>
@@ -3377,23 +3373,31 @@ Thank you.
     } else if (type === 'terms' || type === 'terms-conditions') {
       title = 'TERMS & CONDITIONS';
       content = `
-        <p>By browsing BRAVADIAN and ordering through our WhatsApp channel, you acknowledge and agree to our terms of service.</p>
-        <h3>LIMITED EDITIONS</h3>
-        <p>Each 240 GSM oversized silhouette is produced in strictly limited batch sizes. Placement of order details on WhatsApp does not guarantee allocation until confirmed by the concierge.</p>
+        <p>By browsing BRAVADIAN and ordering through WhatsApp, you agree to these terms.</p>
+        <h3>SMALL BATCHES</h3>
+        <p>Each design is made in small batches. Sending your order on WhatsApp does not reserve a tee until we reply and confirm it with you.</p>
+        <h3>PAYMENT</h3>
+        <p>We take payment by UPI only. Once we confirm your order on WhatsApp, we send our UPI details there.</p>
+        <h3>CUSTOM ORDERS</h3>
+        <p>Custom and personalised tees are made to order. Once placed, they cannot be exchanged or returned.</p>
       `;
     } else if (type === 'shipping' || type === 'shipping-policy') {
-      title = 'SHIPPING & DISPATCH';
+      title = 'SHIPPING & DELIVERY';
       content = `
-        <p>All pieces are inspected, boxed, and dispatched within 24 to 48 hours of order confirmation.</p>
-        <h3>TRANSIT TIMES</h3>
-        <p>Metro destinations receive priority air transit within 2-4 business days. Regional zones are delivered within 4-6 business days.</p>
+        <p>Delivery is free on every order, anywhere in India.</p>
+        <h3>DISPATCH</h3>
+        <p>Every tee is checked and packed, then dispatched within 24 to 48 hours of us confirming your order on WhatsApp.</p>
+        <h3>DELIVERY TIMES</h3>
+        <p>Metro cities: usually 2 to 4 working days. Other areas: usually 4 to 6 working days.</p>
       `;
     } else if (type === 'returns' || type === 'return-refund-policy') {
-      title = 'RETURN & EXCHANGE POLICY';
+      title = 'RETURNS & EXCHANGES';
       content = `
-        <p>We accept size exchanges within 7 days of delivery for unworn garments with original tags intact.</p>
-        <h3>QUALITY DEFECTS</h3>
-        <p>In the unlikely event of stitching or textile defects, reach out via our WhatsApp concierge with your delivery invoice for immediate replacement.</p>
+        <p>Wrong size? We exchange sizes within 7 days of delivery, as long as the tee is unworn and the tags are still on.</p>
+        <h3>DAMAGED OR FAULTY</h3>
+        <p>If your tee arrives with a stitching or fabric fault, message us on WhatsApp with your order number and a photo, and we will replace it.</p>
+        <h3>CUSTOM &amp; PERSONALISED ORDERS</h3>
+        <p>Custom and personalised tees are made just for you, so once the order is placed they cannot be exchanged or returned.</p>
       `;
     }
 
@@ -3433,7 +3437,7 @@ Thank you.
 
             <div class="about-geo-coordinates">
               <span class="geo-bar"></span>
-              <span class="geo-text">— ADHYAYA 01 // ROOTED FORM // EST. 2026 —</span>
+              <span class="geo-text">— ADHYAYA 01: ROOTED FORM · EST. 2026 —</span>
               <span class="geo-bar"></span>
             </div>
           </div>
@@ -3448,7 +3452,7 @@ Thank you.
             </blockquote>
             <div class="quote-author-line">
               <span class="quote-line-dash"></span>
-              <span class="quote-author-text">BRAVADIAN // bravadian.in</span>
+              <span class="quote-author-text">BRAVADIAN · bravadian.in</span>
               <span class="quote-line-dash"></span>
             </div>
           </div>
@@ -3477,7 +3481,7 @@ Thank you.
               <p class="pillar-desc">
                 Indian roots, worn the way you actually dress. No costume, no stereotypes. Culture treated as source material, used with respect.
               </p>
-              <div class="pillar-metric">INDIAN ROOTS // MODERN FORM</div>
+              <div class="pillar-metric">INDIAN ROOTS · MODERN FORM</div>
             </div>
 
             <!-- PILLAR 2: NO-BACON RIB COLLAR -->
@@ -3494,7 +3498,7 @@ Thank you.
               <p class="pillar-desc">
                 Inspiration sets the direction. The final artwork is always ours. Every design gets a name, a concept and one sentence that says why it exists.
               </p>
-              <div class="pillar-metric">ORIGINAL ARTWORK // EVERY DESIGN</div>
+              <div class="pillar-metric">ORIGINAL ARTWORK · EVERY DESIGN</div>
             </div>
 
             <!-- PILLAR 3: HOYSALA ICONOGRAPHY -->
@@ -3509,7 +3513,7 @@ Thank you.
               <p class="pillar-desc">
                 Fabric, fit, print and finish have to justify the price. Every design is sampled and wash-tested before we make a full batch.
               </p>
-              <div class="pillar-metric">SAMPLE-TESTED // BEFORE BULK</div>
+              <div class="pillar-metric">WASH-TESTED · BEFORE WE MAKE IT</div>
             </div>
 
             <!-- PILLAR 4: VAULT SERIALIZATION -->
@@ -3526,7 +3530,7 @@ Thank you.
               <p class="pillar-desc">
                 A premium feel without a premium barrier. We keep prices within reach so the story is something you wear every day.
               </p>
-              <div class="pillar-metric">AFFORDABLE PREMIUM // EVERYDAY</div>
+              <div class="pillar-metric">PREMIUM · AT A FAIR PRICE</div>
             </div>
           </div>
         </section>
@@ -3535,24 +3539,24 @@ Thank you.
         <section class="about-specs-section container">
           <div class="about-spec-strip">
             <div class="about-spec-item">
-              <span class="spec-label">[ FABRIC ]</span>
+              <span class="spec-label">FABRIC</span>
               <span class="spec-val">240 GSM</span>
-              <span class="spec-sub">French Terry Cotton</span>
+              <span class="spec-sub">Thick, soft French Terry cotton</span>
             </div>
             <div class="about-spec-item">
-              <span class="spec-label">[ FIT ]</span>
+              <span class="spec-label">FIT</span>
               <span class="spec-val">OVERSIZED</span>
-              <span class="spec-sub">Relaxed Drop-Shoulder</span>
+              <span class="spec-sub">Relaxed, with dropped shoulders</span>
             </div>
             <div class="about-spec-item">
-              <span class="spec-label">[ FINISH ]</span>
-              <span class="spec-val">BIO + SILICONE</span>
-              <span class="spec-sub">Washed For A Soft Hand-Feel</span>
+              <span class="spec-label">FEEL</span>
+              <span class="spec-val">WASHED SOFT</span>
+              <span class="spec-sub">Bio + silicone wash, soft from day one</span>
             </div>
             <div class="about-spec-item">
-              <span class="spec-label">[ PRINT ]</span>
-              <span class="spec-val">DTF</span>
-              <span class="spec-sub">Sharp, Full-Colour Artwork</span>
+              <span class="spec-label">PRINT</span>
+              <span class="spec-val">FULL COLOUR</span>
+              <span class="spec-sub">DTF print, sharp and bright</span>
             </div>
           </div>
         </section>
@@ -3567,7 +3571,7 @@ Thank you.
             </p>
             <div class="about-cta-actions">
               <a href="#/shop" class="btn-figma-primary">
-                <span>[ SHOP NOW ]</span>
+                <span>SHOP ALL TEES</span>
                 <svg class="btn-vault-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                   <line x1="5" y1="12" x2="19" y2="12"></line>
                   <polyline points="12 5 19 12 12 19"></polyline>
@@ -3630,7 +3634,7 @@ Thank you.
         <!-- 2. SECTION 04: THE FOUR MAINTENANCE PROTOCOLS -->
         <section class="size-spec-section" style="margin-bottom: 3.5rem;">
           <div class="size-spec-section-head">
-            <span class="size-spec-section-num">— 04 / CARE GUIDE</span>
+            <span class="size-spec-section-num">— CARE GUIDE</span>
             <h2 class="size-spec-section-title">EVERY WASH</h2>
             <p class="size-spec-section-sub">
               Four simple steps, every time you wash.
@@ -3665,7 +3669,7 @@ Thank you.
         <!-- 4. TECHNICAL FIBER & STRUCTURAL SPECIFICATIONS -->
         <section class="size-spec-section" style="margin-top: 3.5rem;">
           <div class="size-spec-section-head">
-            <span class="size-spec-section-num">— 05 / WHAT IT IS MADE OF</span>
+            <span class="size-spec-section-num">— WHAT IT'S MADE OF</span>
             <h2 class="size-spec-section-title">FABRIC DETAILS</h2>
           </div>
 
@@ -3681,25 +3685,25 @@ Thank you.
               </thead>
               <tbody>
                 <tr>
-                  <td style="color: #FFA000; font-weight: 700;">240 GSM Body Fabric</td>
+                  <td style="color: var(--theme-accent); font-weight: 700;">240 GSM Body Fabric</td>
                   <td>French Terry cotton, bio + silicone washed</td>
                   <td>Cold, gentle wash</td>
                   <td>Soft, thick and holds its shape</td>
                 </tr>
                 <tr>
-                  <td style="color: #FFA000; font-weight: 700;">1.25" Collar Rib</td>
+                  <td style="color: var(--theme-accent); font-weight: 700;">1.25" Collar Rib</td>
                   <td>Thick ribbed collar</td>
                   <td>Dry flat</td>
                   <td>Stays neat around the neck</td>
                 </tr>
                 <tr>
-                  <td style="color: #FFA000; font-weight: 700;">Printed Artwork</td>
+                  <td style="color: var(--theme-accent); font-weight: 700;">Printed Artwork</td>
                   <td>Large DTF print</td>
                   <td>Iron inside out only</td>
                   <td>Keeps colours bright</td>
                 </tr>
                 <tr>
-                  <td style="color: #FFA000; font-weight: 700;">Shoulder Drop Seams</td>
+                  <td style="color: var(--theme-accent); font-weight: 700;">Shoulder Drop Seams</td>
                   <td>Dropped shoulders, strong stitching</td>
                   <td>Fold, or use a wide hanger</td>
                   <td>The relaxed oversized fit</td>
@@ -3713,7 +3717,7 @@ Thank you.
         <div class="care-page-cta-strip">
           <div>
             <span class="figma-tag">[ NOT SURE OF YOUR SIZE? ]</span>
-            <h3 style="font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; color: #fff; margin: 0.35rem 0 0 0; letter-spacing: 1.5px; text-transform: uppercase;">FIND YOUR FIT</h3>
+            <h3 style="font-family: var(--font-display); font-size: 1.8rem; color: #fff; margin: 0.35rem 0 0 0; letter-spacing: 1.5px; text-transform: uppercase;">FIND YOUR FIT</h3>
           </div>
           <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
             <button type="button" onclick="window.BravadianStore.openSizeGuideModal();" class="btn-figma-primary" style="cursor: pointer;">

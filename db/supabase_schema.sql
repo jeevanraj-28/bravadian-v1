@@ -1,6 +1,6 @@
 -- ==========================================================================
 -- BRAVADIAN (BRAVE INDIAN) - Supabase Database Schema
--- FIRST-TIME SETUP ONLY, on a new, empty Supabase project. Then run 002 → 007 in order.
+-- FIRST-TIME SETUP ONLY, on a new, empty Supabase project. Then run 002 → 008 in order.
 --
 -- ⚠ This script deletes and recreates the catalog tables. On a project that is already
 --   set up it stops at the check below and changes nothing. To change a live project,

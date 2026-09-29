@@ -9,7 +9,7 @@
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cinzel:wght@600;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Yatra+One&family=Eczar:wght@500;600;700;800&family=Rajdhani:wght@500;600;700&family=Mukta:wght@300;400;500;600;700;800&family=Tiro+Devanagari+Hindi&display=swap" rel="stylesheet">
   
   <link rel="stylesheet" href="css/styles.css">
   <link rel="stylesheet" href="css/admin.css">
@@ -155,7 +155,7 @@
           </div>
           <div class="metric-card">
             <div class="metric-title">LOW STOCK VARIANTS</div>
-            <div class="metric-val" id="metricLowStock" style="color: #f59e0b;">0</div>
+            <div class="metric-val" id="metricLowStock" style="color: #ED1C24;">0</div>
           </div>
         </div>
 
@@ -326,7 +326,7 @@
               <input type="url" id="cfgInstagram" class="admin-input">
             </div>
             <div class="admin-field">
-              <label>SHIPPING CHARGE (₹)</label>
+              <label>DELIVERY CHARGE (₹) · 0 = FREE DELIVERY</label>
               <input type="number" id="cfgShippingFee" class="admin-input">
             </div>
             <div class="admin-field">
@@ -334,11 +334,11 @@
               <input type="datetime-local" id="cfgLaunchEndsAt" class="admin-input">
             </div>
             <div class="admin-field">
-              <label>FREE SHIPPING THRESHOLD (₹)</label>
+              <label>FREE DELIVERY ABOVE (₹) · 0 = ALWAYS FREE</label>
               <input type="number" id="cfgFreeShipThreshold" class="admin-input">
             </div>
             <div class="admin-field form-field-full">
-              <label>CONCIERGE SUPPORT EMAIL</label>
+              <label>SUPPORT EMAIL</label>
               <input type="email" id="cfgSupportEmail" class="admin-input" placeholder="bravadian.clothing@gmail.com">
             </div>
 
@@ -349,11 +349,11 @@
             </div>
             <div class="admin-field form-field-full">
               <label>ANNOUNCEMENT TICKER TEXT</label>
-              <input type="text" id="cfgAnnouncementText" class="admin-input" placeholder="🇮🇳 BRAVADIAN BESPOKE // CUSTOM STREETWEAR ORDERS ACCEPTED // ORDER DIRECTLY VIA WHATSAPP // BESPOKE SIZING, PERSONALIZED GRAPHICS &amp; ARTWORK COMMISSIONS // ALL-INDIA PRIORITY DISPATCH">
+              <input type="text" id="cfgAnnouncementText" class="admin-input" placeholder="🇮🇳 FREE DELIVERY ACROSS INDIA ✦ CUSTOM &amp; PERSONALISED TEES ON WHATSAPP ✦ ORIGINAL INDIAN ARTWORK">
             </div>
             <div class="admin-field">
               <label>FITTED WHATSAPP BUTTON TEXT</label>
-              <input type="text" id="cfgAnnouncementWaText" class="admin-input" placeholder="CUSTOM ORDERS VIA WHATSAPP">
+              <input type="text" id="cfgAnnouncementWaText" class="admin-input" placeholder="CUSTOM ORDERS ON WHATSAPP">
             </div>
             <div class="admin-field" style="justify-content: center;">
               <label style="font-family: var(--font-mono); font-size: 0.75rem; display: flex; align-items: center; gap: 0.6rem; cursor: pointer; margin-top: 1.2rem;">
@@ -368,7 +368,7 @@
             </div>
             <div class="admin-field">
               <label>HERO TAG (small line above the headline)</label>
-              <input type="text" id="cfgHeroTag" class="admin-input" placeholder="[ 🇮🇳 INDIAN ROOTS // MODERN FORM ]">
+              <input type="text" id="cfgHeroTag" class="admin-input" placeholder="[ 🇮🇳 INDIAN ROOTS. MODERN FORM. ]">
             </div>
             <div class="admin-field">
               <label>HERO MAIN HEADLINE (put | where the line should break)</label>
@@ -376,7 +376,7 @@
             </div>
             <div class="admin-field form-field-full">
               <label>HERO NARRATIVE DESCRIPTION</label>
-              <textarea id="cfgHeroDesc" rows="2" class="admin-textarea" placeholder="Engineered heavyweight silhouettes which forward Bharat culture into raw street context..."></textarea>
+              <textarea id="cfgHeroDesc" rows="2" class="admin-textarea" placeholder="Original Indian art on heavy, oversized cotton tees..."></textarea>
             </div>
             <div class="admin-field form-field-full">
               <label>HERO BACKGROUND IMAGE (OPTIONAL)</label>
@@ -384,17 +384,17 @@
             </div>
             <div class="admin-field form-field-full">
               <label>RUNNING STRIP UNDER THE HERO (separate items with ✦)</label>
-              <input type="text" id="cfgHeroTicker" class="admin-input" placeholder="240 GSM FRENCH TERRY ✦ CRAFTED IN BHARAT ✦ FREE DELIVERY ACROSS INDIA">
+              <input type="text" id="cfgHeroTicker" class="admin-input" placeholder="ORIGINAL INDIAN ARTWORK ✦ MADE IN INDIA ✦ FREE DELIVERY ACROSS INDIA">
             </div>
 
-            <!-- WhatsApp VIP Concierge Message Template -->
+            <!-- WhatsApp coming-soon message template -->
             <div class="form-field-full" style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--admin-border);">
-              <h3 style="font-family: var(--font-display); font-size: 1.1rem; color: var(--admin-ember); margin-bottom: 0.5rem; letter-spacing: 1.5px;">WHATSAPP CONCIERGE TEMPLATES</h3>
+              <h3 style="font-family: var(--font-display); font-size: 1.1rem; color: var(--admin-ember); margin-bottom: 0.5rem; letter-spacing: 1.5px;">WHATSAPP MESSAGE TEMPLATES</h3>
               <p style="font-size: 0.78rem; color: #888; margin-bottom: 1rem;">Format the automated message dispatched when a VIP requests early drop embargo access.</p>
             </div>
             <div class="admin-field form-field-full">
               <label>"COMING SOON" WHATSAPP MESSAGE ({productName} becomes the product's name)</label>
-              <textarea id="cfgVipTemplate" rows="2" class="admin-textarea" placeholder="Hi Bravadian Concierge, I would like priority notification for the upcoming drop: &quot;{productName}&quot;. Please register me for early VIP access!"></textarea>
+              <textarea id="cfgVipTemplate" rows="2" class="admin-textarea" placeholder="Hello Bravadian, please let me know when &quot;{productName}&quot; launches."></textarea>
             </div>
           </form>
         </div>
