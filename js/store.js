@@ -878,7 +878,7 @@ Thank you.`,
     initSpotlight(mainContainer.querySelector('.archive-cards-grid'));
     // Admin's hero background image, set as a style (not HTML) so the address cannot break the page
     const heroBg = document.getElementById('heroCustomBg');
-    if (heroBg) heroBg.style.backgroundImage = `url(${JSON.stringify(siteCopy('heroBgImage'))})`;
+    if (heroBg) heroBg.style.backgroundImage = `url(${JSON.stringify(window.BravadianDB.assetUrl(siteCopy('heroBgImage')))})`;
 
     initHeroMesh(document.getElementById('heroMesh'));
     initHeroRing(document.getElementById('heroRing'));

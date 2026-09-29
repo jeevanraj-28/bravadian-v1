@@ -1542,7 +1542,29 @@
   const TEST_SUPABASE_URL = 'https://cstqxsxfcxbqcqljxlgd.supabase.co';
   const TEST_SUPABASE_ANON_KEY = 'sb_publishable_B-T7Hk7Nb2xwXPl9m6VoZA_abqrenF9'; // public key, safe in browser code
   const IS_LOCALHOST = /^(localhost|127\.0\.0\.1)$/.test(window.location.hostname);
-  const USE_TEST_DB = IS_LOCALHOST && !/[?&]db=live\b/.test(window.location.search);
+  // Build settings (Vite): the GitHub Pages test copy is built with VITE_DB=test, so it uses the
+  // test project too. Vercel/production builds leave it unset and use the live project.
+  const BUILD_ENV = (typeof import.meta !== 'undefined' && import.meta.env) || {};
+  const TEST_BUILD = BUILD_ENV.VITE_DB === 'test';
+  const USE_TEST_DB = (IS_LOCALHOST || TEST_BUILD) && !/[?&]db=live\b/.test(window.location.search);
+
+  // The site's address prefix: "/" in production, "/bravadian-v1/" on the GitHub Pages copy.
+  // Photo paths are stored in the database without it ("/images/...") and get it when shown.
+  const BASE = BUILD_ENV.BASE_URL || '/';
+  // Written as '/' + 'images/' so the Pages build step (which prefixes "/images/" text) leaves it alone
+  const IMAGES_ROOT = '/' + 'images/';
+  const withBase = (u) => (BASE !== '/' && typeof u === 'string' && u.startsWith(IMAGES_ROOT)) ? BASE + u.slice(1) : u;
+  const withoutBase = (u) => (BASE !== '/' && typeof u === 'string' && u.startsWith(BASE + 'images/')) ? '/' + u.slice(BASE.length) : u;
+  const mapPhotos = (images, fn) => {
+    if (!images || typeof images !== 'object') return images;
+    const out = {};
+    Object.entries(images).forEach(([k, v]) => {
+      out[k] = k === 'colors' && v && typeof v === 'object'
+        ? Object.fromEntries(Object.entries(v).map(([c, set]) => [c, Object.fromEntries(Object.entries(set || {}).map(([s, u]) => [s, fn(u)]))]))
+        : fn(v);
+    });
+    return out;
+  };
   const ACTIVE_SUPABASE_URL = USE_TEST_DB ? TEST_SUPABASE_URL : SUPABASE_URL;
   const ACTIVE_SUPABASE_KEY = USE_TEST_DB ? TEST_SUPABASE_ANON_KEY : SUPABASE_ANON_KEY;
 
@@ -1556,12 +1578,14 @@
       if (k === 'colors' && v && typeof v === 'object') {
         const colors = {};
         Object.entries(v).forEach(([c, set]) => {
-          const kept = Object.fromEntries(Object.entries(set || {}).filter(([, u]) => typeof u === 'string' && u && !isDrawing(u)));
+          const kept = Object.fromEntries(Object.entries(set || {})
+            .filter(([, u]) => typeof u === 'string' && u && !isDrawing(u))
+            .map(([s, u]) => [s, withoutBase(u)]));
           if (Object.keys(kept).length) colors[c] = kept;
         });
         if (Object.keys(colors).length) out.colors = colors;
       } else if (typeof v === 'string' && v && !isDrawing(v)) {
-        out[k] = v;
+        out[k] = withoutBase(v);   // stored without the test copy's address prefix
       }
     });
     return Object.keys(out).length ? out : null;
@@ -1575,6 +1599,8 @@
     supabaseClient: null,
     dbLabel: USE_TEST_DB ? 'TEST' : 'LIVE',
     dbUrl: ACTIVE_SUPABASE_URL,
+    // "/images/x.webp" → the address it has on this copy of the site (adds "/bravadian-v1/" on GitHub Pages)
+    assetUrl: withBase,
 
     init() {
       // Auto-Migration to ensure new luxury mockups, products, and collections load immediately
@@ -2143,7 +2169,7 @@
         { key: 'social', value: { instagram: settings.instagramUrl } },
         { key: 'launch', value: { ends_at: settings.launchEndsAt || null } },
         // Announcement bar, hero copy and message template from the admin settings form
-        { key: 'content', value: Object.fromEntries(CONTENT_SETTING_KEYS.filter(k => settings[k] !== undefined).map(k => [k, settings[k]])) }
+        { key: 'content', value: Object.fromEntries(CONTENT_SETTING_KEYS.filter(k => settings[k] !== undefined).map(k => [k, k === 'heroBgImage' ? withoutBase(settings[k]) : settings[k]])) }
       ];
       const { error } = await this.supabaseClient.from('site_settings').upsert(rows, { onConflict: 'key' });
       if (error) throw new Error(error.message);
@@ -2235,7 +2261,7 @@
                   dbImgs = p.images;
                 }
               }
-              const mergedImgs = { ...relImgs, ...dbImgs };
+              const mergedImgs = mapPhotos({ ...relImgs, ...dbImgs }, withBase);
 
               // Check if images are valid remote URLs (http/https) and not legacy mock paths
               const isValidImg = (url) => url && typeof url === 'string' && url.trim().length > 0 && !url.includes('images/relics');
@@ -2273,7 +2299,7 @@
                   : (p.colors || ['Black', 'White']),
                 sizes: ['S', 'M', 'L', 'XL', 'XXL'],
                 images: {
-                  ...dbImgs,
+                  ...mapPhotos(dbImgs, withBase),
                   front,
                   back,
                   closeup,
