@@ -11591,3 +11591,26 @@ body { font-family: var(--font-body); }
 [data-theme="dark"] .swatch-color-block { box-shadow: inset 0 0 0 1px rgba(237, 232, 208, 0.18); }
 /* Shop heading now names the collection ("STREET CULTURE TEES"): let it wrap and shrink on small phones */
 @media (max-width: 420px) { .canon-main-title { font-size: clamp(1.9rem, 10vw, 2.6rem); overflow-wrap: anywhere; } }
+
+/* Phones: the red line under the last headline word sits below the letters, not across them.
+   The word gets extra room underneath (its mask would otherwise clip the line). */
+.mr .fr-word.mr-key { padding-bottom: 0.32em; margin-bottom: -0.32em; }
+.mr .mr-key::after { bottom: 0.33em; height: 0.1em; z-index: 0; opacity: 1; border-radius: 2px; }
+
+/* Phones: the two banner buttons share one row */
+@media (max-width: 600px) {
+  .figma-hero-section .figma-hero-cta-wrap { flex-wrap: nowrap; gap: 0.6rem; }
+  .figma-hero-section .figma-hero-cta-wrap > a {
+    flex: 1 1 0; min-width: 0; width: auto;
+    height: 50px; padding: 0 0.6rem;
+    gap: 0.4rem; justify-content: center;
+    font-size: 0.74rem; letter-spacing: 1px; white-space: nowrap;
+  }
+  .figma-hero-section .figma-hero-cta-wrap > a span { overflow: hidden; text-overflow: ellipsis; }
+  .figma-hero-section .figma-hero-cta-wrap svg { flex-shrink: 0; }
+}
+@media (max-width: 370px) {
+  .figma-hero-section .figma-hero-cta-wrap > a { font-size: 0.64rem; letter-spacing: 0.6px; padding: 0 0.45rem; }
+  .figma-hero-section .figma-hero-cta-wrap .btn-vault-arrow { display: none; }
+}
+@media (max-width: 380px) { .figma-hero-section .cta-long { display: none; } }

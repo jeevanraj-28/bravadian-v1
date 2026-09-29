@@ -758,33 +758,33 @@
   // DEFAULT COLLECTIONS (Canon Chapters)
   const DEFAULT_COLLECTIONS = [
     { id: 'c-all', name: 'ALL', slug: 'all', description: 'Every Bravadian tee in one place. Original Indian artwork on heavy, oversized cotton.', isActive: true, order: 0 },
-    { id: 'c-anime', name: 'ANIME', slug: 'anime', description: 'Anime and manga-style artwork, drawn with an Indian heart.', isActive: true, order: 1 },
-    { id: 'c-mythology', name: 'MYTHOLOGY', slug: 'mythology', description: 'Shiva, Ganesha, Garuda and the stories we grew up hearing, drawn bold.', isActive: true, order: 2 },
-    { id: 'c-heritage', name: 'HERITAGE', slug: 'heritage', description: 'Temple walls, folk paintings and national symbols, carried from India’s crafts onto cotton.', isActive: true, order: 3 },
-    { id: 'c-street-culture', name: 'STREET CULTURE', slug: 'street-culture', description: 'Loud type and street art inspired by the walls of Indian cities.', isActive: true, order: 4 },
-    { id: 'c-minimal', name: 'MINIMAL', slug: 'minimal', description: 'Clean designs and quiet symbols for every day.', isActive: true, order: 5 }
+    { id: 'c-anime', name: 'ANIME', slug: 'anime', description: 'Anime characters and manga-inspired artwork, drawn in the style of Japanese animation.', isActive: true, order: 1 },
+    { id: 'c-mythology', name: 'MYTHOLOGY', slug: 'mythology', description: 'Krishna, Shiva, Hanuman, the Ramayana and the Mahabharata. The gods and epics we grew up with, drawn bold.', isActive: true, order: 2 },
+    { id: 'c-heritage', name: 'HERITAGE', slug: 'heritage', description: 'Indian crafts, folk art, traditional patterns, architecture and the cultural symbols of every region.', isActive: true, order: 3 },
+    { id: 'c-street-culture', name: 'STREET CULTURE', slug: 'street-culture', description: 'Graffiti, urban graphics, hip-hop and bold typography. Rebellious, contemporary designs.', isActive: true, order: 4 },
+    { id: 'c-minimal', name: 'MINIMAL', slug: 'minimal', description: 'Simple typography, subtle symbols and clean graphics. Understated designs for every day.', isActive: true, order: 5 }
   ];
 
   /* ==========================================================================
      THE ARCHIVE UNIVERSE CHAPTERS
      ========================================================================== */
   const DEFAULT_UNIVERSE_CHAPTERS = [
-    { num: '01', name: 'ANIME', slug: 'anime', chapter: 'MANGA & ANIME', category: 'active', statusBadge: 'ACTIVE DROP', isLive: true, image: null, description: 'Anime and manga-style artwork, drawn with an Indian heart.' },
-    { num: '02', name: 'MYTHOLOGY', slug: 'mythology', chapter: 'MYTHS & LEGENDS', category: 'active', statusBadge: 'ACTIVE DROP', isLive: true, image: null, description: 'Shiva, Ganesha, Garuda and the stories we grew up hearing, drawn bold.' },
-    { num: '03', name: 'HERITAGE', slug: 'heritage', chapter: 'CRAFTS & SYMBOLS', category: 'active', statusBadge: 'ACTIVE DROP', isLive: true, image: null, description: 'Temple walls, folk paintings and national symbols, carried from India’s crafts onto cotton.' },
-    { num: '04', name: 'STREET CULTURE', slug: 'street-culture', chapter: 'CITY STREETS', category: 'active', statusBadge: 'ACTIVE DROP', isLive: true, image: null, description: 'Loud type and street art inspired by the walls of Indian cities.' },
-    { num: '05', name: 'MINIMAL', slug: 'minimal', chapter: 'EVERYDAY BASICS', category: 'active', statusBadge: 'ACTIVE DROP', isLive: true, image: null, description: 'Clean designs and quiet symbols for every day.' }
+    { num: '01', name: 'ANIME', slug: 'anime', chapter: 'ANIME & MANGA', category: 'active', statusBadge: 'ACTIVE DROP', isLive: true, image: null, description: 'Anime characters and manga-inspired artwork, drawn in the style of Japanese animation.' },
+    { num: '02', name: 'MYTHOLOGY', slug: 'mythology', chapter: 'GODS & EPICS', category: 'active', statusBadge: 'ACTIVE DROP', isLive: true, image: null, description: 'Krishna, Shiva, Hanuman, the Ramayana and the Mahabharata. The gods and epics we grew up with, drawn bold.' },
+    { num: '03', name: 'HERITAGE', slug: 'heritage', chapter: 'CRAFTS & TRADITIONS', category: 'active', statusBadge: 'ACTIVE DROP', isLive: true, image: null, description: 'Indian crafts, folk art, traditional patterns, architecture and the cultural symbols of every region.' },
+    { num: '04', name: 'STREET CULTURE', slug: 'street-culture', chapter: 'GRAFFITI & HIP-HOP', category: 'active', statusBadge: 'ACTIVE DROP', isLive: true, image: null, description: 'Graffiti, urban graphics, hip-hop and bold typography. Rebellious, contemporary designs.' },
+    { num: '05', name: 'MINIMAL', slug: 'minimal', chapter: 'SIMPLE & UNDERSTATED', category: 'active', statusBadge: 'ACTIVE DROP', isLive: true, image: null, description: 'Simple typography, subtle symbols and clean graphics. Understated designs for every day.' }
   ];
 
   /* ==========================================================================
      THE ARCHIVE EDITIONS CONFIGURATION
      ========================================================================== */
   const TEN_ARCHIVE_EDITIONS = [
-    { num: '01', title: 'ANIME', desc: 'MANGA & ANIME', status: 'active', slug: 'anime' },
-    { num: '02', title: 'MYTHOLOGY', desc: 'MYTHS & LEGENDS', status: 'active', slug: 'mythology' },
-    { num: '03', title: 'HERITAGE', desc: 'CRAFTS & SYMBOLS', status: 'active', slug: 'heritage' },
-    { num: '04', title: 'STREET CULTURE', desc: 'CITY STREETS', status: 'active', slug: 'street-culture' },
-    { num: '05', title: 'MINIMAL', desc: 'EVERYDAY BASICS', status: 'active', slug: 'minimal' }
+    { num: '01', title: 'ANIME', desc: 'ANIME & MANGA', status: 'active', slug: 'anime' },
+    { num: '02', title: 'MYTHOLOGY', desc: 'GODS & EPICS', status: 'active', slug: 'mythology' },
+    { num: '03', title: 'HERITAGE', desc: 'CRAFTS & TRADITIONS', status: 'active', slug: 'heritage' },
+    { num: '04', title: 'STREET CULTURE', desc: 'GRAFFITI & HIP-HOP', status: 'active', slug: 'street-culture' },
+    { num: '05', title: 'MINIMAL', desc: 'SIMPLE & UNDERSTATED', status: 'active', slug: 'minimal' }
   ];
 
   // DEFAULT SIZE GUIDE

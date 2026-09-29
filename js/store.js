@@ -345,8 +345,9 @@ Thank you.`,
       StoreState.activeCollection = colSlug;
       renderShopView(colSlug);
     } else if (hash.startsWith('#/product/')) {
-      const slug = hash.replace('#/product/', '');
-      renderPDPView(slug);
+      // #/product/<slug>?color=Black&size=M opens the tee with that colour and size picked (links in WhatsApp orders)
+      const [slug, query] = hash.replace('#/product/', '').split('?');
+      renderPDPView(slug, new URLSearchParams(query || ''));
     } else if (hash === '#/cart') {
       renderCartPageView();
     } else if (hash === '#/checkout') {
@@ -719,7 +720,7 @@ Thank you.`,
                 </a>
                 <a href="${waURL(WA_MSG.order)}" target="_blank" rel="noopener noreferrer" class="btn-figma-whatsapp">
                   ${whatsappSVG(18)}
-                  <span>ORDER ON WHATSAPP</span>
+                  <span><span class="cta-long">ORDER ON </span>WHATSAPP</span>
                 </a>
               </div>
             </div>
@@ -1577,8 +1578,8 @@ Thank you.`,
      -------------------------------------------------------------------------- */
   const COLLECTION_STORIES = {
     heritage: {
-      tag: 'HERITAGE · INDIA LIVES IN ITS CRAFTS',
-      intro: 'Folk art, textile crafts and the symbols of India, redrawn as original prints on everyday tees. One idea runs through all of them: wear your roots.',
+      tag: 'HERITAGE · CRAFTS, ART AND ARCHITECTURE',
+      intro: 'Indian crafts, folk art, traditional patterns, architecture and the symbols of every region, redrawn as original prints on everyday tees. One idea runs through all of them: wear your roots.',
       storyTitle: 'THE STORIES WE PRINT',
       storyNote: 'Indian Craft Atlas maps the country through its crafts. Bharat Spirit brings four national symbols into one composition. These are the worlds behind both.',
       stories: [
@@ -1590,10 +1591,10 @@ Thank you.`,
     },
     mythology: {
       photo: '/images/collections/mythology.webp',
-      tag: 'MYTHOLOGY · THE STORIES WE GREW UP HEARING',
-      intro: 'Shiva, Ganesha, Garuda and the old stories told at home, redrawn bold on everyday tees. Wear the legends you grew up with.',
+      tag: 'MYTHOLOGY · GODS AND EPICS WE GREW UP WITH',
+      intro: 'Krishna, Shiva, Hanuman, the Ramayana and the Mahabharata. The gods and epics told at home, redrawn bold on everyday tees.',
       storyTitle: 'THE LEGENDS WE PRINT',
-      storyNote: 'Every design starts from one idea in the story: a chant, a symbol, a form of the god. This is what each print carries.',
+      storyNote: 'Every design starts from one moment in the story: a chant, a symbol, a form of the god. This is what each print carries, with more gods and epics to come.',
       stories: [
         { img: '/images/products/trinetra/preview.webp', alt: 'Trinetra artwork: the third eye over the Himalaya', name: 'THE THIRD EYE', code: 'TRINETRA', caption: 'Shiva’s third eye sees past, present and future at once. A reminder to look past the obvious.' },
         { img: '/images/products/hara-hara-mahadeva/black-closeup.webp', alt: 'Om Namah Shivaya printed down the chest', name: 'THE FIVE SYLLABLES', code: 'HARA HARA MAHADEVA', caption: 'Om Namah Shivaya, the five-syllable chant, running down the left chest like a quiet prayer.' },
@@ -1603,39 +1604,39 @@ Thank you.`,
     },
     'street-culture': {
       photo: '/images/collections/street-culture.webp',
-      tag: 'STREET CULTURE · WHAT THE CITY SAYS',
-      intro: 'Loud type, painted walls and the energy of Indian streets, printed big. For the days you want to be heard.',
+      tag: 'STREET CULTURE · GRAFFITI, HIP-HOP, TYPE',
+      intro: 'Graffiti, urban graphics, hip-hop and bold typography, printed big. Rebellious designs for the days you want to be heard.',
       storyTitle: 'FROM THE STREET',
-      storyNote: 'Indian cities talk through their walls: shop signs, posters, hand-painted letters. These designs talk back.',
+      storyNote: 'The street talks through graffiti, posters, hand-painted letters and beats. These designs talk back.',
       stories: [
         { img: '/images/products/born-to-rise/black-model.webp', alt: 'Born to Rise tee worn on a city street', name: 'RISE AGAIN', code: 'BORN TO RISE', caption: 'An eagle rises against the wind, not away from it. For the days you start again.' },
         { img: '/images/products/born-to-rise/black-closeup.webp', alt: 'Close-up of the red-winged eagle print', name: 'THE PRINT', code: 'BORN TO RISE', caption: 'Blazing red wings, printed large across the back in full colour.' },
         { img: '/images/products/born-to-rise/white-model.webp', alt: 'Born to Rise in white', name: 'TWO WAYS TO WEAR', code: 'BORN TO RISE', caption: 'Black or white. The same eagle, a different mood.' },
-        { img: '/images/collections/street-culture.webp', alt: 'Painted city wall at night', name: 'CITY WALLS', code: 'COMING SOON', caption: 'Street typography inspired by the painted walls of Indian cities. Cyber Rebel is on its way.' }
+        { img: '/images/collections/street-culture.webp', alt: 'Painted city wall at night', name: 'CITY WALLS', code: 'COMING SOON', caption: 'Graffiti and bold street typography. Cyber Rebel is on its way.' }
       ]
     },
     anime: {
       photo: '/images/collections/anime.webp',
-      tag: 'ANIME · DRAWN WITH AN INDIAN HEART',
-      intro: 'Anime and manga-style art that meets the legends of India. The first designs are on their way.',
+      tag: 'ANIME · MANGA-INSPIRED ARTWORK',
+      intro: 'Anime characters and manga-inspired artwork, drawn in the style of Japanese animation. The first designs are on their way.',
       storyTitle: 'WHAT’S COMING',
-      storyNote: 'Bold linework, big colour and characters with roots in Indian legend. Tap notify and we will message you on WhatsApp the day they drop.',
+      storyNote: 'Bold linework, big colour and characters that feel straight out of your favourite series. Tap notify and we will message you on WhatsApp the day they drop.',
       stories: [
         { name: 'MANGA LINEWORK', code: 'THE STYLE', caption: 'Clean ink lines and bold colour, the way your favourite panels are drawn.' },
-        { name: 'INDIAN LEGENDS', code: 'THE STORY', caption: 'Characters from old stories, like the nine-tailed fox, drawn as anime heroes.' },
+        { name: 'ANIME CHARACTERS', code: 'THE STORY', caption: 'Original characters and spirits, like the nine-tailed fox, drawn the way Japanese animation draws its heroes.' },
         { name: 'SAME HEAVY TEE', code: 'THE FEEL', caption: 'Oversized 240 GSM cotton, washed soft, like every Bravadian tee.' }
       ]
     },
     minimal: {
       photo: '/images/collections/minimal.webp',
-      tag: 'MINIMAL · QUIET, EVERY DAY',
-      intro: 'Clean designs, small symbols and plain tees that go with everything. The first designs are on their way.',
+      tag: 'MINIMAL · SIMPLE AND UNDERSTATED',
+      intro: 'Simple typography, subtle symbols and clean graphics. Understated tees that go with everything. The first designs are on their way.',
       storyTitle: 'WHAT’S COMING',
       storyNote: 'Less print, same quality. Tap notify and we will message you on WhatsApp the day they drop.',
       stories: [
         { name: 'THE ESSENTIAL', code: 'ESSENTIAL 240', caption: 'No graphics, just a great tee: thick rib collar, dropped shoulders, relaxed fit.' },
         { name: 'SAME HEAVY COTTON', code: 'THE FEEL', caption: '240 GSM French Terry, washed soft from the first wear.' },
-        { name: 'MADE TO LAST', code: 'EVERY DAY', caption: 'The tee you reach for every morning, made to outlast the trend.' }
+        { name: 'SUBTLE SYMBOLS', code: 'THE STYLE', caption: 'Simple type or one small symbol instead of a big print. Clean graphics that say just enough.' }
       ]
     }
   };
@@ -2038,7 +2039,7 @@ Thank you.`,
     `;
   }
 
-  function renderPDPView(slug) {
+  function renderPDPView(slug, params = new URLSearchParams()) {
     let product = window.BravadianDB.getProductBySlug(decodeURIComponent(slug));
     if (!product) {
       renderProductNotFound();
@@ -2046,12 +2047,17 @@ Thank you.`,
     }
 
     StoreState.currentProduct = product;
-    StoreState.selectedColor = product.colors && product.colors.length > 0 ? product.colors[0] : '';
+    const wantColour = (params.get('color') || '').toLowerCase();
+    StoreState.selectedColor = (product.colors || []).find(c => c.toLowerCase() === wantColour)
+      || (product.colors && product.colors.length > 0 ? product.colors[0] : '');
     StoreState.selectedSize = 'M';
     StoreState.selectedQty = 1;
 
     const availableSizes = getAvailableSizesForColor(product, StoreState.selectedColor);
-    if (availableSizes.includes('M')) {
+    const wantSize = (params.get('size') || '').toUpperCase();
+    if (wantSize && ['S', 'M', 'L', 'XL', 'XXL'].includes(wantSize)) {
+      StoreState.selectedSize = wantSize;
+    } else if (availableSizes.includes('M')) {
       StoreState.selectedSize = 'M';
     } else if (availableSizes.length > 0) {
       StoreState.selectedSize = availableSizes[0];
@@ -2106,11 +2112,11 @@ Thank you.`,
       .map((p, n) => ({ product: p, slug: p.slug, name: p.name, badge: p.relicTag || `DESIGN 0${n + 1}`, image: p.images.front }));
 
     const defaultChapters = [
-      { num: '01', title: 'ANIME', chapter: 'MANGA & ANIME', collection: 'anime' },
-      { num: '02', title: 'MYTHOLOGY', chapter: 'MYTHS & LEGENDS', collection: 'mythology' },
-      { num: '03', title: 'HERITAGE', chapter: 'CRAFTS & SYMBOLS', collection: 'heritage' },
-      { num: '04', title: 'STREET CULTURE', chapter: 'CITY STREETS', collection: 'street-culture' },
-      { num: '05', title: 'MINIMAL', chapter: 'EVERYDAY BASICS', collection: 'minimal' }
+      { num: '01', title: 'ANIME', chapter: 'ANIME & MANGA', collection: 'anime' },
+      { num: '02', title: 'MYTHOLOGY', chapter: 'GODS & EPICS', collection: 'mythology' },
+      { num: '03', title: 'HERITAGE', chapter: 'CRAFTS & TRADITIONS', collection: 'heritage' },
+      { num: '04', title: 'STREET CULTURE', chapter: 'GRAFFITI & HIP-HOP', collection: 'street-culture' },
+      { num: '05', title: 'MINIMAL', chapter: 'SIMPLE & UNDERSTATED', collection: 'minimal' }
     ];
     const gateways = defaultChapters
       .filter(gw => gw.collection !== (product.collection || 'heritage').toLowerCase())
@@ -2974,13 +2980,18 @@ Please update your bag and try again.`);
     const shipping = order ? Number(order.shipping) : totals.shipping;
     const total = order ? Number(order.total) : totals.total;
 
+    // Each line carries a link that opens the tee with the ordered colour and size picked, for reference later.
+    // Local testing links to the real site so the link still works when tapped on a phone.
+    const siteURL = /^(localhost|127\.0\.0\.1)$/.test(window.location.hostname) ? 'https://bravadian.in' : window.location.origin;
+    const productLink = (item) => `${siteURL}/#/product/${item.slug}?color=${encodeURIComponent(item.color)}&size=${encodeURIComponent(item.size)}`;
     const itemsText = StoreState.cart.map((item, idx) => `
 ${idx + 1}. Product: ${item.name}
 Collection: ${item.collection.toUpperCase()}
 Color: ${item.color}
 Size: ${item.size}
 Quantity: ${item.quantity}
-Price: ${settings.currency}${(item.price * item.quantity).toLocaleString('en-IN')}
+Price: ${settings.currency}${(item.price * item.quantity).toLocaleString('en-IN')}${item.slug ? `
+Link: ${productLink(item)}` : ''}
 `.trim()).join('\n\n');
 
     const message = `

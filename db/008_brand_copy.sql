@@ -16,11 +16,11 @@ UPDATE site_settings
 
 -- 3. Collection descriptions
 UPDATE collections SET description = $q$Every Bravadian tee in one place. Original Indian artwork on heavy, oversized cotton.$q$ WHERE slug = $q$all$q$;
-UPDATE collections SET description = $q$Anime and manga-style artwork, drawn with an Indian heart.$q$ WHERE slug = $q$anime$q$;
-UPDATE collections SET description = $q$Shiva, Ganesha, Garuda and the stories we grew up hearing, drawn bold.$q$ WHERE slug = $q$mythology$q$;
-UPDATE collections SET description = $q$Temple walls, folk paintings and national symbols, carried from India’s crafts onto cotton.$q$ WHERE slug = $q$heritage$q$;
-UPDATE collections SET description = $q$Loud type and street art inspired by the walls of Indian cities.$q$ WHERE slug = $q$street-culture$q$;
-UPDATE collections SET description = $q$Clean designs and quiet symbols for every day.$q$ WHERE slug = $q$minimal$q$;
+UPDATE collections SET description = $q$Anime characters and manga-inspired artwork, drawn in the style of Japanese animation.$q$ WHERE slug = $q$anime$q$;
+UPDATE collections SET description = $q$Krishna, Shiva, Hanuman, the Ramayana and the Mahabharata. The gods and epics we grew up with, drawn bold.$q$ WHERE slug = $q$mythology$q$;
+UPDATE collections SET description = $q$Indian crafts, folk art, traditional patterns, architecture and the cultural symbols of every region.$q$ WHERE slug = $q$heritage$q$;
+UPDATE collections SET description = $q$Graffiti, urban graphics, hip-hop and bold typography. Rebellious, contemporary designs.$q$ WHERE slug = $q$street-culture$q$;
+UPDATE collections SET description = $q$Simple typography, subtle symbols and clean graphics. Understated designs for every day.$q$ WHERE slug = $q$minimal$q$;
 
 -- 4. One wording for fit and fabric on every tee
 UPDATE products SET fit = $q$Oversized, drop shoulder$q$, fabric = $q$240 GSM French Terry cotton, bio + silicone washed$q$, material = $q$240 GSM French Terry cotton, bio + silicone washed$q$, updated_at = NOW()
