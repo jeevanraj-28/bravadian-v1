@@ -788,12 +788,14 @@
   ];
 
   // DEFAULT SIZE GUIDE
+  // Garment measurements in inches (chest all the way round, laid flat ×2). Kept in step with the
+  // size_guide table so the first screen before Supabase answers shows the real chart.
   const DEFAULT_SIZE_GUIDE = [
-    { size: 'S', chest: 40, length: 26, shoulder: null, sleeve: null },
-    { size: 'M', chest: 42, length: 27, shoulder: null, sleeve: null },
-    { size: 'L', chest: 44, length: 28, shoulder: null, sleeve: null },
-    { size: 'XL', chest: 46, length: 29, shoulder: null, sleeve: null },
-    { size: 'XXL', chest: 48, length: 30, shoulder: null, sleeve: null }
+    { size: 'S', chest: 44, length: 28.5, shoulder: 21.5, sleeve: 8.5 },
+    { size: 'M', chest: 46, length: 29.5, shoulder: 22.5, sleeve: 9 },
+    { size: 'L', chest: 48, length: 30.5, shoulder: 23.5, sleeve: 9.5 },
+    { size: 'XL', chest: 50, length: 31.5, shoulder: 24.5, sleeve: 10 },
+    { size: 'XXL', chest: 52, length: 32.5, shoulder: 25.5, sleeve: 10.5 }
   ];
 
   // DEFAULT SITE SETTINGS
@@ -1601,7 +1603,7 @@
 
     init() {
       // Auto-Migration to ensure new luxury mockups, products, and collections load immediately
-      const DATA_VERSION = '4.13.4';
+      const DATA_VERSION = '4.14.0';
       const storedVer = localStorage.getItem('bravadian_data_version');
       const storedProds = localStorage.getItem('bravadian_products');
       // Old caches from before the relic photos were retired. (Not ".jpg" in general: a JPG product
@@ -2172,7 +2174,7 @@
       if (error) throw new Error(error.message);
     },
 
-    async syncSizeGuideToSupabase(guide) {
+    async syncSizeGuideToSupabase(guide, { throwOnError = false } = {}) {
       if (!this.supabaseClient) return;
       try {
         const rows = guide.map((g, idx) => ({
@@ -2183,9 +2185,12 @@
           sleeve_inches: g.sleeve,
           display_order: idx + 1
         }));
-        await this.supabaseClient.from('size_guide').upsert(rows, { onConflict: 'size' });
+        // supabase-js reports a refused write in `error` rather than throwing
+        const { error } = await this.supabaseClient.from('size_guide').upsert(rows, { onConflict: 'size' });
+        if (error) throw new Error(error.message);
       } catch (e) {
         console.warn('[Supabase Size Guide Sync Warning]:', e);
+        if (throwOnError) throw e;
       }
     },
 
@@ -2324,12 +2329,14 @@
             .order('display_order', { ascending: true });
 
           if (!sgErr && sg && sg.length > 0) {
+            // A blank cell stays blank (Number(null) would show as 0")
+            const num = (v) => (v === null || v === undefined || v === '' || isNaN(Number(v))) ? null : Number(v);
             const mappedGuide = sg.map(s => ({
               size: s.size,
-              chest: Number(s.chest_inches),
-              length: Number(s.length_inches),
-              shoulder: Number(s.shoulder_inches),
-              sleeve: Number(s.sleeve_inches)
+              chest: num(s.chest_inches),
+              length: num(s.length_inches),
+              shoulder: num(s.shoulder_inches),
+              sleeve: num(s.sleeve_inches)
             }));
             localStorage.setItem('bravadian_size_guide', JSON.stringify(mappedGuide));
             summary.sizeGuide = mappedGuide.length;

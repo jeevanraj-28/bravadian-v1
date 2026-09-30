@@ -627,24 +627,44 @@
     tbody.innerHTML = guide.map((row, idx) => `
       <tr>
         <td><strong>${row.size}</strong></td>
-        <td><input type="number" step="0.5" class="admin-input" style="width: 80px;" data-idx="${idx}" data-field="chest" value="${row.chest}"></td>
-        <td><input type="number" step="0.5" class="admin-input" style="width: 80px;" data-idx="${idx}" data-field="length" value="${row.length}"></td>
-        <td><input type="number" step="0.5" class="admin-input" style="width: 80px;" data-idx="${idx}" data-field="shoulder" value="${row.shoulder}"></td>
-        <td><input type="number" step="0.5" class="admin-input" style="width: 80px;" data-idx="${idx}" data-field="sleeve" value="${row.sleeve}"></td>
+        <td><input type="number" step="0.5" class="admin-input" style="width: 80px;" data-idx="${idx}" data-field="chest" value="${row.chest ?? ''}" min="1" max="80" required></td>
+        <td><input type="number" step="0.5" class="admin-input" style="width: 80px;" data-idx="${idx}" data-field="length" value="${row.length ?? ''}" min="1" max="80" required></td>
+        <td><input type="number" step="0.5" class="admin-input" style="width: 80px;" data-idx="${idx}" data-field="shoulder" value="${row.shoulder ?? ''}" min="1" max="80" required></td>
+        <td><input type="number" step="0.5" class="admin-input" style="width: 80px;" data-idx="${idx}" data-field="sleeve" value="${row.sleeve ?? ''}" min="1" max="80" required></td>
       </tr>
     `).join('');
 
     const saveBtn = document.getElementById('btnSaveSizeGuide');
     if (saveBtn) {
-      saveBtn.onclick = () => {
-        const inputs = tbody.querySelectorAll('input');
-        inputs.forEach(inp => {
-          const idx = parseInt(inp.getAttribute('data-idx'), 10);
-          const field = inp.getAttribute('data-field');
-          guide[idx][field] = parseFloat(inp.value) || 0;
-        });
-        window.BravadianDB.saveSizeGuide(guide);
-        alert('Size specifications saved.');
+      saveBtn.onclick = async () => {
+        // Every cell needs a real measurement: a blank or 0 would show as 0" in the shop's chart
+        // and throw off the fit finder, which picks sizes from these numbers.
+        const next = guide.map(row => ({ ...row }));
+        for (const inp of tbody.querySelectorAll('input')) {
+          const v = parseFloat(inp.value);
+          if (!(v > 0)) {
+            inp.focus();
+            alert('Fill in every measurement (in inches) before saving.');
+            return;
+          }
+          next[parseInt(inp.getAttribute('data-idx'), 10)][inp.getAttribute('data-field')] = v;
+        }
+        saveBtn.disabled = true;
+        try {
+          localStorage.setItem('bravadian_size_guide', JSON.stringify(next));
+          next.forEach((row, i) => Object.assign(guide[i], row));
+          if (window.BravadianDB.isSupabaseConnected()) {
+            await window.BravadianDB.syncSizeGuideToSupabase(next, { throwOnError: true });
+            alert('Size chart saved. Shoppers see it on their next visit.');
+          } else {
+            alert('Saved in this browser only: Supabase is not connected, so the live shop still shows the old chart.');
+          }
+        } catch (err) {
+          alert(`Saved in this browser, but the live shop was NOT updated:
+${err.message || err}`);
+        } finally {
+          saveBtn.disabled = false;
+        }
       };
     }
   }
