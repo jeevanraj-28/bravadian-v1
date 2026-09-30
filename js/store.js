@@ -3748,13 +3748,14 @@ Thank you.
 
         <!-- 5. CALL TO ACTION WITH THEMED VAULT BUTTON -->
         <section class="about-cta-section container">
-          <div class="about-cta-card">
-            <span class="figma-tag">[ OUR FIRST DROP IS HERE ]</span>
-            <h2 class="about-cta-title">WEAR THE STORY</h2>
-            <p class="about-cta-sub">
+          <div class="about-cta-card" id="aboutCtaCard">
+            ${aboutCtaBackdropHTML()}
+            <span class="figma-tag cta-rise" style="--i:0">[ OUR FIRST DROP IS HERE ]</span>
+            <h2 class="about-cta-title cta-rise" style="--i:1">WEAR THE STORY</h2>
+            <p class="about-cta-sub cta-rise" style="--i:2">
               You didn't just pick a T-shirt. You picked a story.
             </p>
-            <div class="about-cta-actions">
+            <div class="about-cta-actions cta-rise" style="--i:3">
               <a href="#/shop" class="btn-figma-primary">
                 <span>SHOP ALL TEES</span>
                 <svg class="btn-vault-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -3771,6 +3772,60 @@ Thank you.
         </section>
       </div>
     `;
+    initAboutCta();
+  }
+
+  // About page, closing card: the stories are the tees. Two slow rows of real tee artwork drift
+  // behind the words in opposite directions, a rangoli draws itself in behind the heading, and
+  // the words rise in one after another. Seen once per visit, so it can afford a moment.
+  function aboutCtaBackdropHTML() {
+    const products = window.BravadianDB.getProducts().filter(p => p.images && p.images.front && !/^data:/.test(p.images.front));
+    const tees = [...products.filter(p => !p.isComingSoon), ...products.filter(p => p.isComingSoon)].slice(0, 10);
+    if (tees.length < 3) return '';
+    const half = Math.ceil(tees.length / 2);
+    // Each half of a row holds the tees twice (enough to span a wide card); the row slides by
+    // exactly one half, so it loops without a seam
+    const row = (list, dir) => `
+      <div class="cta-reel cta-reel-${dir}">
+        <div class="cta-reel-track">
+          ${[...list, ...list, ...list, ...list].map(p => `<img src="${p.images.front}" alt="" loading="lazy" decoding="async" draggable="false">`).join('')}
+        </div>
+      </div>`;
+    // Rangoli: 16 outer petals, 8 inner petals, two rings and a ring of dots, drawn as one line
+    const petals = (n, rx, ry, cy) => Array.from({ length: n }, (_, i) =>
+      `<ellipse cx="0" cy="${cy}" rx="${rx}" ry="${ry}" transform="rotate(${(360 / n) * i})" pathLength="1"/>`).join('');
+    const dots = Array.from({ length: 24 }, (_, i) =>
+      `<circle cx="0" cy="-94" r="2.2" transform="rotate(${15 * i})"/>`).join('');
+    return `
+      <div class="cta-backdrop" aria-hidden="true">
+        ${row(tees.slice(0, half), 'left')}
+        ${row(tees.slice(half).length >= 2 ? tees.slice(half) : tees.slice(0, half), 'right')}
+      </div>
+      <svg class="cta-rangoli" viewBox="-110 -110 220 220" aria-hidden="true">
+        <g class="cta-rangoli-spin">
+          <circle r="100" pathLength="1"/>
+          <circle r="62" pathLength="1"/>
+          ${petals(16, 13, 34, -66)}
+          ${petals(8, 10, 24, -34)}
+          <circle r="12" pathLength="1"/>
+          <g class="cta-rangoli-dots">${dots}</g>
+        </g>
+      </svg>`;
+  }
+
+  function initAboutCta() {
+    const card = document.getElementById('aboutCtaCard');
+    if (!card) return;
+    if (!('IntersectionObserver' in window)) { card.classList.add('is-in', 'is-live'); return; }
+    // Reveal once when it comes into view; run the drifting rows only while it is on screen
+    const io = new IntersectionObserver((entries) => {
+      if (!card.isConnected) { io.disconnect(); return; }
+      entries.forEach(e => {
+        if (e.isIntersecting) card.classList.add('is-in');
+        card.classList.toggle('is-live', e.isIntersecting);
+      });
+    }, { threshold: 0.3 });
+    io.observe(card);
   }
 
   function renderContactView() {
@@ -3902,7 +3957,7 @@ Thank you.
         <div class="care-page-cta-strip">
           <div>
             <span class="figma-tag">[ NOT SURE OF YOUR SIZE? ]</span>
-            <h3 style="font-family: var(--font-display); font-size: 1.8rem; color: #fff; margin: 0.35rem 0 0 0; letter-spacing: 1.5px; text-transform: uppercase;">FIND YOUR FIT</h3>
+            <h3 style="font-family: var(--font-display); font-size: 1.8rem; color: var(--theme-text-primary); margin: 0.35rem 0 0 0; letter-spacing: 1.5px; text-transform: uppercase;">FIND YOUR FIT</h3>
           </div>
           <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
             <button type="button" onclick="window.BravadianStore.openSizeGuideModal();" class="btn-figma-primary" style="cursor: pointer;">

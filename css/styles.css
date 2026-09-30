@@ -30,15 +30,17 @@
   --color-gold: var(--brand-red);
   --color-accent-border: rgba(237, 28, 36, 0.4);
 
-  /* Fonts: all four are Indian-designed and also cover Devanagari (loaded from Google Fonts in the HTML)
+  /* Fonts (loaded from Google Fonts in the HTML). Yatra One, Eczar and Mukta are Indian-designed
+     and cover Devanagari; the label face is Latin-only, which is all the labels use.
      display = Yatra One, Devanagari-inspired lettering, like hand-painted Indian signage (headlines)
      serif   = Eczar, strong Indian serif (classical titles and quotes)
-     mono    = Rajdhani, squared labels, tags and buttons
+     mono    = Barlow Semi Condensed, labels, tags and buttons (as compact as the old Rajdhani,
+               but with open, rounded letters that stay readable at small sizes)
      body    = Mukta, clean reading text */
   --font-display: 'Yatra One', 'Eczar', serif;
   --font-heading: 'Yatra One', 'Eczar', serif;
   --font-serif: 'Eczar', Georgia, serif;
-  --font-mono: 'Rajdhani', 'Mukta', sans-serif;
+  --font-mono: 'Barlow Semi Condensed', 'Mukta', sans-serif;
   --font-body: 'Mukta', system-ui, sans-serif;
   --font-sans: var(--font-body);
   --font-devanagari: 'Tiro Devanagari Hindi', serif;

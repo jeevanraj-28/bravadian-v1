@@ -11625,9 +11625,9 @@ body { font-family: var(--font-body); }
 
 /* ==========================================================================
    TYPOGRAPHY: COLLECTION STORY PAGES AND LONG-FORM TEXT
-   Rajdhani (--font-mono) is a narrow, squared label face: good for short tags,
+   The label face (--font-mono) is narrow: good for short tags,
    hard to read in sentences at 11–15px. The roles below:
-     tags and codes  → Rajdhani, bold, tracked, in the theme accent
+     tags and codes  → label face, bold, tracked, in the theme accent
      headlines       → Yatra One (unchanged)
      intro lines     → Eczar, the Indian serif, for a printed-editorial feel
      reading text    → Mukta, larger and with stronger contrast in both themes
@@ -12183,4 +12183,228 @@ body .mega-list .mega-item-all a, [data-theme="light"] body .mega-list .mega-ite
 .archive-all-link:focus-visible { outline: 2px solid var(--theme-accent, var(--brand-red)); outline-offset: 3px; }
 @media (max-width: 768px) {
   .archive-header-right { align-items: flex-start; }
+}
+
+/* ==========================================================================
+   UI/UX PRO MAX PASS: contrast (WCAG 4.5:1) and touch targets (44px)
+   Measured on every page at 390px and 1440px in both themes.
+   ========================================================================== */
+
+/* --- Colour: brand red as small text was 4.2–4.4:1 on dark and 3.3–3.9:1 on cream --- */
+/* Light theme: one step deeper red everywhere (4.6–4.9:1 on the creams, 6.4:1 under white text) */
+[data-theme="light"] {
+  --brand-red: #BE1219;
+  --brand-red-deep: #A80F16;
+  --theme-accent: #BE1219;
+}
+[data-theme="light"] .care-tip b { color: #BE1219; }
+/* Dark theme: red used as small text gets brighter (5.2:1+) */
+html:not([data-theme="light"]) :is(
+  .figma-tag, .figma-hero-tag, .manifesto-tag, .coordinates-label, .pdp-eyebrow-text,
+  .pdp-size-guide-btn, .collection-story-link, .contact-label, .spec-label, .pillar-metric,
+  .universe-callout-badge, .reel-price b, .care-fabric-matrix-table td:first-child, .care-tip b
+) { color: #FF4A50 !important; }
+/* The product page's collection strip and the hero tee cards are dark in both themes */
+.pdp-gateway-star, .pdp-gateway-sub, .fan-meta em, .lb2-eyebrow { color: #FF4A50 !important; }
+/* Dark theme: white text on red buttons and tags sits on a deeper red (5.5:1) */
+html:not([data-theme="light"]) :is(
+  .btn-figma-primary, .lb-btn-red, .btn-universe-callout, .canon-tab-pill.active, .price-tag, .pdp-size-box.active
+) { background-color: #D0141B !important; border-color: #D0141B !important; }
+[data-theme="light"] .pdp-size-box.active { background: var(--brand-red); border-color: var(--brand-red); }
+
+/* Discount green on cream was 2.8:1 */
+[data-theme="light"] .pcard-price em,
+[data-theme="light"] .pdp-price-row em { color: #16693A; }
+
+/* Grey text that fell under 4.5:1 */
+html:not([data-theme="light"]) .footer-copy,
+html:not([data-theme="light"]) .size-spec-section-sub { color: #8A8A9A; }
+html:not([data-theme="light"]) .archive-cadence { color: #9A9AAB; }
+[data-theme="light"] :is(.footer-copy, .footer-bottom-links, .footer-bottom-links a, .size-spec-section-num,
+  .size-spec-section-sub, .quote-author-text) { color: #5E5A4E; }
+
+/* --- Touch: 44px tap areas on phones and tablets without moving anything --- */
+/* Header icons are drawn at 20px; an invisible ring makes each one a 44px target */
+.header-icon-btn::after,
+.header-bag-btn::after,
+.mobile-menu-btn::after {
+  content: '';
+  position: absolute;
+  inset: -12px;
+}
+.header-bag-btn { position: relative; }
+
+@media (max-width: 860px) {
+  /* Carousel dots: same dots, bigger buttons around them */
+  .spot-dots button, .lab-dots button { width: 36px; height: 44px; }
+  .fan-bars button { height: 32px; padding: 14px 0; }
+
+  /* Footer: comfortable rows instead of 22px links */
+  .footer-links-column { gap: 0; }
+  .footer-links-column a { display: flex; align-items: center; min-height: 44px; }
+  .footer-bottom-links a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 4px; }
+
+  .canon-select { min-height: 44px; }
+  .pdp-size-guide-btn.pdp-fit-btn { min-height: 44px; }
+  .collection-story-link,
+  .reel-all { display: inline-flex; align-items: center; min-height: 44px; }
+  /* Product names on cards: taller tap area, same spacing (the photo above is also a link) */
+  .pcard-name { padding-block: 8px; margin-block: -8px; }
+}
+
+/* ==========================================================================
+   COLLECTIONS PAGE, IN THE SITE'S OWN TYPE
+   It used the body face in large sentence-case headings and soft rounded pills,
+   unlike every other page. Now: Yatra One capitals for headings, square label-face
+   buttons and chips (the same language as the shop filters and main buttons).
+   ========================================================================== */
+.lab-intro h1,
+.lab-slide-copy h2,
+.lab-card-copy h3 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  line-height: 1.02;
+  text-wrap: balance;
+}
+.lab-intro h1 { font-size: clamp(2.4rem, 6.5vw, 4.4rem); }
+.lab-slide-copy h2 { font-size: clamp(2rem, 3.6vw, 3rem); }
+.lab-card-copy h3 { font-size: 1.6rem; }
+.lab-intro p,
+.lab-slide-copy p,
+.lab-card-copy p { font-family: var(--font-body); }
+
+/* Buttons: square corners, label face in capitals */
+.lab-pill {
+  border-radius: 2px;
+  min-height: 48px;
+  padding: 0 1.4rem;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.lab-pill.is-solid { background: #D0141B; color: #FFFFFF; }
+[data-theme="light"] .lab-pill.is-solid { background: var(--brand-red); }
+@media (hover: hover) and (pointer: fine) { .lab-pill.is-solid:hover { filter: brightness(1.1); } }
+.lab-pill:focus-visible,
+.lab-chip:focus-visible { outline: 2px solid var(--theme-accent, var(--brand-red)); outline-offset: 3px; }
+
+/* Filter chips: like the shop's collection filters */
+.lab-chip {
+  min-height: 44px;
+  border-radius: 2px;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.lab-chip.is-on { background: #D0141B; border-color: #D0141B; color: #FFFFFF; }
+[data-theme="light"] .lab-chip.is-on { background: var(--brand-red); border-color: var(--brand-red); }
+
+/* Cards: squarer corners to match the rest of the shop */
+.lab-slide, .lab-card-media, .lab-slide-media { border-radius: 6px; }
+.lab-soon-tag { border-radius: 2px; font-family: var(--font-mono); font-weight: 700; letter-spacing: 0.12em; }
+
+/* ==========================================================================
+   ABOUT PAGE CLOSING CARD: "WEAR THE STORY"
+   Rare, once-per-visit moment, so it gets some delight:
+   - two tilted rows of real tee artwork drift behind the words (CSS animation,
+     linear, runs off the main thread; paused whenever the card is off screen)
+   - a rangoli draws its lines in, then turns very slowly
+   - tag, heading, line and buttons rise in with a 80ms stagger (ease-out)
+   Reduced motion: nothing moves; everything simply fades in.
+   ========================================================================== */
+.about-cta-card {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  padding: clamp(4.5rem, 9vw, 6.5rem) 2rem;
+}
+.about-cta-card > :not(.cta-backdrop):not(.cta-rangoli) { position: relative; z-index: 2; }
+
+/* Tee rows */
+.cta-backdrop {
+  position: absolute;
+  inset: -12% -8%;
+  z-index: 0;
+  display: grid;
+  align-content: space-between;
+  transform: rotate(-6deg);
+  pointer-events: none;
+  opacity: 0.32;
+  /* fade the rows out behind the words and at the card edges */
+  -webkit-mask-image: radial-gradient(ellipse 46% 42% at 50% 50%, transparent 0 55%, #000 100%);
+          mask-image: radial-gradient(ellipse 46% 42% at 50% 50%, transparent 0 55%, #000 100%);
+}
+[data-theme="light"] .cta-backdrop { opacity: 0.4; }
+.cta-reel { overflow: hidden; }
+.cta-reel-track {
+  display: flex;
+  gap: 18px;
+  width: max-content;
+  animation: ctaReel 120s linear infinite;
+  animation-play-state: paused;
+}
+.cta-reel-right .cta-reel-track { animation-direction: reverse; animation-duration: 140s; }
+.about-cta-card.is-live .cta-reel-track { animation-play-state: running; }
+.cta-reel img {
+  width: clamp(110px, 12vw, 160px);
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  border-radius: 6px;
+  background: var(--theme-bg-surface);
+  filter: saturate(0.85);
+}
+@keyframes ctaReel { to { transform: translateX(-50%); } }
+
+/* Rangoli */
+.cta-rangoli {
+  position: absolute;
+  z-index: 1;
+  left: 50%;
+  top: 50%;
+  width: min(520px, 110%);
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  pointer-events: none;
+  fill: none;
+  stroke: var(--theme-accent, var(--brand-red));
+  stroke-width: 0.6;
+  opacity: 0.28;
+}
+[data-theme="light"] .cta-rangoli { opacity: 0.2; }
+.cta-rangoli [pathLength] { stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset 1.6s var(--ease-out); }
+.cta-rangoli-dots circle { fill: var(--theme-accent, var(--brand-red)); stroke: none; opacity: 0; transition: opacity 600ms var(--ease-out) 1.1s; }
+.about-cta-card.is-in .cta-rangoli [pathLength] { stroke-dashoffset: 0; }
+.about-cta-card.is-in .cta-rangoli-dots circle { opacity: 1; }
+.cta-rangoli-spin { transform-origin: 0 0; animation: ctaSpin 120s linear infinite; animation-play-state: paused; }
+.about-cta-card.is-live .cta-rangoli-spin { animation-play-state: running; }
+@keyframes ctaSpin { to { transform: rotate(360deg); } }
+
+/* Words rise in */
+.cta-rise {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 600ms var(--ease-out), transform 600ms var(--ease-out);
+  transition-delay: calc(var(--i, 0) * 80ms + 150ms);
+}
+.about-cta-card.is-in .cta-rise { opacity: 1; transform: none; }
+/* the heading sits on the art, so give it a soft glow of the card colour */
+.about-cta-title { text-shadow: 0 2px 24px var(--theme-bg-body); }
+
+@media (max-width: 768px) {
+  .cta-backdrop { inset: -6% -30%; opacity: 0.26; }
+  .cta-backdrop { -webkit-mask-image: radial-gradient(ellipse 60% 38% at 50% 50%, transparent 0 50%, #000 100%); mask-image: radial-gradient(ellipse 60% 38% at 50% 50%, transparent 0 50%, #000 100%); }
+  .cta-rangoli { width: 150%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cta-reel-track, .cta-rangoli-spin { animation: none; }
+  .cta-rangoli [pathLength] { stroke-dasharray: none; transition: none; }
+  .cta-rangoli-dots circle { opacity: 1; transition: none; }
+  .cta-rise { transform: none; transition: opacity 300ms ease; transition-delay: 0s; }
 }
