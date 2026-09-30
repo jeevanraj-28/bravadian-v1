@@ -8,9 +8,9 @@
   --admin-sidebar-bg: #0b0b10;
   --admin-card-bg: #121218;
   --admin-border: rgba(255, 255, 255, 0.08);
-  --admin-border-focus: #FFA000;
-  --admin-ember: #FFA000;
-  --admin-ember-glow: rgba(255, 160, 0, 0.3);
+  --admin-border-focus: #ED1C24;
+  --admin-ember: #ED1C24;
+  --admin-ember-glow: rgba(237, 28, 36, 0.3);
   --admin-green: #22c55e;
 }
 
@@ -28,8 +28,8 @@ body.admin-body {
 
 /* Static CMS Disclaimer Banner */
 .static-disclaimer-banner {
-  background: rgba(255, 160, 0, 0.1);
-  border-bottom: 1px solid rgba(255, 160, 0, 0.3);
+  background: rgba(237, 28, 36, 0.1);
+  border-bottom: 1px solid rgba(237, 28, 36, 0.3);
   padding: 0.6rem 1.5rem;
   font-family: var(--font-mono);
   font-size: 0.72rem;
@@ -131,7 +131,7 @@ body.admin-body {
 
 .sidebar-nav-item.active a {
   color: #fff;
-  background: rgba(255, 160, 0, 0.08);
+  background: rgba(237, 28, 36, 0.08);
   border-left-color: var(--admin-ember);
 }
 
@@ -152,6 +152,23 @@ body.admin-body {
 
 .view-store-link:hover {
   color: var(--admin-ember);
+}
+
+.sign-out-btn {
+  display: block;
+  margin-top: 0.9rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #8E8E9C;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 1px;
+  cursor: pointer;
+}
+
+.sign-out-btn:hover {
+  color: #ef4444;
 }
 
 /* Main Content Area */
@@ -372,7 +389,7 @@ body.admin-body {
 }
 
 .btn-admin-primary:hover {
-  background: #FFB300;
+  background: #ED1C24;
   box-shadow: 0 0 15px var(--admin-ember-glow);
   transform: translateY(-1px);
 }
@@ -496,7 +513,7 @@ body.admin-body {
   width: 60px;
   text-align: center;
   padding: 0.4rem;
-  background: #060608;
+  background: #000000;
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 2px;
   color: #fff;
@@ -721,10 +738,10 @@ body.admin-body {
 }
 
 .admin-login-tagline {
-  font-family: var(--font-mono, 'Space Grotesk', monospace);
+  font-family: var(--font-mono);
   font-size: 0.7rem;
   letter-spacing: 3px;
-  color: var(--admin-ember, #FFA000);
+  color: var(--admin-ember, #ED1C24);
   margin-bottom: 2rem;
   text-transform: uppercase;
 }
@@ -741,7 +758,7 @@ body.admin-body {
   border-radius: 4px;
   padding: 0.85rem 1rem;
   color: #fff;
-  font-family: var(--font-mono, 'Space Grotesk', monospace);
+  font-family: var(--font-mono);
   font-size: 0.85rem;
   letter-spacing: 2px;
   text-align: center;
@@ -749,7 +766,7 @@ body.admin-body {
   transition: border-color 0.2s ease;
 }
 .admin-login-input:focus {
-  border-color: var(--admin-ember, #FFA000);
+  border-color: var(--admin-ember, #ED1C24);
 }
 .admin-login-input::placeholder {
   color: #555;
@@ -757,12 +774,12 @@ body.admin-body {
 }
 
 .admin-login-btn {
-  background: var(--admin-ember, #FFA000);
+  background: var(--admin-ember, #ED1C24);
   color: #000;
   border: none;
   border-radius: 4px;
   padding: 0.85rem 1rem;
-  font-family: var(--font-mono, 'Space Grotesk', monospace);
+  font-family: var(--font-mono);
   font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 3px;
@@ -771,7 +788,7 @@ body.admin-body {
   transition: background 0.2s ease, transform 0.1s ease;
 }
 .admin-login-btn:hover {
-  background: #ffb733;
+  background: #ED1C24;
 }
 .admin-login-btn:active {
   transform: scale(0.98);
@@ -779,7 +796,7 @@ body.admin-body {
 
 .admin-login-error {
   color: #ef4444;
-  font-family: var(--font-mono, 'Space Grotesk', monospace);
+  font-family: var(--font-mono);
   font-size: 0.72rem;
   letter-spacing: 1px;
   min-height: 1.2em;
@@ -787,7 +804,7 @@ body.admin-body {
 
 .admin-login-hint {
   margin-top: 1.5rem;
-  font-family: var(--font-mono, 'Space Grotesk', monospace);
+  font-family: var(--font-mono);
   font-size: 0.62rem;
   letter-spacing: 1.5px;
   color: #444;
@@ -802,8 +819,8 @@ body.admin-body.is-locked .static-disclaimer-banner {
   user-select: none;
 }
 
-.admin-upload-btn { display: inline-flex; align-items: center; justify-content: center; margin-top: 0.45rem; padding: 0.5rem 0.8rem; border: 1px dashed var(--admin-ember, #FFA000); color: var(--admin-ember, #FFA000); font-size: 0.7rem; letter-spacing: 1px; cursor: pointer; border-radius: 2px; }
-.admin-upload-btn:hover { background: rgba(255, 160, 0, 0.1); }
+.admin-upload-btn { display: inline-flex; align-items: center; justify-content: center; margin-top: 0.45rem; padding: 0.5rem 0.8rem; border: 1px dashed var(--admin-ember, #ED1C24); color: var(--admin-ember, #ED1C24); font-size: 0.7rem; letter-spacing: 1px; cursor: pointer; border-radius: 2px; }
+.admin-upload-btn:hover { background: rgba(237, 28, 36, 0.1); }
 .admin-upload-status { display: block; min-height: 1em; margin-top: 0.3rem; font-size: 0.7rem; color: #888; }
 
 /* Product add / edit window */
@@ -827,9 +844,9 @@ body.admin-body.is-locked .static-disclaimer-banner {
   position: sticky; top: 0; z-index: 2; display: flex; align-items: center; justify-content: space-between; gap: 1rem;
   margin: 0 -1.75rem 1.25rem; padding: 1.1rem 1.75rem; background: #121216; border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
-.modal-title { margin: 0; font-family: 'Bebas Neue', sans-serif; font-size: 1.7rem; font-weight: 400; letter-spacing: 1px; }
+.modal-title { margin: 0; font-family: var(--font-display); font-size: 1.7rem; font-weight: 400; letter-spacing: 1px; }
 .modal-head .cart-close-btn { width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(255, 255, 255, 0.15); background: none; color: #FFFFFF; font-size: 1.4rem; line-height: 1; cursor: pointer; }
-.modal-head .cart-close-btn:hover { border-color: #FFA000; color: #FFA000; }
+.modal-head .cart-close-btn:hover { border-color: #ED1C24; color: #ED1C24; }
 body:has(.modal-overlay.is-open) { overflow: hidden; }
 @media (max-width: 700px) {
   .modal-overlay { padding: 0; place-items: end stretch; }
@@ -852,4 +869,40 @@ body:has(.modal-overlay.is-open) { overflow: hidden; }
 .colour-photos-empty { margin: 0; font-size: 0.8rem; color: #8E8E9C; }
 @media (max-width: 700px) {
   .colour-row { grid-template-columns: 1fr; }
+}
+
+/* ---- Orders ---- */
+.nav-count { display: inline-block; min-width: 1.4em; margin-left: 0.4rem; padding: 0.05rem 0.4rem; border-radius: 999px; background: var(--admin-ember); color: #111; font-size: 0.7rem; text-align: center; }
+.nav-count[hidden] { display: none; }
+.orders-toolbar { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; }
+.orders-filters { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.orders-chip { padding: 0.4rem 0.75rem; border: 1px solid var(--admin-border); border-radius: 999px; background: transparent; color: #bbb; font-size: 0.72rem; letter-spacing: 0.06em; cursor: pointer; }
+.orders-chip:hover { border-color: rgba(237, 28, 36, 0.5); color: #fff; }
+.orders-chip.is-on { background: var(--admin-ember); border-color: var(--admin-ember); color: #111; font-weight: 700; }
+.orders-search { max-width: 320px; }
+.orders-note { min-height: 1.2em; margin: 0 0 0.5rem; font-size: 0.8rem; color: #8E8E9C; }
+.orders-muted { color: #8E8E9C; }
+.orders-empty { padding: 2rem 1rem; text-align: center; color: #8E8E9C; }
+.orders-table .order-row { cursor: pointer; }
+.orders-table .order-row.is-open td { background: rgba(237, 28, 36, 0.06); }
+.order-status { min-width: 140px; font-weight: 600; }
+.order-status.s-new { color: var(--admin-ember); }
+.order-status.s-confirmed { color: #60a5fa; }
+.order-status.s-shipped { color: #a78bfa; }
+.order-status.s-delivered { color: var(--admin-green); }
+.order-status.s-cancelled { color: #ef4444; }
+.order-detail > td { background: rgba(255, 255, 255, 0.02); }
+.order-detail-grid { display: grid; grid-template-columns: 1fr 1.4fr; gap: 1.5rem; padding: 0.5rem 0.25rem; }
+.order-detail-grid h4 { margin: 0 0 0.5rem; font-size: 0.72rem; letter-spacing: 0.1em; color: var(--admin-ember); }
+.order-detail-grid p { margin: 0 0 0.75rem; line-height: 1.6; }
+.order-detail-grid a { color: #fff; }
+.order-items { width: 100%; border-collapse: collapse; }
+.order-items td { padding: 0.35rem 0; border-bottom: 1px solid var(--admin-border); vertical-align: top; }
+.order-items td:nth-child(2) { white-space: nowrap; padding: 0.35rem 0.75rem; }
+.order-items td:last-child { text-align: right; white-space: nowrap; }
+.order-items .order-sum td { border-bottom: 0; color: #bbb; }
+.order-items .order-total td { color: #fff; font-weight: 700; }
+@media (max-width: 700px) {
+  .order-detail-grid { grid-template-columns: 1fr; }
+  .orders-search { max-width: none; width: 100%; }
 }

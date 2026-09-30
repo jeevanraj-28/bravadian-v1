@@ -31,7 +31,7 @@
     const stitchCol = isWhite ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.18)';
     const textCol = isWhite ? '#0c0c10' : '#ffffff';
     const textSub = isWhite ? '#555566' : '#8a8a9a';
-    const accent = accentHex || '#ff4d00';
+    const accent = accentHex || '#ED1C24';
     const uniqueId = (title + '_' + viewType + '_' + colorHex).replace(/[^a-zA-Z0-9]/g, '_');
 
     const upperTitle = (title || '').toUpperCase();
@@ -44,7 +44,7 @@
             <radialGradient id="macroGrad_${uniqueId}" cx="50%" cy="40%" r="75%">
               <stop offset="0%" stop-color="#191922"/>
               <stop offset="60%" stop-color="#0e0e13"/>
-              <stop offset="100%" stop-color="#060608"/>
+              <stop offset="100%" stop-color="#000000"/>
             </radialGradient>
             <pattern id="knitPattern_${uniqueId}" width="8" height="8" patternUnits="userSpaceOnUse">
               <path d="M0 4 L4 0 L8 4 L4 8 Z" fill="none" stroke="rgba(255,255,255,0.035)" stroke-width="1"/>
@@ -56,7 +56,7 @@
           <rect width="100%" height="100%" fill="url(#knitPattern_${uniqueId})"/>
 
           <!-- Header Specs -->
-          <text x="35" y="45" fill="${accent}" font-family="'Space Grotesk', monospace" font-size="10" font-weight="700" letter-spacing="3">[ MACRO FABRIC SPECIMEN ]</text>
+          <text x="35" y="45" fill="${accent}" font-family="'Space Grotesk', monospace" font-size="10" font-weight="700" letter-spacing="3">[ FABRIC CLOSE-UP ]</text>
           <text x="35" y="65" fill="#fff" font-family="'Bebas Neue', sans-serif" font-size="18" font-weight="900" letter-spacing="2">240 GSM FRENCH TERRY</text>
           <line x1="35" y1="78" x2="465" y2="78" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
 
@@ -68,17 +68,17 @@
 
           <!-- Woven Luxury Damask Neck Label -->
           <g transform="translate(140, 270)">
-            <rect x="0" y="0" width="220" height="135" rx="4" fill="#09090d" stroke="#f59e0b" stroke-width="1.2" filter="drop-shadow(0 15px 25px rgba(0,0,0,0.9))"/>
-            <rect x="6" y="6" width="208" height="123" rx="2" fill="none" stroke="rgba(245,158,11,0.25)" stroke-width="1" stroke-dasharray="3,2"/>
+            <rect x="0" y="0" width="220" height="135" rx="4" fill="#09090d" stroke="#ED1C24" stroke-width="1.2" filter="drop-shadow(0 15px 25px rgba(0,0,0,0.9))"/>
+            <rect x="6" y="6" width="208" height="123" rx="2" fill="none" stroke="rgba(237, 28, 36,0.25)" stroke-width="1" stroke-dasharray="3,2"/>
             
             <text x="110" y="36" text-anchor="middle" fill="#fff" font-family="'Bebas Neue', sans-serif" font-size="15" font-weight="900" letter-spacing="4">BRAVADIAN</text>
-            <text x="110" y="52" text-anchor="middle" fill="#f59e0b" font-family="'Space Grotesk', monospace" font-size="8.5" font-weight="700" letter-spacing="3">BRAVE INDIAN</text>
+            <text x="110" y="52" text-anchor="middle" fill="#ED1C24" font-family="'Space Grotesk', monospace" font-size="8.5" font-weight="700" letter-spacing="3">BRAVE INDIAN</text>
             
             <line x1="30" y1="62" x2="190" y2="62" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
 
             <text x="110" y="80" text-anchor="middle" fill="#ddd" font-family="'Space Grotesk', monospace" font-size="9" font-weight="700" letter-spacing="2">240 GSM FRENCH TERRY</text>
-            <text x="110" y="96" text-anchor="middle" fill="#888" font-family="'Space Grotesk', monospace" font-size="8" letter-spacing="1.5">100% COMBED LONG-STAPLE</text>
-            <text x="110" y="112" text-anchor="middle" fill="${accent}" font-family="'Space Grotesk', monospace" font-size="7.5" font-weight="700" letter-spacing="3">CRAFTED IN BHARAT // BATCH 001</text>
+            <text x="110" y="96" text-anchor="middle" fill="#888" font-family="'Space Grotesk', monospace" font-size="8" letter-spacing="1.5">FRENCH TERRY COTTON</text>
+            <text x="110" y="112" text-anchor="middle" fill="${accent}" font-family="'Space Grotesk', monospace" font-size="7.5" font-weight="700" letter-spacing="3">MADE IN INDIA</text>
           </g>
 
           <!-- Technical Spec Badges -->
@@ -86,12 +86,12 @@
             <rect x="0" y="0" width="430" height="115" rx="4" fill="#0d0d12" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
             
             <circle cx="25" cy="30" r="4" fill="${accent}"/>
-            <text x="40" y="34" fill="#fff" font-family="'Space Grotesk', monospace" font-size="10" font-weight="700">1.25" ANTI-SAG HIGH TENSION LYCRA RIB COLLAR</text>
-            <text x="40" y="48" fill="#888" font-family="'Space Grotesk', monospace" font-size="8.5">Reinforced with twin-needle chainstitch to hold sharp drape through 100+ washes.</text>
+            <text x="40" y="34" fill="#fff" font-family="'Space Grotesk', monospace" font-size="10" font-weight="700">THICK RIB COLLAR</text>
+            <text x="40" y="48" fill="#888" font-family="'Space Grotesk', monospace" font-size="8.5">Bio + silicone washed, so it feels soft from the first wear.</text>
 
-            <circle cx="25" cy="72" r="4" fill="#f59e0b"/>
-            <text x="40" y="76" fill="#fff" font-family="'Space Grotesk', monospace" font-size="10" font-weight="700">240 GSM FRENCH TERRY // BIO WASH</text>
-            <text x="40" y="90" fill="#888" font-family="'Space Grotesk', monospace" font-size="8.5">Substantial 240g/m² weight gives architectural boxy drape with zero cling.</text>
+            <circle cx="25" cy="72" r="4" fill="#ED1C24"/>
+            <text x="40" y="76" fill="#fff" font-family="'Space Grotesk', monospace" font-size="10" font-weight="700">240 GSM FRENCH TERRY · WASHED SOFT</text>
+            <text x="40" y="90" fill="#888" font-family="'Space Grotesk', monospace" font-size="8.5">Heavy 240 GSM cotton that holds its shape and never clings.</text>
           </g>
         </svg>
       `.trim();
@@ -127,9 +127,9 @@
           </g>
 
           <!-- Editorial Typography Overlay -->
-          <text x="40" y="55" fill="${accent}" font-family="'Space Grotesk', monospace" font-size="10" font-weight="700" letter-spacing="4">EDITORIAL SILHOUETTE // ARCHIVE</text>
+          <text x="40" y="55" fill="${accent}" font-family="'Space Grotesk', monospace" font-size="10" font-weight="700" letter-spacing="4">HOW IT FITS</text>
           <text x="40" y="85" fill="#fff" font-family="'Bebas Neue', sans-serif" font-size="28" font-weight="900" letter-spacing="3">BRAVADIAN</text>
-          <text x="40" y="108" fill="#aaa" font-family="'Space Grotesk', monospace" font-size="10" font-weight="600" letter-spacing="2">240 GSM ARCHITECTURAL CUT</text>
+          <text x="40" y="108" fill="#aaa" font-family="'Space Grotesk', monospace" font-size="10" font-weight="600" letter-spacing="2">OVERSIZED, DROP SHOULDER</text>
 
           <!-- Center Spec Wheel -->
           <circle cx="250" cy="360" r="85" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1" stroke-dasharray="4,4"/>
@@ -139,8 +139,8 @@
 
           <!-- Footer Metadata -->
           <line x1="40" y1="580" x2="460" y2="580" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
-          <text x="40" y="602" fill="#777" font-family="'Space Grotesk', monospace" font-size="8.5" letter-spacing="2">HEAVY DROP SHOULDER // PRE-SHRUNK</text>
-          <text x="460" y="602" text-anchor="end" fill="${accent}" font-family="'Space Grotesk', monospace" font-size="8.5" font-weight="700" letter-spacing="2">EST. 2026 // BHARAT</text>
+          <text x="40" y="602" fill="#777" font-family="'Space Grotesk', monospace" font-size="8.5" letter-spacing="2">OVERSIZED · DROP SHOULDER</text>
+          <text x="460" y="602" text-anchor="end" fill="${accent}" font-family="'Space Grotesk', monospace" font-size="8.5" font-weight="700" letter-spacing="2">EST. 2026 · INDIA</text>
         </svg>
       `.trim();
       return `data:image/svg+xml;utf8,${encodeURIComponent(lifeSvg)}`;
@@ -159,7 +159,7 @@
             <text x="36" y="19" fill="${textCol}" font-family="'Bebas Neue', sans-serif" font-size="7" font-weight="800" letter-spacing="1">BRVD</text>
             <text x="36" y="28" fill="${textSub}" font-family="'Space Grotesk', monospace" font-size="5.5" font-weight="600">240 GSM</text>
             <line x1="8" y1="35" x2="67" y2="35" stroke="rgba(255,255,255,0.12)" stroke-width="0.8"/>
-            <text x="10" y="44" fill="${accent}" font-family="'Space Grotesk', monospace" font-size="6" font-weight="700" letter-spacing="1">CELESTIAL FOX // 01</text>
+            <text x="10" y="44" fill="${accent}" font-family="'Space Grotesk', monospace" font-size="6" font-weight="700" letter-spacing="1">CELESTIAL FOX</text>
           </g>
           <!-- Woven Hem Tag -->
           <rect x="131" y="510" width="16" height="8" rx="1" fill="${accent}"/>
@@ -169,42 +169,42 @@
         artworkMarkup = `
           <!-- Hoysala Stone Inscription Chest Crest -->
           <g transform="translate(170, 195)">
-            <rect x="0" y="0" width="76" height="50" rx="2" fill="#08080c" stroke="#FFA000" stroke-width="1.2"/>
-            <text x="38" y="18" text-anchor="middle" fill="#FFA000" font-family="'Bebas Neue', sans-serif" font-size="9" font-weight="900" letter-spacing="1.5">HOYSALA</text>
+            <rect x="0" y="0" width="76" height="50" rx="2" fill="#08080c" stroke="#ED1C24" stroke-width="1.2"/>
+            <text x="38" y="18" text-anchor="middle" fill="#ED1C24" font-family="'Bebas Neue', sans-serif" font-size="9" font-weight="900" letter-spacing="1.5">HOYSALA</text>
             <text x="38" y="30" text-anchor="middle" fill="#fff" font-family="'Space Grotesk', monospace" font-size="6.5" font-weight="700">ROOTED IN STONE</text>
-            <line x1="10" y1="36" x2="66" y2="36" stroke="#FFA000" stroke-width="0.8"/>
-            <text x="38" y="44" text-anchor="middle" fill="#888" font-family="'Space Grotesk', monospace" font-size="5.5">240 GSM // BHARAT</text>
+            <line x1="10" y1="36" x2="66" y2="36" stroke="#ED1C24" stroke-width="0.8"/>
+            <text x="38" y="44" text-anchor="middle" fill="#888" font-family="'Space Grotesk', monospace" font-size="5.5">MADE IN INDIA</text>
           </g>
         `;
       } else if (upperTitle.includes('ASURA')) {
         artworkMarkup = `
           <!-- Asura Mythological Chest Sigil -->
           <g transform="translate(180, 195)">
-            <circle cx="26" cy="26" r="24" fill="#0a0a0f" stroke="#FFA000" stroke-width="1.2"/>
-            <polygon points="26,10 38,36 14,36" fill="none" stroke="#FFA000" stroke-width="1"/>
+            <circle cx="26" cy="26" r="24" fill="#0a0a0f" stroke="#ED1C24" stroke-width="1.2"/>
+            <polygon points="26,10 38,36 14,36" fill="none" stroke="#ED1C24" stroke-width="1"/>
             <text x="26" y="30" text-anchor="middle" fill="#fff" font-family="'Bebas Neue', sans-serif" font-size="7" font-weight="900">ASURA</text>
-            <text x="26" y="42" text-anchor="middle" fill="#FFA000" font-family="'Space Grotesk', monospace" font-size="5" font-weight="700">400 GSM</text>
+            <text x="26" y="42" text-anchor="middle" fill="#ED1C24" font-family="'Space Grotesk', monospace" font-size="5" font-weight="700">240 GSM</text>
           </g>
         `;
       } else if (upperTitle.includes('BERUNDA')) {
         artworkMarkup = `
           <!-- Berunda Tonal Twin-Eagle Pocket Patch -->
           <g transform="translate(170, 195)">
-            <rect x="0" y="0" width="76" height="50" rx="2" fill="#08080c" stroke="#FFA000" stroke-width="1"/>
-            <circle cx="28" cy="20" r="8" fill="none" stroke="#FFA000" stroke-width="1"/>
-            <circle cx="48" cy="20" r="8" fill="none" stroke="#FFA000" stroke-width="1"/>
+            <rect x="0" y="0" width="76" height="50" rx="2" fill="#08080c" stroke="#ED1C24" stroke-width="1"/>
+            <circle cx="28" cy="20" r="8" fill="none" stroke="#ED1C24" stroke-width="1"/>
+            <circle cx="48" cy="20" r="8" fill="none" stroke="#ED1C24" stroke-width="1"/>
             <text x="38" y="36" text-anchor="middle" fill="#fff" font-family="'Bebas Neue', sans-serif" font-size="8" font-weight="900">BERUNDA</text>
-            <text x="38" y="44" text-anchor="middle" fill="#FFA000" font-family="'Space Grotesk', monospace" font-size="5" font-weight="700">CHORE COAT</text>
+            <text x="38" y="44" text-anchor="middle" fill="#ED1C24" font-family="'Space Grotesk', monospace" font-size="5" font-weight="700">HERITAGE</text>
           </g>
         `;
       } else if (upperTitle.includes('GARUDA')) {
         artworkMarkup = `
           <!-- Sacred Solar Feather Crest -->
           <g transform="translate(180, 195)">
-            <circle cx="26" cy="26" r="24" fill="#0a0a0f" stroke="#f59e0b" stroke-width="1.2"/>
-            <circle cx="26" cy="26" r="18" fill="none" stroke="rgba(245,158,11,0.3)" stroke-width="0.8" stroke-dasharray="2,2"/>
-            <text x="26" y="24" text-anchor="middle" fill="#f59e0b" font-family="'Tiro Devanagari Hindi', serif" font-size="14" font-weight="700">गरुड़</text>
-            <text x="26" y="35" text-anchor="middle" fill="#fff" font-family="'Space Grotesk', monospace" font-size="5" font-weight="800" letter-spacing="1">APEX 240</text>
+            <circle cx="26" cy="26" r="24" fill="#0a0a0f" stroke="#ED1C24" stroke-width="1.2"/>
+            <circle cx="26" cy="26" r="18" fill="none" stroke="rgba(237, 28, 36,0.3)" stroke-width="0.8" stroke-dasharray="2,2"/>
+            <text x="26" y="24" text-anchor="middle" fill="#ED1C24" font-family="'Tiro Devanagari Hindi', serif" font-size="14" font-weight="700">गरुड़</text>
+            <text x="26" y="35" text-anchor="middle" fill="#fff" font-family="'Space Grotesk', monospace" font-size="5" font-weight="800" letter-spacing="1">ESSENTIAL 240</text>
           </g>
         `;
       } else if (upperTitle.includes('BHARAT') || upperTitle.includes('MONOLITH')) {
@@ -214,7 +214,7 @@
             <rect x="0" y="0" width="80" height="46" rx="2" fill="#08080c" stroke="${accent}" stroke-width="1"/>
             <text x="10" y="18" fill="#fff" font-family="'Bebas Neue', sans-serif" font-size="9" font-weight="900" letter-spacing="1.5">BHARAT</text>
             <text x="10" y="29" fill="${accent}" font-family="'Space Grotesk', monospace" font-size="6.5" font-weight="700">28°36'N 77°12'E</text>
-            <text x="10" y="39" fill="${textSub}" font-family="'Space Grotesk', monospace" font-size="5.5" letter-spacing="1">240 GSM ARCHIVE</text>
+            <text x="10" y="39" fill="${textSub}" font-family="'Space Grotesk', monospace" font-size="5.5" letter-spacing="1">240 GSM COTTON</text>
           </g>
         `;
       } else if (upperTitle.includes('CYBER')) {
@@ -223,17 +223,17 @@
           <g transform="translate(170, 195)">
             <rect x="0" y="0" width="76" height="48" rx="2" fill="#08080c" stroke="${accent}" stroke-width="1.2"/>
             <rect x="0" y="0" width="76" height="6" fill="${accent}"/>
-            <text x="38" y="5" text-anchor="middle" fill="#000" font-family="'Space Grotesk', monospace" font-size="4.5" font-weight="900">WARNING: 240 GSM</text>
+            <text x="38" y="5" text-anchor="middle" fill="#000" font-family="'Space Grotesk', monospace" font-size="4.5" font-weight="900">240 GSM COTTON</text>
             <text x="8" y="24" fill="#fff" font-family="'Bebas Neue', sans-serif" font-size="9" font-weight="900" letter-spacing="1">CYBER REBEL</text>
             <line x1="8" y1="32" x2="68" y2="32" stroke="${textCol}" stroke-width="2" stroke-dasharray="1,2,3,1,2"/>
-            <text x="8" y="42" fill="${accent}" font-family="'Space Grotesk', monospace" font-size="6" font-weight="700">[BRVD-CR-04]</text>
+            <text x="8" y="42" fill="${accent}" font-family="'Space Grotesk', monospace" font-size="6" font-weight="700">[ CYBER REBEL ]</text>
           </g>
         `;
       } else if (upperTitle.includes('ASHOKA')) {
         artworkMarkup = `
           <!-- Solar Chakra Mini Chest Disc -->
           <g transform="translate(185, 200)">
-            <circle cx="22" cy="22" r="20" fill="#0a0a0f" stroke="#f59e0b" stroke-width="1.2"/>
+            <circle cx="22" cy="22" r="20" fill="#0a0a0f" stroke="#ED1C24" stroke-width="1.2"/>
             <circle cx="22" cy="22" r="14" fill="none" stroke="${accent}" stroke-width="1.5" stroke-dasharray="2,2"/>
             <circle cx="22" cy="22" r="5" fill="${accent}"/>
             <text x="22" y="35" text-anchor="middle" fill="#fff" font-family="'Space Grotesk', monospace" font-size="4.5" font-weight="800">24 CHAKRA</text>
@@ -259,17 +259,17 @@
             <rect x="0" y="0" width="180" height="230" rx="4" fill="#08080c" stroke="${accent}" stroke-width="1.2" stroke-dasharray="6,3"/>
             
             <!-- Radiating Sun Mandala Halo -->
-            <circle cx="90" cy="95" r="52" fill="none" stroke="rgba(255,77,0,0.25)" stroke-width="1.5" stroke-dasharray="3,3"/>
-            <circle cx="90" cy="95" r="42" fill="none" stroke="rgba(245,158,11,0.4)" stroke-width="1"/>
+            <circle cx="90" cy="95" r="52" fill="none" stroke="rgba(237, 28, 36,0.25)" stroke-width="1.5" stroke-dasharray="3,3"/>
+            <circle cx="90" cy="95" r="42" fill="none" stroke="rgba(237, 28, 36,0.4)" stroke-width="1"/>
 
             <!-- 9 Radiant Flame Tails (Multi-layered vector curves) -->
             <path d="M 90 120 C 70 80, 20 70, 30 35 C 45 45, 65 75, 80 100" fill="${accent}" opacity="0.9"/>
-            <path d="M 90 120 C 60 70, 40 40, 55 20 C 70 35, 80 65, 85 100" fill="#f59e0b" opacity="0.95"/>
-            <path d="M 90 120 C 75 60, 65 30, 80 12 C 90 30, 92 65, 90 100" fill="#ff7700" opacity="0.9"/>
+            <path d="M 90 120 C 60 70, 40 40, 55 20 C 70 35, 80 65, 85 100" fill="#ED1C24" opacity="0.95"/>
+            <path d="M 90 120 C 75 60, 65 30, 80 12 C 90 30, 92 65, 90 100" fill="#ED1C24" opacity="0.9"/>
             
             <path d="M 90 120 C 110 80, 160 70, 150 35 C 135 45, 115 75, 100 100" fill="${accent}" opacity="0.9"/>
-            <path d="M 90 120 C 120 70, 140 40, 125 20 C 110 35, 100 65, 95 100" fill="#f59e0b" opacity="0.95"/>
-            <path d="M 90 120 C 105 60, 115 30, 100 12 C 90 30, 88 65, 90 100" fill="#ff7700" opacity="0.9"/>
+            <path d="M 90 120 C 120 70, 140 40, 125 20 C 110 35, 100 65, 95 100" fill="#ED1C24" opacity="0.95"/>
+            <path d="M 90 120 C 105 60, 115 30, 100 12 C 90 30, 88 65, 90 100" fill="#ED1C24" opacity="0.9"/>
 
             <!-- Fox Spirit Head & Mask -->
             <polygon points="90,75 75,50 82,75 90,95 98,75 105,50" fill="#ffffff"/>
@@ -289,69 +289,69 @@
             
             <line x1="25" y1="190" x2="155" y2="190" stroke="${accent}" stroke-width="1.5"/>
 
-            <text x="90" y="205" text-anchor="middle" fill="#ccc" font-family="'Space Grotesk', monospace" font-size="7.5" font-weight="700" letter-spacing="2">CELESTIAL FOX SPIRIT // ANIME ARCHIVE</text>
-            <text x="90" y="218" text-anchor="middle" fill="${accent}" font-family="'Space Grotesk', monospace" font-size="7" font-weight="700" letter-spacing="2.5">[ 240 GSM HEAVYWEIGHT // BATCH 001 ]</text>
+            <text x="90" y="205" text-anchor="middle" fill="#ccc" font-family="'Space Grotesk', monospace" font-size="7.5" font-weight="700" letter-spacing="2">THE NINE-TAILED FOX</text>
+            <text x="90" y="218" text-anchor="middle" fill="${accent}" font-family="'Space Grotesk', monospace" font-size="7" font-weight="700" letter-spacing="2.5">[ 240 GSM FRENCH TERRY ]</text>
           </g>
         `;
       } else if (upperTitle.includes('HOYSALA')) {
         artworkMarkup = `
           <!-- Hoysala Architectural Temple Relief -->
           <g transform="translate(160, 160)">
-            <rect x="0" y="0" width="180" height="230" rx="4" fill="#08080c" stroke="#FFA000" stroke-width="1.2"/>
-            <path d="M 90 35 L 45 80 L 60 80 L 60 120 L 120 120 L 120 80 L 135 80 Z" fill="none" stroke="#FFA000" stroke-width="1.5"/>
-            <rect x="75" y="90" width="30" height="30" fill="#FFA000" opacity="0.3"/>
+            <rect x="0" y="0" width="180" height="230" rx="4" fill="#08080c" stroke="#ED1C24" stroke-width="1.2"/>
+            <path d="M 90 35 L 45 80 L 60 80 L 60 120 L 120 120 L 120 80 L 135 80 Z" fill="none" stroke="#ED1C24" stroke-width="1.5"/>
+            <rect x="75" y="90" width="30" height="30" fill="#ED1C24" opacity="0.3"/>
             <text x="90" y="150" text-anchor="middle" fill="#ffffff" font-family="'Bebas Neue', sans-serif" font-size="16" font-weight="900" letter-spacing="3">HOYSALA</text>
-            <text x="90" y="170" text-anchor="middle" fill="#FFA000" font-family="'Space Grotesk', monospace" font-size="9" font-weight="700" letter-spacing="2.5">ROOTED IN STONE</text>
-            <line x1="30" y1="184" x2="150" y2="184" stroke="#FFA000" stroke-width="1.2"/>
-            <text x="90" y="202" text-anchor="middle" fill="#aaa" font-family="'Space Grotesk', monospace" font-size="7.5" font-weight="700" letter-spacing="2">ARCHITECTURAL RELIEF</text>
-            <text x="90" y="216" text-anchor="middle" fill="#FFA000" font-family="'Space Grotesk', monospace" font-size="7" font-weight="700" letter-spacing="2.5">240 GSM HEAVYWEIGHT</text>
+            <text x="90" y="170" text-anchor="middle" fill="#ED1C24" font-family="'Space Grotesk', monospace" font-size="9" font-weight="700" letter-spacing="2.5">ROOTED IN STONE</text>
+            <line x1="30" y1="184" x2="150" y2="184" stroke="#ED1C24" stroke-width="1.2"/>
+            <text x="90" y="202" text-anchor="middle" fill="#aaa" font-family="'Space Grotesk', monospace" font-size="7.5" font-weight="700" letter-spacing="2">TEMPLE RELIEF</text>
+            <text x="90" y="216" text-anchor="middle" fill="#ED1C24" font-family="'Space Grotesk', monospace" font-size="7" font-weight="700" letter-spacing="2.5">240 GSM HEAVYWEIGHT</text>
           </g>
         `;
       } else if (upperTitle.includes('ASURA')) {
         artworkMarkup = `
           <!-- Asura Mythological Warrior Frieze -->
           <g transform="translate(160, 160)">
-            <rect x="0" y="0" width="180" height="230" rx="4" fill="#08080c" stroke="#FFA000" stroke-width="1.2"/>
-            <circle cx="90" cy="75" r="32" fill="none" stroke="#FFA000" stroke-width="1.2" stroke-dasharray="3,2"/>
-            <polygon points="90,45 105,75 75,75" fill="#FFA000" opacity="0.8"/>
+            <rect x="0" y="0" width="180" height="230" rx="4" fill="#08080c" stroke="#ED1C24" stroke-width="1.2"/>
+            <circle cx="90" cy="75" r="32" fill="none" stroke="#ED1C24" stroke-width="1.2" stroke-dasharray="3,2"/>
+            <polygon points="90,45 105,75 75,75" fill="#ED1C24" opacity="0.8"/>
             <text x="90" y="150" text-anchor="middle" fill="#ffffff" font-family="'Bebas Neue', sans-serif" font-size="18" font-weight="900" letter-spacing="3">ASURA</text>
-            <text x="90" y="170" text-anchor="middle" fill="#FFA000" font-family="'Space Grotesk', monospace" font-size="8.5" font-weight="700" letter-spacing="2">WARRIOR ARCHIVE</text>
-            <line x1="30" y1="184" x2="150" y2="184" stroke="#FFA000" stroke-width="1.2"/>
-            <text x="90" y="202" text-anchor="middle" fill="#aaa" font-family="'Space Grotesk', monospace" font-size="7.5" font-weight="700" letter-spacing="2">CHAOS DOCTRINE</text>
-            <text x="90" y="216" text-anchor="middle" fill="#FFA000" font-family="'Space Grotesk', monospace" font-size="7" font-weight="700" letter-spacing="2.5">400 GSM BRUSHED FLEECE</text>
+            <text x="90" y="170" text-anchor="middle" fill="#ED1C24" font-family="'Space Grotesk', monospace" font-size="8.5" font-weight="700" letter-spacing="2">WARRIOR</text>
+            <line x1="30" y1="184" x2="150" y2="184" stroke="#ED1C24" stroke-width="1.2"/>
+            <text x="90" y="202" text-anchor="middle" fill="#aaa" font-family="'Space Grotesk', monospace" font-size="7.5" font-weight="700" letter-spacing="2">CITY WALLS</text>
+            <text x="90" y="216" text-anchor="middle" fill="#ED1C24" font-family="'Space Grotesk', monospace" font-size="7" font-weight="700" letter-spacing="2.5">240 GSM FRENCH TERRY</text>
           </g>
         `;
       } else if (upperTitle.includes('BERUNDA')) {
         artworkMarkup = `
           <!-- Gandaberunda Twin-Headed Eagle Crest -->
           <g transform="translate(160, 160)">
-            <rect x="0" y="0" width="180" height="230" rx="4" fill="#08080c" stroke="#FFA000" stroke-width="1.2"/>
-            <circle cx="72" cy="70" r="14" fill="none" stroke="#FFA000" stroke-width="1.5"/>
-            <circle cx="108" cy="70" r="14" fill="none" stroke="#FFA000" stroke-width="1.5"/>
-            <path d="M 60 70 L 40 45 L 90 90 L 140 45 L 120 70 Z" fill="#FFA000" opacity="0.75"/>
+            <rect x="0" y="0" width="180" height="230" rx="4" fill="#08080c" stroke="#ED1C24" stroke-width="1.2"/>
+            <circle cx="72" cy="70" r="14" fill="none" stroke="#ED1C24" stroke-width="1.5"/>
+            <circle cx="108" cy="70" r="14" fill="none" stroke="#ED1C24" stroke-width="1.5"/>
+            <path d="M 60 70 L 40 45 L 90 90 L 140 45 L 120 70 Z" fill="#ED1C24" opacity="0.75"/>
             <text x="90" y="150" text-anchor="middle" fill="#ffffff" font-family="'Bebas Neue', sans-serif" font-size="16" font-weight="900" letter-spacing="3">BERUNDA</text>
-            <text x="90" y="170" text-anchor="middle" fill="#FFA000" font-family="'Space Grotesk', monospace" font-size="8.5" font-weight="700" letter-spacing="2">TWIN SOVEREIGN</text>
-            <line x1="30" y1="184" x2="150" y2="184" stroke="#FFA000" stroke-width="1.2"/>
-            <text x="90" y="202" text-anchor="middle" fill="#aaa" font-family="'Space Grotesk', monospace" font-size="7.5" font-weight="700" letter-spacing="2">HEAVY CHORE COAT</text>
-            <text x="90" y="216" text-anchor="middle" fill="#FFA000" font-family="'Space Grotesk', monospace" font-size="7" font-weight="700" letter-spacing="2.5">CANVAS EMBROIDERY</text>
+            <text x="90" y="170" text-anchor="middle" fill="#ED1C24" font-family="'Space Grotesk', monospace" font-size="8.5" font-weight="700" letter-spacing="2">GANDABERUNDA</text>
+            <line x1="30" y1="184" x2="150" y2="184" stroke="#ED1C24" stroke-width="1.2"/>
+            <text x="90" y="202" text-anchor="middle" fill="#aaa" font-family="'Space Grotesk', monospace" font-size="7.5" font-weight="700" letter-spacing="2">HERITAGE</text>
+            <text x="90" y="216" text-anchor="middle" fill="#ED1C24" font-family="'Space Grotesk', monospace" font-size="7" font-weight="700" letter-spacing="2.5">ORIGINAL ARTWORK</text>
           </g>
         `;
       } else if (upperTitle.includes('GARUDA')) {
         artworkMarkup = `
           <!-- Monumental Garuda Sovereign Wingspan -->
           <g transform="translate(160, 160)">
-            <rect x="0" y="0" width="180" height="230" rx="4" fill="#08080c" stroke="#FFA000" stroke-width="1.2" stroke-dasharray="4,4"/>
+            <rect x="0" y="0" width="180" height="230" rx="4" fill="#08080c" stroke="#ED1C24" stroke-width="1.2" stroke-dasharray="4,4"/>
             
             <!-- Wingspan Art -->
-            <path d="M 90 90 L 20 40 L 40 70 L 15 65 L 35 90 L 90 115 L 145 90 L 165 65 L 140 70 L 160 40 Z" fill="#FFA000" opacity="0.9"/>
+            <path d="M 90 90 L 20 40 L 40 70 L 15 65 L 35 90 L 90 115 L 145 90 L 165 65 L 140 70 L 160 40 Z" fill="#ED1C24" opacity="0.9"/>
             <circle cx="90" cy="80" r="28" fill="none" stroke="#fff" stroke-width="1" stroke-dasharray="2,2"/>
             <text x="90" y="85" text-anchor="middle" fill="#fff" font-family="'Tiro Devanagari Hindi', serif" font-size="14" font-weight="700">गरुड़</text>
 
-            <text x="90" y="155" text-anchor="middle" fill="#fff" font-family="'Bebas Neue', sans-serif" font-size="18" font-weight="900" letter-spacing="3">GARUDA DISTRESSED</text>
-            <text x="90" y="175" text-anchor="middle" fill="#FFA000" font-family="'Bebas Neue', sans-serif" font-size="13" font-weight="900" letter-spacing="2">400 GSM FLEECE</text>
-            <line x1="30" y1="188" x2="150" y2="188" stroke="#FFA000" stroke-width="1.5"/>
-            <text x="90" y="205" text-anchor="middle" fill="#ccc" font-family="'Space Grotesk', monospace" font-size="7.5" font-weight="700" letter-spacing="2">MYTHOLOGY DROP // BHARAT</text>
-            <text x="90" y="218" text-anchor="middle" fill="#FFA000" font-family="'Space Grotesk', monospace" font-size="7" font-weight="700" letter-spacing="2.5">LIMITED ARCHIVE PIECE</text>
+            <text x="90" y="155" text-anchor="middle" fill="#fff" font-family="'Bebas Neue', sans-serif" font-size="18" font-weight="900" letter-spacing="3">GARUDA</text>
+            <text x="90" y="175" text-anchor="middle" fill="#ED1C24" font-family="'Bebas Neue', sans-serif" font-size="13" font-weight="900" letter-spacing="2">240 GSM COTTON</text>
+            <line x1="30" y1="188" x2="150" y2="188" stroke="#ED1C24" stroke-width="1.5"/>
+            <text x="90" y="205" text-anchor="middle" fill="#ccc" font-family="'Space Grotesk', monospace" font-size="7.5" font-weight="700" letter-spacing="2">MYTHOLOGY</text>
+            <text x="90" y="218" text-anchor="middle" fill="#ED1C24" font-family="'Space Grotesk', monospace" font-size="7" font-weight="700" letter-spacing="2.5">ORIGINAL ARTWORK</text>
           </g>
         `;
       } else if (upperTitle.includes('BHARAT') || upperTitle.includes('MONOLITH')) {
@@ -368,7 +368,7 @@
             <text x="90" y="150" text-anchor="middle" fill="#ffffff" font-family="'Bebas Neue', sans-serif" font-size="20" font-weight="900" letter-spacing="4">BHARAT</text>
             <text x="90" y="172" text-anchor="middle" fill="${accent}" font-family="'Bebas Neue', sans-serif" font-size="14" font-weight="900" letter-spacing="3">MONOLITH</text>
             <line x1="30" y1="185" x2="150" y2="185" stroke="${accent}" stroke-width="1.5"/>
-            <text x="90" y="202" text-anchor="middle" fill="#ccc" font-family="'Space Grotesk', monospace" font-size="8" font-weight="700" letter-spacing="2">28°36'N 77°12'E // HERITAGE</text>
+            <text x="90" y="202" text-anchor="middle" fill="#ccc" font-family="'Space Grotesk', monospace" font-size="8" font-weight="700" letter-spacing="2">28°36'N 77°12'E · DELHI</text>
             <text x="90" y="216" text-anchor="middle" fill="${accent}" font-family="'Space Grotesk', monospace" font-size="7" font-weight="700" letter-spacing="2.5">240 GSM FRENCH TERRY</text>
           </g>
         `;
@@ -380,15 +380,15 @@
             
             <!-- Hazard Cross Stripes -->
             <line x1="10" y1="15" x2="170" y2="15" stroke="${accent}" stroke-width="4" stroke-dasharray="6,4"/>
-            <text x="90" y="55" text-anchor="middle" fill="#fff" font-family="'Bebas Neue', sans-serif" font-size="16" font-weight="900" letter-spacing="2">RAW REBELLION</text>
-            <text x="90" y="78" text-anchor="middle" fill="${accent}" font-family="'Space Grotesk', monospace" font-size="8" font-weight="700" letter-spacing="3">[ ANTI-SURVEILLANCE ]</text>
+            <text x="90" y="55" text-anchor="middle" fill="#fff" font-family="'Bebas Neue', sans-serif" font-size="16" font-weight="900" letter-spacing="2">LOUD & PROUD</text>
+            <text x="90" y="78" text-anchor="middle" fill="${accent}" font-family="'Space Grotesk', monospace" font-size="8" font-weight="700" letter-spacing="3">[ STREET CULTURE ]</text>
             
             <!-- Inverted Brutalist Seal -->
             <polygon points="90,95 65,135 115,135" fill="none" stroke="${accent}" stroke-width="2"/>
             <text x="90" y="125" text-anchor="middle" fill="#fff" font-family="'Space Grotesk', monospace" font-size="12" font-weight="900">!</text>
 
             <text x="90" y="170" text-anchor="middle" fill="#fff" font-family="'Bebas Neue', sans-serif" font-size="15" font-weight="900" letter-spacing="3">BRAVADIAN</text>
-            <text x="90" y="190" text-anchor="middle" fill="${accent}" font-family="'Space Grotesk', monospace" font-size="9" font-weight="700" letter-spacing="2">STREET ARCHIVE 2026</text>
+            <text x="90" y="190" text-anchor="middle" fill="${accent}" font-family="'Space Grotesk', monospace" font-size="9" font-weight="700" letter-spacing="2">STREET CULTURE</text>
             <text x="90" y="214" text-anchor="middle" fill="#888" font-family="'Space Grotesk', monospace" font-size="7" letter-spacing="2">[ 240 GSM OVERSIZED ]</text>
           </g>
         `;
@@ -400,8 +400,8 @@
             <text x="90" y="65" text-anchor="middle" fill="#ffffff" font-family="'Bebas Neue', sans-serif" font-size="20" font-weight="900" letter-spacing="4">BRAVADIAN</text>
             <text x="90" y="95" text-anchor="middle" fill="${accent}" font-family="'Bebas Neue', sans-serif" font-size="16" font-weight="900" letter-spacing="3">BRAVE INDIAN</text>
             <line x1="30" y1="115" x2="150" y2="115" stroke="${accent}" stroke-width="1.5"/>
-            <text x="90" y="140" text-anchor="middle" fill="#bbb" font-family="'Space Grotesk', monospace" font-size="8.5" font-weight="700" letter-spacing="2">ARCHITECTURAL SILHOUETTE</text>
-            <text x="90" y="165" text-anchor="middle" fill="${accent}" font-family="'Space Grotesk', monospace" font-size="7.5" font-weight="700" letter-spacing="3">[ 240 GSM // FRENCH TERRY ]</text>
+            <text x="90" y="140" text-anchor="middle" fill="#bbb" font-family="'Space Grotesk', monospace" font-size="8.5" font-weight="700" letter-spacing="2">OVERSIZED FIT</text>
+            <text x="90" y="165" text-anchor="middle" fill="${accent}" font-family="'Space Grotesk', monospace" font-size="7.5" font-weight="700" letter-spacing="3">[ 240 GSM FRENCH TERRY ]</text>
           </g>
         `;
       }
@@ -439,9 +439,9 @@
           ${viewType === 'front' ? `
             <path d="M 200 95 C 220 78, 280 78, 300 95 C 280 114, 220 114, 200 95 Z" fill="${innerNeckFill}"/>
             <!-- Woven Inside Neck Brand Label -->
-            <rect x="232" y="85" width="36" height="18" rx="1.5" fill="#050508" stroke="#f59e0b" stroke-width="0.8"/>
+            <rect x="232" y="85" width="36" height="18" rx="1.5" fill="#050508" stroke="#ED1C24" stroke-width="0.8"/>
             <text x="250" y="93" text-anchor="middle" fill="#fff" font-family="'Bebas Neue', sans-serif" font-size="4" font-weight="900" letter-spacing="0.5">BRAVADIAN</text>
-            <text x="250" y="99" text-anchor="middle" fill="#f59e0b" font-family="'Space Grotesk', monospace" font-size="3.5" font-weight="700">240 GSM</text>
+            <text x="250" y="99" text-anchor="middle" fill="#ED1C24" font-family="'Space Grotesk', monospace" font-size="3.5" font-weight="700">240 GSM</text>
           ` : ''}
 
           <!-- Main Oversized Streetwear T-Shirt Body -->
@@ -490,10 +490,10 @@
         ${artworkMarkup}
 
         <!-- Technical Corner Badges (Editorial Luxury Aesthetic) -->
-        <text x="25" y="32" fill="${accent}" font-family="'Space Grotesk', monospace" font-size="8.5" font-weight="700" letter-spacing="2">BRAVADIAN // [240 GSM]</text>
+        <text x="25" y="32" fill="${accent}" font-family="'Space Grotesk', monospace" font-size="8.5" font-weight="700" letter-spacing="2">BRAVADIAN · 240 GSM</text>
         <text x="475" y="32" text-anchor="end" fill="#777" font-family="'Space Grotesk', monospace" font-size="8.5" font-weight="700" letter-spacing="2">VIEW: ${viewType.toUpperCase()}</text>
-        <text x="25" y="605" fill="#555" font-family="'Space Grotesk', monospace" font-size="8" letter-spacing="1.5">HEAVYWEIGHT OVERSIZED SILHOUETTE</text>
-        <text x="475" y="605" text-anchor="end" fill="${accent}" font-family="'Space Grotesk', monospace" font-size="8" font-weight="700" letter-spacing="2">BHARAT ARCHIVE</text>
+        <text x="25" y="605" fill="#555" font-family="'Space Grotesk', monospace" font-size="8" letter-spacing="1.5">HEAVY, OVERSIZED FIT</text>
+        <text x="475" y="605" text-anchor="end" fill="${accent}" font-family="'Space Grotesk', monospace" font-size="8" font-weight="700" letter-spacing="2">MADE IN INDIA</text>
       </svg>
     `.trim();
 
@@ -508,9 +508,9 @@
      ========================================================================== */
   function createUniverseDiagramSVG(num, name, chapterName, category = 'active') {
     const isVault = category === 'vault';
-    const strokeColor = isVault ? 'rgba(107, 106, 105, 0.7)' : '#FFA000';
-    const glowColor = isVault ? 'rgba(107, 106, 105, 0.2)' : 'rgba(255, 160, 0, 0.35)';
-    const textColor = isVault ? '#6B6A69' : '#FFA000';
+    const strokeColor = isVault ? 'rgba(107, 106, 105, 0.7)' : '#ED1C24';
+    const glowColor = isVault ? 'rgba(107, 106, 105, 0.2)' : 'rgba(237, 28, 36, 0.35)';
+    const textColor = isVault ? '#6B6A69' : '#ED1C24';
     const mutedText = isVault ? '#484848' : '#888888';
     const bgFill = isVault ? '#09090C' : '#0B0B0E';
 
@@ -640,9 +640,9 @@
     const key = (colorKey || 'black').toLowerCase();
     const config = {
       black: { name: 'BLACK', body: '#121216', rib: '#0a0a0d', highlight: '#1e1e26', print: '#ffffff', accent: '#e53935', bg: '#08080c' },
-      ivory: { name: 'IVORY', body: '#ece3d2', rib: '#ded4c0', highlight: '#faf5eb', print: '#14120e', accent: '#e67e00', bg: '#1c1b18' },
-      red:   { name: 'RED',   body: '#c81d25', rib: '#a8141b', highlight: '#e52b34', print: '#ffffff', accent: '#ffa000', bg: '#1a090b' },
-      blue:  { name: 'BLUE',  body: '#1852b8', rib: '#103b8a', highlight: '#2563eb', print: '#ffffff', accent: '#ffa000', bg: '#09101d' },
+      ivory: { name: 'IVORY', body: '#ece3d2', rib: '#ded4c0', highlight: '#faf5eb', print: '#14120e', accent: '#ED1C24', bg: '#1c1b18' },
+      red:   { name: 'RED',   body: '#c81d25', rib: '#a8141b', highlight: '#e52b34', print: '#ffffff', accent: '#ED1C24', bg: '#1a090b' },
+      blue:  { name: 'BLUE',  body: '#1852b8', rib: '#103b8a', highlight: '#2563eb', print: '#ffffff', accent: '#ED1C24', bg: '#09101d' },
       white: { name: 'WHITE', body: '#f7f7fa', rib: '#e4e4ec', highlight: '#ffffff', print: '#14120e', accent: '#e53935', bg: '#1a1a20' }
     }[key] || { name: 'BLACK', body: '#121216', rib: '#0a0a0d', highlight: '#1e1e26', print: '#ffffff', accent: '#e53935', bg: '#08080c' };
 
@@ -674,9 +674,9 @@
         <g filter="url(#shadow_${uid})">
           <!-- Inner Back Scoop -->
           <path d="M 200 95 C 220 78, 280 78, 300 95 C 280 114, 220 114, 200 95 Z" fill="${isLightTee ? '#cfd0d8' : '#070709'}"/>
-          <rect x="232" y="85" width="36" height="18" rx="1.5" fill="#050508" stroke="#f59e0b" stroke-width="0.8"/>
+          <rect x="232" y="85" width="36" height="18" rx="1.5" fill="#050508" stroke="#ED1C24" stroke-width="0.8"/>
           <text x="250" y="93" text-anchor="middle" fill="#fff" font-family="'Bebas Neue', sans-serif" font-size="4" font-weight="900" letter-spacing="0.5">BRAVADIAN</text>
-          <text x="250" y="99" text-anchor="middle" fill="#f59e0b" font-family="'Space Grotesk', monospace" font-size="3.5" font-weight="700">240 GSM</text>
+          <text x="250" y="99" text-anchor="middle" fill="#ED1C24" font-family="'Space Grotesk', monospace" font-size="3.5" font-weight="700">240 GSM</text>
 
           <!-- Main Body -->
           <path d="M 200 95 
@@ -694,7 +694,7 @@
                 stroke-width="1.2"/>
 
           <!-- High-Tension Rib Collar -->
-          <path d="M 200 95 C 220 114, 280 114, 300 95 C 280 84, 220 84, 200 95 Z" fill="${config.rib}" stroke="#ffa000" stroke-width="1"/>
+          <path d="M 200 95 C 220 114, 280 114, 300 95 C 280 84, 220 84, 200 95 Z" fill="${config.rib}" stroke="#ED1C24" stroke-width="1"/>
 
           <!-- Drop Shoulder & Sleeve Seams -->
           <line x1="170" y1="250" x2="335" y2="250" stroke="${isLightTee ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.06)'}" stroke-width="1"/>
@@ -757,43 +757,45 @@
 
   // DEFAULT COLLECTIONS (Canon Chapters)
   const DEFAULT_COLLECTIONS = [
-    { id: 'c-all', name: 'ALL', slug: 'all', description: 'Every Bravadian design in one place. Oversized 240 GSM cotton tees with original Indian artwork.', isActive: true, order: 0 },
-    { id: 'c-anime', name: 'ANIME', slug: 'anime', description: 'Anime characters, manga-inspired artwork, Japanese animation.', isActive: true, order: 1 },
-    { id: 'c-mythology', name: 'MYTHOLOGY', slug: 'mythology', description: 'Krishna, Shiva, Hanuman, Ramayana, Mahabharata, deities, mythological stories.', isActive: true, order: 2 },
-    { id: 'c-heritage', name: 'HERITAGE', slug: 'heritage', description: 'Indian crafts, folk art, traditional patterns, architecture, cultural symbols, regional traditions.', isActive: true, order: 3 },
-    { id: 'c-street-culture', name: 'STREET CULTURE', slug: 'street-culture', description: 'Graffiti, urban graphics, hip-hop, typography, rebellious/contemporary designs.', isActive: true, order: 4 },
-    { id: 'c-minimal', name: 'MINIMAL', slug: 'minimal', description: 'Simple typography, subtle symbols, clean graphics, understated designs.', isActive: true, order: 5 }
+    { id: 'c-all', name: 'ALL', slug: 'all', description: 'Every Bravadian tee in one place. Original Indian artwork on heavy, oversized cotton.', isActive: true, order: 0 },
+    { id: 'c-anime', name: 'ANIME', slug: 'anime', description: 'Anime characters and manga-inspired artwork, drawn in the style of Japanese animation.', isActive: true, order: 1 },
+    { id: 'c-mythology', name: 'MYTHOLOGY', slug: 'mythology', description: 'Krishna, Shiva, Hanuman, the Ramayana and the Mahabharata. The gods and epics we grew up with, drawn bold.', isActive: true, order: 2 },
+    { id: 'c-heritage', name: 'HERITAGE', slug: 'heritage', description: 'Indian crafts, folk art, traditional patterns, architecture and the cultural symbols of every region.', isActive: true, order: 3 },
+    { id: 'c-street-culture', name: 'STREET CULTURE', slug: 'street-culture', description: 'Graffiti, urban graphics, hip-hop and bold typography. Rebellious, contemporary designs.', isActive: true, order: 4 },
+    { id: 'c-minimal', name: 'MINIMAL', slug: 'minimal', description: 'Simple typography, subtle symbols and clean graphics. Understated designs for every day.', isActive: true, order: 5 }
   ];
 
   /* ==========================================================================
      THE ARCHIVE UNIVERSE CHAPTERS
      ========================================================================== */
   const DEFAULT_UNIVERSE_CHAPTERS = [
-    { num: '01', name: 'ANIME', slug: 'anime', chapter: 'ADHYAYA 01: MANGA & ANIME', category: 'active', statusBadge: 'ACTIVE DROP', isLive: true, image: null, description: 'Anime characters, manga-inspired artwork, Japanese animation.' },
-    { num: '02', name: 'MYTHOLOGY', slug: 'mythology', chapter: 'ADHYAYA 02: SACRED MYTHOLOGY', category: 'active', statusBadge: 'ACTIVE DROP', isLive: true, image: null, description: 'Krishna, Shiva, Hanuman, Ramayana, Mahabharata, deities, mythological stories.' },
-    { num: '03', name: 'HERITAGE', slug: 'heritage', chapter: 'ADHYAYA 03: BHARAT HERITAGE', category: 'active', statusBadge: 'ACTIVE DROP', isLive: true, image: null, description: 'Indian crafts, folk art, traditional patterns, architecture, cultural symbols, regional traditions.' },
-    { num: '04', name: 'STREET CULTURE', slug: 'street-culture', chapter: 'ADHYAYA 04: URBAN STREET CULTURE', category: 'active', statusBadge: 'ACTIVE DROP', isLive: true, image: null, description: 'Graffiti, urban graphics, hip-hop, typography, rebellious/contemporary designs.' },
-    { num: '05', name: 'MINIMAL', slug: 'minimal', chapter: 'ADHYAYA 05: EVERYDAY MINIMAL', category: 'active', statusBadge: 'ACTIVE DROP', isLive: true, image: null, description: 'Simple typography, subtle symbols, clean graphics, understated designs.' }
+    { num: '01', name: 'ANIME', slug: 'anime', chapter: 'ANIME & MANGA', category: 'active', statusBadge: 'ACTIVE DROP', isLive: true, image: null, description: 'Anime characters and manga-inspired artwork, drawn in the style of Japanese animation.' },
+    { num: '02', name: 'MYTHOLOGY', slug: 'mythology', chapter: 'GODS & EPICS', category: 'active', statusBadge: 'ACTIVE DROP', isLive: true, image: null, description: 'Krishna, Shiva, Hanuman, the Ramayana and the Mahabharata. The gods and epics we grew up with, drawn bold.' },
+    { num: '03', name: 'HERITAGE', slug: 'heritage', chapter: 'CRAFTS & TRADITIONS', category: 'active', statusBadge: 'ACTIVE DROP', isLive: true, image: null, description: 'Indian crafts, folk art, traditional patterns, architecture and the cultural symbols of every region.' },
+    { num: '04', name: 'STREET CULTURE', slug: 'street-culture', chapter: 'GRAFFITI & HIP-HOP', category: 'active', statusBadge: 'ACTIVE DROP', isLive: true, image: null, description: 'Graffiti, urban graphics, hip-hop and bold typography. Rebellious, contemporary designs.' },
+    { num: '05', name: 'MINIMAL', slug: 'minimal', chapter: 'SIMPLE & UNDERSTATED', category: 'active', statusBadge: 'ACTIVE DROP', isLive: true, image: null, description: 'Simple typography, subtle symbols and clean graphics. Understated designs for every day.' }
   ];
 
   /* ==========================================================================
      THE ARCHIVE EDITIONS CONFIGURATION
      ========================================================================== */
   const TEN_ARCHIVE_EDITIONS = [
-    { num: '01', title: 'ANIME', desc: 'ADHYAYA 01: MANGA & ANIME', status: 'active', slug: 'anime' },
-    { num: '02', title: 'MYTHOLOGY', desc: 'ADHYAYA 02: SACRED MYTHOLOGY', status: 'active', slug: 'mythology' },
-    { num: '03', title: 'HERITAGE', desc: 'ADHYAYA 03: BHARAT HERITAGE', status: 'active', slug: 'heritage' },
-    { num: '04', title: 'STREET CULTURE', desc: 'ADHYAYA 04: URBAN STREET CULTURE', status: 'active', slug: 'street-culture' },
-    { num: '05', title: 'MINIMAL', desc: 'ADHYAYA 05: EVERYDAY MINIMAL', status: 'active', slug: 'minimal' }
+    { num: '01', title: 'ANIME', desc: 'ANIME & MANGA', status: 'active', slug: 'anime' },
+    { num: '02', title: 'MYTHOLOGY', desc: 'GODS & EPICS', status: 'active', slug: 'mythology' },
+    { num: '03', title: 'HERITAGE', desc: 'CRAFTS & TRADITIONS', status: 'active', slug: 'heritage' },
+    { num: '04', title: 'STREET CULTURE', desc: 'GRAFFITI & HIP-HOP', status: 'active', slug: 'street-culture' },
+    { num: '05', title: 'MINIMAL', desc: 'SIMPLE & UNDERSTATED', status: 'active', slug: 'minimal' }
   ];
 
   // DEFAULT SIZE GUIDE
+  // Garment measurements in inches (chest all the way round, laid flat ×2). Kept in step with the
+  // size_guide table so the first screen before Supabase answers shows the real chart.
   const DEFAULT_SIZE_GUIDE = [
-    { size: 'S', chest: 40, length: 26, shoulder: null, sleeve: null },
-    { size: 'M', chest: 42, length: 27, shoulder: null, sleeve: null },
-    { size: 'L', chest: 44, length: 28, shoulder: null, sleeve: null },
-    { size: 'XL', chest: 46, length: 29, shoulder: null, sleeve: null },
-    { size: 'XXL', chest: 48, length: 30, shoulder: null, sleeve: null }
+    { size: 'S', chest: 44, length: 28.5, shoulder: 21.5, sleeve: 8.5 },
+    { size: 'M', chest: 46, length: 29.5, shoulder: 22.5, sleeve: 9 },
+    { size: 'L', chest: 48, length: 30.5, shoulder: 23.5, sleeve: 9.5 },
+    { size: 'XL', chest: 50, length: 31.5, shoulder: 24.5, sleeve: 10 },
+    { size: 'XXL', chest: 52, length: 32.5, shoulder: 25.5, sleeve: 10.5 }
   ];
 
   // DEFAULT SITE SETTINGS
@@ -807,9 +809,20 @@
     shippingFee: 0,
     launchEndsAt: '',
     freeShippingThreshold: 0,
-    estimatedDays: '3–5 Business Days',
+    estimatedDays: '3–5 working days',
     supabaseUrl: '',
-    supabaseAnonKey: ''
+    supabaseAnonKey: '',
+    // Marketing copy (admin → Site & WhatsApp). These are what the site shows until the admin
+    // changes them, and what it falls back to if a field is left empty.
+    announcementEnabled: true,
+    announcementText: '🇮🇳 FREE DELIVERY ACROSS INDIA ✦ CUSTOM & PERSONALISED TEES ON WHATSAPP ✦ YOUR NAME, YOUR DESIGN, YOUR SIZE ✦ ORIGINAL INDIAN ARTWORK',
+    announcementWaText: 'CUSTOM ORDERS ON WHATSAPP',
+    heroTag: '[ 🇮🇳 INDIAN ROOTS. MODERN FORM. ]',
+    heroTitle: 'WEAR YOUR | ROOTS LOUD',
+    heroDesc: 'Original Indian art on heavy, oversized cotton tees. Every design carries a story, from temple walls to folk paintings. Soft to wear, made to last, delivered free across India.',
+    heroBgImage: '',
+    heroTicker: '🇮🇳 A STORY WORTH WEARING ✦ ORIGINAL INDIAN ARTWORK ✦ HEAVY 240 GSM COTTON ✦ WASHED SOFT ✦ MADE IN INDIA ✦ FREE DELIVERY ACROSS INDIA',
+    vipMessageTemplate: 'Hello Bravadian,\n\nPlease let me know when this design launches.\n\nProduct: {productName}\nPreferred color:\nPreferred size:\n\nThank you.'
   };
 
   // DEFAULT PRODUCTS with Variant-Level Inventory
@@ -818,15 +831,15 @@
       id: 'prod-018',
       name: 'TRINETRA TEE',
       slug: 'trinetra-tee',
-      description: "Shiva's third eye rising over the Himalaya, circled by the moon and the words See Beyond, printed large across the back, with a small BRAVADIAN mark on the front left chest. Oversized 240 GSM French Terry cotton, bio + silicone washed, DTF print.",
+      description: 'Shiva\'s third eye rises over the Himalaya, circled by the moon and the words See Beyond. Printed large across the back, with a small BRAVADIAN mark on the left chest. Oversized fit in heavy 240 GSM cotton, washed soft.',
       story: "Past, present, future, within. The third eye sees what the other two miss. A reminder to look past the obvious.",
       price: 699,
       comparePrice: 999,
       collection: 'mythology',
       tags: ['trinetra', 'shiva', 'third eye', 'mythology', 'oversized', '240gsm'],
-      fabric: '240 GSM FRENCH TERRY // BIO + SILICONE WASH',
+      fabric: '240 GSM French Terry cotton, bio + silicone washed',
       gsm: 240,
-      fit: 'Oversized Drop-Shoulder',
+      fit: 'Oversized, drop shoulder',
       material: '240 GSM French Terry Cotton, Bio + Silicone Washed',
       relicTag: 'DESIGN 06',
       relicBadge: 'NEW DROP',
@@ -838,7 +851,7 @@
       colors: ['Black', 'White'],
       sizes: ['S', 'M', 'L', 'XL', 'XXL'],
       images: {
-        front: 'images/products/trinetra/preview.webp'
+        front: '/images/products/trinetra/preview.webp'
       },
       variants: [
         { color: 'Black', size: 'S', stock: 10 },
@@ -857,15 +870,15 @@
       id: 'prod-017',
       name: 'HARA HARA MAHADEVA TEE',
       slug: 'hara-hara-mahadeva-tee',
-      description: "Om Namah Shivaya in Devanagari beneath a trishul, printed as one vertical strip on the left chest, over the heart. Plain back. Oversized 240 GSM French Terry cotton, bio + silicone washed, DTF print.",
+      description: 'Om Namah Shivaya in Devanagari beneath a trishul, printed as one vertical line down the left chest, over the heart. Plain back. Oversized fit in heavy 240 GSM cotton, washed soft.',
       story: "A chant worn close to the heart. The trishul leads and the five syllables follow, running down the left chest like a quiet prayer.",
       price: 699,
       comparePrice: 999,
       collection: 'mythology',
       tags: ['shiva', 'om namah shivaya', 'trishul', 'mythology', 'oversized', '240gsm'],
-      fabric: '240 GSM FRENCH TERRY // BIO + SILICONE WASH',
+      fabric: '240 GSM French Terry cotton, bio + silicone washed',
       gsm: 240,
-      fit: 'Oversized Drop-Shoulder',
+      fit: 'Oversized, drop shoulder',
       material: '240 GSM French Terry Cotton, Bio + Silicone Washed',
       relicTag: 'DESIGN 05',
       relicBadge: 'NEW DROP',
@@ -877,16 +890,16 @@
       colors: ['Black', 'Ivory', 'Red', 'Royal Blue', 'White'],
       sizes: ['S', 'M', 'L', 'XL', 'XXL'],
       images: {
-        front: 'images/products/hara-hara-mahadeva/black-front.webp',
-        closeup: 'images/products/hara-hara-mahadeva/black-closeup.webp',
-        lifestyle: 'images/products/hara-hara-mahadeva/black-model.webp',
-        lifestyle2: 'images/products/hara-hara-mahadeva/black-model2.webp',
+        front: '/images/products/hara-hara-mahadeva/black-front.webp',
+        closeup: '/images/products/hara-hara-mahadeva/black-closeup.webp',
+        lifestyle: '/images/products/hara-hara-mahadeva/black-model.webp',
+        lifestyle2: '/images/products/hara-hara-mahadeva/black-model2.webp',
         colors: {
-          'Black': { front: 'images/products/hara-hara-mahadeva/black-front.webp', model: 'images/products/hara-hara-mahadeva/black-model.webp', model2: 'images/products/hara-hara-mahadeva/black-model2.webp', closeup: 'images/products/hara-hara-mahadeva/black-closeup.webp' },
-          'Ivory': { front: 'images/products/hara-hara-mahadeva/ivory-front.webp', model: 'images/products/hara-hara-mahadeva/ivory-model.webp' },
-          'Red': { front: 'images/products/hara-hara-mahadeva/red-front.webp', model: 'images/products/hara-hara-mahadeva/red-model.webp' },
-          'Royal Blue': { front: 'images/products/hara-hara-mahadeva/royal-blue-front.webp', model: 'images/products/hara-hara-mahadeva/royal-blue-model.webp' },
-          'White': { front: 'images/products/hara-hara-mahadeva/white-front.webp', model: 'images/products/hara-hara-mahadeva/white-model.webp' }
+          'Black': { front: '/images/products/hara-hara-mahadeva/black-front.webp', model: '/images/products/hara-hara-mahadeva/black-model.webp', model2: '/images/products/hara-hara-mahadeva/black-model2.webp', closeup: '/images/products/hara-hara-mahadeva/black-closeup.webp' },
+          'Ivory': { front: '/images/products/hara-hara-mahadeva/ivory-front.webp', model: '/images/products/hara-hara-mahadeva/ivory-model.webp' },
+          'Red': { front: '/images/products/hara-hara-mahadeva/red-front.webp', model: '/images/products/hara-hara-mahadeva/red-model.webp' },
+          'Royal Blue': { front: '/images/products/hara-hara-mahadeva/royal-blue-front.webp', model: '/images/products/hara-hara-mahadeva/royal-blue-model.webp' },
+          'White': { front: '/images/products/hara-hara-mahadeva/white-front.webp', model: '/images/products/hara-hara-mahadeva/white-model.webp' }
         }
       },
       variants: [
@@ -921,15 +934,15 @@
       id: 'prod-016',
       name: 'GANESHA TEE',
       slug: 'ganesha-tee',
-      description: "Lord Ganesha seated before a red sun, with Om and Vakratunda in brush-stroke Devanagari. Oversized 240 GSM French Terry cotton, bio + silicone washed, DTF back print.",
+      description: 'Lord Ganesha seated before a red sun, with Om and Vakratunda in brush-stroke Devanagari across the back. Oversized fit in heavy 240 GSM cotton, washed soft.',
       story: "The remover of obstacles, drawn in ink and red. For every new start.",
       price: 699,
       comparePrice: 999,
       collection: 'mythology',
       tags: ['ganesha', 'vakratunda', 'om', 'mythology', 'oversized', '240gsm'],
-      fabric: '240 GSM FRENCH TERRY // BIO + SILICONE WASH',
+      fabric: '240 GSM French Terry cotton, bio + silicone washed',
       gsm: 240,
-      fit: 'Oversized Drop-Shoulder',
+      fit: 'Oversized, drop shoulder',
       material: '240 GSM French Terry Cotton, Bio + Silicone Washed',
       relicTag: 'DESIGN 04',
       relicBadge: 'NEW DROP',
@@ -941,7 +954,7 @@
       colors: ['Black'],
       sizes: ['S', 'M', 'L', 'XL', 'XXL'],
       images: {
-        front: 'images/products/ganesha/preview.webp'
+        front: '/images/products/ganesha/preview.webp'
       },
       variants: [
         { color: 'Black', size: 'S', stock: 10 },
@@ -955,15 +968,15 @@
       id: 'prod-015',
       name: 'BORN TO RISE TEE',
       slug: 'born-to-rise-tee',
-      description: "A black eagle with blazing red wings under the words Born to Rise, printed large across the back, with a small BRAVADIAN mark on the front left chest. Oversized 240 GSM French Terry cotton, bio + silicone washed, DTF print.",
+      description: 'A black eagle with blazing red wings under the words Born to Rise, printed large across the back, with a small BRAVADIAN mark on the left chest. Oversized fit in heavy 240 GSM cotton, washed soft.',
       story: "For the days you start again. An eagle rises against the wind, not away from it.",
       price: 699,
       comparePrice: 999,
       collection: 'street-culture',
       tags: ['eagle', 'born to rise', 'street culture', 'oversized', '240gsm'],
-      fabric: '240 GSM FRENCH TERRY // BIO + SILICONE WASH',
+      fabric: '240 GSM French Terry cotton, bio + silicone washed',
       gsm: 240,
-      fit: 'Oversized Drop-Shoulder',
+      fit: 'Oversized, drop shoulder',
       material: '240 GSM French Terry Cotton, Bio + Silicone Washed',
       relicTag: 'DESIGN 03',
       relicBadge: 'NEW DROP',
@@ -975,13 +988,13 @@
       colors: ['Black', 'White'],
       sizes: ['S', 'M', 'L', 'XL', 'XXL'],
       images: {
-        front: 'images/products/born-to-rise/black-back.webp',
-        closeup: 'images/products/born-to-rise/black-closeup.webp',
-        lifestyle: 'images/products/born-to-rise/black-model.webp',
-        lifestyle2: 'images/products/born-to-rise/white-model.webp',
+        front: '/images/products/born-to-rise/black-back.webp',
+        closeup: '/images/products/born-to-rise/black-closeup.webp',
+        lifestyle: '/images/products/born-to-rise/black-model.webp',
+        lifestyle2: '/images/products/born-to-rise/white-model.webp',
         colors: {
-          'Black': { front: 'images/products/born-to-rise/black-back.webp', model: 'images/products/born-to-rise/black-model.webp', closeup: 'images/products/born-to-rise/black-closeup.webp' },
-          'White': { front: 'images/products/born-to-rise/white-back.webp', model: 'images/products/born-to-rise/white-model.webp', closeup: 'images/products/born-to-rise/white-closeup.webp' }
+          'Black': { front: '/images/products/born-to-rise/black-back.webp', model: '/images/products/born-to-rise/black-model.webp', closeup: '/images/products/born-to-rise/black-closeup.webp' },
+          'White': { front: '/images/products/born-to-rise/white-back.webp', model: '/images/products/born-to-rise/white-model.webp', closeup: '/images/products/born-to-rise/white-closeup.webp' }
         }
       },
       variants: [
@@ -1001,16 +1014,16 @@
       id: 'prod-014',
       name: 'INDIAN CRAFT ATLAS TEE',
       slug: 'indian-craft-atlas-tee',
-      description: 'A map of India drawn in its crafts. Kalamkari, Warli, Madhubani, Pattachitra, Phad, Gond, Cheriyal, Pichwai and Ikat come together around one elephant. Oversized 240 GSM French Terry cotton, bio + silicone washed, DTF back print.',
+      description: 'A map of India drawn in its crafts. Kalamkari, Warli, Madhubani, Pattachitra, Phad, Gond, Cheriyal, Pichwai and Ikat come together around one elephant on the back. Oversized fit in heavy 240 GSM cotton, washed soft.',
       story: 'People, patterns, places, purpose. India lives in its crafts, and every region adds a pattern of its own. This design puts a dozen of them on one elephant, with the names listed alongside so you know what you are wearing.',
       motif: 'Kalamkari from Andhra Pradesh, Warli from Maharashtra, Madhubani from Bihar, Pattachitra from Odisha, Phad from Rajasthan, Gond from Madhya Pradesh, Cheriyal from Telangana, Pichwai from Nathdwara, Ikat from Odisha and Telangana, and more.',
       price: 699,
       comparePrice: 999,
       collection: 'heritage',
       tags: ['oversized', 'heritage', 'crafts', 'kalamkari', 'madhubani', 'warli', '240gsm'],
-      fabric: '240 GSM FRENCH TERRY // BIO + SILICONE WASH',
+      fabric: '240 GSM French Terry cotton, bio + silicone washed',
       gsm: 240,
-      fit: 'Oversized Drop-Shoulder',
+      fit: 'Oversized, drop shoulder',
       material: '240 GSM French Terry Cotton, Bio + Silicone Washed',
       relicTag: 'DESIGN 02',
       relicBadge: 'NEW DROP',
@@ -1022,9 +1035,9 @@
       colors: ['Black', 'White', 'Red', 'Royal Blue'],
       sizes: ['S', 'M', 'L', 'XL', 'XXL'],
       images: {
-        front: 'images/products/craft-atlas/back-print.webp?v=2',
-        closeup: 'images/products/craft-atlas/closeup.webp',
-        lifestyle: 'images/lookbook/lb-look-02.webp'
+        front: '/images/products/craft-atlas/back-print.webp?v=2',
+        closeup: '/images/products/craft-atlas/closeup.webp',
+        lifestyle: '/images/lookbook/lb-look-02.webp'
       },
       variants: [
         { color: 'Black', size: 'S', stock: 10 },
@@ -1053,14 +1066,14 @@
       id: 'prod-013',
       name: 'BHARAT SPIRIT TEE',
       slug: 'bharat-spirit-tee',
-      description: 'The peacock, the tiger, the lotus and the elephant, four symbols of India drawn together as one story. Oversized 240 GSM French Terry cotton, bio + silicone washed, with a large DTF back print and the Bi mark on the chest.',
+      description: 'The peacock, the tiger, the lotus and the elephant: four symbols of India drawn together as one story across the back, with a small BRAVADIAN mark on the chest. Oversized fit in heavy 240 GSM cotton, washed soft.',
       price: 699,
       comparePrice: 999,
       collection: 'heritage',
       tags: ['oversized', 'heritage', 'peacock', 'tiger', 'lotus', 'elephant', '240gsm'],
-      fabric: '240 GSM FRENCH TERRY // BIO + SILICONE WASH',
+      fabric: '240 GSM French Terry cotton, bio + silicone washed',
       gsm: 240,
-      fit: 'Oversized Drop-Shoulder',
+      fit: 'Oversized, drop shoulder',
       material: '240 GSM French Terry Cotton, Bio + Silicone Washed',
       story: 'Four symbols every Indian grows up with, drawn as one living composition. Built around the idea that pride in where you come from can be worn every day, not saved for special occasions.',
       motif: 'Peacock, the national bird, for grace. Tiger, the national animal, for courage. Lotus, the national flower, for rising clean from the mud. Elephant, the national heritage animal, for memory and strength.',
@@ -1074,11 +1087,11 @@
       colors: ['Black', 'White', 'Red', 'Royal Blue'],
       sizes: ['S', 'M', 'L', 'XL', 'XXL'],
       images: {
-        front: 'images/products/bharat-spirit/back-print.webp',
-        back: 'images/products/bharat-spirit/front.webp',
-        closeup: 'images/products/bharat-spirit/closeup.webp',
-        lifestyle: 'images/products/bharat-spirit/worn-studio.webp?v=2',
-        lifestyle2: 'images/products/bharat-spirit/worn-temple.webp?v=3'
+        front: '/images/products/bharat-spirit/back-print.webp',
+        back: '/images/products/bharat-spirit/front.webp',
+        closeup: '/images/products/bharat-spirit/closeup.webp',
+        lifestyle: '/images/products/bharat-spirit/worn-studio.webp?v=2',
+        lifestyle2: '/images/products/bharat-spirit/worn-temple.webp?v=3'
       },
       variants: [
         { color: 'Black', size: 'S', stock: 10 },
@@ -1104,121 +1117,20 @@
       ]
     },
     {
-      id: 'prod-001',
-      name: 'HOYSALA OVERSIZED RELIC TEE',
-      slug: 'hoysala-oversized-relic-tee',
-      description: 'A severe tactical garment engineered from 240 GSM heavyweight French Terry. Imprinted with sacred architectural friezes from the historic Halebidu temple complex, modified as modern metropolitan armor.',
-      price: 699,
-      comparePrice: 999,
-      collection: 'heritage',
-      tags: ['oversized', 'hoysala', 'heavyweight', '280gsm', 'heritage'],
-      fabric: '240 GSM FRENCH TERRY // BIO + SILICONE WASH',
-      gsm: 240,
-      fit: 'Oversized Boxy',
-      material: '240 GSM French Terry Cotton, Bio + Silicone Washed',
-      relicTag: 'DESIGN 01',
-      relicBadge: 'NEW DROP',
-      sku: 'BRVD-HYS-01',
-      featured: true,
-      newDrop: true,
-      isComingSoon: false,
-      status: 'DRAFT',
-      colors: ['Black', 'White', 'Red', 'Royal Blue'],
-      sizes: ['S', 'M', 'L', 'XL', 'XXL'],
-      images: {
-        front: createTeeSVG('HOYSALA OVERSIZED RELIC TEE', 'Heritage', '#111116', '#FFA000', 'front'),
-        back: createTeeSVG('HOYSALA OVERSIZED RELIC TEE', 'Heritage', '#111116', '#FFA000', 'back'),
-        closeup: createTeeSVG('HOYSALA OVERSIZED RELIC TEE', 'Heritage', '#111116', '#FFA000', 'closeup'),
-        lifestyle: createTeeSVG('HOYSALA OVERSIZED RELIC TEE', 'Heritage', '#111116', '#FFA000', 'lifestyle')
-      },
-      variants: [
-        { color: 'Black', size: 'S', stock: 8 },
-        { color: 'Black', size: 'M', stock: 15 },
-        { color: 'Black', size: 'L', stock: 12 },
-        { color: 'Black', size: 'XL', stock: 6 },
-        { color: 'Black', size: 'XXL', stock: 4 },
-        { color: 'White', size: 'S', stock: 4 },
-        { color: 'White', size: 'M', stock: 8 },
-        { color: 'White', size: 'L', stock: 6 },
-        { color: 'White', size: 'XL', stock: 0 },
-        { color: 'White', size: 'XXL', stock: 2 },
-        { color: 'Red', size: 'S', stock: 8 },
-        { color: 'Red', size: 'M', stock: 15 },
-        { color: 'Red', size: 'L', stock: 12 },
-        { color: 'Red', size: 'XL', stock: 6 },
-        { color: 'Red', size: 'XXL', stock: 4 },
-        { color: 'Royal Blue', size: 'S', stock: 8 },
-        { color: 'Royal Blue', size: 'M', stock: 15 },
-        { color: 'Royal Blue', size: 'L', stock: 12 },
-        { color: 'Royal Blue', size: 'XL', stock: 6 },
-        { color: 'Royal Blue', size: 'XXL', stock: 4 }
-      ]
-    },
-    {
-      id: 'prod-002',
-      name: 'HOYSALA LINGESHWARA RELIC TEE',
-      slug: 'hoysala-lingeshwara-relic-tee',
-      description: 'Engineered boxy heavyweight silhouette featuring the sacred Lingeshwara stone sanctuary geometry across dropped shoulder lines.',
-      price: 699,
-      comparePrice: 999,
-      collection: 'heritage',
-      tags: ['heritage', 'hoysala', 'lingeshwara', 'heavyweight', '240gsm'],
-      fabric: '240 GSM FRENCH TERRY // BIO + SILICONE WASH',
-      gsm: 240,
-      fit: 'Boxy Drop Shoulder',
-      material: '240 GSM French Terry Cotton, Bio + Silicone Washed',
-      relicTag: 'DESIGN 02',
-      relicBadge: 'NEW DROP',
-      sku: 'BRVD-LNG-02',
-      featured: true,
-      newDrop: true,
-      isComingSoon: false,
-      status: 'DRAFT',
-      colors: ['Black', 'White', 'Red', 'Royal Blue'],
-      sizes: ['S', 'M', 'L', 'XL', 'XXL'],
-      images: {
-        front: createTeeSVG('HOYSALA LINGESHWARA', 'Heritage', '#111116', '#FFA000', 'front'),
-        back: createTeeSVG('HOYSALA LINGESHWARA', 'Heritage', '#111116', '#FFA000', 'back'),
-        closeup: createTeeSVG('HOYSALA LINGESHWARA', 'Heritage', '#111116', '#FFA000', 'closeup'),
-        lifestyle: createTeeSVG('HOYSALA LINGESHWARA', 'Heritage', '#111116', '#FFA000', 'lifestyle')
-      },
-      variants: [
-        { color: 'Black', size: 'S', stock: 6 },
-        { color: 'Black', size: 'M', stock: 10 },
-        { color: 'Black', size: 'L', stock: 8 },
-        { color: 'Black', size: 'XL', stock: 4 },
-        { color: 'Black', size: 'XXL', stock: 3 },
-        { color: 'White', size: 'S', stock: 6 },
-        { color: 'White', size: 'M', stock: 10 },
-        { color: 'White', size: 'L', stock: 8 },
-        { color: 'White', size: 'XL', stock: 4 },
-        { color: 'White', size: 'XXL', stock: 3 },
-        { color: 'Red', size: 'S', stock: 6 },
-        { color: 'Red', size: 'M', stock: 10 },
-        { color: 'Red', size: 'L', stock: 8 },
-        { color: 'Red', size: 'XL', stock: 4 },
-        { color: 'Red', size: 'XXL', stock: 3 },
-        { color: 'Royal Blue', size: 'S', stock: 6 },
-        { color: 'Royal Blue', size: 'M', stock: 10 },
-        { color: 'Royal Blue', size: 'L', stock: 8 },
-        { color: 'Royal Blue', size: 'XL', stock: 4 },
-        { color: 'Royal Blue', size: 'XXL', stock: 3 }
-      ]
-    },
-    {
       id: 'prod-003',
       name: 'SRI YOGA SARASVATHESHWARA TEE',
       slug: 'sri-yoga-sarasvatheshwara-tee',
-      description: 'Oversized 240 GSM cotton tee with a golden print of the many-armed goddess of learning.',
+      description: 'The many-armed goddess of learning, printed in gold. Oversized fit in heavy 240 GSM cotton, washed soft.',
+      story: 'For the ones who never stop learning. Knowledge, music and art, held in many hands at once.',
       price: 699,
       comparePrice: 999,
       collection: 'mythology',
       tags: ['mythology', 'deities', 'krishna', 'shiva', 'gold-foil', '300gsm', 'yoga'],
-      fabric: '240 GSM FRENCH TERRY // BIO + SILICONE WASH',
+      fabric: '240 GSM French Terry cotton, bio + silicone washed',
       gsm: 240,
-      fit: 'Architectural Boxy',
+      fit: 'Oversized, drop shoulder',
       material: '240 GSM French Terry Cotton, Bio + Silicone Washed',
-      relicTag: 'DESIGN 03',
+      relicTag: 'DESIGN 13',
       relicBadge: 'NEW DROP',
       sku: 'BRVD-YOG-03',
       featured: true,
@@ -1228,10 +1140,10 @@
       colors: ['Black', 'White', 'Red', 'Royal Blue'],
       sizes: ['S', 'M', 'L', 'XL', 'XXL'],
       images: {
-        front: createTeeSVG('SRI YOGA SARASVATHESHWARA', 'Mythology', '#0c0c10', '#FFA000', 'front'),
-        back: createTeeSVG('SRI YOGA SARASVATHESHWARA', 'Mythology', '#0c0c10', '#FFA000', 'back'),
-        closeup: createTeeSVG('SRI YOGA SARASVATHESHWARA', 'Mythology', '#0c0c10', '#FFA000', 'closeup'),
-        lifestyle: createTeeSVG('SRI YOGA SARASVATHESHWARA', 'Mythology', '#0c0c10', '#FFA000', 'lifestyle')
+        front: createTeeSVG('SRI YOGA SARASVATHESHWARA', 'Mythology', '#0c0c10', '#ED1C24', 'front'),
+        back: createTeeSVG('SRI YOGA SARASVATHESHWARA', 'Mythology', '#0c0c10', '#ED1C24', 'back'),
+        closeup: createTeeSVG('SRI YOGA SARASVATHESHWARA', 'Mythology', '#0c0c10', '#ED1C24', 'closeup'),
+        lifestyle: createTeeSVG('SRI YOGA SARASVATHESHWARA', 'Mythology', '#0c0c10', '#ED1C24', 'lifestyle')
       },
       variants: [
         { color: 'Black', size: 'S', stock: 7 },
@@ -1257,56 +1169,21 @@
       ]
     },
     {
-      id: 'prod-004',
-      name: 'NRITYA PRIMACY DESCENSION JACKET',
-      slug: 'nritya-primacy-descension-jacket',
-      description: 'Heavyweight tactical bomber constructed in 450 GSM canvas shell with custom antique brass zippers, rib knit cuffs, and tonal warrior embroidery.',
-      price: 6500,
-      comparePrice: 9999,
-      collection: 'heritage',
-      tags: ['heritage', 'indian-craft', 'jacket', 'bomber', 'nritya', '450gsm'],
-      fabric: '450 GSM DUCK CANVAS // BOMBER ARCHITECTURE',
-      gsm: 450,
-      fit: 'Bomber Flight Cut',
-      material: '450 GSM Heavy Canvas & Satin Lining',
-      relicTag: 'DESIGN 04',
-      relicBadge: 'NEW DROP',
-      sku: 'BRVD-NRT-04',
-      featured: true,
-      newDrop: true,
-      isComingSoon: false,
-      status: 'DRAFT',
-      colors: ['Black'],
-      sizes: ['S', 'M', 'L', 'XL', 'XXL'],
-      images: {
-        front: createTeeSVG('NRITYA PRIMACY BOMBER', 'Heritage', '#121218', '#f59e0b', 'front'),
-        back: createTeeSVG('NRITYA PRIMACY BOMBER', 'Heritage', '#121218', '#f59e0b', 'back'),
-        closeup: createTeeSVG('NRITYA PRIMACY BOMBER', 'Heritage', '#121218', '#f59e0b', 'closeup'),
-        lifestyle: createTeeSVG('NRITYA PRIMACY BOMBER', 'Heritage', '#121218', '#f59e0b', 'lifestyle')
-      },
-      variants: [
-        { color: 'Black', size: 'S', stock: 5 },
-        { color: 'Black', size: 'M', stock: 8 },
-        { color: 'Black', size: 'L', stock: 6 },
-        { color: 'Black', size: 'XL', stock: 3 },
-        { color: 'Black', size: 'XXL', stock: 2 }
-      ]
-    },
-    {
       id: 'prod-005',
       name: 'ASURA SOLAR FIRE OVERSIZED TEE',
       slug: 'asura-solar-fire-oversized-tee',
-      description: 'Charcoal oversized tee with the Sanskrit line "ॐ सह नाववतु" and a blazing sun printed large on the back.',
+      description: 'A blazing sun printed large on the back, with the Sanskrit line ॐ सह नाववतु (Om Saha Navavatu). Oversized fit in heavy 240 GSM cotton, washed soft.',
+      story: 'Om Saha Navavatu is an old Sanskrit prayer that asks for protection together, teacher and student side by side. Here it sits beside a sun that never stops burning.',
       price: 699,
       comparePrice: 999,
       collection: 'mythology',
       tags: ['mythology', 'shiva', 'ramayana', 'solar-fire', '280gsm', 'oversized'],
-      fabric: '240 GSM FRENCH TERRY // BIO + SILICONE WASH',
+      fabric: '240 GSM French Terry cotton, bio + silicone washed',
       gsm: 240,
-      fit: 'Relaxed Drop-Shoulder',
+      fit: 'Oversized, drop shoulder',
       material: '240 GSM French Terry Cotton, Bio + Silicone Washed',
-      relicTag: 'DESIGN 05',
-      relicBadge: 'COMING SOON',
+      relicTag: 'DESIGN 14',
+      relicBadge: 'NEW DROP',
       sku: 'BRVD-ASR-05',
       featured: true,
       newDrop: true,
@@ -1315,10 +1192,10 @@
       colors: ['Black', 'White', 'Red', 'Royal Blue'],
       sizes: ['S', 'M', 'L', 'XL', 'XXL'],
       images: {
-        front: createTeeSVG('ASURA SOLAR FIRE', 'Mythology', '#1a1816', '#ff5722', 'front'),
-        back: createTeeSVG('ASURA SOLAR FIRE', 'Mythology', '#1a1816', '#ff5722', 'back'),
-        closeup: createTeeSVG('ASURA SOLAR FIRE', 'Mythology', '#1a1816', '#ff5722', 'closeup'),
-        lifestyle: createTeeSVG('ASURA SOLAR FIRE', 'Mythology', '#1a1816', '#ff5722', 'lifestyle')
+        front: createTeeSVG('ASURA SOLAR FIRE', 'Mythology', '#1a1816', '#ED1C24', 'front'),
+        back: createTeeSVG('ASURA SOLAR FIRE', 'Mythology', '#1a1816', '#ED1C24', 'back'),
+        closeup: createTeeSVG('ASURA SOLAR FIRE', 'Mythology', '#1a1816', '#ED1C24', 'closeup'),
+        lifestyle: createTeeSVG('ASURA SOLAR FIRE', 'Mythology', '#1a1816', '#ED1C24', 'lifestyle')
       },
       variants: [
         { color: 'Black', size: 'S', stock: 7 },
@@ -1344,68 +1221,18 @@
       ]
     },
     {
-      id: 'prod-006',
-      name: 'BERUNDA DUAL VISION ARMOR TEE',
-      slug: 'berunda-dual-vision-armor-tee',
-      description: '240 GSM heavyweight cotton tee with monumental twin-headed Gandaberunda imperial crest rendered in antique gold embroidery.',
-      price: 699,
-      comparePrice: 999,
-      collection: 'heritage',
-      tags: ['heritage', 'berunda', 'traditional-patterns', 'cultural-symbols', 'embroidery', '280gsm', 'armor'],
-      fabric: '240 GSM FRENCH TERRY // BIO + SILICONE WASH',
-      gsm: 240,
-      fit: 'Oversized',
-      material: '240 GSM French Terry Cotton, Bio + Silicone Washed',
-      relicTag: 'DESIGN 06',
-      relicBadge: 'COMING SOON',
-      sku: 'BRVD-BRD-06',
-      featured: true,
-      newDrop: true,
-      isComingSoon: true,
-      status: 'DRAFT',
-      colors: ['Black', 'White', 'Red', 'Royal Blue'],
-      sizes: ['S', 'M', 'L', 'XL', 'XXL'],
-      images: {
-        front: createTeeSVG('BERUNDA DUAL VISION', 'Heritage', '#0a0a0e', '#FFA000', 'front'),
-        back: createTeeSVG('BERUNDA DUAL VISION', 'Heritage', '#0a0a0e', '#FFA000', 'back'),
-        closeup: createTeeSVG('BERUNDA DUAL VISION', 'Heritage', '#0a0a0e', '#FFA000', 'closeup'),
-        lifestyle: createTeeSVG('BERUNDA DUAL VISION', 'Heritage', '#0a0a0e', '#FFA000', 'lifestyle')
-      },
-      variants: [
-        { color: 'Black', size: 'S', stock: 5 },
-        { color: 'Black', size: 'M', stock: 8 },
-        { color: 'Black', size: 'L', stock: 6 },
-        { color: 'Black', size: 'XL', stock: 3 },
-        { color: 'Black', size: 'XXL', stock: 2 },
-        { color: 'White', size: 'S', stock: 5 },
-        { color: 'White', size: 'M', stock: 8 },
-        { color: 'White', size: 'L', stock: 6 },
-        { color: 'White', size: 'XL', stock: 3 },
-        { color: 'White', size: 'XXL', stock: 2 },
-        { color: 'Red', size: 'S', stock: 5 },
-        { color: 'Red', size: 'M', stock: 8 },
-        { color: 'Red', size: 'L', stock: 6 },
-        { color: 'Red', size: 'XL', stock: 3 },
-        { color: 'Red', size: 'XXL', stock: 2 },
-        { color: 'Royal Blue', size: 'S', stock: 5 },
-        { color: 'Royal Blue', size: 'M', stock: 8 },
-        { color: 'Royal Blue', size: 'L', stock: 6 },
-        { color: 'Royal Blue', size: 'XL', stock: 3 },
-        { color: 'Royal Blue', size: 'XXL', stock: 2 }
-      ]
-    },
-    {
       id: 'prod-007',
       name: 'BRAVADIAN NINETAILS',
       slug: 'bravadian-ninetails',
-      description: 'Oversized 240 GSM cotton tee with a large back print of the nine-tailed fox spirit from old legends.',
+      description: 'The nine-tailed fox spirit from old legends, printed large across the back. Oversized fit in heavy 240 GSM cotton, washed soft.',
+      story: 'A creature from old stories that grows wiser, and stronger, with every tail.',
       price: 699,
       comparePrice: 999,
       collection: 'anime',
       tags: ['anime', 'manga', 'japanese-animation', 'ninetails', 'oversized', '240gsm'],
-      fabric: '240 GSM FRENCH TERRY // BIO + SILICONE WASH',
+      fabric: '240 GSM French Terry cotton, bio + silicone washed',
       gsm: 240,
-      fit: 'Oversized',
+      fit: 'Oversized, drop shoulder',
       material: '240 GSM French Terry Cotton, Bio + Silicone Washed',
       relicTag: 'DESIGN 07',
       relicBadge: 'COMING SOON',
@@ -1417,10 +1244,10 @@
       colors: ['Black', 'White', 'Red', 'Royal Blue'],
       sizes: ['S', 'M', 'L', 'XL', 'XXL'],
       images: {
-        front: createTeeSVG('BRAVADIAN NINETAILS', 'Anime', '#121216', '#ff4d00', 'front'),
-        back: createTeeSVG('BRAVADIAN NINETAILS', 'Anime', '#121216', '#ff4d00', 'back'),
-        closeup: createTeeSVG('BRAVADIAN NINETAILS', 'Anime', '#121216', '#ff4d00', 'closeup'),
-        lifestyle: createTeeSVG('BRAVADIAN NINETAILS', 'Anime', '#121216', '#ff4d00', 'lifestyle')
+        front: createTeeSVG('BRAVADIAN NINETAILS', 'Anime', '#121216', '#ED1C24', 'front'),
+        back: createTeeSVG('BRAVADIAN NINETAILS', 'Anime', '#121216', '#ED1C24', 'back'),
+        closeup: createTeeSVG('BRAVADIAN NINETAILS', 'Anime', '#121216', '#ED1C24', 'closeup'),
+        lifestyle: createTeeSVG('BRAVADIAN NINETAILS', 'Anime', '#121216', '#ED1C24', 'lifestyle')
       },
       variants: [
         { color: 'Black', size: 'S', stock: 8 },
@@ -1449,14 +1276,15 @@
       id: 'prod-008',
       name: 'BRAVADIAN GARUDA REBEL',
       slug: 'bravadian-garuda-rebel',
-      description: 'Garuda, the eagle of Indian mythology, printed wing to wing across the back of an oversized 240 GSM cotton tee.',
+      description: 'Garuda, the great eagle of Indian mythology, printed wing to wing across the back. Oversized fit in heavy 240 GSM cotton, washed soft.',
+      story: 'Garuda carries Vishnu across the sky and fears nothing. Wings wide open, always.',
       price: 699,
       comparePrice: 999,
       collection: 'mythology',
       tags: ['mythology', 'garuda', 'deities', 'mythological-stories', 'heavyweight', '240gsm'],
-      fabric: '240 GSM FRENCH TERRY // BIO + SILICONE WASH',
+      fabric: '240 GSM French Terry cotton, bio + silicone washed',
       gsm: 240,
-      fit: 'Oversized',
+      fit: 'Oversized, drop shoulder',
       material: '240 GSM French Terry Cotton, Bio + Silicone Washed',
       relicTag: 'DESIGN 08',
       relicBadge: 'COMING SOON',
@@ -1468,10 +1296,10 @@
       colors: ['Black', 'White', 'Red', 'Royal Blue'],
       sizes: ['S', 'M', 'L', 'XL', 'XXL'],
       images: {
-        front: createTeeSVG('BRAVADIAN GARUDA', 'Mythology', '#16161c', '#f59e0b', 'front'),
-        back: createTeeSVG('BRAVADIAN GARUDA', 'Mythology', '#16161c', '#f59e0b', 'back'),
-        closeup: createTeeSVG('BRAVADIAN GARUDA', 'Mythology', '#16161c', '#f59e0b', 'closeup'),
-        lifestyle: createTeeSVG('BRAVADIAN GARUDA', 'Mythology', '#16161c', '#f59e0b', 'lifestyle')
+        front: createTeeSVG('BRAVADIAN GARUDA', 'Mythology', '#16161c', '#ED1C24', 'front'),
+        back: createTeeSVG('BRAVADIAN GARUDA', 'Mythology', '#16161c', '#ED1C24', 'back'),
+        closeup: createTeeSVG('BRAVADIAN GARUDA', 'Mythology', '#16161c', '#ED1C24', 'closeup'),
+        lifestyle: createTeeSVG('BRAVADIAN GARUDA', 'Mythology', '#16161c', '#ED1C24', 'lifestyle')
       },
       variants: [
         { color: 'Black', size: 'S', stock: 7 },
@@ -1500,14 +1328,15 @@
       id: 'prod-009',
       name: 'BRAVADIAN MONOLITH BHARAT',
       slug: 'bravadian-monolith-bharat',
-      description: 'Rooted in Indian soil. A clean oversized tee with the Ashoka chakra and the coordinates of Delhi on the back.',
+      description: 'A clean tee with the Ashoka chakra and the coordinates of Delhi on the back. Oversized fit in heavy 240 GSM cotton, washed soft.',
+      story: 'Rooted in Indian soil. A quiet way to wear where you come from.',
       price: 699,
       comparePrice: 999,
       collection: 'heritage',
       tags: ['heritage', 'bharat', 'architecture', 'cultural-symbols', 'oversized', '240gsm'],
-      fabric: '240 GSM FRENCH TERRY // BIO + SILICONE WASH',
+      fabric: '240 GSM French Terry cotton, bio + silicone washed',
       gsm: 240,
-      fit: 'Oversized',
+      fit: 'Oversized, drop shoulder',
       material: '240 GSM French Terry Cotton, Bio + Silicone Washed',
       relicTag: 'DESIGN 09',
       relicBadge: 'COMING SOON',
@@ -1519,10 +1348,10 @@
       colors: ['Black', 'White', 'Red', 'Royal Blue'],
       sizes: ['S', 'M', 'L', 'XL', 'XXL'],
       images: {
-        front: createTeeSVG('BRAVADIAN BHARAT', 'Heritage', '#101014', '#ff4d00', 'front'),
-        back: createTeeSVG('BRAVADIAN BHARAT', 'Heritage', '#101014', '#ff4d00', 'back'),
-        closeup: createTeeSVG('BRAVADIAN BHARAT', 'Heritage', '#101014', '#ff4d00', 'closeup'),
-        lifestyle: createTeeSVG('BRAVADIAN BHARAT', 'Heritage', '#101014', '#ff4d00', 'lifestyle')
+        front: createTeeSVG('BRAVADIAN BHARAT', 'Heritage', '#101014', '#ED1C24', 'front'),
+        back: createTeeSVG('BRAVADIAN BHARAT', 'Heritage', '#101014', '#ED1C24', 'back'),
+        closeup: createTeeSVG('BRAVADIAN BHARAT', 'Heritage', '#101014', '#ED1C24', 'closeup'),
+        lifestyle: createTeeSVG('BRAVADIAN BHARAT', 'Heritage', '#101014', '#ED1C24', 'lifestyle')
       },
       variants: [
         { color: 'Black', size: 'S', stock: 12 },
@@ -1551,14 +1380,15 @@
       id: 'prod-010',
       name: 'BRAVADIAN CYBER REBEL',
       slug: 'bravadian-cyber-rebel',
-      description: 'Loud street typography inspired by Indian city walls, printed on an oversized 240 GSM cotton tee.',
+      description: 'Loud street typography inspired by the painted walls of Indian cities. Oversized fit in heavy 240 GSM cotton, washed soft.',
+      story: 'Every Indian city talks through its walls: shop signs, posters, hand-painted letters. This one talks back.',
       price: 699,
       comparePrice: 999,
       collection: 'street-culture',
       tags: ['street-culture', 'typography', 'graffiti', 'urban', 'rebellious', 'oversized', '240gsm'],
-      fabric: '240 GSM FRENCH TERRY // BIO + SILICONE WASH',
+      fabric: '240 GSM French Terry cotton, bio + silicone washed',
       gsm: 240,
-      fit: 'Oversized',
+      fit: 'Oversized, drop shoulder',
       material: '240 GSM French Terry Cotton, Bio + Silicone Washed',
       relicTag: 'DESIGN 10',
       relicBadge: 'COMING SOON',
@@ -1570,10 +1400,10 @@
       colors: ['Black', 'White', 'Red', 'Royal Blue'],
       sizes: ['S', 'M', 'L', 'XL', 'XXL'],
       images: {
-        front: createTeeSVG('BRAVADIAN CYBER', 'Street Culture', '#0a0a0e', '#ff4d00', 'front'),
-        back: createTeeSVG('BRAVADIAN CYBER', 'Street Culture', '#0a0a0e', '#ff4d00', 'back'),
-        closeup: createTeeSVG('BRAVADIAN CYBER', 'Street Culture', '#0a0a0e', '#ff4d00', 'closeup'),
-        lifestyle: createTeeSVG('BRAVADIAN CYBER', 'Street Culture', '#0a0a0e', '#ff4d00', 'lifestyle')
+        front: createTeeSVG('BRAVADIAN CYBER', 'Street Culture', '#0a0a0e', '#ED1C24', 'front'),
+        back: createTeeSVG('BRAVADIAN CYBER', 'Street Culture', '#0a0a0e', '#ED1C24', 'back'),
+        closeup: createTeeSVG('BRAVADIAN CYBER', 'Street Culture', '#0a0a0e', '#ED1C24', 'closeup'),
+        lifestyle: createTeeSVG('BRAVADIAN CYBER', 'Street Culture', '#0a0a0e', '#ED1C24', 'lifestyle')
       },
       variants: [
         { color: 'Black', size: 'S', stock: 4 },
@@ -1602,14 +1432,15 @@
       id: 'prod-011',
       name: 'BRAVADIAN ESSENTIAL 240',
       slug: 'bravadian-essential-240',
-      description: 'No graphics, just a great tee. Thick rib collar, dropped shoulders and a relaxed oversized fit in 240 GSM cotton.',
+      description: 'No graphics, just a great tee. Thick rib collar, dropped shoulders and a relaxed oversized fit in heavy 240 GSM cotton, washed soft.',
+      story: 'The tee you reach for every morning. Made to outlast the trend.',
       price: 699,
       comparePrice: 999,
       collection: 'minimal',
       tags: ['minimal', 'essential', 'clean-graphics', 'understated', 'simple-typography', '240gsm'],
-      fabric: '240 GSM FRENCH TERRY // BIO + SILICONE WASH',
+      fabric: '240 GSM French Terry cotton, bio + silicone washed',
       gsm: 240,
-      fit: 'Oversized',
+      fit: 'Oversized, drop shoulder',
       material: '240 GSM French Terry Cotton, Bio + Silicone Washed',
       relicTag: 'DESIGN 11',
       relicBadge: 'COMING SOON',
@@ -1653,14 +1484,15 @@
       id: 'prod-012',
       name: 'BRAVADIAN ASHOKA EMBER',
       slug: 'bravadian-ashoka-ember',
-      description: 'The 24-spoke Ashoka chakra in glowing ember orange across the chest and back of an oversized cotton tee.',
+      description: 'The 24-spoke Ashoka chakra in glowing ember tones across the chest and back. Oversized fit in heavy 240 GSM cotton, washed soft.',
+      story: 'Twenty-four spokes, one for every hour of the day. A reminder to keep moving forward.',
       price: 699,
       comparePrice: 999,
       collection: 'heritage',
       tags: ['heritage', 'ashoka', 'cultural-symbols', 'traditional-patterns', 'limited', '240gsm'],
-      fabric: '240 GSM FRENCH TERRY // BIO + SILICONE WASH',
+      fabric: '240 GSM French Terry cotton, bio + silicone washed',
       gsm: 240,
-      fit: 'Oversized',
+      fit: 'Oversized, drop shoulder',
       material: '240 GSM French Terry Cotton, Bio + Silicone Washed',
       relicTag: 'DESIGN 12',
       relicBadge: 'COMING SOON',
@@ -1672,10 +1504,10 @@
       colors: ['Black', 'White', 'Red', 'Royal Blue'],
       sizes: ['S', 'M', 'L', 'XL', 'XXL'],
       images: {
-        front: createTeeSVG('BRAVADIAN ASHOKA', 'Heritage', '#0c0c10', '#ff4d00', 'front'),
-        back: createTeeSVG('BRAVADIAN ASHOKA', 'Heritage', '#0c0c10', '#ff4d00', 'back'),
-        closeup: createTeeSVG('BRAVADIAN ASHOKA', 'Heritage', '#0c0c10', '#ff4d00', 'closeup'),
-        lifestyle: createTeeSVG('BRAVADIAN ASHOKA', 'New Drop', '#0c0c10', '#ff4d00', 'lifestyle')
+        front: createTeeSVG('BRAVADIAN ASHOKA', 'Heritage', '#0c0c10', '#ED1C24', 'front'),
+        back: createTeeSVG('BRAVADIAN ASHOKA', 'Heritage', '#0c0c10', '#ED1C24', 'back'),
+        closeup: createTeeSVG('BRAVADIAN ASHOKA', 'Heritage', '#0c0c10', '#ED1C24', 'closeup'),
+        lifestyle: createTeeSVG('BRAVADIAN ASHOKA', 'New Drop', '#0c0c10', '#ED1C24', 'lifestyle')
       },
       variants: [
         { color: 'Black', size: 'S', stock: 5 },
@@ -1705,27 +1537,80 @@
   // BRAVADIAN DATA STORAGE CONTROLLER
   // Public project URL + anon (publishable) key. Safe to ship: access is controlled by RLS.
   // Never put the service_role key here.
-  // Live project (the owner's). Left untouched; fill in when the live database is ready.
-  const SUPABASE_URL = '';
-  const SUPABASE_ANON_KEY = '';
-  // Test project: used only on localhost, or on any address with ?db=test added.
+  // Live project: every deployed site uses this one.
+  const SUPABASE_URL = 'https://ccmwfynsytaycfgfxjln.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_gkUGThWcvHoUWGM12t-Odg_OnySj07e'; // public key, safe in browser code
+  // Test project: used only when the address has ?db=test (before any #). Everything else,
+  // localhost included, works on the live project.
   const TEST_SUPABASE_URL = 'https://cstqxsxfcxbqcqljxlgd.supabase.co';
   const TEST_SUPABASE_ANON_KEY = 'sb_publishable_B-T7Hk7Nb2xwXPl9m6VoZA_abqrenF9'; // public key, safe in browser code
-  const USE_TEST_DB = /^(localhost|127\.0\.0\.1)$/.test(window.location.hostname) || /[?&]db=test\b/.test(window.location.search);
+  const BUILD_ENV = (typeof import.meta !== 'undefined' && import.meta.env) || {};
+  const USE_TEST_DB = /[?&]db=test\b/.test(window.location.search);
+
+  // The site's address prefix: "/" in production, "/bravadian-v1/" on the GitHub Pages copy.
+  // Photo paths are stored in the database without it ("/images/...") and get it when shown.
+  const BASE = BUILD_ENV.BASE_URL || '/';
+  // Written as '/' + 'images/' so the Pages build step (which prefixes "/images/" text) leaves it alone
+  const IMAGES_ROOT = '/' + 'images/';
+  const withBase = (u) => (BASE !== '/' && typeof u === 'string' && u.startsWith(IMAGES_ROOT)) ? BASE + u.slice(1) : u;
+  const withoutBase = (u) => (BASE !== '/' && typeof u === 'string' && u.startsWith(BASE + 'images/')) ? '/' + u.slice(BASE.length) : u;
+  const mapPhotos = (images, fn) => {
+    if (!images || typeof images !== 'object') return images;
+    const out = {};
+    Object.entries(images).forEach(([k, v]) => {
+      out[k] = k === 'colors' && v && typeof v === 'object'
+        ? Object.fromEntries(Object.entries(v).map(([c, set]) => [c, Object.fromEntries(Object.entries(set || {}).map(([s, u]) => [s, fn(u)]))]))
+        : fn(v);
+    });
+    return out;
+  };
   const ACTIVE_SUPABASE_URL = USE_TEST_DB ? TEST_SUPABASE_URL : SUPABASE_URL;
   const ACTIVE_SUPABASE_KEY = USE_TEST_DB ? TEST_SUPABASE_ANON_KEY : SUPABASE_ANON_KEY;
 
+  // Real photo addresses only. The site draws placeholder tees (data: URIs) itself when a view has
+  // no photo, so those drawings are never stored in the database.
+  const isDrawing = (v) => typeof v === 'string' && v.startsWith('data:');
+  function photosOnly(images) {
+    if (!images || typeof images !== 'object') return null;
+    const out = {};
+    Object.entries(images).forEach(([k, v]) => {
+      if (k === 'colors' && v && typeof v === 'object') {
+        const colors = {};
+        Object.entries(v).forEach(([c, set]) => {
+          const kept = Object.fromEntries(Object.entries(set || {})
+            .filter(([, u]) => typeof u === 'string' && u && !isDrawing(u))
+            .map(([s, u]) => [s, withoutBase(u)]));
+          if (Object.keys(kept).length) colors[c] = kept;
+        });
+        if (Object.keys(colors).length) out.colors = colors;
+      } else if (typeof v === 'string' && v && !isDrawing(v)) {
+        out[k] = withoutBase(v);   // stored without the test copy's address prefix
+      }
+    });
+    return Object.keys(out).length ? out : null;
+  }
+
+  // Admin settings stored together under site_settings key "content"
+  const CONTENT_SETTING_KEYS = ['announcementText', 'announcementWaText', 'announcementEnabled', 'heroTag', 'heroTitle',
+    'heroDesc', 'heroBgImage', 'heroTicker', 'vipMessageTemplate'];
+
   const BravadianDB = {
     supabaseClient: null,
+    dbLabel: USE_TEST_DB ? 'TEST' : 'LIVE',
+    dbUrl: ACTIVE_SUPABASE_URL,
+    // "/images/x.webp" → the address it has on this copy of the site (adds "/bravadian-v1/" on GitHub Pages)
+    assetUrl: withBase,
 
     init() {
       // Auto-Migration to ensure new luxury mockups, products, and collections load immediately
-      const DATA_VERSION = '4.13.3';
+      const DATA_VERSION = '4.14.0';
       const storedVer = localStorage.getItem('bravadian_data_version');
       const storedProds = localStorage.getItem('bravadian_products');
-      const hasStaleJpg = storedProds && (storedProds.includes('images/relics') || storedProds.includes('.jpg'));
+      // Old caches from before the relic photos were retired. (Not ".jpg" in general: a JPG product
+      // photo is valid and would otherwise wipe the saved catalog on every visit.)
+      const hasRetiredPhotos = storedProds && storedProds.includes('images/relics');
 
-      if (storedVer !== DATA_VERSION || hasStaleJpg) {
+      if (storedVer !== DATA_VERSION || hasRetiredPhotos) {
         localStorage.setItem('bravadian_data_version', DATA_VERSION);
         // Refresh cached products with pristine diagrams and collections
         localStorage.removeItem('bravadian_products');
@@ -1758,9 +1643,14 @@
       if (sUrl && sKey && window.supabase) {
         try {
           this.supabaseClient = window.supabase.createClient(sUrl, sKey);
-          console.log(`[BRAVADIAN] Connected to Supabase (${USE_TEST_DB && ACTIVE_SUPABASE_KEY ? 'TEST' : 'LIVE'}):`, sUrl);
+          // detail.changed tells pages whether anything differs from the copy they already showed
+          const snapshot = () => ['bravadian_products', 'bravadian_collections', 'bravadian_size_guide', 'bravadian_settings']
+            .map(k => localStorage.getItem(k)).join('\u0000');
+          const before = snapshot();
           this.fetchRemoteCatalog().then(res => {
-            if (res && res.success) window.dispatchEvent(new Event('bravadian:catalog-updated'));
+            if (res && res.success) {
+              window.dispatchEvent(new CustomEvent('bravadian:catalog-updated', { detail: { changed: snapshot() !== before } }));
+            }
           });
         } catch (err) {
           console.warn('[BRAVADIAN] Supabase Init Error:', err);
@@ -1813,6 +1703,31 @@
       } catch (e) {
         return { order: null };
       }
+    },
+
+    // ORDERS (admins only: the orders table has no public read policy)
+    async getOrders(limit = 500) {
+      if (!this.supabaseClient) throw new Error('Supabase is not connected.');
+      const { data, error } = await this.supabaseClient
+        .from('orders')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(limit);
+      if (error) throw new Error(error.message);
+      return data || [];
+    },
+
+    // Stock goes back when an order is cancelled, and comes off again if it is un-cancelled (db/005)
+    async updateOrderStatus(id, status) {
+      if (!this.supabaseClient) throw new Error('Supabase is not connected.');
+      const { data, error } = await this.supabaseClient
+        .from('orders')
+        .update({ status })
+        .eq('id', id)
+        .select()
+        .single();
+      if (error) throw new Error(error.message);
+      return data;
     },
 
     // PRODUCTS
@@ -1888,9 +1803,14 @@
       return prods.find(p => p.slug === slug || p.id === slug) || null;
     },
 
-    saveProduct(product) {
+    // Saves locally, then to Supabase. Resolves once Supabase has the product and throws if it refused,
+    // so callers can report the real outcome. Stock of existing sizes is kept by the database (db/004).
+    async saveProduct(product) {
       const prods = this.getProducts();
-      const existingIdx = prods.findIndex(p => p.id === product.id || p.slug === product.slug);
+      // Match by id (a renamed slug is still the same product); by slug only for products without an id
+      const existingIdx = product.id
+        ? prods.findIndex(p => p.id === product.id)
+        : prods.findIndex(p => p.slug === product.slug);
       
       if (existingIdx >= 0) {
         prods[existingIdx] = { ...prods[existingIdx], ...product };
@@ -1902,9 +1822,8 @@
 
       localStorage.setItem('bravadian_products', JSON.stringify(prods));
 
-      // If Supabase is active, async sync
       if (this.supabaseClient) {
-        this.syncProductToSupabase(product);
+        await this.syncProductToSupabase(product);
       }
       return product;
     },
@@ -1920,23 +1839,29 @@
     },
 
     // VARIANT INVENTORY
-    updateVariantStock(productId, color, size, newStock) {
-      const prods = this.getProducts();
-      const p = prods.find(item => item.id === productId || item.slug === productId);
-      if (!p || !p.variants) return false;
+    // changes: [{ productId, color, size, stock }] for the sizes the admin edited, and nothing else.
+    // With Supabase, one admin_set_stock call (db/004) changes only those sizes, so stock that orders
+    // used up in the meantime is never overwritten. Throws if the database refuses.
+    async setStock(changes) {
+      if (!changes.length) return 0;
+      const clean = changes.map(c => ({ ...c, stock: Math.max(0, parseInt(c.stock, 10) || 0) }));
 
-      const variant = p.variants.find(v => v.color.toLowerCase() === color.toLowerCase() && v.size === size);
-      if (variant) {
-        variant.stock = Math.max(0, parseInt(newStock, 10) || 0);
-      } else {
-        p.variants.push({ color, size, stock: Math.max(0, parseInt(newStock, 10) || 0) });
-      }
-
-      localStorage.setItem('bravadian_products', JSON.stringify(prods));
       if (this.supabaseClient) {
-        this.syncProductToSupabase(p);
+        const { error } = await this.supabaseClient.rpc('admin_set_stock', { p_changes: clean });
+        if (error) throw new Error(error.message);
       }
-      return true;
+
+      const prods = this.getProducts();
+      clean.forEach(({ productId, color, size, stock }) => {
+        const p = prods.find(item => item.id === productId || item.slug === productId);
+        if (!p) return;
+        if (!p.variants) p.variants = [];
+        const variant = p.variants.find(v => v.color.toLowerCase() === color.toLowerCase() && v.size === size);
+        if (variant) variant.stock = stock;
+        else p.variants.push({ color, size, stock });
+      });
+      localStorage.setItem('bravadian_products', JSON.stringify(prods));
+      return clean.length;
     },
 
     // COLLECTIONS
@@ -2017,14 +1942,17 @@
       return DEFAULT_SETTINGS;
     },
 
-    saveSettings(newSettings) {
-      const current = this.getSettings();
-      const merged = { ...current, ...newSettings };
+    // Saves locally, then to Supabase; throws if Supabase refuses. Reconnects only when the
+    // connection details themselves change (reconnecting reloads the catalog, which would
+    // overwrite the settings just saved with the older copy from the database).
+    async saveSettings(newSettings) {
+      const merged = { ...this.getSettings(), ...newSettings };
       localStorage.setItem('bravadian_settings', JSON.stringify(merged));
-      this.init(); // re-init Supabase if keys changed
-      if (this.supabaseClient) {
-        this.syncSettingsToSupabase(merged);
+      if ('supabaseUrl' in newSettings || 'supabaseAnonKey' in newSettings) {
+        this.init();
+        return merged;
       }
+      if (this.supabaseClient) await this.syncSettingsToSupabase(merged);
       return merged;
     },
 
@@ -2101,11 +2029,7 @@
           .from('products')
           .delete()
           .or(`id.eq.${idOrSlug},slug.eq.${idOrSlug}`);
-        if (error) {
-          console.warn('[Supabase Delete Product Notice]:', error);
-        } else {
-          console.log(`[BRAVADIAN] Deleted product ${idOrSlug} from Supabase.`);
-        }
+        if (error) console.warn('[Supabase Delete Product Notice]:', error);
       } catch (e) {
         console.warn('[Supabase Delete Product Exception]:', e);
       }
@@ -2134,31 +2058,38 @@
           status: product.status || 'PUBLISHED'
         };
 
+        // Only sent when known, so saving from the admin form (which has no story field) keeps them
+        if (product.story !== undefined) prodData.story = product.story || null;
+        if (product.motif !== undefined) prodData.motif = product.motif || null;
         if (product.relicTag) prodData.relic_tag = product.relicTag;
         if (product.relicBadge) prodData.relic_badge = product.relicBadge;
-        if (product.images) prodData.images = product.images;
+        if (product.images) prodData.images = photosOnly(product.images);
         if (product.variants) prodData.variants = product.variants;
 
         if (product.id) {
           prodData.id = product.id;
         }
+        // By id, so changing a product's slug updates it instead of clashing with its own id
+        const conflictKey = prodData.id ? 'id' : 'slug';
 
         let { data: savedProd, error } = await this.supabaseClient
           .from('products')
-          .upsert(prodData, { onConflict: 'slug' })
+          .upsert(prodData, { onConflict: conflictKey })
           .select()
           .single();
 
         if (error) {
           console.warn('[Supabase Sync Notice]: Retrying with core columns:', error.message);
           delete prodData.is_coming_soon;
+          delete prodData.story;
+          delete prodData.motif;
           delete prodData.relic_tag;
           delete prodData.relic_badge;
           delete prodData.images;
           delete prodData.variants;
           const retry = await this.supabaseClient
             .from('products')
-            .upsert(prodData, { onConflict: 'slug' })
+            .upsert(prodData, { onConflict: conflictKey })
             .select()
             .single();
           if (retry.error) {
@@ -2173,7 +2104,7 @@
         // Sync to relational product_images table if valid
         if (productId && product.images && typeof product.images === 'object') {
           try {
-            const imgRows = Object.entries(product.images)
+            const imgRows = Object.entries(photosOnly(product.images) || {})
               .filter(([_, url]) => url && typeof url === 'string')
               .map(([vType, url], idx) => ({
                 product_id: productId,
@@ -2181,8 +2112,11 @@
                 view_type: ['hero', 'front', 'back', 'closeup', 'lifestyle', 'detail'].includes(vType) ? vType : 'front',
                 display_order: idx + 1
               }));
+            // Replace this product's rows (they have no stable id, so an upsert would only add duplicates)
+            await this.supabaseClient.from('product_images').delete().eq('product_id', productId);
             if (imgRows.length > 0) {
-              await this.supabaseClient.from('product_images').upsert(imgRows, { onConflict: 'id' }).catch(() => {});
+              const { error: imgError } = await this.supabaseClient.from('product_images').insert(imgRows);
+              if (imgError) console.warn('[Supabase Images Sync Notice]:', imgError.message);
             }
           } catch (imgErr) {
             console.warn('[Supabase Images Sync Notice]:', imgErr);
@@ -2205,12 +2139,14 @@
                 .single();
 
               if (savedVar && savedVar.id && typeof v.stock === 'number') {
-                await this.supabaseClient
+                // Only creates missing rows; existing counts are changed by orders and admin_set_stock
+                const { error: invError } = await this.supabaseClient
                   .from('inventory')
                   .upsert({
                     variant_id: savedVar.id,
                     stock_quantity: v.stock
-                  }, { onConflict: 'variant_id' }).catch(() => {});
+                  }, { onConflict: 'variant_id', ignoreDuplicates: true });
+                if (invError) console.warn('[Supabase Inventory Sync Notice]:', invError.message);
               }
             }
           } catch (varErr) {
@@ -2225,21 +2161,20 @@
 
     async syncSettingsToSupabase(settings) {
       if (!this.supabaseClient) return;
-      try {
-        const rows = [
-          { key: 'general', value: { brand_name: settings.brandName, tagline: settings.tagline, currency: settings.currency, support_email: settings.supportEmail } },
-          { key: 'whatsapp', value: { phone_number: settings.whatsappNumber, business_name: 'BRAVADIAN Official' } },
-          { key: 'shipping', value: { shipping_charge: settings.shippingFee, free_shipping_threshold: settings.freeShippingThreshold, estimated_days: settings.estimatedDays } },
-          { key: 'social', value: { instagram: settings.instagramUrl } },
-          { key: 'launch', value: { ends_at: settings.launchEndsAt || null } }
-        ];
-        await this.supabaseClient.from('site_settings').upsert(rows, { onConflict: 'key' });
-      } catch (e) {
-        console.warn('[Supabase Settings Sync Warning]:', e);
-      }
+      const rows = [
+        { key: 'general', value: { brand_name: settings.brandName, tagline: settings.tagline, currency: settings.currency, support_email: settings.supportEmail } },
+        { key: 'whatsapp', value: { phone_number: settings.whatsappNumber, business_name: 'BRAVADIAN Official' } },
+        { key: 'shipping', value: { shipping_charge: settings.shippingFee, free_shipping_threshold: settings.freeShippingThreshold, estimated_days: settings.estimatedDays } },
+        { key: 'social', value: { instagram: settings.instagramUrl } },
+        { key: 'launch', value: { ends_at: settings.launchEndsAt || null } },
+        // Announcement bar, hero copy and message template from the admin settings form
+        { key: 'content', value: Object.fromEntries(CONTENT_SETTING_KEYS.filter(k => settings[k] !== undefined).map(k => [k, k === 'heroBgImage' ? withoutBase(settings[k]) : settings[k]])) }
+      ];
+      const { error } = await this.supabaseClient.from('site_settings').upsert(rows, { onConflict: 'key' });
+      if (error) throw new Error(error.message);
     },
 
-    async syncSizeGuideToSupabase(guide) {
+    async syncSizeGuideToSupabase(guide, { throwOnError = false } = {}) {
       if (!this.supabaseClient) return;
       try {
         const rows = guide.map((g, idx) => ({
@@ -2250,9 +2185,12 @@
           sleeve_inches: g.sleeve,
           display_order: idx + 1
         }));
-        await this.supabaseClient.from('size_guide').upsert(rows, { onConflict: 'size' });
+        // supabase-js reports a refused write in `error` rather than throwing
+        const { error } = await this.supabaseClient.from('size_guide').upsert(rows, { onConflict: 'size' });
+        if (error) throw new Error(error.message);
       } catch (e) {
         console.warn('[Supabase Size Guide Sync Warning]:', e);
+        if (throwOnError) throw e;
       }
     },
 
@@ -2325,21 +2263,23 @@
                   dbImgs = p.images;
                 }
               }
-              const mergedImgs = { ...relImgs, ...dbImgs };
+              const mergedImgs = mapPhotos({ ...relImgs, ...dbImgs }, withBase);
 
               // Check if images are valid remote URLs (http/https) and not legacy mock paths
               const isValidImg = (url) => url && typeof url === 'string' && url.trim().length > 0 && !url.includes('images/relics');
 
-              const front = isValidImg(mergedImgs.front) ? mergedImgs.front : createTeeSVG(p.name, p.collection_slug || 'Heritage', '#111116', '#FFA000', 'front');
-              const back = isValidImg(mergedImgs.back) ? mergedImgs.back : createTeeSVG(p.name, p.collection_slug || 'Heritage', '#111116', '#FFA000', 'back');
-              const closeup = isValidImg(mergedImgs.closeup) ? mergedImgs.closeup : createTeeSVG(p.name, p.collection_slug || 'Heritage', '#111116', '#FFA000', 'closeup');
-              const lifestyle = isValidImg(mergedImgs.lifestyle) ? mergedImgs.lifestyle : createTeeSVG(p.name, p.collection_slug || 'Heritage', '#111116', '#FFA000', 'lifestyle');
+              const front = isValidImg(mergedImgs.front) ? mergedImgs.front : createTeeSVG(p.name, p.collection_slug || 'Heritage', '#111116', '#ED1C24', 'front');
+              const back = isValidImg(mergedImgs.back) ? mergedImgs.back : createTeeSVG(p.name, p.collection_slug || 'Heritage', '#111116', '#ED1C24', 'back');
+              const closeup = isValidImg(mergedImgs.closeup) ? mergedImgs.closeup : createTeeSVG(p.name, p.collection_slug || 'Heritage', '#111116', '#ED1C24', 'closeup');
+              const lifestyle = isValidImg(mergedImgs.lifestyle) ? mergedImgs.lifestyle : createTeeSVG(p.name, p.collection_slug || 'Heritage', '#111116', '#ED1C24', 'lifestyle');
 
               return {
                 id: p.id,
                 name: p.name,
                 slug: p.slug,
                 description: p.description || '',
+                story: p.story || '',
+                motif: p.motif || '',
                 price: Number(p.price),
                 comparePrice: p.compare_price ? Number(p.compare_price) : null,
                 launchPrice: p.launch_price ? Number(p.launch_price) : null,
@@ -2361,26 +2301,20 @@
                   : (p.colors || ['Black', 'White']),
                 sizes: ['S', 'M', 'L', 'XL', 'XXL'],
                 images: {
-                  ...dbImgs,
+                  ...mapPhotos(dbImgs, withBase),
                   front,
                   back,
                   closeup,
                   lifestyle
                 },
-                variants: p.variants || [
-                  { color: 'Black', size: 'S', stock: 5 },
-                  { color: 'Black', size: 'M', stock: 5 },
-                  { color: 'Black', size: 'L', stock: 5 },
-                  { color: 'Black', size: 'XL', stock: 5 },
-                  { color: 'Black', size: 'XXL', stock: 5 }
-                ]
+                // No stock rows means nothing to sell: show it sold out rather than invent stock
+                variants: Array.isArray(p.variants) ? p.variants : []
               };
             });
 
             if (mapped.length > 0) {
               localStorage.setItem('bravadian_products', JSON.stringify(mapped));
               summary.products = mapped.length;
-              console.log(`[BRAVADIAN] Loaded ${mapped.length} products from Supabase cloud.`);
             }
           }
         } catch (prodEx) {
@@ -2395,12 +2329,14 @@
             .order('display_order', { ascending: true });
 
           if (!sgErr && sg && sg.length > 0) {
+            // A blank cell stays blank (Number(null) would show as 0")
+            const num = (v) => (v === null || v === undefined || v === '' || isNaN(Number(v))) ? null : Number(v);
             const mappedGuide = sg.map(s => ({
               size: s.size,
-              chest: Number(s.chest_inches),
-              length: Number(s.length_inches),
-              shoulder: Number(s.shoulder_inches),
-              sleeve: Number(s.sleeve_inches)
+              chest: num(s.chest_inches),
+              length: num(s.length_inches),
+              shoulder: num(s.shoulder_inches),
+              sleeve: num(s.sleeve_inches)
             }));
             localStorage.setItem('bravadian_size_guide', JSON.stringify(mappedGuide));
             summary.sizeGuide = mappedGuide.length;
@@ -2434,6 +2370,8 @@
                 remoteSettings.launchEndsAt = s.value.ends_at || '';
               } else if (s.key === 'social' && s.value && s.value.instagram) {
                 remoteSettings.instagramUrl = s.value.instagram;
+              } else if (s.key === 'content' && s.value) {
+                CONTENT_SETTING_KEYS.forEach(k => { if (s.value[k] !== undefined) remoteSettings[k] = s.value[k]; });
               }
             }
             localStorage.setItem('bravadian_settings', JSON.stringify(remoteSettings));

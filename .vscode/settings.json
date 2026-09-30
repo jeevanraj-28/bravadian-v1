@@ -1,0 +1,8 @@
+{
+  // Live Server serves the project folder as-is; Vite serves public/ at the site root.
+  // These mounts make Live Server match, so /images/... works in both.
+  "liveServer.settings.mount": [
+    ["/images", "./public/images"],
+    ["/db", "./public/db"]
+  ]
+}

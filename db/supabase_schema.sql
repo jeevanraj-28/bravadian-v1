@@ -1,9 +1,22 @@
 -- ==========================================================================
 -- BRAVADIAN (BRAVE INDIAN) - Supabase Database Schema
--- Run this script in the Supabase SQL Editor to set up all tables and seed data.
+-- FIRST-TIME SETUP ONLY, on a new, empty Supabase project. Then run 002 → 008 in order.
+--
+-- ⚠ This script deletes and recreates the catalog tables. On a project that is already
+--   set up it stops at the check below and changes nothing. To change a live project,
+--   write a new numbered file (like 003-006) instead of re-running this one.
 -- ==========================================================================
 
--- Clean Reset (Safe for initial setup or schema upgrades)
+-- Safety check: refuse to run on a project that already has the store's tables.
+-- (The SQL Editor runs the whole script as one transaction, so this error stops everything.)
+DO $$
+BEGIN
+  IF to_regclass('public.products') IS NOT NULL OR to_regclass('public.orders') IS NOT NULL THEN
+    RAISE EXCEPTION 'This project is already set up. supabase_schema.sql would delete the catalog, so nothing was changed. Use a new numbered file for changes.';
+  END IF;
+END $$;
+
+-- Clean start (only reached on a new project)
 DROP TABLE IF EXISTS inventory CASCADE;
 DROP TABLE IF EXISTS product_variants CASCADE;
 DROP TABLE IF EXISTS product_images CASCADE;

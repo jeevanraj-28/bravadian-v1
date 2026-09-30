@@ -82,6 +82,8 @@ Pincode:
 
 I will share reference images in this chat.
 
+I understand custom orders are made just for me and cannot be exchanged or returned once placed.
+
 Thank you.`,
     question: `Hello Bravadian,
 
@@ -114,16 +116,44 @@ Name:
 Collections I like: (Anime / Mythology / Heritage / Street Culture / Minimal)
 
 Thank you.`,
-    notify: (name) => `Hello Bravadian,
-
-Please let me know when this design launches.
-
-Product: ${name}
-Preferred color:
-Preferred size:
-
-Thank you.`
+    // "Coming soon" enquiry: the admin's VIP message template, with {productName} filled in
+    notify: (name) => siteCopy('vipMessageTemplate').split('{productName}').join(name)
   };
+
+  // ── Marketing copy from the admin panel ─────────────────────────────────
+  // An empty field falls back to the built-in copy, so the page never shows a blank headline
+  function siteCopy(key) {
+    const v = window.BravadianDB.getSettings()[key];
+    return (typeof v === 'string' ? v.trim() : v) || window.BravadianDefaults.DEFAULT_SETTINGS[key];
+  }
+  const escapeHTML = (v) => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+  // "WEAR YOUR | ROOTS LOUD" → two lines at the "|". Without one, titles of 3+ words split in half.
+  function heroTitleHTML(title) {
+    let lines = title.split('|').map(s => s.trim()).filter(Boolean);
+    if (lines.length === 1) {
+      const words = lines[0].split(/\s+/);
+      if (words.length >= 3) {
+        const half = Math.ceil(words.length / 2);
+        lines = [words.slice(0, half).join(' '), words.slice(half).join(' ')];
+      }
+    }
+    return lines.map(escapeHTML).join('<br>\n');
+  }
+
+  // Running strip under the hero: items separated by ✦
+  function heroTickerHTML() {
+    return siteCopy('heroTicker').split(/\s*✦\s*/).filter(Boolean)
+      .map(t => `<span>${escapeHTML(t)}</span> <span class="marquee-star">✦</span>`).join('\n');
+  }
+
+  // Top announcement bar: text, WhatsApp button label, and on/off
+  function applyAnnouncementBar() {
+    const text = siteCopy('announcementText');
+    document.querySelectorAll('.top-announcement-bar .announcement-text').forEach(el => { el.textContent = text; });
+    document.querySelectorAll('.top-announcement-bar .wa-box-text').forEach(el => { el.textContent = siteCopy('announcementWaText'); });
+    return window.BravadianDB.getSettings().announcementEnabled !== false;
+  }
 
   // ── Dynamic WhatsApp URL builder ───────────────────────────────────────
   function waURL(message) {
@@ -156,10 +186,26 @@ Thank you.`
     try {
       const stored = localStorage.getItem('bravadian_cart');
       StoreState.cart = stored ? JSON.parse(stored) : [];
+      if (!Array.isArray(StoreState.cart)) StoreState.cart = [];
+      // Bag line ids go into the bag buttons' code, so keep them to plain characters
+      StoreState.cart.forEach(item => {
+        if (!/^[\w-]+$/.test(String(item.id))) item.id = bagLineId(item.productId, item.color, item.size);
+        item.quantity = Math.max(1, parseInt(item.quantity, 10) || 1);
+        item.price = Number(item.price) || 0;
+      });
     } catch (e) {
       StoreState.cart = [];
     }
+    refreshCartFromCatalog(false);
     updateCartUI();
+  }
+  // Once the live catalog arrives, prices and stock in the bag are checked against it
+  window.addEventListener('bravadian:catalog-updated', () => refreshCartFromCatalog(true));
+
+  // A bag line's id: letters, digits, - and _ only (it is used inside onclick="...('id')")
+  function bagLineId(productId, color, size) {
+    const safe = (v) => String(v ?? '').replace(/[^\w-]+/g, '_');
+    return `${safe(productId)}-${safe(color)}-${safe(size)}-${Date.now()}${Math.random().toString(36).slice(2, 6)}`;
   }
 
   function saveCart() {
@@ -182,10 +228,57 @@ Thank you.`
     checkoutModal = document.getElementById('checkoutModal');
 
     loadCart();
+    initImageFallbacks();
     initHeaderEvents();
-    initRouter();
+    if (IS_WALL_PAGE) initWallPage(); else initRouter();
     initSearchEvents();
   });
+
+  // The Bravadian Wall (/wall) is its own page: js/wall.js draws it. Store routes opened there
+  // (#/shop, #/product/..., links in the bag or search) continue on the home page.
+  const IS_WALL_PAGE = document.body.dataset.page === 'wall';
+  function initWallPage() {
+    const home = (import.meta.env && import.meta.env.BASE_URL) || '/';
+    const leave = () => {
+      const h = window.location.hash;
+      if (h.startsWith('#/')) window.location.assign(home + h);
+    };
+    window.addEventListener('hashchange', leave);
+    leave();
+    const bar = () => document.body.classList.toggle('hide-announcement-bar', !applyAnnouncementBar());
+    bar();
+    window.addEventListener('bravadian:catalog-updated', bar);
+    document.querySelectorAll('.nav-link[aria-current="page"]').forEach(a => a.classList.add('active'));
+  }
+
+  // A tee photo that fails to load (moved or deleted file, bad address saved in admin) is swapped
+  // for the same tee's next photo, and finally for its drawing, so no broken image ever shows.
+  function initImageFallbacks() {
+    const failed = new Set();
+    const abs = (u) => { try { return new URL(u, location.href).href; } catch (e) { return u; } };
+    const photosOf = (p) => {
+      const out = [];
+      const walk = (o) => Object.values(o || {}).forEach(v => {
+        if (v && typeof v === 'object') walk(v);
+        else if (typeof v === 'string' && v && !v.startsWith('data:')) out.push(v);
+      });
+      walk(p.images);
+      return [...new Set(out)];
+    };
+    document.addEventListener('error', (e) => {
+      const img = e.target;
+      if (!(img instanceof HTMLImageElement) || !window.BravadianDB) return;
+      const src = abs(img.getAttribute('src') || '');
+      if (!src || src.startsWith('data:')) return;
+      failed.add(src);
+      const product = window.BravadianDB.getProducts().find(p => photosOf(p).some(u => abs(u) === src));
+      if (!product) return;
+      const next = photosOf(product).find(u => !failed.has(abs(u)));
+      if (next) { img.src = next; return; }
+      const draw = window.BravadianDefaults && window.BravadianDefaults.createTeeSVG;
+      if (draw) img.src = draw(product.name, product.collection || 'Heritage', '#111116', '#ED1C24', 'front');
+    }, true);
+  }
 
   /* --------------------------------------------------------------------------
      ROUTER
@@ -193,7 +286,7 @@ Thank you.`
   function initRouter() {
     window.addEventListener('hashchange', handleRoute);
     // The home hero builds a different animation for phones and desktops; rebuild it when the width crosses over
-    const phoneQuery = window.matchMedia('(max-width: 760px)');
+    const phoneQuery = window.matchMedia('(max-width: 1023px)');
     let bpTimer = 0;
     const onBreakpoint = () => {
       clearTimeout(bpTimer);
@@ -206,12 +299,23 @@ Thank you.`
     if (phoneQuery.addEventListener) phoneQuery.addEventListener('change', onBreakpoint);
     else if (phoneQuery.addListener) phoneQuery.addListener(onBreakpoint);
     window.addEventListener('resize', onBreakpoint, { passive: true });
-    window.addEventListener('bravadian:catalog-updated', handleRoute);
+    // Fresh catalog from Supabase: redraw the page in place only if something actually changed
+    window.addEventListener('bravadian:catalog-updated', (e) => {
+      if (!e.detail || e.detail.changed) handleRoute({ soft: true });
+    });
     handleRoute();
   }
 
-  function handleRoute() {
+  // opts.soft: redraw the current page for new data, keeping scroll position, open drawers and
+  // the product page's colour and size. Otherwise (a real navigation) start at the top.
+  function handleRoute(opts) {
+    const soft = !!(opts && opts.soft === true);
     const hash = window.location.hash || '#/';
+    if (soft && hash === '#/checkout') return;
+    const keep = soft && StoreState.currentProduct && hash.startsWith('#/product/')
+      ? { id: StoreState.currentProduct.id, color: StoreState.selectedColor, size: StoreState.selectedSize }
+      : null;
+    const scrollY = window.scrollY;
     StoreState.currentRoute = hash;
     clearInterval(StoreState.galleryTimer);
     (StoreState.spotTimers || []).forEach(clearInterval);
@@ -220,25 +324,31 @@ Thank you.`
     if (StoreState.heroFanStop) { StoreState.heroFanStop(); StoreState.heroFanStop = null; }
     if (StoreState.heroMeshStop) { StoreState.heroMeshStop(); StoreState.heroMeshStop = null; }
     StoreState.spotTimers = [];
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (!soft) window.scrollTo({ top: 0, behavior: 'smooth' });
 
-    // Hide top announcement marquee bar on Heritage collection chapter page (matches Figma full-bleed hero)
-    const isHeritage = (hash === '#/collections/heritage' || hash === '#/heritage');
-    document.body.classList.toggle('hide-announcement-bar', isHeritage);
+    // Collection story pages (#/collections/<slug>) have a full-bleed banner, so the announcement bar
+    // is hidden there; it is also hidden everywhere when the admin has switched it off
+    const storySlug = hash === '#/heritage' ? 'heritage' : (hash.match(/^#\/collections\/([a-z-]+)\/?$/) || [])[1];
+    const isStory = !!(storySlug && COLLECTION_STORIES[storySlug]);
+    const announcementOn = applyAnnouncementBar();
+    document.body.classList.toggle('hide-announcement-bar', isStory || !announcementOn);
 
     // Close any open drawers/modals on navigation
-    closeCartDrawer();
-    closeSearchModal();
-    closeCheckoutModal();
-    closeSizeGuideModal();
+    if (!soft) {
+      closeCartDrawer();
+      closeSearchModal();
+      closeCheckoutModal();
+      closeSizeGuideModal();
+    }
 
     if (hash === '#/' || hash === '#/home' || hash === '') {
       renderHomeView();
     } else if (hash === '#/collections' || hash === '#/collections/' || hash === '#/universe-wall') {
       renderUniverseWallView();
-    } else if (hash === '#/collections/heritage' || hash === '#/heritage') {
-      renderHeritageChapterView();
-    } else if (hash.startsWith('#/collections/') || hash === '#/shop') {
+    } else if (isStory) {
+      renderCollectionStoryView(storySlug);
+    } else if (hash.startsWith('#/collections/') || hash === '#/shop' || hash.startsWith('#/shop/')) {
+      // Product grid: #/shop, #/shop/<slug>, and #/collections/all
       const parts = hash.split('/');
       let colSlug = parts[2] || 'all';
       // 5 Official Categories + ALL
@@ -252,8 +362,9 @@ Thank you.`
       StoreState.activeCollection = colSlug;
       renderShopView(colSlug);
     } else if (hash.startsWith('#/product/')) {
-      const slug = hash.replace('#/product/', '');
-      renderPDPView(slug);
+      // #/product/<slug>?color=Black&size=M opens the tee with that colour and size picked (links in WhatsApp orders)
+      const [slug, query] = hash.replace('#/product/', '').split('?');
+      renderPDPView(slug, new URLSearchParams(query || ''));
     } else if (hash === '#/cart') {
       renderCartPageView();
     } else if (hash === '#/checkout') {
@@ -278,6 +389,17 @@ Thank you.`
     updateActiveNavLinks();
     initFocusReveal(mainContainer);
     initMobileMotion(mainContainer);
+
+    if (soft) {
+      // Put the shopper's colour and size back (through the buttons, so gallery and stock update too)
+      if (keep && StoreState.currentProduct && StoreState.currentProduct.id === keep.id) {
+        const dot = [...document.querySelectorAll('.pdp-color-dot')].find(d => d.dataset.color === keep.color);
+        if (dot && keep.color !== StoreState.selectedColor) dot.click();
+        const box = document.querySelector(`.pdp-size-box[data-size="${keep.size}"]`);
+        if (box && !box.disabled) box.click();
+      }
+      window.scrollTo({ top: scrollY, behavior: 'instant' });
+    }
   }
 
   function updateActiveNavLinks() {
@@ -299,17 +421,24 @@ Thank you.`
   /* --------------------------------------------------------------------------
      HEADER & GLOBAL CONTROLS
      -------------------------------------------------------------------------- */
-  function initHeaderEvents() {
-    // Populate Mega-Menu Collections
+  // Collections dropdown (header) and tiles (phone menu). Drawn again when the catalog arrives,
+  // so collections that have tees to buy always come first.
+  function renderCollectionMenus() {
     const megaList = document.getElementById('megaCollectionsList');
     const mobileList = document.getElementById('mobileCollectionsList');
     const collections = window.BravadianDB.getCollections();
 
-    // 5 Official Collections (ANIME, MYTHOLOGY, HERITAGE, STREET CULTURE, MINIMAL)
-    const filteredCollections = collections.filter(c => c.slug !== 'all');
+    // 5 Official Collections, the ones with tees to buy first
+    const filteredCollections = liveFirst(collections.filter(c => c.slug !== 'all'));
 
     if (megaList) {
-      megaList.innerHTML = filteredCollections.map(c => `
+      megaList.innerHTML = `
+        <li class="mega-item mega-item-all">
+          <a href="#/collections">
+            <span>ALL COLLECTIONS</span>
+            <span class="mega-all-arrow" aria-hidden="true">&rarr;</span>
+          </a>
+        </li>` + filteredCollections.map(c => `
         <li class="mega-item">
           <a href="#/collections/${c.slug}">
             <span>${c.name}</span>
@@ -326,8 +455,17 @@ Thank you.`
           ${COLLECTION_IMAGES[c.slug] ? `<img src="${COLLECTION_IMAGES[c.slug]}" alt="" loading="lazy">` : ''}
           <span>${c.name}</span>
         </a>
-      `).join('');
+      `).join('') + `
+        <a href="#/collections" class="mnav-tile mnav-tile-all">
+          <span>ALL COLLECTIONS &rarr;</span>
+        </a>`;
     }
+  }
+
+  function initHeaderEvents() {
+    renderCollectionMenus();
+    window.addEventListener('bravadian:catalog-updated', renderCollectionMenus);
+
     const mobileFeature = document.getElementById('mobileNavFeature');
     const featured = window.BravadianDB.getProducts().find(p => p.newDrop && !p.isComingSoon);
     if (mobileFeature && featured) {
@@ -375,40 +513,37 @@ Thank you.`
     const searchClose = document.getElementById('closeSearchBtn');
     if (searchClose) searchClose.addEventListener('click', closeSearchModal);
 
-    // Dark & White Theme Switcher (Header & Mobile Drawer)
-    function toggleThemeMode(e) {
-      if (e) e.preventDefault();
-      const current = document.documentElement.getAttribute('data-theme') || 'light';
-      const next = current === 'dark' ? 'light' : 'dark';
-      document.documentElement.setAttribute('data-theme', next);
-      localStorage.setItem('bravadian-theme', next);
-      syncThemeColor();
-    }
-
-    // Phone status bar matches the page background in both themes
-    function syncThemeColor() {
-      const meta = document.getElementById('themeColorMeta');
-      if (meta) meta.setAttribute('content', document.documentElement.getAttribute('data-theme') === 'light' ? '#F5ECD5' : '#060608');
-    }
-    syncThemeColor();
-
+    // Theme: automatic by default (device dark mode, else light 6 AM – 6 PM); see the script in index.html
+    const Theme = window.BravadianTheme;
     const themeBtn = document.getElementById('themeToggleBtn');
-    if (themeBtn) themeBtn.addEventListener('click', toggleThemeMode);
-
-    // Light / Dark switch in the phone menu
     const themeSetBtns = document.querySelectorAll('[data-theme-set]');
-    function syncThemeSwitch() {
-      const t = document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
-      themeSetBtns.forEach(b => b.setAttribute('aria-pressed', String(b.dataset.themeSet === t)));
+
+    // Phone status bar matches the page background, and the menu switch shows the current mode
+    function syncTheme() {
+      const theme = document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+      const meta = document.getElementById('themeColorMeta');
+      if (meta) meta.setAttribute('content', theme === 'light' ? '#EDE8D0' : '#000000');
+      const mode = Theme ? Theme.getMode() : theme;
+      themeSetBtns.forEach(b => b.setAttribute('aria-pressed', String(b.dataset.themeSet === mode)));
+      if (themeBtn) {
+        const label = `Switch to ${theme === 'light' ? 'dark' : 'light'} theme`;
+        themeBtn.title = label;
+        themeBtn.setAttribute('aria-label', label);
+      }
     }
+    new MutationObserver(syncTheme).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    syncTheme();
+
+    if (themeBtn && Theme) themeBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      Theme.toggle();
+      syncTheme();
+    });
     themeSetBtns.forEach(b => b.addEventListener('click', () => {
-      document.documentElement.setAttribute('data-theme', b.dataset.themeSet);
-      localStorage.setItem('bravadian-theme', b.dataset.themeSet);
-      syncThemeColor();
-      syncThemeSwitch();
+      if (!Theme) return;
+      Theme.setMode(b.dataset.themeSet);
+      syncTheme();
     }));
-    if (themeBtn) themeBtn.addEventListener('click', syncThemeSwitch);
-    syncThemeSwitch();
 
     // Mobile Hamburger & Fullscreen Drawer
     const mobileBtn = document.getElementById('mobileMenuBtn');
@@ -420,7 +555,7 @@ Thank you.`
       // Highlight the page the shopper is on
       const here = window.location.hash || '#/';
       mobileDrawer.querySelectorAll('.mnav-row[href], .mnav-tile').forEach(a => {
-        const on = a.getAttribute('href') === here;
+        const on = IS_WALL_PAGE ? a.hasAttribute('href') && /wall$/.test(a.getAttribute('href')) : a.getAttribute('href') === here;
         a.classList.toggle('is-current', on);
         if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
       });
@@ -461,11 +596,36 @@ Thank you.`
     // Floating WhatsApp Button
     const waFloating = document.getElementById('floatingWhatsAppBtn');
     if (waFloating) {
-      const settings = window.BravadianDB.getSettings();
       waFloating.addEventListener('click', (e) => {
         e.preventDefault();
         window.open(waURL(WA_MSG.question), '_blank');
       });
+      waFloating.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); waFloating.click(); }
+      });
+
+      // Keep the button off the home page's first screen (the hero has its own WhatsApp button and
+      // the float sat on the headline), tuck it away while the shopper scrolls down to read, and
+      // bring it back as soon as they scroll up or reach the end of the page.
+      let lastY = window.scrollY;
+      let goingDown = false;
+      const onHero = () => {
+        const hero = document.querySelector('.figma-hero-section');
+        return !!hero && hero.getBoundingClientRect().bottom > window.innerHeight * 0.4;
+      };
+      const syncFloat = () => {
+        const y = window.scrollY;
+        const atEnd = window.innerHeight + y >= document.documentElement.scrollHeight - 80;
+        if (Math.abs(y - lastY) >= 8 || atEnd) {
+          goingDown = y > lastY && y > 240 && !atEnd;
+          lastY = y;
+        }
+        waFloating.classList.toggle('is-tucked', onHero() || goingDown);
+      };
+      window.addEventListener('scroll', syncFloat, { passive: true });
+      // Pages are drawn after the address changes; check once the new page is on screen
+      window.addEventListener('hashchange', () => { goingDown = false; setTimeout(syncFloat, 60); });
+      setTimeout(syncFloat, 60);
     }
 
     // Size Guide Modal Close
@@ -538,7 +698,7 @@ Thank you.`
 
   function renderHomeView() {
     const products = window.BravadianDB.getProducts();
-    const isPhone = window.matchMedia('(max-width: 760px)').matches;
+    const isPhone = window.matchMedia('(max-width: 1023px)').matches;   // phones and tablets get the swipe card; the 3D ring needs laptop width
     StoreState.heroIsPhone = isPhone;
     const heroItems = HERO_RING.filter(it => window.BravadianDB.getProductBySlug(it.slug));
     // Latest designs for the home reel (worn photos first)
@@ -550,6 +710,7 @@ Thank you.`
         <!-- Ambient Grid & Atmosphere (Active when no image is loaded) -->
         <div class="hero-brutalist-bg" aria-hidden="true"></div>
         <div class="hero-ambient-amber" aria-hidden="true"></div>
+        ${siteCopy('heroBgImage') ? '<div class="hero-custom-bg" id="heroCustomBg" aria-hidden="true"></div>' : ''}
 
         <!-- Products gliding on a ring behind the headline -->
         ${isPhone ? '' : `
@@ -557,7 +718,7 @@ Thank you.`
           <div class="hero-ring-stage">
             ${HERO_RING.filter(it => window.BravadianDB.getProductBySlug(it.slug)).map(it => `
             <a href="#/product/${it.slug}" class="ring-card ${it.photo ? 'is-photo' : 'is-art'}" tabindex="-1" draggable="false">
-              <img src="images/hero-ring/${it.img}.webp" alt="" draggable="false" decoding="async">
+              <img src="/images/hero-ring/${it.img}.webp" alt="" draggable="false" decoding="async">
               <span>${titleCase(window.BravadianDB.getProductBySlug(it.slug).name.replace(/ TEE$/, ''))}</span>
             </a>`).join('')}
           </div>
@@ -565,7 +726,7 @@ Thank you.`
         <div class="hero-veil" aria-hidden="true"></div>
         <div class="hero-mark" aria-hidden="true">BRAVADIAN</div>
         <div class="hero-ring-label" aria-hidden="true">
-          <span>ADHYAYA 01 &mdash; NEW DROPS</span>
+          <span>ADHYAYA 01 &middot; OUR FIRST DROP</span>
           <i></i>
           <span class="hero-ring-hint">&larr; DRAG TO EXPLORE &rarr;</span>
         </div>`}
@@ -583,7 +744,7 @@ Thank you.`
                     const p = window.BravadianDB.getProductBySlug(it.slug);
                     const now = window.BravadianDB.effectivePrice(p);
                     return `<a href="#/product/${it.slug}" class="fan-card ${it.photo ? 'is-photo' : 'is-art'}" data-i="${i}" draggable="false">
-                      <img src="${it.full || `images/hero-ring/${it.img}.webp`}" alt="${titleCase(p.name)}" draggable="false" decoding="async" ${i > 1 && i < heroItems.length - 1 ? 'loading="lazy"' : 'fetchpriority="high"'}>
+                      <img src="${it.full || `/images/hero-ring/${it.img}.webp`}" alt="${titleCase(p.name)}" draggable="false" decoding="async" ${i > 1 && i < heroItems.length - 1 ? 'loading="lazy"' : 'fetchpriority="high"'}>
                       <span class="fan-meta"><b>${titleCase(p.name.replace(/ TEE$/, ''))}</b><em>${window.BravadianDB.getSettings().currency}${now.toLocaleString('en-IN')}${p.comparePrice ? ` <s>${window.BravadianDB.getSettings().currency}${p.comparePrice.toLocaleString('en-IN')}</s>` : ''}</em><span class="fan-shop">Shop now &rarr;</span></span>
                     </a>`;
                   }).join('')}
@@ -592,22 +753,21 @@ Thank you.`
 
               <div class="figma-hero-tag">
                 <span class="hero-amber-dot"></span>
-                <span>[ 🇮🇳 INDIAN ROOTS // MODERN FORM ]</span>
+                <span>${escapeHTML(siteCopy('heroTag'))}</span>
               </div>
 
               <h1 class="figma-hero-title">
-                WEAR YOUR<br>
-                ROOTS LOUD
+                ${heroTitleHTML(siteCopy('heroTitle'))}
               </h1>
 
               <p class="figma-hero-desc">
-                Everyday clothing made with purpose. Premium, comfortable, and affordable 240 GSM French Terry cotton silhouettes crafted for those who carry heritage forward.
+                ${escapeHTML(siteCopy('heroDesc'))}
               </p>
 
 
               <div class="figma-hero-cta-wrap">
                 <a href="#/shop" class="btn-figma-primary">
-                  <span>[ SHOP THE COLLECTION ]</span>
+                  <span>SHOP ALL TEES</span>
                   <svg class="btn-vault-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <line x1="5" y1="12" x2="19" y2="12"></line>
                     <polyline points="12 5 19 12 12 19"></polyline>
@@ -615,7 +775,7 @@ Thank you.`
                 </a>
                 <a href="${waURL(WA_MSG.order)}" target="_blank" rel="noopener noreferrer" class="btn-figma-whatsapp">
                   ${whatsappSVG(18)}
-                  <span>ORDER ON WHATSAPP</span>
+                  <span><span class="cta-long">ORDER ON </span>WHATSAPP</span>
                 </a>
               </div>
             </div>
@@ -627,20 +787,10 @@ Thank you.`
       <div class="figma-sub-marquee" aria-hidden="true">
         <div class="sub-marquee-track">
           <div class="sub-marquee-content">
-            <span>🇮🇳 A STORY WORTH WEARING</span> <span class="marquee-star">✦</span>
-            <span>EVERYDAY CLOTHING WITH PURPOSE</span> <span class="marquee-star">✦</span>
-            <span>PREMIUM • COMFORTABLE • AFFORDABLE</span> <span class="marquee-star">✦</span>
-            <span>240 GSM FRENCH TERRY</span> <span class="marquee-star">✦</span>
-            <span>CRAFTED IN BHARAT</span> <span class="marquee-star">✦</span>
-            <span>FREE DELIVERY ACROSS INDIA</span> <span class="marquee-star">✦</span>
+            ${heroTickerHTML()}
           </div>
           <div class="sub-marquee-content">
-            <span>🇮🇳 A STORY WORTH WEARING</span> <span class="marquee-star">✦</span>
-            <span>EVERYDAY CLOTHING WITH PURPOSE</span> <span class="marquee-star">✦</span>
-            <span>PREMIUM • COMFORTABLE • AFFORDABLE</span> <span class="marquee-star">✦</span>
-            <span>240 GSM FRENCH TERRY</span> <span class="marquee-star">✦</span>
-            <span>CRAFTED IN BHARAT</span> <span class="marquee-star">✦</span>
-            <span>FREE DELIVERY ACROSS INDIA</span> <span class="marquee-star">✦</span>
+            ${heroTickerHTML()}
           </div>
         </div>
       </div>
@@ -650,12 +800,12 @@ Thank you.`
         <div class="container">
           <div class="figma-section-header">
             <div class="section-header-left">
-              <span class="figma-tag">— 01 / LATEST DESIGNS</span>
+              <span class="figma-tag">— JUST DROPPED</span>
               <h2 class="figma-section-title">NEW DROPS</h2>
             </div>
             <div class="section-header-right">
               <p class="figma-section-narrative">
-                Original Indian artwork on oversized 240 GSM cotton tees. ₹699 each, with free delivery across India.
+                Original Indian artwork on heavy, oversized cotton tees. Every design has a story behind it. Free delivery across India.
               </p>
             </div>
           </div>
@@ -663,7 +813,7 @@ Thank you.`
           <div class="reel" id="homeReel" aria-roledescription="carousel" aria-label="New drops">
             <div class="reel-track">
               ${featuredPieces.map(p => {
-                const worn = p.images.lifestyle;
+                const worn = p.images.lifestyle && !String(p.images.lifestyle).startsWith('data:') ? p.images.lifestyle : null;
                 return `
               <a href="#/product/${p.slug}" class="reel-card">
                 <div class="reel-media ${worn ? 'is-worn' : ''}">
@@ -680,7 +830,7 @@ Thank you.`
           </div>
           <div class="reel-foot">
             <div class="reel-progress" aria-hidden="true"><span id="homeReelBar"></span></div>
-            <a href="#/shop" class="reel-all">View all</a>
+            <a href="#/shop" class="reel-all">View all tees</a>
           </div>
         </div>
       </section>
@@ -689,42 +839,18 @@ Thank you.`
       <section class="figma-manifesto-section" id="manifestoSection">
         <!-- Authentic Panoramic Heritage Architectural Backdrop (Light & Dark Theme Specific) -->
         <div class="manifesto-panoramic-wrap" aria-hidden="true">
-          <img src="images/manifesto-panoramic-light.webp" alt="" class="manifesto-panoramic-img manifesto-bg-light manifesto-img-desktop" loading="eager">
-          <img src="images/manifesto-panoramic-dark-alt.webp" alt="" class="manifesto-panoramic-img manifesto-bg-dark manifesto-img-desktop" loading="eager">
+          <img src="/images/manifesto-panoramic-light.webp" alt="" class="manifesto-panoramic-img manifesto-bg-light manifesto-img-desktop" loading="eager">
+          <img src="/images/manifesto-panoramic-dark-alt.webp" alt="" class="manifesto-panoramic-img manifesto-bg-dark manifesto-img-desktop" loading="eager">
           <!-- Mobile Flanking Architecture (Temple Left, Celestial Maiden Right) -->
           <div class="manifesto-mobile-flank manifesto-mobile-flank-left" aria-hidden="true">
-            <img src="images/manifesto-panoramic-light.webp" alt="" class="manifesto-bg-light" loading="eager">
-            <img src="images/manifesto-panoramic-dark-alt.webp" alt="" class="manifesto-bg-dark" loading="eager">
+            <img src="/images/manifesto-panoramic-light.webp" alt="" class="manifesto-bg-light" loading="eager">
+            <img src="/images/manifesto-panoramic-dark-alt.webp" alt="" class="manifesto-bg-dark" loading="eager">
           </div>
           <div class="manifesto-mobile-flank manifesto-mobile-flank-right" aria-hidden="true">
-            <img src="images/manifesto-panoramic-light.webp" alt="" class="manifesto-bg-light" loading="eager">
-            <img src="images/manifesto-panoramic-dark-alt.webp" alt="" class="manifesto-bg-dark" loading="eager">
+            <img src="/images/manifesto-panoramic-light.webp" alt="" class="manifesto-bg-light" loading="eager">
+            <img src="/images/manifesto-panoramic-dark-alt.webp" alt="" class="manifesto-bg-dark" loading="eager">
           </div>
           <div class="manifesto-scrim-overlay"></div>
-        </div>
-
-        <!-- Left Side Editorial Ribbon -->
-        <div class="manifesto-margin-left" aria-hidden="true">
-          <div class="margin-star-wrap">
-            <span class="margin-hairline-top"></span>
-            <svg class="margin-star-icon" width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2L14.2 9.8L22 12L14.2 14.2L12 22L9.8 14.2L2 12L9.8 9.8L12 2Z"/>
-            </svg>
-            <span class="margin-hairline-bottom"></span>
-          </div>
-          <span class="margin-vertical-text">ROOTED &nbsp;•&nbsp; REIMAGINED &nbsp;•&nbsp; BRAVADIAN &nbsp;•</span>
-        </div>
-
-        <!-- Right Side Editorial Ribbon -->
-        <div class="manifesto-margin-right" aria-hidden="true">
-          <div class="margin-star-wrap">
-            <span class="margin-hairline-top"></span>
-            <svg class="margin-star-icon" width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2L14.2 9.8L22 12L14.2 14.2L12 22L9.8 14.2L2 12L9.8 9.8L12 2Z"/>
-            </svg>
-            <span class="margin-hairline-bottom"></span>
-          </div>
-          <span class="margin-vertical-text">BRAVADIAN &nbsp;•</span>
         </div>
 
         <!-- Center Editorial Content -->
@@ -740,17 +866,6 @@ Thank you.`
           </div>
         </div>
 
-        <!-- Bottom Editorial Corners -->
-        <div class="manifesto-bottom-row" aria-hidden="true">
-          <div class="manifesto-corner-left">
-            <span class="corner-brand-text">CULTURE &nbsp;&nbsp; WEARS &nbsp;&nbsp; FORWARD</span>
-            <span class="corner-hairline"></span>
-          </div>
-          <div class="manifesto-corner-right">
-            <span class="corner-subline">MORE THAN CLOTHING</span>
-            <span class="corner-subline">A CONTINUUM</span>
-          </div>
-        </div>
       </section>
 
       <!-- THE TEN ARCHIVE SECTION -->
@@ -762,12 +877,14 @@ Thank you.`
               <h2 class="archive-title">THE FIVE COLLECTIONS</h2>
             </div>
             <div class="archive-header-right">
-              <span class="archive-cadence">NEW DESIGNS EVERY DROP</span>
+              <span class="archive-cadence">NEW DESIGNS IN EVERY CHAPTER</span>
+              <a href="#/collections" class="archive-all-link">All collections <span aria-hidden="true">&rarr;</span></a>
             </div>
           </div>
 
           <div class="archive-cards-grid">
-            ${(window.BravadianDB ? window.BravadianDB.getArchiveEditions() : []).map(card => {
+            ${liveFirst(window.BravadianDB ? window.BravadianDB.getArchiveEditions() : []).map((card, pos) => {
+              const shownNum = String(pos + 1).padStart(2, '0');   // numbered in the order shown
               if (card.status === 'active') {
                 return `
                   <a href="#/collections/${card.slug || 'all'}" class="archive-card status-active ${COLLECTION_IMAGES[card.slug] ? 'has-custom-img' : ''}" data-edition="${card.num}">
@@ -775,7 +892,7 @@ Thank you.`
                     <div class="archive-card-bg-img" style="background-image: url('${COLLECTION_IMAGES[card.slug]}');"></div>
                     <div class="archive-card-bg-overlay"></div>` : ''}
                     <div class="archive-card-top">
-                      <span class="archive-num">${card.num}</span>
+                      <span class="archive-num">${shownNum}</span>
                       <span class="archive-plus">+</span>
                     </div>
                     <div class="archive-card-bottom">
@@ -787,10 +904,10 @@ Thank you.`
                 `;
               } else if (card.status === 'next') {
                 return `
-                  <div class="archive-card status-next" data-edition="${card.num}" aria-disabled="true" role="region" aria-label="${card.title} - Upcoming Release">
+                  <div class="archive-card status-next" data-edition="${card.num}" aria-disabled="true" role="region" aria-label="${card.title}, coming soon">
                     <div class="archive-card-top">
-                      <span class="archive-num">${card.num}</span>
-                      <span class="archive-badge badge-next">NEXT</span>
+                      <span class="archive-num">${shownNum}</span>
+                      <span class="archive-badge badge-next">COMING SOON</span>
                     </div>
                     <div class="archive-card-bottom">
                       <h3 class="archive-card-title">${card.title}</h3>
@@ -800,10 +917,10 @@ Thank you.`
                 `;
               } else {
                 return `
-                  <div class="archive-card status-vault" data-edition="${card.num}" aria-disabled="true" role="region" aria-label="${card.title} - Vault Unreleased">
+                  <div class="archive-card status-vault" data-edition="${card.num}" aria-disabled="true" role="region" aria-label="${card.title}, coming later">
                     <div class="archive-card-top">
-                      <span class="archive-num">${card.num}</span>
-                      <span class="archive-badge badge-vault">VAULT</span>
+                      <span class="archive-num">${shownNum}</span>
+                      <span class="archive-badge badge-vault">COMING LATER</span>
                     </div>
                     <div class="archive-card-bottom">
                       <h3 class="archive-card-title">${card.title}</h3>
@@ -819,6 +936,10 @@ Thank you.`
     `;
 
     initSpotlight(mainContainer.querySelector('.archive-cards-grid'));
+    // Admin's hero background image, set as a style (not HTML) so the address cannot break the page
+    const heroBg = document.getElementById('heroCustomBg');
+    if (heroBg) heroBg.style.backgroundImage = `url(${JSON.stringify(window.BravadianDB.assetUrl(siteCopy('heroBgImage')))})`;
+
     initHeroMesh(document.getElementById('heroMesh'));
     initHeroRing(document.getElementById('heroRing'));
     initHeroFan(document.getElementById('heroFan'));
@@ -856,7 +977,7 @@ Thank you.`
       const light = document.documentElement.getAttribute('data-theme') === 'light';
       const base = light ? '140,110,50' : '255,255,255';
       const baseA = light ? 0.08 : 0.028;             // the original grid's strength
-      const glow = light ? '184,106,0' : '255,160,0';
+      const glow = light ? '196,22,29' : '237,28,36';
       const sigma = (phone ? 0.16 : 0.1) * Math.max(W, H * 1.6);
       const inv = 1 / (2 * sigma * sigma);
       for (let j = 0, k = 0; j < rows; j++) {
@@ -892,16 +1013,25 @@ Thank you.`
       }
     };
 
+    // Each redraw makes the browser re-layer the whole page, so the soft glow is drawn at most
+    // 30 times a second on desktop and 20 on phones (it drifts slowly; it reads the same). The
+    // easing is time-based, so the glow moves at the same speed whatever the frame rate.
+    const FRAME_MS = phone ? 50 : 33;
+    let lastDraw = 0;
     const tick = (now) => {
       raf = 0;
+      if (lastDraw && now - lastDraw < FRAME_MS) { raf = requestAnimationFrame(tick); return; }
+      const frames = lastDraw ? Math.min(4, (now - lastDraw) / 16.67) : 1;   // 60 fps frames since last draw
+      lastDraw = now;
       if (phone && !still && now > touchUntil) {
         const t = (now - t0) / 1000;
         tx = W * (0.5 + 0.34 * Math.sin(t * 0.33));
         ty = H * (0.3 + 0.16 * Math.sin(t * 0.47 + 1));
         target = 0.75;
       }
-      mx += (tx - mx) * 0.12; my += (ty - my) * 0.12;
-      str += (target - str) * 0.08;
+      const follow = 1 - Math.pow(0.88, frames), fade = 1 - Math.pow(0.92, frames);
+      mx += (tx - mx) * follow; my += (ty - my) * follow;
+      str += (target - str) * fade;
       draw();
       const settling = Math.abs(target - str) > 0.004 || Math.abs(tx - mx) > 0.5 || Math.abs(ty - my) > 0.5;
       if (inView && !document.hidden && (settling || (phone && !still))) raf = requestAnimationFrame(tick);
@@ -938,18 +1068,18 @@ Thank you.`
     };
   }
 
-  // Curated hero cards (small images in images/hero-ring/): worn photos alternate with artwork
+  // Curated hero cards (small images in /images/hero-ring/): worn photos alternate with artwork
   const HERO_RING = [
-    { slug: 'bharat-spirit-tee', img: 'bharat-worn-studio', photo: true, full: 'images/products/bharat-spirit/worn-studio.webp?v=2' },
-    { slug: 'trinetra-tee', img: 'trinetra', full: 'images/products/trinetra/preview.webp' },
-    { slug: 'indian-craft-atlas-tee', img: 'atlas-look', photo: true, full: 'images/lookbook/lb-look-02.webp' },
-    { slug: 'ganesha-tee', img: 'ganesha', full: 'images/products/ganesha/preview.webp' },
-    { slug: 'bharat-spirit-tee', img: 'bharat-look', photo: true, full: 'images/lookbook/lb-look-01.webp' },
-    { slug: 'born-to-rise-tee', img: 'born-to-rise', photo: true, full: 'images/products/born-to-rise/black-model.webp' },
-    { slug: 'bharat-spirit-tee', img: 'bharat-temple', photo: true, full: 'images/products/bharat-spirit/worn-temple.webp?v=3' },
-    { slug: 'hara-hara-mahadeva-tee', img: 'hara-hara', photo: true, full: 'images/products/hara-hara-mahadeva/black-model.webp' },
-    { slug: 'indian-craft-atlas-tee', img: 'atlas-closeup', photo: true, full: 'images/products/craft-atlas/closeup.webp' },
-    { slug: 'indian-craft-atlas-tee', img: 'atlas-tee', full: 'images/products/craft-atlas/back-print.webp?v=2' }
+    { slug: 'bharat-spirit-tee', img: 'bharat-worn-studio', photo: true, full: '/images/products/bharat-spirit/worn-studio.webp?v=2' },
+    { slug: 'trinetra-tee', img: 'trinetra', full: '/images/products/trinetra/preview.webp' },
+    { slug: 'indian-craft-atlas-tee', img: 'atlas-look', photo: true, full: '/images/lookbook/lb-look-02.webp' },
+    { slug: 'ganesha-tee', img: 'ganesha', full: '/images/products/ganesha/preview.webp' },
+    { slug: 'bharat-spirit-tee', img: 'bharat-look', photo: true, full: '/images/lookbook/lb-look-01.webp' },
+    { slug: 'born-to-rise-tee', img: 'born-to-rise', photo: true, full: '/images/products/born-to-rise/black-model.webp' },
+    { slug: 'bharat-spirit-tee', img: 'bharat-temple', photo: true, full: '/images/products/bharat-spirit/worn-temple.webp?v=3' },
+    { slug: 'hara-hara-mahadeva-tee', img: 'hara-hara', photo: true, full: '/images/products/hara-hara-mahadeva/black-model.webp' },
+    { slug: 'indian-craft-atlas-tee', img: 'atlas-closeup', photo: true, full: '/images/products/craft-atlas/closeup.webp' },
+    { slug: 'indian-craft-atlas-tee', img: 'atlas-tee', full: '/images/products/craft-atlas/back-print.webp?v=2' }
   ];
 
   // Home hero ring: portrait cards on a cylinder that curls around the viewer, smallest in the
@@ -961,7 +1091,7 @@ Thank you.`
     if (cards.length < 4) { root.remove(); return; }
     const STEP = 360 / cards.length;
     const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    let offset = 8, vel = 0, R = 600, degPerPx = 0.2, raf = 0, last = 0, running = false;
+    let offset = 8, vel = 0, R = 600, degPerPx = 0.2, last = 0;
     let dragging = false, lastX = 0, lastT = 0, moved = 0, hover = false;
 
     let P = 800, W = 1200, CX = 744;
@@ -975,36 +1105,76 @@ Thank you.`
       root.style.perspective = `${p}px`;
       root.style.setProperty('--ring-h', `${cardH}px`);
       root.style.setProperty('--ring-w', `${Math.round(cardH * 0.72)}px`);
+      // Each card sits at a fixed angle on the ring; turning the ring turns the stage (see render)
+      cards.forEach((c, i) => { c.style.transform = `rotateY(${(i * STEP).toFixed(2)}deg) translateZ(${-R}px)`; });
     };
-    const render = () => {
+    // Auto-spin is a browser animation that runs on the GPU, so the page does no work per frame.
+    // (Turning the ring from JavaScript made Chrome rebuild the whole page's layer list 60 times a
+    // second, which made the header banner stutter on slower machines.) JavaScript drives the angle
+    // only while the ring is dragged or flicked, and checks the cards' fade and blur a few times a second.
+    const stage = root.querySelector('.hero-ring-stage');
+    const SPEED = 4.5;                                    // degrees per second, as before
+    const TURN_MS = (360 / SPEED) * 1000;
+    const spin = stage.animate([{ transform: 'rotateY(0deg)' }, { transform: 'rotateY(360deg)' }],
+      { duration: TURN_MS, iterations: Infinity });
+    spin.pause();
+    const setAngle = (deg) => { spin.currentTime = ((((deg % 360) + 360) % 360) / 360) * TURN_MS; };
+    const angleNow = () => ((Number(spin.currentTime) || 0) / TURN_MS) * 360;
+
+    // Cards fade out at the sides of the ring and blur while passing behind the headline.
+    // Written only when a value changes; a short CSS opacity transition keeps the fades smooth.
+    const updateCards = () => {
+      const off = angleNow();
       for (let i = 0; i < cards.length; i++) {
-        const a = (((i * STEP + offset) % 360) + 540) % 360 - 180;
-        const vis = Math.max(0, Math.min(1, (82 - Math.abs(a)) / 14));
+        const a = (((i * STEP + off) % 360) + 540) % 360 - 180;
+        const vis = Math.round(Math.max(0, Math.min(1, (82 - Math.abs(a)) / 14)) * 100) / 100;
         const c = cards[i];
-        c.style.transform = `rotateY(${a.toFixed(2)}deg) translateZ(${-R}px)`;
-        // cards passing behind the headline go soft; a class flip, so the blur is applied once on the card's own GPU layer
         const rad = a * Math.PI / 180;
         const soft = Math.abs(a) < 90 && (CX - R * Math.sin(rad) * P / (P + R * Math.cos(rad))) < W * 0.47;
         if (soft !== c._soft) { c._soft = soft; c.classList.toggle('is-soft', soft); }
-        c.style.opacity = vis.toFixed(3);
-        c.style.visibility = vis > 0 ? 'visible' : 'hidden';
+        if (vis !== c._vis) {
+          c._vis = vis;
+          c.style.opacity = String(vis);
+          c.style.visibility = vis > 0 ? 'visible' : 'hidden';
+        }
       }
     };
-    const tick = (now) => {
-      const dt = last ? Math.min(0.05, (now - last) / 1000) : 0;
-      last = now;
-      if (!dragging) {
-        if (Math.abs(vel) > 1) { offset += vel * dt; vel *= Math.pow(0.03, dt); }
-        else if (!hover && !still) offset += 4.5 * dt;
+
+    // Auto-spin only when the ring is on screen, not hovered, not being moved, and motion is allowed
+    let inView = true, flickRaf = 0, cardTimer = 0;
+    const refresh = () => {
+      const auto = inView && !hover && !still && !dragging && Math.abs(vel) <= 1;
+      if (auto) {
+        if (spin.playState !== 'running') spin.play();
+        if (!cardTimer) cardTimer = setInterval(updateCards, 120);
+      } else {
+        spin.pause();
+        clearInterval(cardTimer);
+        cardTimer = 0;
       }
-      render();
-      raf = requestAnimationFrame(tick);
+      root.dataset.playing = auto ? 'true' : 'false';
+      updateCards();
     };
-    const start = () => { if (running) return; running = true; root.dataset.playing = 'true'; last = 0; raf = requestAnimationFrame(tick); };
-    const stop = () => { running = false; root.dataset.playing = 'false'; cancelAnimationFrame(raf); };
 
     // Drag / flick (horizontal only; vertical swipes still scroll the page)
-    const onDown = (e) => { if (e.button > 0) return; dragging = true; moved = 0; vel = 0; lastX = e.clientX; lastT = performance.now(); };
+    const flick = (now) => {
+      const dt = last ? Math.min(0.05, (now - last) / 1000) : 0;
+      last = now;
+      if (!dragging && Math.abs(vel) > 1) { offset += vel * dt; vel *= Math.pow(0.03, dt); }
+      setAngle(offset);
+      updateCards();
+      if (dragging || Math.abs(vel) > 1) flickRaf = requestAnimationFrame(flick);
+      else { flickRaf = 0; refresh(); }
+    };
+    const startFlick = () => { if (!flickRaf) { last = 0; flickRaf = requestAnimationFrame(flick); } };
+
+    const onDown = (e) => {
+      if (e.button > 0) return;
+      dragging = true; moved = 0; vel = 0; lastX = e.clientX; lastT = performance.now();
+      offset = angleNow();
+      refresh();
+      startFlick();
+    };
     const onMove = (e) => {
       if (!dragging) return;
       const now = performance.now(), dx = e.clientX - lastX;
@@ -1012,31 +1182,32 @@ Thank you.`
       offset -= dx * degPerPx;
       vel = (-dx * degPerPx) / Math.max(8, now - lastT) * 1000;
       lastT = now;
-      if (!running) render();
     };
-    const onUp = () => { if (!dragging) return; dragging = false; if (performance.now() - lastT > 90) vel = 0; };
+    const onUp = () => { if (!dragging) return; dragging = false; if (performance.now() - lastT > 90) vel = 0; startFlick(); };
     root.addEventListener('pointerdown', onDown);
     window.addEventListener('pointermove', onMove, { passive: true });
     window.addEventListener('pointerup', onUp);
     window.addEventListener('pointercancel', onUp);
     root.addEventListener('click', (e) => { if (moved > 6) { e.preventDefault(); e.stopPropagation(); } }, true);
-    root.addEventListener('pointerover', (e) => { if (e.pointerType === 'mouse' && e.target.closest('.ring-card')) hover = true; });
-    root.addEventListener('pointerout', (e) => { if (e.pointerType === 'mouse' && !e.relatedTarget?.closest?.('.ring-card')) hover = false; });
+    root.addEventListener('pointerover', (e) => { if (e.pointerType === 'mouse' && e.target.closest('.ring-card') && !hover) { hover = true; refresh(); } });
+    root.addEventListener('pointerout', (e) => { if (e.pointerType === 'mouse' && !e.relatedTarget?.closest?.('.ring-card')) { hover = false; refresh(); } });
 
-    const onResize = () => { layout(); render(); };
+    const onResize = () => { layout(); updateCards(); };
     window.addEventListener('resize', onResize);
     const io = 'IntersectionObserver' in window
-      ? new IntersectionObserver(([en]) => (en.isIntersecting ? start() : stop()))
+      ? new IntersectionObserver(([en]) => { inView = en.isIntersecting; refresh(); })
       : null;
     if (io) io.observe(root);
 
     layout();
-    render();
-    start();
+    setAngle(offset);
+    refresh();
     root.classList.add('is-ready');
 
     StoreState.heroRingStop = () => {
-      stop();
+      spin.cancel();
+      clearInterval(cardTimer);
+      cancelAnimationFrame(flickRaf);
       if (io) io.disconnect();
       window.removeEventListener('pointermove', onMove);
       window.removeEventListener('pointerup', onUp);
@@ -1288,6 +1459,16 @@ Thank you.`
       const update = () => syncBar(0.08 + embla.scrollProgress() * 0.92);
       embla.on('scroll', update).on('reInit', update);
       update();
+      // Auto-scroll only while the reel is on screen (it otherwise redraws every frame out of sight)
+      const auto = embla.plugins().autoScroll;
+      if (auto && 'IntersectionObserver' in window) {
+        let onScreen = true;
+        const io = new IntersectionObserver(([en]) => { onScreen = en.isIntersecting; if (onScreen) auto.play(); else auto.stop(); });
+        io.observe(root);
+        // The plugin also restarts itself when the mouse leaves the reel; keep it stopped out of sight
+        embla.on('autoScroll:play', () => { if (!onScreen) auto.stop(); });
+        embla.on('destroy', () => io.disconnect());
+      }
       StoreState.reel = embla;
     }).catch(() => { /* native scrolling fallback */ });
   }
@@ -1298,6 +1479,14 @@ Thank you.`
   /* --------------------------------------------------------------------------
      1.5 THE TEN ARCHIVE / COLLECTIONS OVERVIEW VIEW
      -------------------------------------------------------------------------- */
+  // Any list of collections (by slug): the ones with tees to buy first, "coming soon" ones last,
+  // each group keeping its usual order.
+  function liveFirst(list) {
+    const products = window.BravadianDB ? window.BravadianDB.getProducts() : [];
+    const live = (c) => products.some(p => p.collection === c.slug && !p.isComingSoon);
+    return [...list.filter(live), ...list.filter(c => !live(c))];
+  }
+
   // Collections page: featured carousel + filter chips + image-card grid (Google Labs-inspired)
   function renderUniverseWallView() {
     const chapters = (window.BravadianDB && typeof window.BravadianDB.getUniverseChapters === 'function')
@@ -1311,11 +1500,12 @@ Thank you.`
         image: c.image || COLLECTION_IMAGES[c.slug],
         count,
         live: count > 0,
-        label: (c.chapter || '').split(':')[0] || `ADHYAYA ${c.num}`,
+        label: c.chapter || `COLLECTION ${c.num}`,
         title: titleCase(c.name)
       };
     });
     const featured = cols.filter(c => c.live).sort((a, b) => b.count - a.count);
+    const browse = liveFirst(cols);
     const designs = n => `${n} ${n === 1 ? 'design' : 'designs'}`;
     const arrow = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>';
 
@@ -1360,9 +1550,9 @@ Thank you.`
             <button type="button" class="lab-chip" data-f="soon" role="tab" aria-selected="false">Coming soon</button>
           </div>
           <div class="lab-grid">
-            ${cols.map(c => `
+            ${browse.map(c => `
             <article class="lab-card ${c.live ? '' : 'is-soon'}" data-live="${c.live}">
-              <a ${c.live ? `href="#/collections/${c.slug}"` : `href="javascript:void(0)" data-notify="${c.name}"`} class="lab-card-media" tabindex="-1" aria-hidden="true">
+              <a href="#/collections/${c.slug}" class="lab-card-media" tabindex="-1" aria-hidden="true">
                 <img src="${c.image}" alt="" loading="lazy">
                 ${c.live ? '' : '<span class="lab-soon-tag">COMING SOON</span>'}
               </a>
@@ -1372,7 +1562,7 @@ Thank you.`
                 <p>${c.description || ''}</p>
                 ${c.live
                   ? `<a href="#/collections/${c.slug}" class="lab-pill">See the designs ${arrow}</a>`
-                  : `<button type="button" class="lab-pill" data-notify="${c.name}">Notify me on WhatsApp</button>`}
+                  : `<a href="#/collections/${c.slug}" class="lab-pill">See what&rsquo;s coming ${arrow}</a>`}
               </div>
             </article>`).join('')}
           </div>
@@ -1398,72 +1588,12 @@ Thank you.`
 
   // Drop artwork at these paths to fill the collection cards; missing files fall back to plain cards.
   const COLLECTION_IMAGES = {
-    anime: 'images/collections/anime.webp',
-    mythology: 'images/collections/mythology.webp',
-    heritage: 'images/collections/heritage.webp',
-    'street-culture': 'images/collections/street-culture.webp',
-    minimal: 'images/collections/minimal.webp'
+    anime: '/images/collections/anime.webp',
+    mythology: '/images/collections/mythology.webp',
+    heritage: '/images/collections/heritage.webp',
+    'street-culture': '/images/collections/street-culture.webp',
+    minimal: '/images/collections/minimal.webp'
   };
-
-  function renderUniverseArchiveCard(c) {
-    const isLive = c.isLive !== false;
-    c = { ...c, image: c.image || COLLECTION_IMAGES[c.slug] };
-    const hasImage = !!c.image;
-
-    if (isLive) {
-      return `
-        <a 
-          href="#/collections/${c.slug}" 
-          class="archive-card status-active universe-collection-card ${hasImage ? 'has-custom-img' : ''}" 
-          data-slug="${c.slug}" 
-          data-name="${c.name}"
-          data-edition="${c.num}"
-          title="${c.name} — ${c.chapter || c.desc || c.description} (See the designs)"
-        >
-          ${hasImage ? `
-            <div class="archive-card-bg-img" style="background-image: url('${c.image}');"></div>
-            <div class="archive-card-bg-overlay"></div>
-          ` : ''}
-          <div class="archive-card-top">
-            <span class="archive-num">${c.num}</span>
-            <span class="archive-plus">+</span>
-          </div>
-          <div class="archive-card-bottom">
-            <h3 class="archive-card-title">${c.name}</h3>
-            <span class="archive-card-desc">${c.description || c.chapter || c.desc}</span>
-          </div>
-          <span class="archive-card-corner-pip" aria-hidden="true"></span>
-        </a>
-      `;
-    } else {
-      return `
-        <div 
-          class="archive-card status-vault universe-collection-card ${hasImage ? 'has-custom-img is-vault-blurred' : ''}" 
-          data-slug="${c.slug}" 
-          data-name="${c.name}" 
-          data-edition="${c.num}"
-          role="button"
-          tabindex="0"
-          title="${c.name} — ${c.chapter || c.desc || c.description} (Coming soon)"
-          aria-label="${c.name} - Vault Unreleased"
-        >
-          ${hasImage ? `
-            <div class="archive-card-bg-img is-vault-blurred" style="background-image: url('${c.image}');"></div>
-            <div class="archive-card-bg-overlay"></div>
-            <div class="frosted-crosshair-center" aria-hidden="true"></div>
-          ` : ''}
-          <div class="archive-card-top">
-            <span class="archive-num">${c.num}</span>
-            <span class="archive-badge badge-vault">VAULT</span>
-          </div>
-          <div class="archive-card-bottom">
-            <h3 class="archive-card-title">${c.name}</h3>
-            <span class="archive-card-desc">${c.description || c.chapter || c.desc}</span>
-          </div>
-        </div>
-      `;
-    }
-  }
 
   function bindUniverseWallActions() {
     // Coming-soon collections: ask to be told on WhatsApp
@@ -1508,59 +1638,160 @@ Thank you.`
   }
 
   /* --------------------------------------------------------------------------
-     1.6 HERITAGE CHAPTER VIEW (#/collections/heritage)
-     Matches Figma Auto-Layout Spec for collection-heritage
+     1.6 COLLECTION STORY PAGES (#/collections/<slug>)
+     One layout for every collection: banner, where the designs come from, the designs, the colours.
+     The filtered product grid lives at #/shop/<slug>.
      -------------------------------------------------------------------------- */
-  function renderHeritageChapterView() {
-    const settings = window.BravadianDB.getSettings();
-    const allProducts = window.BravadianDB.getProducts();
+  const COLLECTION_STORIES = {
+    heritage: {
+      tag: 'HERITAGE · CRAFTS, ART AND ARCHITECTURE',
+      intro: 'Indian crafts, folk art, traditional patterns, architecture and the symbols of every region, redrawn as original prints on everyday tees. One idea runs through all of them: wear your roots.',
+      storyTitle: 'THE STORIES WE PRINT',
+      storyNote: 'Indian Craft Atlas maps the country through its crafts. Bharat Spirit brings four national symbols into one composition. These are the worlds behind both.',
+      stories: [
+        { img: '/images/heritage/story-folk-art.webp', fallback: '/images/products/craft-atlas/back-print.webp', alt: 'Madhubani and Warli folk painting', name: 'FOLK ART', code: 'CRAFT ATLAS', caption: 'Madhubani, Warli, Gond and Pattachitra. The painted traditions behind the Craft Atlas elephant.' },
+        { img: '/images/heritage/story-textiles.webp', fallback: '/images/products/craft-atlas/back-print.webp', alt: 'Kalamkari and Ikat textiles', name: 'TEXTILE CRAFTS', code: 'CRAFT ATLAS', caption: 'Kalamkari, Ikat, Phad and Pichwai. Patterns carried from loom and cloth into print.' },
+        { img: '/images/heritage/story-symbols.webp', fallback: '/images/products/bharat-spirit/back-print.webp', alt: 'Peacock, tiger, lotus and elephant', name: 'NATIONAL SYMBOLS', code: 'BHARAT SPIRIT', caption: 'Peacock, tiger, lotus and elephant. The four symbols of India behind Bharat Spirit.' },
+        { img: '/images/heritage/story-atlas.webp', fallback: '/images/products/craft-atlas/back-print.webp', alt: 'Indian Craft Atlas elephant artwork', name: 'THE ATLAS PRINT', code: 'CRAFT ATLAS', caption: 'People, patterns, places, purpose. A dozen crafts from across India, drawn onto one elephant.' }
+      ]
+    },
+    mythology: {
+      photo: '/images/mythology/hero.webp',
+      photoFallback: '/images/collections/mythology.webp',
+      photoPos: '72% center',
+      tag: 'MYTHOLOGY · GODS AND EPICS WE GREW UP WITH',
+      intro: 'Krishna, Shiva, Hanuman, the Ramayana and the Mahabharata. The gods and epics told at home, redrawn bold on everyday tees.',
+      storyTitle: 'THE LEGENDS WE PRINT',
+      storyNote: 'Every design starts from one moment in the story: a chant, a symbol, a form of the god. This is what each print carries, with more gods and epics to come.',
+      stories: [
+        { img: '/images/mythology/story-third-eye.webp', fallback: '/images/products/trinetra/preview.webp', pos: '72% center', alt: 'Stone carving of Shiva with the third eye marked in sandalwood and kumkum', name: 'THE THIRD EYE', code: 'TRINETRA', caption: 'Shiva’s third eye sees past, present and future at once. A reminder to look past the obvious.' },
+        { img: '/images/mythology/story-five-syllables.webp', fallback: '/images/products/hara-hara-mahadeva/black-closeup.webp', pos: '40% center', alt: 'Rudraksha mala, brass lamp, bilva leaves and sacred ash on a temple step', name: 'THE FIVE SYLLABLES', code: 'HARA HARA MAHADEVA', caption: 'Om Namah Shivaya, the five-syllable chant, running down the left chest like a quiet prayer.' },
+        { img: '/images/mythology/story-new-beginning.webp', fallback: '/images/products/ganesha/preview.webp', pos: '62% center', alt: 'An artisan shaping the curved trunk of a clay Ganesha idol', name: 'THE NEW BEGINNING', code: 'GANESHA', caption: 'Vakratunda, the curved-trunk Ganesha, remembered before every new start.' },
+        { img: '/images/products/hara-hara-mahadeva/black-model2.webp', alt: 'Hara Hara Mahadeva tee worn', name: 'WORN CLOSE', code: 'HARA HARA MAHADEVA', caption: 'A chant over the heart and a plain back. A quiet way to carry it every day.' }
+      ]
+    },
+    'street-culture': {
+      photo: '/images/street-culture/hero.webp',
+      photoFallback: '/images/collections/street-culture.webp',
+      photoPos: '78% center',
+      tag: 'STREET CULTURE · GRAFFITI, HIP-HOP, TYPE',
+      intro: 'Graffiti, urban graphics, hip-hop and bold typography, printed big. Rebellious designs for the days you want to be heard.',
+      storyTitle: 'FROM THE STREET',
+      storyNote: 'The street talks through graffiti, posters, hand-painted letters and beats. These designs talk back.',
+      stories: [
+        { img: '/images/street-culture/story-rise-again.webp', fallback: '/images/products/born-to-rise/black-model.webp', pos: '38% center', alt: 'A black kite soaring over Mumbai rooftops at sunset', name: 'RISE AGAIN', code: 'BORN TO RISE', caption: 'An eagle rises against the wind, not away from it. For the days you start again.' },
+        { img: '/images/products/born-to-rise/black-closeup.webp', alt: 'Close-up of the red-winged eagle print', name: 'THE PRINT', code: 'BORN TO RISE', caption: 'Blazing red wings, printed large across the back in full colour.' },
+        { img: '/images/products/born-to-rise/white-model.webp', alt: 'Born to Rise in white', name: 'TWO WAYS TO WEAR', code: 'BORN TO RISE', caption: 'Black or white. The same eagle, a different mood.' },
+        { img: '/images/street-culture/story-city-walls.webp', fallback: '/images/collections/street-culture.webp', alt: 'A weathered city wall layered with paint and graffiti', name: 'CITY WALLS', code: 'COMING SOON', caption: 'Graffiti and bold street typography. Cyber Rebel is on its way.' }
+      ]
+    },
+    anime: {
+      photo: '/images/anime/hero.webp',
+      photoFallback: '/images/collections/anime.webp',
+      photoPos: '75% center',
+      tag: 'ANIME · MANGA-INSPIRED ARTWORK',
+      intro: 'Anime characters and manga-inspired artwork, drawn in the style of Japanese animation. The first designs are on their way.',
+      storyTitle: 'WHAT’S COMING',
+      storyNote: 'Bold linework, big colour and characters that feel straight out of your favourite series. Tap notify and we will message you on WhatsApp the day they drop.',
+      stories: [
+        { img: '/images/anime/story-linework.webp', alt: 'An artist inking a manga action panel at night', name: 'MANGA LINEWORK', code: 'THE STYLE', caption: 'Clean ink lines and bold colour, the way your favourite panels are drawn.' },
+        { img: '/images/anime/story-characters.webp', alt: 'Ink and watercolour painting of a nine-tailed fox with sketches', name: 'ANIME CHARACTERS', code: 'THE STORY', caption: 'Original characters and spirits, like the nine-tailed fox, drawn the way Japanese animation draws its heroes.' },
+        { img: '/images/anime/story-heavy-tee.webp', alt: 'Close-up of a thick rib collar on a heavyweight black tee', name: 'SAME HEAVY TEE', code: 'THE FEEL', caption: 'Oversized 240 GSM cotton, washed soft, like every Bravadian tee.' }
+      ]
+    },
+    minimal: {
+      photo: '/images/minimal/hero.webp',
+      photoFallback: '/images/collections/minimal.webp',
+      photoPos: '80% center',
+      tag: 'MINIMAL · SIMPLE AND UNDERSTATED',
+      intro: 'Simple typography, subtle symbols and clean graphics. Understated tees that go with everything. The first designs are on their way.',
+      storyTitle: 'WHAT’S COMING',
+      storyNote: 'Less print, same quality. Tap notify and we will message you on WhatsApp the day they drop.',
+      stories: [
+        { img: '/images/minimal/story-essential.webp', alt: 'A plain black oversized tee laid flat on concrete', name: 'THE ESSENTIAL', code: 'ESSENTIAL 240', caption: 'No graphics, just a great tee: thick rib collar, dropped shoulders, relaxed fit.' },
+        { img: '/images/minimal/story-heavy-cotton.webp', alt: 'Macro of French terry cotton loops', name: 'SAME HEAVY COTTON', code: 'THE FEEL', caption: '240 GSM French Terry, washed soft from the first wear.' },
+        { img: '/images/minimal/story-subtle-symbols.webp', pos: '40% center', alt: 'A small tone-on-tone lotus on the chest of a black tee', name: 'SUBTLE SYMBOLS', code: 'THE STYLE', caption: 'Simple type or one small symbol instead of a big print. Clean graphics that say just enough.' }
+      ]
+    }
+  };
 
-    // Dynamically map heritage products from shop database (Supabase synced / local)
-    const heritageProducts = allProducts.filter(p => 
-      p.collection === 'heritage' || (p.tags && p.tags.includes('heritage'))
-    );
-    const displayProducts = heritageProducts.filter(p => !p.isComingSoon).slice(0, 3);
-    const storyCard = (src, fallback, alt, name, code, caption) => `
+  const COLOUR_NOTES = {
+    black: 'The boldest backdrop. Makes every colour in the print glow.',
+    red: 'Festive and loud. The colour of celebration.',
+    'royal blue': 'Rich and confident. Pairs well with the warm tones of the art.',
+    white: 'Clean and bright. The print reads like a painted canvas.',
+    ivory: 'Soft and warm. An easy, everyday base for the print.'
+  };
+
+  function renderCollectionStoryView(slug) {
+    const story = COLLECTION_STORIES[slug];
+    const collection = window.BravadianDB.getCollections().find(c => c.slug === slug) || { name: slug.replace(/-/g, ' ').toUpperCase() };
+    const inCollection = window.BravadianDB.getProducts().filter(p => p.collection === slug);
+    const live = inCollection.filter(p => !p.isComingSoon);
+    const soon = inCollection.filter(p => p.isComingSoon);
+    const shown = live.length ? live : soon;
+    const colours = [...new Set(live.flatMap(p => p.colors || []))];
+    const title = collection.name;
+    const esc = escapeHTML;
+
+    const storyCard = (s) => s.img ? `
               <article class="motif-card">
                 <div class="motif-image-box">
-                  <img src="${src}" onerror="this.onerror=null;this.src='${fallback}'" alt="${alt}" class="motif-img" loading="lazy" />
+                  <img src="${s.img}" ${s.fallback ? `onerror="this.onerror=null;this.src='${s.fallback}'"` : ''} alt="${esc(s.alt || s.name)}" class="motif-img" loading="lazy"${s.pos ? ` style="object-position: ${s.pos}"` : ''} />
                 </div>
                 <div class="motif-specs">
                   <div class="motif-title-badge">
-                    <h3 class="motif-name">${name}</h3>
-                    <span class="motif-code">${code}</span>
+                    <h3 class="motif-name">${s.name}</h3>
+                    <span class="motif-code">${s.code}</span>
                   </div>
-                  <p class="motif-caption">${caption}</p>
+                  <p class="motif-caption">${s.caption}</p>
+                </div>
+              </article>` : `
+              <article class="motif-card is-text">
+                <div class="motif-specs">
+                  <span class="motif-code">${s.code}</span>
+                  <h3 class="motif-name">${s.name}</h3>
+                  <p class="motif-caption">${s.caption}</p>
                 </div>
               </article>`;
+    const marker = (n, label) => `
+              <div class="heritage-marker-row">
+                <span class="heritage-line-indicator" aria-hidden="true"></span>
+                <span class="heritage-marker-text">${n} / ${label}</span>
+              </div>`;
+    const header = (n, label, heading, note) => `
+            <div class="heritage-section-header">
+              ${marker(n, label)}
+              <div class="heritage-header-flex">
+                <h2 class="heritage-section-title">${heading}</h2>
+                <div class="heritage-desc-wrapper">
+                  <p class="heritage-section-narrative">${note}</p>
+                </div>
+              </div>
+            </div>`;
+    const list = (arr) => arr.length < 2 ? arr.join('') : `${arr.slice(0, -1).join(', ')} and ${arr[arr.length - 1]}`;
+    const n = (k) => `0${k}`;
+    let step = 1;
 
     mainContainer.innerHTML = `
-      <div class="heritage-chapter-page">
-        <!-- FULL-WIDTH HERO SECTION (Edge-to-Edge with Zero Side Gaps) -->
+      <div class="heritage-chapter-page collection-story" data-collection="${slug}">
         <section class="heritage-hero-section">
-          <div class="heritage-hero-backdrop" role="img" aria-label="Carved temple stone relief"></div>
+          <div class="heritage-hero-backdrop ${story.photo ? 'has-photo' : ''}" ${story.photo ? `style="--hero-photo: url('${story.photo}')${story.photoFallback ? `, url('${story.photoFallback}')` : ''}; --hero-pos: ${story.photoPos || 'center 35%'}"` : ''} role="img" aria-label="${esc(title)} collection"></div>
           <div class="heritage-hero-scrim" aria-hidden="true"></div>
-
           <div class="heritage-hero-inner">
             <div class="heritage-hero-foreground">
-              <!-- Micro-Identity -->
               <div class="heritage-micro-identity">
                 <span class="amber-dot-square" aria-hidden="true"></span>
-                <span class="micro-identity-text">HERITAGE // INDIA LIVES IN CRAFTS</span>
+                <span class="micro-identity-text">${story.tag}</span>
               </div>
-
-              <!-- Titles & CTA Row -->
               <div class="heritage-titles-cta-row">
                 <div class="heritage-headline-group">
-                  <h1 class="heritage-hero-title">HERITAGE</h1>
-                  <p class="heritage-hero-desc">
-                    Folk art, textile crafts and the symbols of India, redrawn as original prints on everyday streetwear. Two designs, one idea: wear your roots.
-                  </p>
+                  <h1 class="heritage-hero-title">${esc(title)}</h1>
+                  <p class="heritage-hero-desc">${story.intro}</p>
                 </div>
-
                 <div class="heritage-cta-wrapper">
-                  <button type="button" class="btn-discover-protocols" onclick="document.getElementById('heritageGarmentsSection').scrollIntoView({ behavior: 'smooth' })">
-                    SEE THE DESIGNS
+                  <button type="button" class="btn-discover-protocols" onclick="document.getElementById('collectionDesigns').scrollIntoView({ behavior: 'smooth' })">
+                    ${live.length ? 'SEE THE DESIGNS' : 'SEE WHAT’S COMING'}
                   </button>
                 </div>
               </div>
@@ -1568,155 +1799,53 @@ Thank you.`
           </div>
         </section>
 
-        <!-- MAIN VIEWPORT CONTAINER (1280px Centered) -->
         <div class="heritage-viewport-container">
-          <!-- SECTION 2: 01 / DECODED CIVILIZATIONAL MOTIFS -->
-          <section class="heritage-section heritage-motifs-section" id="heritageMotifsSection">
-            <div class="heritage-section-header">
-              <div class="heritage-marker-row">
-                <span class="heritage-line-indicator" aria-hidden="true"></span>
-                <span class="heritage-marker-text">01 / WHERE THE DESIGNS COME FROM
-              </div>
-
-              <div class="heritage-header-flex">
-                <h2 class="heritage-section-title">THE STORIES WE PRINT</h2>
-                <div class="heritage-desc-wrapper">
-                  <p class="heritage-section-narrative">
-                    Indian Craft Atlas maps the country through its crafts. Bharat Spirit brings four national symbols into one composition. These are the worlds behind both.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <!-- Story Cards Row -->
-            <div class="heritage-motifs-row">
-              ${storyCard('images/heritage/story-folk-art.webp', 'images/products/craft-atlas/back-print.webp', 'Madhubani and Warli folk painting', 'FOLK ART', 'ATLAS', 'Madhubani, Warli, Gond and Pattachitra. The painted traditions behind the Craft Atlas elephant.')}
-              ${storyCard('images/heritage/story-textiles.webp', 'images/products/craft-atlas/back-print.webp', 'Kalamkari and Ikat textiles', 'TEXTILE CRAFTS', 'ATLAS', 'Kalamkari, Ikat, Phad and Pichwai. Patterns carried from loom and cloth into print.')}
-              ${storyCard('images/heritage/story-symbols.webp', 'images/products/bharat-spirit/back-print.webp', 'Peacock, tiger, lotus and elephant', 'NATIONAL SYMBOLS', 'SPIRIT', 'Peacock, tiger, lotus and elephant. The four symbols of India behind Bharat Spirit.')}
-              ${storyCard('images/heritage/story-atlas.webp', 'images/products/craft-atlas/back-print.webp', 'Indian Craft Atlas elephant artwork', 'THE ATLAS PRINT', 'ATLAS', 'People, patterns, places, purpose. A dozen crafts from across India, drawn onto one elephant.')}
+          <section class="heritage-section heritage-motifs-section">
+            ${header(n(step++), 'WHERE THE DESIGNS COME FROM', story.storyTitle, story.storyNote)}
+            <div class="heritage-motifs-row cols-${Math.min(story.stories.length, 4)}">
+              ${story.stories.map(storyCard).join('')}
             </div>
           </section>
 
-          <!-- SECTION 3: 02 / ENGINEERED PATTERNS // GARMENT ARTIFACTS -->
-          <section class="heritage-section heritage-garments-section" id="heritageGarmentsSection">
-            <div class="heritage-section-header">
-              <div class="heritage-marker-row">
-                <span class="heritage-line-indicator" aria-hidden="true"></span>
-                <span class="heritage-marker-text">02 / THE DESIGNS
-              </div>
-
-              <div class="heritage-header-flex">
-                <h2 class="heritage-section-title">THE HERITAGE TEES</h2>
-                <div class="heritage-desc-wrapper">
-                  <p class="heritage-section-narrative">
-                    Oversized 240 GSM French Terry cotton, bio + silicone washed, with large DTF back prints. ₹699, MRP ₹999, with free delivery.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <!-- Products Row (Mapped Dynamically from Shop DB) -->
+          <section class="heritage-section heritage-garments-section" id="collectionDesigns">
+            ${header(n(step++), live.length ? 'THE DESIGNS' : 'COMING SOON',
+              live.length ? `THE ${esc(title)} TEES` : 'FIRST DESIGNS, ON THEIR WAY',
+              live.length
+                ? `${live.length} ${live.length === 1 ? 'design' : 'designs'} available now${soon.length ? `, ${soon.length} more coming soon` : ''}. Heavy, oversized cotton tees with full-colour prints. Free delivery across India.`
+                : 'Tap a design to be told on WhatsApp the day it drops.')}
+            ${shown.length ? `
             <div class="pgrid">
-              ${displayProducts.map((p, idx) => renderProductCardHTML(p, idx)).join('')}
+              ${shown.map((p, idx) => renderProductCardHTML(p, idx)).join('')}
+            </div>` : ''}
+            <div class="collection-story-actions">
+              ${live.length
+                ? `<a href="#/shop/${slug}" class="btn-canon-load-more">SHOP ALL ${esc(title)} TEES &rarr;</a>`
+                : `<button type="button" class="btn-canon-load-more" data-notify="${esc(title)}">NOTIFY ME ON WHATSAPP</button>`}
+              <a href="#/collections" class="collection-story-link">See all five collections</a>
             </div>
           </section>
 
-          <!-- SECTION 4: 03 / CHROMATIC CODES // ARCHITECTURAL INK & DYE -->
+          ${colours.length ? `
           <section class="heritage-section heritage-swatches-section">
-            <div class="heritage-section-header">
-              <div class="heritage-marker-row">
-                <span class="heritage-line-indicator" aria-hidden="true"></span>
-                <span class="heritage-marker-text">03 / COLOURS
-              </div>
-
-              <div class="heritage-header-flex">
-                <h2 class="heritage-section-title">FOUR COLOURS, EVERY DESIGN</h2>
-                <div class="heritage-desc-wrapper">
-                  <p class="heritage-section-narrative">
-                    Both heritage designs come in black, red, royal blue and white. The print stays the same; the mood changes with the colour.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <!-- Swatch Strip (4 Official Colorways) -->
+            ${header(n(step++), 'COLOURS', colours.length === 1 ? 'ONE COLOUR' : `${['', '', 'TWO', 'THREE', 'FOUR', 'FIVE', 'SIX'][colours.length] || colours.length} COLOURS`,
+              `${live.length === 1 ? 'This design comes' : 'The designs here come'} in ${list(colours.map(c => c.toLowerCase()))}. The print stays the same; the mood changes with the colour.`)}
             <div class="heritage-swatches-row">
-              <!-- Swatch 1: OBSIDIAN BLACK -->
+              ${colours.map(c => `
               <div class="swatch-card">
-                <div class="swatch-color-block" style="background-color: #111116;"></div>
+                <div class="swatch-color-block" style="background-color: ${colourHex(c)};"></div>
                 <div class="swatch-details">
-                  <span class="swatch-title">01 // BLACK</span>
-                  <span class="swatch-hex">#111116</span>
-                  <span class="swatch-info">The boldest backdrop. Makes every colour in the print glow.</span>
+                  <span class="swatch-title">${esc(c.toUpperCase())}</span>
+                  <span class="swatch-info">${COLOUR_NOTES[c.toLowerCase()] || ''}</span>
                 </div>
-              </div>
-
-              <!-- Swatch 3: SACRED RED -->
-              <div class="swatch-card">
-                <div class="swatch-color-block" style="background-color: #C81D25;"></div>
-                <div class="swatch-details">
-                  <span class="swatch-title">02 // RED</span>
-                  <span class="swatch-hex">#C81D25</span>
-                  <span class="swatch-info">Festive and loud. The colour of celebration.</span>
-                </div>
-              </div>
-
-              <!-- Swatch 4: ROYAL SAPPHIRE BLUE -->
-              <div class="swatch-card">
-                <div class="swatch-color-block" style="background-color: #1852B8;"></div>
-                <div class="swatch-details">
-                  <span class="swatch-title">03 // ROYAL BLUE</span>
-                  <span class="swatch-hex">#1852B8</span>
-                  <span class="swatch-info">Rich and confident. Pairs well with the warm tones of the art.</span>
-                </div>
-              </div>
-
-              <!-- Swatch 5: CHALK WHITE -->
-              <div class="swatch-card">
-                <div class="swatch-color-block" style="background-color: #F7F7FA;"></div>
-                <div class="swatch-details">
-                  <span class="swatch-title">04 // WHITE</span>
-                  <span class="swatch-hex">#F7F7FA</span>
-                  <span class="swatch-info">Clean and bright. The print reads like a painted canvas.</span>
-                </div>
-              </div>
+              </div>`).join('')}
             </div>
-          </section>
+          </section>` : ''}
         </div>
       </div>
     `;
-  }
 
-  function renderHeritageGarmentCard(p, idx, settings) {
-    const relicTag = p.relicTag || `DESIGN 0${idx + 1}`;
-    const badgeText = p.isComingSoon ? 'COMING SOON' : (p.relicBadge || 'PRE-ORDER ACTIVE');
-    const fabricText = p.fabric || '240 GSM COMBED COTTON // ARCHIVAL EMBROIDERY';
-    const priceFormatted = priceHTML(p);
-
-    return `
-      <article 
-        class="heritage-product-card" 
-        onclick="window.location.hash='#/product/${p.slug}'" 
-        role="button" 
-        tabindex="0"
-        aria-label="View ${p.name}"
-      >
-        <div class="heritage-card-image-box">
-          <img src="${p.images.front}" alt="${p.name} — Bravadian Streetwear" class="heritage-card-product-img" loading="lazy" />
-          <div class="heritage-badge-pill">${relicTag}</div>
-        </div>
-        <div class="heritage-card-specs">
-          <div class="heritage-card-title-row">
-            <h3 class="heritage-card-product-name">${p.name}</h3>
-            <span class="heritage-card-price">${priceFormatted}</span>
-          </div>
-          <div class="heritage-card-sub-row">
-            <span class="heritage-card-fabric" title="${fabricText}">${fabricText}</span>
-            <span class="heritage-indicator-tag">${badgeText}</span>
-          </div>
-        </div>
-      </article>
-    `;
+    bindProductCardActions();
+    mainContainer.querySelectorAll('.collection-story-actions [data-notify]').forEach(el => el.addEventListener('click', () => window.BravadianStore.requestVipEmbargo(el.dataset.notify)));
   }
 
   /* --------------------------------------------------------------------------
@@ -1725,12 +1854,12 @@ Thank you.`
   function renderShopView(colSlug = 'all') {
     const collections = window.BravadianDB.getCollections();
     const activeCol = collections.find(c => c.slug === colSlug) || { 
-      name: 'ALL DESIGNS', 
-      description: 'Every design across all five collections. Oversized 240 GSM French Terry tees with original Indian artwork.' 
+      name: 'ALL TEES', 
+      description: 'Every Bravadian tee, from all five collections. Original Indian artwork on heavy, oversized cotton.' 
     };
     
     // Get filtered products
-    const products = window.BravadianDB.getProducts({
+    const found = window.BravadianDB.getProducts({
       collection: colSlug,
       color: StoreState.activeFilters.color,
       size: StoreState.activeFilters.size,
@@ -1738,12 +1867,11 @@ Thank you.`
       inStockOnly: StoreState.activeFilters.inStockOnly,
       search: StoreState.activeFilters.search
     });
-
-    const pageSize = 6;
-    const isShowingAll = StoreState.cataloguePage > 1 || colSlug !== 'all' || products.length <= pageSize;
-    const displayedProducts = isShowingAll ? products : products.slice(0, pageSize);
-    const totalCount = displayedProducts.length;
-    const formattedCount = String(totalCount).padStart(2, '0');
+    // Tees you can buy come first; "coming soon" ones follow, each group keeping the chosen sort.
+    // Every tee is shown at once (the range is small), so there is no "show all" step.
+    const products = [...found.filter(p => !p.isComingSoon), ...found.filter(p => p.isComingSoon)];
+    const soonCount = products.filter(p => p.isComingSoon).length;
+    const buyable = products.length - soonCount;
 
     mainContainer.innerHTML = `
       <div class="canon-catalogue-container">
@@ -1751,11 +1879,11 @@ Thank you.`
         <header class="canon-header-block">
           <div class="canon-eyebrow">
             <span class="eyebrow-dash">—</span>
-            <span class="eyebrow-text">SHOP // ALL TEES</span>
+            <span class="eyebrow-text">SHOP · ${colSlug === 'all' ? 'ALL TEES' : `${escapeHTML(activeCol.name)} COLLECTION`}</span>
           </div>
-          <h1 class="canon-main-title">ALL DESIGNS</h1>
+          <h1 class="canon-main-title">${colSlug === 'all' ? 'ALL TEES' : `${escapeHTML(activeCol.name)} TEES`}</h1>
           <p class="canon-sub-desc">
-            Every design across all five collections. Oversized 240 GSM French Terry tees with original Indian artwork.
+            ${escapeHTML(activeCol.description || 'Every Bravadian tee, from all five collections. Original Indian artwork on heavy, oversized cotton.')}${colSlug !== 'all' ? ` <a href="#/collections/${colSlug}" class="canon-story-link">Read the story &rarr;</a>` : ''}
           </p>
         </header>
 
@@ -1763,11 +1891,11 @@ Thank you.`
         <nav class="canon-filter-toolbar" aria-label="Collection filters">
           <!-- Chapter Tabs Pills -->
           <div class="canon-tabs-group" role="tablist">
-            ${collections.map(c => {
+            ${[...collections.filter(c => c.slug === 'all'), ...liveFirst(collections.filter(c => c.slug !== 'all'))].map(c => {
               const isActive = c.slug === colSlug;
               return `
                 <a 
-                  href="#/collections/${c.slug}" 
+                  href="#/shop/${c.slug}" 
                   class="canon-tab-pill ${isActive ? 'active' : ''}" 
                   role="tab"
                   aria-selected="${isActive ? 'true' : 'false'}"
@@ -1782,7 +1910,7 @@ Thank you.`
           <!-- Right Status & Filter Controls -->
           <div class="canon-toolbar-right">
             <span class="canon-index-status">
-              SHOWING <strong class="canon-count-badge">${totalCount} OF ${products.length}</strong>
+              <strong class="canon-count-badge">${buyable} ${buyable === 1 ? 'TEE' : 'TEES'} AVAILABLE</strong>${soonCount ? ` · ${soonCount} COMING SOON` : ''}
             </span>
 
             <div class="canon-filter-selectors">
@@ -1807,23 +1935,16 @@ Thank you.`
         </nav>
 
         <!-- Product Grid or Empty State -->
-        ${totalCount > 0 ? `
+        ${products.length > 0 ? `
           <div class="pgrid">
-            ${displayedProducts.map((p, idx) => renderProductCardHTML(p, idx)).join('')}
+            ${products.map((p, idx) => renderProductCardHTML(p, idx)).join('')}
           </div>
-
-          ${!isShowingAll ? `
-          <div class="canon-load-more-wrap">
-            <button type="button" class="btn-canon-load-more" id="canonLoadMoreBtn">
-              <span>SHOW ALL ${products.length} PIECES &darr;</span>
-            </button>
-          </div>` : ''}
         ` : `
           <div class="canon-empty-state">
-            <div class="empty-state-icon">⚡</div>
-            <h3 class="empty-state-title">NO ARTIFACTS FOUND</h3>
-            <p class="empty-state-sub">Try clearing size filters or try another collection.</p>
-            <a href="#/collections/all" class="btn-canon-load-more" style="display: inline-block;">RESET ALL FILTERS</a>
+            <div class="empty-state-icon">✦</div>
+            <h3 class="empty-state-title">NO TEES MATCH THESE FILTERS</h3>
+            <p class="empty-state-sub">Try another size, or look through a different collection.</p>
+            <a href="#/shop" class="btn-canon-load-more" style="display: inline-block;">CLEAR FILTERS</a>
           </div>
         `}
       </div>
@@ -1842,14 +1963,6 @@ Thank you.`
     if (sortSelect) {
       sortSelect.addEventListener('change', (e) => {
         StoreState.activeFilters.sort = e.target.value;
-        renderShopView(colSlug);
-      });
-    }
-
-    const loadMoreBtn = document.getElementById('canonLoadMoreBtn');
-    if (loadMoreBtn) {
-      loadMoreBtn.addEventListener('click', () => {
-        StoreState.cataloguePage = 2;
         renderShopView(colSlug);
       });
     }
@@ -1943,7 +2056,7 @@ Thank you.`
       sheet.querySelector('.qa-guide').onclick = () => { closeQuickAdd(); window.BravadianStore.openSizeGuideModal(); };
       sheet.querySelectorAll('.qa-colour').forEach(b => b.onclick = () => { color = b.dataset.c; if (!getAvailableSizesForColor(product, color).includes(size)) size = null; draw(); });
       sheet.querySelectorAll('.qa-size:not([disabled])').forEach(b => b.onclick = () => { size = b.dataset.z; draw(); });
-      sheet.querySelector('.qa-add').onclick = () => { if (!size) return; addToCart(product, color, size, 1); closeQuickAdd(); };
+      sheet.querySelector('.qa-add').onclick = () => { if (!size) return; if (addToCart(product, color, size, 1)) closeQuickAdd(); };
     };
     draw();
     requestAnimationFrame(() => document.body.classList.add('qa-open'));
@@ -1963,23 +2076,46 @@ Thank you.`
   /* --------------------------------------------------------------------------
      4. PRODUCT DETAIL PAGE (PDP) — FIGMA PRECISION ARCHITECTURE
      -------------------------------------------------------------------------- */
-  function renderPDPView(slug) {
-    let product = window.BravadianDB.getProductBySlug(slug);
+  // Shown for a product link that does not exist or is not on sale (drafts). If the live catalog is
+  // still loading and has it, the page redraws itself with the product once it arrives.
+  function renderProductNotFound() {
+    StoreState.currentProduct = null;
+    const picks = window.BravadianDB.getProducts().filter(p => !p.isComingSoon).slice(0, 3);
+    mainContainer.innerHTML = `
+      <section class="done-page">
+        <span class="bag-kicker">PAGE NOT FOUND</span>
+        <h1>THIS TEE ISN'T HERE</h1>
+        <p class="done-lede">The link may be old, or this design is no longer available. Here's what's in the drop right now.</p>
+        ${picks.length ? `<ol class="done-steps">${picks.map(p => `
+          <li><a href="#/product/${encodeURIComponent(p.slug)}"><b>${titleCase(p.name)}</b></a><span>${priceHTML(p)}</span></li>`).join('')}
+        </ol>` : ''}
+        <div class="done-actions">
+          <a href="#/shop" class="bag-cta"><span>SHOP ALL TEES</span></a>
+          <a href="#/" class="done-ghost">Back to home</a>
+        </div>
+      </section>
+    `;
+  }
+
+  function renderPDPView(slug, params = new URLSearchParams()) {
+    let product = window.BravadianDB.getProductBySlug(decodeURIComponent(slug));
     if (!product) {
-      product = window.BravadianDB.getProductBySlug('hoysala-oversized-relic-tee') || window.BravadianDB.getProducts()[0];
-      if (!product) {
-        renderShopView('all');
-        return;
-      }
+      renderProductNotFound();
+      return;
     }
 
     StoreState.currentProduct = product;
-    StoreState.selectedColor = product.colors && product.colors.length > 0 ? product.colors[0] : '';
+    const wantColour = (params.get('color') || '').toLowerCase();
+    StoreState.selectedColor = (product.colors || []).find(c => c.toLowerCase() === wantColour)
+      || (product.colors && product.colors.length > 0 ? product.colors[0] : '');
     StoreState.selectedSize = 'M';
     StoreState.selectedQty = 1;
 
     const availableSizes = getAvailableSizesForColor(product, StoreState.selectedColor);
-    if (availableSizes.includes('M')) {
+    const wantSize = (params.get('size') || '').toUpperCase();
+    if (wantSize && ['S', 'M', 'L', 'XL', 'XXL'].includes(wantSize)) {
+      StoreState.selectedSize = wantSize;
+    } else if (availableSizes.includes('M')) {
       StoreState.selectedSize = 'M';
     } else if (availableSizes.length > 0) {
       StoreState.selectedSize = availableSizes[0];
@@ -1993,7 +2129,7 @@ Thank you.`
     const pImages = product.images || {};
     const getDiagram = (view) => {
       if (window.BravadianDefaults && window.BravadianDefaults.createTeeSVG) {
-        return window.BravadianDefaults.createTeeSVG(product.name, product.collection || 'Heritage', '#111116', '#FFA000', view);
+        return window.BravadianDefaults.createTeeSVG(product.name, product.collection || 'Heritage', '#111116', '#ED1C24', view);
       }
       return '';
     };
@@ -2009,7 +2145,10 @@ Thank you.`
       const list = cs
         ? [[cs.front, 'contain'], [cs.model, 'cover'], [cs.model2, 'cover'], [cs.closeup, 'cover'], [cs.back, 'contain']]
         : [[thumb1, 'contain'], [thumb2, 'contain'], [thumb3, 'contain'], [pImages.lifestyle, 'cover'], [pImages.lifestyle2, 'cover']];
-      return list.filter(([src], i, arr) => src && arr.findIndex(([x]) => x === src) === i).map(([src, fit]) => ({ src, fit }));
+      const all = list.filter(([src], i, arr) => src && arr.findIndex(([x]) => x === src) === i).map(([src, fit]) => ({ src, fit }));
+      // Generated drawings only fill in when the tee has no real photo at all
+      const photos = all.filter(({ src }) => !String(src).startsWith('data:'));
+      return photos.length ? photos : all;
     };
     const galleryImages = galleryFor(StoreState.selectedColor);
 
@@ -2018,9 +2157,9 @@ Thank you.`
     const accordions = [
       { title: 'THE STORY', content: product.story || product.description },
       product.motif ? { title: 'THE SYMBOLS', content: product.motif } : null,
-      { title: 'FABRIC & PRINT', content: `${product.fabric || '240 GSM French Terry cotton'}. ${product.gsm === 450 ? '' : 'Oversized drop-shoulder fit. DTF printed.'}` },
-      { title: 'CARE', content: 'Wash inside out in cold water. Line dry in shade. Do not iron directly on the print. Do not bleach or tumble dry.' },
-      { title: 'DELIVERY & RETURNS', content: 'All-India delivery. Your order is confirmed with you on WhatsApp before dispatch. See our Shipping and Returns policy for full details.' }
+      { title: 'FABRIC & PRINT', content: '240 GSM French Terry cotton: thick and soft, and it holds its shape. Bio + silicone washed, so it feels soft from the first wear. DTF printed for sharp, full-colour artwork that stays bright with the right care. Oversized fit with dropped shoulders.' },
+      { title: 'CARE', content: 'Wash inside out in cold water, up to 30°C. Dry flat in the shade. Iron on low heat, inside out, never directly on the print. No bleach and no tumble dryer.' },
+      { title: 'DELIVERY & RETURNS', content: 'Free delivery anywhere in India. We confirm your order with you on WhatsApp, then dispatch it within 24–48 hours. See our Shipping and Returns policies for the details.' }
     ].filter(Boolean).map((a, n) => ({ num: String(n + 1).padStart(2, '0'), ...a }));
 
     // Other designs to browse: same collection first, then the rest
@@ -2031,11 +2170,11 @@ Thank you.`
       .map((p, n) => ({ product: p, slug: p.slug, name: p.name, badge: p.relicTag || `DESIGN 0${n + 1}`, image: p.images.front }));
 
     const defaultChapters = [
-      { num: '01', title: 'ANIME', chapter: 'ADHYAYA 01: MANGA & ANIME', collection: 'anime' },
-      { num: '02', title: 'MYTHOLOGY', chapter: 'ADHYAYA 02: SACRED MYTHOLOGY', collection: 'mythology' },
-      { num: '03', title: 'HERITAGE', chapter: 'ADHYAYA 03: BHARAT HERITAGE', collection: 'heritage' },
-      { num: '04', title: 'STREET CULTURE', chapter: 'ADHYAYA 04: URBAN STREET CULTURE', collection: 'street-culture' },
-      { num: '05', title: 'MINIMAL', chapter: 'ADHYAYA 05: EVERYDAY MINIMAL', collection: 'minimal' }
+      { num: '01', title: 'ANIME', chapter: 'ANIME & MANGA', collection: 'anime' },
+      { num: '02', title: 'MYTHOLOGY', chapter: 'GODS & EPICS', collection: 'mythology' },
+      { num: '03', title: 'HERITAGE', chapter: 'CRAFTS & TRADITIONS', collection: 'heritage' },
+      { num: '04', title: 'STREET CULTURE', chapter: 'GRAFFITI & HIP-HOP', collection: 'street-culture' },
+      { num: '05', title: 'MINIMAL', chapter: 'SIMPLE & UNDERSTATED', collection: 'minimal' }
     ];
     const gateways = defaultChapters
       .filter(gw => gw.collection !== (product.collection || 'heritage').toLowerCase())
@@ -2043,7 +2182,7 @@ Thank you.`
       const colProd = window.BravadianDB.getProducts({ collection: gw.collection })[0];
       const gImg = (colProd && colProd.images && colProd.images.front)
         ? colProd.images.front
-        : (window.BravadianDefaults ? window.BravadianDefaults.createTeeSVG(gw.title, gw.collection, '#121216', '#FFA000', 'front') : '');
+        : (window.BravadianDefaults ? window.BravadianDefaults.createTeeSVG(gw.title, gw.collection, '#121216', '#ED1C24', 'front') : '');
       return {
         ...gw,
         image: gImg,
@@ -2079,7 +2218,7 @@ Thank you.`
             <!-- Header Eyebrow -->
             <div class="pdp-eyebrow-row">
               <span class="pdp-amber-dot"></span>
-              <span class="pdp-eyebrow-text">${(product.collection || 'HERITAGE').replace(/-/g, ' ').toUpperCase()} COLLECTION // ADHYAYA 01</span>
+              <span class="pdp-eyebrow-text">${(product.collection || 'HERITAGE').replace(/-/g, ' ').toUpperCase()} COLLECTION · FIRST DROP</span>
             </div>
 
             <!-- Title -->
@@ -2120,11 +2259,22 @@ Thank you.`
             <!-- Add to Bag CTA -->
             <div class="pdp-cta-wrap">
               <button type="button" class="pdp-cta-btn ${product.isComingSoon ? 'is-coming-soon' : 'gr-btn'}" id="pdpCtaBtn">
-                ${product.isComingSoon ? `[ COMING SOON ]` : `${glowDisc(BAG_SVG)}<span class="gr-label">ADD TO BAG — ${settings.currency}${window.BravadianDB.effectivePrice(product).toLocaleString('en-IN')}</span>`}
+                ${product.isComingSoon ? `COMING SOON` : `${glowDisc(BAG_SVG)}<span class="gr-label">ADD TO BAG — ${settings.currency}${window.BravadianDB.effectivePrice(product).toLocaleString('en-IN')}</span>`}
               </button>
-              <div class="pdp-cta-subtext">
-                ✦ ORDER CONFIRMED ON WHATSAPP // ALL-INDIA DELIVERY // UPI, CARDS & NET BANKING
-              </div>
+              <ul class="pdp-promise" aria-label="Delivery, exchange and payment">
+                <li>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7h11v9H3z"/><path d="M14 10h4l3 3v3h-7"/><circle cx="7" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></svg>
+                  <span><b>Free delivery</b> Ships in 24–48 hrs, arrives in 2–6 working days</span>
+                </li>
+                <li>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9a8 8 0 0 1 14-4l2 2"/><path d="M20 3v4h-4"/><path d="M20 15a8 8 0 0 1-14 4l-2-2"/><path d="M4 21v-4h4"/></svg>
+                  <span><b>Wrong size?</b> Exchange within 7 days of delivery. <a href="#/policy/returns">How it works</a></span>
+                </li>
+                <li>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/><path d="M7 15h3"/></svg>
+                  <span><b>Pay after we confirm</b> by UPI, once we check your order with you on WhatsApp</span>
+                </li>
+              </ul>
             </div>
 
             <!-- Line Divider -->
@@ -2135,9 +2285,9 @@ Thank you.`
               ${accordions.map((acc, i) => `
                 <div class="pdp-accordion-item ${i === 0 ? 'is-open' : ''}" data-index="${i}">
                   <button type="button" class="pdp-accordion-header" aria-expanded="${i === 0 ? 'true' : 'false'}">
-                    <span class="pdp-accordion-title">${acc.num} // ${acc.title}</span>
+                    <span class="pdp-accordion-title">${acc.title}</span>
                     <span class="pdp-accordion-icon">
-                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#FFA000" stroke-width="2">
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#ED1C24" stroke-width="2">
                         <line x1="8" y1="2" x2="8" y2="14" class="pdp-icon-v"></line>
                         <line x1="2" y1="8" x2="14" y2="8"></line>
                       </svg>
@@ -2158,11 +2308,11 @@ Thank you.`
             <div class="pdp-section-title-group">
               <div class="pdp-section-eyebrow">
                 <span class="pdp-line-indicator"></span>
-                <span class="pdp-section-eyebrow-text">02 / YOU MAY ALSO LIKE</span>
+                <span class="pdp-section-eyebrow-text">YOU MAY ALSO LIKE</span>
               </div>
               <h2 class="pdp-section-heading">MORE DESIGNS TO EXPLORE</h2>
             </div>
-            <div class="pdp-section-header-tag">ADHYAYA 01</div>
+            <div class="pdp-section-header-tag">FROM OUR FIRST DROP</div>
           </div>
 
           <div class="pgrid is-rail">
@@ -2176,7 +2326,7 @@ Thank you.`
             <div class="pdp-section-title-group">
               <div class="pdp-section-eyebrow">
                 <span class="pdp-line-indicator"></span>
-                <span class="pdp-section-eyebrow-text">03 / OTHER COLLECTIONS</span>
+                <span class="pdp-section-eyebrow-text">KEEP EXPLORING</span>
               </div>
               <h2 class="pdp-section-heading">EXPLORE THE COLLECTIONS</h2>
             </div>
@@ -2286,14 +2436,30 @@ Thank you.`
         });
         const current = document.querySelector('.pdp-size-box.active');
         if ((!current || current.disabled) && firstOpen) firstOpen.click();
+        syncPdpCta();
       });
     });
+
+    // The add button (and its phone twin) reads SOLD OUT when the chosen colour and size has no stock
+    const priceLabel = `ADD TO BAG — ${settings.currency}${window.BravadianDB.effectivePrice(product).toLocaleString('en-IN')}`;
+    function syncPdpCta() {
+      if (product.isComingSoon) return;
+      const soldOut = getVariantStock(product, StoreState.selectedColor, StoreState.selectedSize) <= 0;
+      [document.getElementById('pdpCtaBtn'), document.getElementById('pdpStickyBtn')].forEach((btn, i) => {
+        if (!btn) return;
+        btn.disabled = soldOut;
+        btn.classList.toggle('is-sold-out', soldOut);
+        const label = btn.querySelector('.gr-label');
+        if (label) label.textContent = soldOut ? 'SOLD OUT' : (i === 0 ? priceLabel : 'ADD TO BAG');
+      });
+    }
 
     sizeBoxes.forEach(sb => {
       sb.addEventListener('click', () => {
         sizeBoxes.forEach(b => b.classList.remove('active'));
         sb.classList.add('active');
         StoreState.selectedSize = sb.getAttribute('data-size');
+        syncPdpCta();
       });
     });
 
@@ -2335,8 +2501,7 @@ Thank you.`
         if (!StoreState.selectedSize) {
           StoreState.selectedSize = 'M';
         }
-        addToCart(product, StoreState.selectedColor, StoreState.selectedSize, 1);
-        openCartDrawer();
+        if (addToCart(product, StoreState.selectedColor, StoreState.selectedSize, 1)) openCartDrawer();
       });
 
       // Phones: once the main button scrolls away, keep Add to bag one tap away
@@ -2356,6 +2521,7 @@ Thank you.`
         };
         window.addEventListener('scroll', StoreState.pdpScroll, { passive: true });
       }
+      syncPdpCta();
     }
 
     // 6. Relic Cards in "More from Universe"
@@ -2417,95 +2583,57 @@ Thank you.`
       .map(v => v.size);
   }
 
-  function renderSizePills() {
-    const product = StoreState.currentProduct;
-    const sizeList = document.getElementById('pdpSizeList');
-    const addBtn = document.getElementById('addToCartBtn');
-    const badge = document.getElementById('pdpStockBadge');
-    if (!product || !sizeList) return;
-
-    const allSizes = ['S', 'M', 'L', 'XL', 'XXL'];
-
-    sizeList.innerHTML = allSizes.map(size => {
-      const stock = getVariantStock(product, StoreState.selectedColor, size);
-      const isAvailable = stock > 0;
-      const isSelected = size === StoreState.selectedSize && isAvailable;
-
-      return `
-        <button 
-          type="button" 
-          class="size-pill-btn ${!isAvailable ? 'disabled' : ''} ${isSelected ? 'active' : ''}" 
-          data-size="${size}"
-          ${!isAvailable ? 'disabled title="Sold Out"' : ''}
-        >
-          ${size}
-        </button>
-      `;
-    }).join('');
-
-    // Re-bind size clicks
-    const sizeBtns = sizeList.querySelectorAll('.size-pill-btn:not(.disabled)');
-    sizeBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        sizeList.querySelectorAll('.size-pill-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        StoreState.selectedSize = btn.getAttribute('data-size');
-        updatePDPButtonState();
-      });
-    });
-
-    updatePDPButtonState();
-  }
-
-  function updatePDPButtonState() {
-    const product = StoreState.currentProduct;
-    const addBtn = document.getElementById('addToCartBtn');
-    const badge = document.getElementById('pdpStockBadge');
-    const stock = getVariantStock(product, StoreState.selectedColor, StoreState.selectedSize);
-
-    if (stock > 0) {
-      if (addBtn) {
-        addBtn.disabled = false;
-        addBtn.querySelector('span').textContent = 'ADD TO CART';
-      }
-      if (badge) {
-        badge.className = 'card-status-indicator available';
-        badge.textContent = stock <= 3 ? `ONLY ${stock} LEFT` : 'IN STOCK';
-      }
-    } else {
-      if (addBtn) {
-        addBtn.disabled = true;
-        addBtn.querySelector('span').textContent = 'VARIANT SOLD OUT';
-      }
-      if (badge) {
-        badge.className = 'card-status-indicator sold-out';
-        badge.textContent = 'SOLD OUT';
-      }
-    }
-  }
-
   /* --------------------------------------------------------------------------
      5. CART MANAGEMENT & DRAWER
      -------------------------------------------------------------------------- */
   let toastTimeout = null;
 
+  // Phones: swipe the notice up to dismiss it, like a phone notification. It stays while touched.
+  function enableToastSwipe(toast) {
+    if (toast.dataset.swipe) return;
+    toast.dataset.swipe = '1';
+    let startY = null;
+    let dy = 0;
+    toast.addEventListener('touchstart', (e) => {
+      startY = e.touches[0].clientY;
+      dy = 0;
+      if (toastTimeout) clearTimeout(toastTimeout);
+      toast.classList.add('is-swiping');
+    }, { passive: true });
+    toast.addEventListener('touchmove', (e) => {
+      if (startY === null) return;
+      dy = Math.min(0, e.touches[0].clientY - startY);
+      toast.style.transform = `translateY(${dy}px)`;
+      toast.style.opacity = String(Math.max(0, 1 + dy / 120));
+    }, { passive: true });
+    toast.addEventListener('touchend', () => {
+      toast.classList.remove('is-swiping');
+      toast.style.transform = '';
+      toast.style.opacity = '';
+      if (dy < -40) toast.classList.remove('is-visible');
+      else toastTimeout = setTimeout(() => toast.classList.remove('is-visible'), 2500);
+      startY = null;
+    });
+  }
+
   function showCartToast(product, color, size, qty) {
     const toast = document.getElementById('cartToast');
     if (!toast) return;
+    enableToastSwipe(toast);
 
     if (toastTimeout) {
       clearTimeout(toastTimeout);
     }
 
     const settings = window.BravadianDB.getSettings();
-    const imgSrc = (product.images && product.images.front) ? product.images.front : (product.image || 'images/logo.png');
+    const imgSrc = (product.images && product.images.front) ? product.images.front : (product.image || '/images/logo.png');
 
     toast.innerHTML = `
       <img src="${imgSrc}" alt="${product.name}" class="cart-toast-thumb">
       <div class="cart-toast-body">
-        <span class="cart-toast-tag">ADDED TO CART</span>
+        <span class="cart-toast-tag">ADDED TO BAG</span>
         <div class="cart-toast-title">${product.name}</div>
-        <div class="cart-toast-meta">${size} // ${color} • ${settings.currency || '₹'}${window.BravadianDB.effectivePrice(product).toLocaleString('en-IN')} (x${qty})</div>
+        <div class="cart-toast-meta">${size} · ${color} · ${settings.currency || '₹'}${window.BravadianDB.effectivePrice(product).toLocaleString('en-IN')} (x${qty})</div>
       </div>
       <div class="cart-toast-actions">
         <button type="button" class="cart-toast-btn" onclick="window.BravadianStore.openCartDrawer();">VIEW</button>
@@ -2529,16 +2657,57 @@ Thank you.`
     });
   }
 
+  // Plain-text message in the bag toast (for "only 2 left" and similar)
+  function showBagNotice(text) {
+    const toast = document.getElementById('cartToast');
+    if (!toast) return;
+    enableToastSwipe(toast);
+    if (toastTimeout) clearTimeout(toastTimeout);
+    toast.innerHTML = `
+      <div class="cart-toast-body">
+        <span class="cart-toast-tag">YOUR BAG</span>
+        <div class="cart-toast-title"></div>
+      </div>
+      <div class="cart-toast-actions">
+        <button type="button" class="cart-toast-close" onclick="this.closest('.cart-toast').classList.remove('is-visible');" aria-label="Close notification">&times;</button>
+      </div>`;
+    toast.querySelector('.cart-toast-title').textContent = text;
+    toast.classList.add('is-visible');
+    toastTimeout = setTimeout(() => toast.classList.remove('is-visible'), 5000);
+  }
+
+  // The most of one colour and size a bag can hold: what is in stock, and never more than
+  // the 10 per line that the order database accepts.
+  const MAX_PER_LINE = 10;
+  function lineLimit(product, color, size) {
+    return Math.min(MAX_PER_LINE, Math.max(0, getVariantStock(product, color, size)));
+  }
+
+  // Returns true when something was added
   function addToCart(product, color, size, qty = 1) {
     const existingIdx = StoreState.cart.findIndex(
       item => item.productId === product.id && item.color === color && item.size === size
     );
+    const inBag = existingIdx >= 0 ? StoreState.cart[existingIdx].quantity : 0;
+    const limit = lineLimit(product, color, size);
+
+    if (limit === 0) {
+      showBagNotice(`${titleCase(product.name)} in ${color} / ${size} is sold out.`);
+      return false;
+    }
+    if (inBag >= limit) {
+      showBagNotice(limit < MAX_PER_LINE
+        ? `Only ${limit} left in ${color} / ${size}, and they're all in your bag.`
+        : `You can order up to ${MAX_PER_LINE} of one size at a time.`);
+      return false;
+    }
+    qty = Math.min(qty, limit - inBag);
 
     if (existingIdx >= 0) {
       StoreState.cart[existingIdx].quantity += qty;
     } else {
       StoreState.cart.push({
-        id: `${product.id}-${color}-${size}-${Date.now()}`,
+        id: bagLineId(product.id, color, size),
         productId: product.id,
         name: product.name,
         slug: product.slug,
@@ -2554,6 +2723,37 @@ Thank you.`
     saveCart();
     triggerCartBadgePulse();
     showCartToast(product, color, size, qty);
+    return true;
+  }
+
+  // Brings the bag in line with the catalog: current prices, and quantities within stock.
+  // dropMissing only once the live catalog has loaded, so the built-in list never removes anything.
+  function refreshCartFromCatalog(dropMissing) {
+    if (!StoreState.cart.length) return;
+    const notes = [];
+    const kept = [];
+    StoreState.cart.forEach(item => {
+      const product = window.BravadianDB.getProductBySlug(item.productId) || window.BravadianDB.getProductBySlug(item.slug);
+      if (!product) {
+        if (dropMissing) notes.push(`${titleCase(item.name)} is no longer available`);
+        else kept.push(item);
+        return;
+      }
+      item.price = window.BravadianDB.effectivePrice(product);
+      const limit = product.isComingSoon ? 0 : lineLimit(product, item.color, item.size);
+      if (dropMissing && limit === 0) {
+        notes.push(`${titleCase(item.name)} (${item.color} / ${item.size}) is sold out`);
+        return;
+      }
+      if (dropMissing && item.quantity > limit) {
+        item.quantity = limit;
+        notes.push(`only ${limit} of ${titleCase(item.name)} (${item.color} / ${item.size}) left`);
+      }
+      kept.push(item);
+    });
+    StoreState.cart = kept;
+    saveCart();
+    if (notes.length) showBagNotice(`Bag updated: ${notes.join('; ')}.`);
   }
 
   function removeFromCart(cartItemId) {
@@ -2571,6 +2771,16 @@ Thank you.`
     if (newQty <= 0) {
       removeFromCart(cartItemId);
     } else {
+      if (newQty > item.quantity) {
+        const product = window.BravadianDB.getProductBySlug(item.productId) || window.BravadianDB.getProductBySlug(item.slug);
+        const limit = product ? lineLimit(product, item.color, item.size) : item.quantity;
+        if (newQty > limit) {
+          showBagNotice(limit < MAX_PER_LINE
+            ? `Only ${limit} left in ${item.color} / ${item.size}.`
+            : `You can order up to ${MAX_PER_LINE} of one size at a time.`);
+          return;
+        }
+      }
       item.quantity = newQty;
       saveCart();
     }
@@ -2604,18 +2814,19 @@ Thank you.`
 
   function cartLineHTML(item, settings) {
     const cur = settings.currency;
-    const go = `href="#/product/${item.slug}" onclick="window.BravadianStore.closeCartDrawer()"`;
+    const go = `href="#/product/${encodeURIComponent(item.slug || '')}" onclick="window.BravadianStore.closeCartDrawer()"`;
+    const name = escapeHTML(item.name), color = escapeHTML(item.color), size = escapeHTML(item.size);
     return `
       <article class="bag-line">
-        <a ${go} class="bag-line-media" aria-label="View ${item.name}"><img src="${item.image}" alt="" loading="lazy"></a>
+        <a ${go} class="bag-line-media" aria-label="View ${name}"><img src="${escapeHTML(item.image)}" alt="" loading="lazy"></a>
         <div class="bag-line-body">
           <div class="bag-line-top">
-            <a ${go} class="bag-line-name">${item.name}</a>
+            <a ${go} class="bag-line-name">${name}</a>
             <span class="bag-line-total">${cur}${(item.price * item.quantity).toLocaleString('en-IN')}</span>
           </div>
-          <span class="bag-line-meta"><i style="--dot:${colourHex(item.color)}" aria-hidden="true"></i>${item.color} · Size ${item.size} · ${cur}${item.price.toLocaleString('en-IN')} each</span>
+          <span class="bag-line-meta"><i style="--dot:${colourHex(item.color)}" aria-hidden="true"></i>${color} · Size ${size} ·${cur}${item.price.toLocaleString('en-IN')} each</span>
           <div class="bag-line-actions">
-            <div class="bag-qty" role="group" aria-label="Quantity for ${item.name}">
+            <div class="bag-qty" role="group" aria-label="Quantity for ${name}">
               <button type="button" aria-label="One less" onclick="window.BravadianStore.updateCartItemQty('${item.id}', ${item.quantity - 1})">&minus;</button>
               <span>${item.quantity}</span>
               <button type="button" aria-label="One more" onclick="window.BravadianStore.updateCartItemQty('${item.id}', ${item.quantity + 1})">+</button>
@@ -2650,8 +2861,9 @@ Thank you.`
       </button>
       <ul class="bag-trust">
         <li>Order confirmed with you on WhatsApp</li>
-        <li>Pay by UPI, card or net banking</li>
+        <li>Pay by UPI, on WhatsApp once we confirm</li>
         <li>Free delivery across India, dispatched in 24&ndash;48 hours</li>
+        <li>Wrong size? Exchange within 7 days of delivery</li>
       </ul>`;
   }
 
@@ -2660,8 +2872,8 @@ Thank you.`
       <div class="bag-empty">
         <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 7h12l-1 13H7L6 7z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg>
         <h2>Your bag is empty</h2>
-        <p>Find a design you love. ₹699 each, free delivery across India.</p>
-        <a href="#/shop" class="bag-cta" ${inDrawer ? 'onclick="window.BravadianStore.closeCartDrawer();"' : ''}><span>SHOP ALL DESIGNS</span></a>
+        <p>Find a design you love. Every order ships free across India.</p>
+        <a href="#/shop" class="bag-cta" ${inDrawer ? 'onclick="window.BravadianStore.closeCartDrawer();"' : ''}><span>SHOP ALL TEES</span></a>
       </div>`;
   }
 
@@ -2751,7 +2963,7 @@ Thank you.`
      -------------------------------------------------------------------------- */
   function openCheckoutModal() {
     if (StoreState.cart.length === 0) {
-      alert('Your cart is empty. Add a product first.');
+      alert('Your bag is empty. Add a tee first.');
       return;
     }
     if (checkoutModal) {
@@ -2829,7 +3041,7 @@ Thank you.`
 
     // Validate Agreement
     if (!agreement) {
-      alert('Please agree to the Bravadian Terms & Conditions and Privacy Policy to proceed.');
+      alert('Please tick the box to agree to our Terms & Conditions and Privacy Policy.');
       return;
     }
 
@@ -2868,13 +3080,18 @@ Please update your bag and try again.`);
     const shipping = order ? Number(order.shipping) : totals.shipping;
     const total = order ? Number(order.total) : totals.total;
 
+    // Each line carries a link that opens the tee with the ordered colour and size picked, for reference later.
+    // Local testing links to the real site so the link still works when tapped on a phone.
+    const siteURL = /^(localhost|127\.0\.0\.1)$/.test(window.location.hostname) ? 'https://bravadian.in' : window.location.origin;
+    const productLink = (item) => `${siteURL}/#/product/${item.slug}?color=${encodeURIComponent(item.color)}&size=${encodeURIComponent(item.size)}`;
     const itemsText = StoreState.cart.map((item, idx) => `
 ${idx + 1}. Product: ${item.name}
 Collection: ${item.collection.toUpperCase()}
 Color: ${item.color}
 Size: ${item.size}
 Quantity: ${item.quantity}
-Price: ${settings.currency}${(item.price * item.quantity).toLocaleString('en-IN')}
+Price: ${settings.currency}${(item.price * item.quantity).toLocaleString('en-IN')}${item.slug ? `
+Link: ${productLink(item)}` : ''}
 `.trim()).join('\n\n');
 
     const message = `
@@ -2891,7 +3108,7 @@ ${itemsText}
 
 --------------------
 Subtotal: ${settings.currency}${subtotal.toLocaleString('en-IN')}
-Shipping: ${shipping === 0 ? 'FREE' : `${settings.currency}${shipping}`}
+Delivery: ${shipping === 0 ? 'FREE' : `${settings.currency}${shipping}`}
 TOTAL: ${settings.currency}${total.toLocaleString('en-IN')}
 
 DELIVERY DETAILS
@@ -2969,7 +3186,7 @@ Thank you.
         <p class="done-lede">WhatsApp has opened with your order already typed in. Press <b>send</b> so it reaches us.</p>
         <ol class="done-steps">
           <li><b>Send the message</b><span>Your items, sizes and address are in the chat. Just press send.</span></li>
-          <li><b>We confirm</b><span>We reply to confirm your size, total and how you would like to pay.</span></li>
+          <li><b>We confirm</b><span>We reply to confirm your size and total, and send our UPI details to pay.</span></li>
           <li><b>We dispatch</b><span>Your order ships within 24&ndash;48 hours, anywhere in India.</span></li>
         </ol>
         <div class="done-actions">
@@ -3000,13 +3217,14 @@ Thank you.
       const settings = window.BravadianDB.getSettings();
 
       if (products.length === 0) {
-        resultsBox.innerHTML = `<div style="padding: 1.5rem; color: #888; font-family: var(--font-mono); font-size: 0.85rem;">No pieces matching "${q}"</div>`;
+        // What the shopper typed is shown as text, never as HTML
+        resultsBox.innerHTML = `<div style="padding: 1.5rem; color: #888; font-family: var(--font-mono); font-size: 0.85rem;">No tees match "${escapeHTML(q)}". Try a name, a collection or a symbol like Shiva or elephant.</div>`;
       } else {
         resultsBox.innerHTML = products.map(p => `
-          <a href="#/product/${p.slug}" class="search-result-row" onclick="window.BravadianStore.closeSearchModal();">
-            <img src="${p.images.front}" alt="${p.name}" class="search-result-thumb">
+          <a href="#/product/${encodeURIComponent(p.slug)}" class="search-result-row" onclick="window.BravadianStore.closeSearchModal();">
+            <img src="${escapeHTML(p.images.front)}" alt="${escapeHTML(p.name)}" class="search-result-thumb">
             <div class="search-result-info">
-              <h4 class="search-result-title">${p.name}</h4>
+              <h4 class="search-result-title">${escapeHTML(p.name)}</h4>
               <span class="search-result-price">${priceHTML(p)}</span>
             </div>
             <span style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--color-ember);">VIEW →</span>
@@ -3063,27 +3281,68 @@ Thank you.
   }
 
   // ── Fit Finder ─────────────────────────────────────────────────────────
-  const FIT_SIZES = ['S', 'M', 'L', 'XL', 'XXL'];
+  // Works from the size chart itself: estimate the shopper's chest from height, weight and build
+  // (tuned on Indian men's sizing: about 36" at 55 kg, 38" at 65 kg, 40" at 75 kg, 42" at 85 kg),
+  // add the room an oversized tee is cut with, and pick the size whose chest comes closest.
+  // So if the chart in the admin changes, the advice changes with it.
   const FIT_KEY = 'bravadian_fit_profile';
-  const FIT_DEFAULT = { height: 175, weight: 70, build: 'regular', fit: 'true' };
+  const FIT_DEFAULT = { height: 168, weight: 65, build: 'regular', fit: 'true' };
+  const FIT_BUILD = { slim: -1.5, regular: 0, athletic: 1.5, broad: 3 };   // inches of chest
+  const FIT_EASE = { neat: 5, true: 7, extra: 9.5 };                        // inches of room over the body
 
   function loadFitProfile() {
     try { return JSON.parse(localStorage.getItem(FIT_KEY)); } catch (e) { return null; }
   }
 
-  // Weight drives chest/width, height drives body length; build and taste shift by part of a size.
+  function fitChart() {
+    const rows = window.BravadianDB.getSizeGuide().filter(r => Number(r.chest) > 0);
+    return rows.length ? rows : window.BravadianDefaults.DEFAULT_SIZE_GUIDE;
+  }
+
+  function estimateChest(p) {
+    return 36.5 + 0.2 * (p.weight - 55) - 0.05 * (p.height - 168) + (FIT_BUILD[p.build] || 0);
+  }
+
   function recommendSize(p) {
-    const build = { slim: -0.4, regular: 0, athletic: 0.3, broad: 0.6 }[p.build] || 0;
-    const taste = { neat: -0.6, true: 0, extra: 0.8 }[p.fit] || 0;
-    const v = 0.65 * ((p.weight - 55) / 10) + 0.35 * ((p.height - 165) / 6) + build + taste;
-    const idx = Math.min(4, Math.max(0, Math.round(v)));
-    const frac = v - Math.round(v);
-    let alt = null;
-    if (Math.abs(frac) >= 0.3) {
-      const j = idx + (frac > 0 ? 1 : -1);
-      if (j >= 0 && j <= 4) alt = FIT_SIZES[j];
+    const chart = fitChart();
+    const chests = chart.map(r => Number(r.chest));
+    const last = chart.length - 1;
+    const body = estimateChest(p);
+    const target = body + (FIT_EASE[p.fit] ?? FIT_EASE.true);
+
+    // Where the target sits on the chart: 0 = first size, 1 = second, 1.5 = halfway between them…
+    let pos;
+    if (last === 0) pos = 0;
+    else if (target <= chests[0]) pos = (target - chests[0]) / (chests[1] - chests[0]);
+    else if (target >= chests[last]) pos = last + (target - chests[last]) / (chests[last] - chests[last - 1]);
+    else {
+      let i = 0;
+      while (target > chests[i + 1]) i++;
+      pos = i + (target - chests[i]) / (chests[i + 1] - chests[i]);
     }
-    return { size: FIT_SIZES[idx], alt, edge: v < -0.5 ? 'small' : (v > 4.5 ? 'large' : null) };
+
+    const idx = Math.min(last, Math.max(0, Math.round(pos)));
+    const frac = pos - Math.round(pos);
+    let alt = null;
+    let reason = null;
+    if (pos > -0.5 && pos < last + 0.5 && Math.abs(frac) >= 0.3) {
+      const j = idx + (frac > 0 ? 1 : -1);
+      if (j >= 0 && j <= last) { alt = chart[j].size; reason = 'between'; }
+    }
+
+    // Tall shoppers: the tee should reach about mid-hip. If this size runs short, suggest the next one up.
+    const wantLength = (p.height / 2.54) * 0.425;
+    const len = Number(chart[idx].length);
+    if (!alt && len && len < wantLength - 1.5 && idx < last) { alt = chart[idx + 1].size; reason = 'length'; }
+
+    return {
+      size: chart[idx].size,
+      alt,
+      reason,
+      body,
+      row: chart[idx],
+      edge: pos < -0.5 ? 'small' : (pos > last + 0.5 ? 'large' : null)
+    };
   }
 
   function fitButtonLabel() {
@@ -3120,21 +3379,24 @@ Thank you.
       const rec = recommendSize(state);
       document.getElementById('ffSize').textContent = rec.size;
 
+      const order = fitChart().map(r => r.size);
       let note;
-      if (rec.edge === 'small') note = 'You are at the small end of our range. S will still sit loose and relaxed.';
-      else if (rec.edge === 'large') note = 'You are at the top of our range. XXL may fit closer than intended. Message us on WhatsApp for a custom size.';
+      if (rec.edge === 'small') note = `You are at the small end of our range. ${rec.size} will still sit loose and relaxed.`;
+      else if (rec.edge === 'large') note = `You are at the top of our range. ${rec.size} may fit closer than intended. Message us on WhatsApp and we will help you choose.`;
+      else if (rec.reason === 'length') note = `${rec.size} fits your chest. You are tall, so pick ${rec.alt} if you want the tee to sit lower.`;
       else if (rec.alt) {
-        const bigger = FIT_SIZES.indexOf(rec.alt) > FIT_SIZES.indexOf(rec.size) ? rec.alt : rec.size;
+        const bigger = order.indexOf(rec.alt) > order.indexOf(rec.size) ? rec.alt : rec.size;
         const smaller = bigger === rec.alt ? rec.size : rec.alt;
         note = `You are between ${smaller} and ${bigger}. Pick ${bigger} for more drape, ${smaller} for a neater fit.`;
-      } else note = `${rec.size} gives you the dropped-shoulder drape this tee is cut for.`;
+      } else note = `${rec.size} gives you the relaxed, dropped-shoulder fit this tee is cut for.`;
       document.getElementById('ffNote').textContent = note;
 
-      const row = window.BravadianDB.getSizeGuide().find(r => r.size === rec.size);
-      document.getElementById('ffSpecs').innerHTML = row ? `
-        <div><dt>Chest</dt><dd>${row.chest}"</dd></div>
-        <div><dt>Length</dt><dd>${row.length}"</dd></div>
-        ${row.shoulder ? `<div><dt>Shoulder</dt><dd>${row.shoulder}"</dd></div>` : ''}` : '';
+      const row = rec.row;
+      const inch = (v) => `${Math.round(v * 2) / 2}"`;
+      document.getElementById('ffSpecs').innerHTML = `
+        <div><dt>Your chest (approx.)</dt><dd>${inch(rec.body)}</dd></div>
+        ${row.chest ? `<div><dt>Tee chest</dt><dd>${inch(row.chest)}</dd></div>` : ''}
+        ${row.length ? `<div><dt>Length</dt><dd>${inch(row.length)}</dd></div>` : ''}`;
 
       document.querySelectorAll('#sizeGuideTableBody tr').forEach(tr => {
         tr.classList.toggle('is-recommended', tr.dataset.size === rec.size);
@@ -3179,19 +3441,19 @@ Thank you.
   function renderLookbookView() {
     const settings = window.BravadianDB.getSettings();
     const shopLook = window.BravadianDB.getProducts().filter(p => !p.isComingSoon && p.collection === 'heritage').slice(0, 3);
-    // New lookbook photos live in images/lookbook/; until they exist, show product photos
+    // New lookbook photos live in /images/lookbook/; until they exist, show product photos
     const lbImg = (name, fallback, alt, cls) =>
-      `<img src="images/lookbook/${name}.webp" onerror="this.onerror=null;this.src='${fallback}'" alt="${alt}" class="${cls}" loading="lazy">`;
+      `<img src="/images/lookbook/${name}.webp" onerror="this.onerror=null;this.src='${fallback}'" alt="${alt}" class="${cls}" loading="lazy">`;
     const ticker = ['240 GSM COTTON', 'OVERSIZED FIT', 'ORIGINAL INDIAN ARTWORK', 'MADE IN INDIA', 'FOUR COLOURS']
       .map(t => `<span>${t}</span><span class="lb2-star">&#10022;</span>`).join('');
 
     mainContainer.innerHTML = `
       <div class="lookbook lb2">
         <header class="lb2-hero">
-          ${lbImg('lb-hero', 'images/products/bharat-spirit/worn-temple.webp?v=3', 'Bravadian heritage tees worn on the street', 'lb2-hero-img')}
+          ${lbImg('lb-hero', '/images/products/bharat-spirit/worn-temple.webp?v=3', 'Bravadian heritage tees worn on the street', 'lb2-hero-img')}
           <div class="lb2-hero-shade" aria-hidden="true"></div>
           <div class="lb2-hero-copy">
-            <span class="lb2-eyebrow"><i></i>LOOKBOOK // ADHYAYA 01</span>
+            <span class="lb2-eyebrow"><i></i>LOOKBOOK · FIRST DROP</span>
             <h1 class="lb2-title">LOOKBOOK 01:<br>WEAR YOUR ROOTS</h1>
             <p class="lb2-lede">The Heritage collection, out on the street. Folk art and the symbols of India, printed on oversized cotton tees made for every day.</p>
           </div>
@@ -3202,19 +3464,19 @@ Thank you.
         <section class="lb2-section">
           <div class="lb2-head">
             <div>
-              <span class="lb2-kicker">01 / THE LOOKS</span>
+              <span class="lb2-kicker">THE LOOKS</span>
               <h2 class="lb2-h2">HOW IT&rsquo;S WORN</h2>
             </div>
             <p class="lb2-note">Two designs, styled the way you would wear them. Loose, easy and bold.</p>
           </div>
           <div class="lb2-pair">
             <figure class="lb2-fig">
-              ${lbImg('lb-look-01', 'images/products/bharat-spirit/worn-studio.webp?v=2', 'Bharat Spirit tee, styled look', 'lb2-img')}
-              <figcaption><b>LOOK 01 // BHARAT SPIRIT</b><span>BLACK · OVERSIZED</span></figcaption>
+              ${lbImg('lb-look-01', '/images/products/bharat-spirit/worn-studio.webp?v=2', 'Bharat Spirit tee, styled look', 'lb2-img')}
+              <figcaption><b>LOOK 01 · BHARAT SPIRIT</b><span>BLACK · OVERSIZED</span></figcaption>
             </figure>
             <figure class="lb2-fig">
-              ${lbImg('lb-look-02', 'images/products/craft-atlas/closeup.webp', 'Indian Craft Atlas tee, styled look', 'lb2-img')}
-              <figcaption><b>LOOK 02 // INDIAN CRAFT ATLAS</b><span>BLACK · OVERSIZED</span></figcaption>
+              ${lbImg('lb-look-02', '/images/products/craft-atlas/closeup.webp', 'Indian Craft Atlas tee, styled look', 'lb2-img')}
+              <figcaption><b>LOOK 02 · INDIAN CRAFT ATLAS</b><span>BLACK · OVERSIZED</span></figcaption>
             </figure>
           </div>
         </section>
@@ -3222,10 +3484,10 @@ Thank you.
         <section class="lb2-section">
           <div class="lb2-head">
             <div>
-              <span class="lb2-kicker">02 / SHOP THE LOOK</span>
+              <span class="lb2-kicker">SHOP THE LOOK</span>
               <h2 class="lb2-h2">WORN IN THIS LOOKBOOK</h2>
             </div>
-            <p class="lb2-note">₹699 each, free delivery across India.</p>
+            <p class="lb2-note">Tap a tee to see its story. Free delivery across India.</p>
           </div>
           <div class="lb2-shop" style="--n:${Math.max(shopLook.length, 2)}">
             ${shopLook.map((p, n) => `
@@ -3235,7 +3497,7 @@ Thank you.
               <div class="lb2-card-info">
                 <h3>${p.name}</h3>
                 <span class="lb2-card-price">${priceHTML(p)}</span>
-                <span class="lb2-card-sub">240 GSM COTTON // OVERSIZED</span>
+                <span class="lb2-card-sub">HEAVY COTTON · OVERSIZED</span>
               </div>
             </a>`).join('')}
           </div>
@@ -3243,17 +3505,17 @@ Thank you.
 
         <section class="lb2-section">
           <figure class="lb2-fig lb2-wide">
-            ${lbImg('lb-panorama', 'images/heritage/heritage-hero.jpg', 'Wide view of a Bravadian look', 'lb2-img')}
-            <figcaption><b>WIDE SHOT // HERITAGE</b><span>SHOT IN INDIA</span></figcaption>
+            ${lbImg('lb-panorama', '/images/lookbook/lb-hero.webp', 'Wide view of a Bravadian look', 'lb2-img')}
+            <figcaption><b>HERITAGE, WIDE</b><span>SHOT IN INDIA</span></figcaption>
           </figure>
         </section>
 
         <footer class="lb2-quote">
-          <span class="lb2-kicker">INDIAN ROOTS // MODERN FORM</span>
+          <span class="lb2-kicker">INDIAN ROOTS. MODERN FORM.</span>
           <blockquote data-focus-reveal>&ldquo;You didn&rsquo;t just pick a T-shirt. You picked a story.&rdquo;</blockquote>
           <span class="lb2-sign">BRAVADIAN, EST. 2026</span>
           <div class="lb2-actions">
-            <a href="#/shop" class="lb-btn lb-btn-red">SHOP ALL DESIGNS &rarr;</a>
+            <a href="#/shop" class="lb-btn lb-btn-red">SHOP ALL TEES &rarr;</a>
             <a href="${waURL(WA_MSG.custom)}" target="_blank" rel="noopener noreferrer" class="lb-btn lb-btn-ghost">CUSTOM ORDER ON WHATSAPP</a>
           </div>
         </footer>
@@ -3276,32 +3538,50 @@ Thank you.
     if (type === 'privacy' || type === 'privacy-policy') {
       title = 'PRIVACY POLICY';
       content = `
-        <p>At BRAVADIAN (BRAVE INDIAN), your privacy is respected. We collect only the necessary delivery details (name, phone, address) strictly to fulfill order requests communicated via WhatsApp.</p>
-        <h3>DATA USAGE & RETENTION</h3>
-        <p>Customer delivery information entered during checkout is formatted directly into your secure WhatsApp message. We do not permanently store personal delivery or payment credentials in your browser's local storage.</p>
-        <h3>THIRD-PARTY SERVICES</h3>
-        <p>Order conversations are conducted on WhatsApp under Meta's privacy and encryption standards.</p>
+        <p>BRAVADIAN (BRAVE INDIAN) collects only what we need to deliver your order. This page explains what that is, where it is kept and who sees it.</p>
+        <h3>WHAT WE COLLECT</h3>
+        <p>When you place an order: your name, phone number, delivery address, city, state, pincode, landmark and email (if you give one), and the items you ordered. Payment is by UPI, arranged with you on WhatsApp. We never ask for or store payment details on this website.</p>
+        <h3>HOW WE USE IT</h3>
+        <p>To confirm, pack, ship and deliver your order, and to contact you about it. We do not sell your details or use them for advertising.</p>
+        <h3>WHERE IT IS KEPT</h3>
+        <p>Order details are saved in our order database, hosted by Supabase, and are visible only to the BRAVADIAN team. When you tap to order, the same details are also put into a WhatsApp message to us, which is handled under WhatsApp's own privacy terms.</p>
+        <h3>PREVENTING FAKE ORDERS</h3>
+        <p>To stop fake orders from blocking stock, we keep a scrambled (one-way hashed) form of your network address with each order and limit how many orders can be placed in a short time. We do not keep the address itself.</p>
+        <h3>"USE MY LOCATION" AT CHECKOUT</h3>
+        <p>This is optional. If you use it, your device's location is sent to OpenStreetMap to look up your address, and the map preview is loaded from OpenStreetMap. Typing a pincode looks up your city and state with India Post's pincode service. We do not store your location.</p>
+        <h3>ON YOUR DEVICE</h3>
+        <p>Your bag, light or dark theme and fit-finder answers are saved in your own browser so they are there next time. You can clear them at any time by clearing this site's data in your browser.</p>
+        <h3>YOUR CHOICES</h3>
+        <p>To see, correct or delete the details we hold about you, email us at <a href="mailto:${window.BravadianDB.getSettings().supportEmail || 'bravadian.clothing@gmail.com'}">${window.BravadianDB.getSettings().supportEmail || 'bravadian.clothing@gmail.com'}</a>.</p>
       `;
     } else if (type === 'terms' || type === 'terms-conditions') {
       title = 'TERMS & CONDITIONS';
       content = `
-        <p>By browsing BRAVADIAN and ordering through our WhatsApp channel, you acknowledge and agree to our terms of service.</p>
-        <h3>LIMITED EDITIONS</h3>
-        <p>Each 240 GSM oversized silhouette is produced in strictly limited batch sizes. Placement of order details on WhatsApp does not guarantee allocation until confirmed by the concierge.</p>
+        <p>By browsing BRAVADIAN and ordering through WhatsApp, you agree to these terms.</p>
+        <h3>SMALL BATCHES</h3>
+        <p>Each design is made in small batches. Sending your order on WhatsApp does not reserve a tee until we reply and confirm it with you.</p>
+        <h3>PAYMENT</h3>
+        <p>We take payment by UPI only. Once we confirm your order on WhatsApp, we send our UPI details there.</p>
+        <h3>CUSTOM ORDERS</h3>
+        <p>Custom and personalised tees are made to order. Once placed, they cannot be exchanged or returned.</p>
       `;
     } else if (type === 'shipping' || type === 'shipping-policy') {
-      title = 'SHIPPING & DISPATCH';
+      title = 'SHIPPING & DELIVERY';
       content = `
-        <p>All pieces are inspected, boxed, and dispatched within 24 to 48 hours of order confirmation.</p>
-        <h3>TRANSIT TIMES</h3>
-        <p>Metro destinations receive priority air transit within 2-4 business days. Regional zones are delivered within 4-6 business days.</p>
+        <p>Delivery is free on every order, anywhere in India.</p>
+        <h3>DISPATCH</h3>
+        <p>Every tee is checked and packed, then dispatched within 24 to 48 hours of us confirming your order on WhatsApp.</p>
+        <h3>DELIVERY TIMES</h3>
+        <p>Metro cities: usually 2 to 4 working days. Other areas: usually 4 to 6 working days.</p>
       `;
     } else if (type === 'returns' || type === 'return-refund-policy') {
-      title = 'RETURN & EXCHANGE POLICY';
+      title = 'RETURNS & EXCHANGES';
       content = `
-        <p>We accept size exchanges within 7 days of delivery for unworn garments with original tags intact.</p>
-        <h3>QUALITY DEFECTS</h3>
-        <p>In the unlikely event of stitching or textile defects, reach out via our WhatsApp concierge with your delivery invoice for immediate replacement.</p>
+        <p>Wrong size? We exchange sizes within 7 days of delivery, as long as the tee is unworn and the tags are still on.</p>
+        <h3>DAMAGED OR FAULTY</h3>
+        <p>If your tee arrives with a stitching or fabric fault, message us on WhatsApp with your order number and a photo, and we will replace it.</p>
+        <h3>CUSTOM &amp; PERSONALISED ORDERS</h3>
+        <p>Custom and personalised tees are made just for you, so once the order is placed they cannot be exchanged or returned.</p>
       `;
     }
 
@@ -3322,7 +3602,7 @@ Thank you.
         <!-- 1. HERO BRAND INTRO -->
         <section class="about-hero-section">
           <div class="about-hero-bg" aria-hidden="true">
-            <img src="images/about/about-hero.webp" alt="" onerror="this.parentNode.remove()">
+            <img src="/images/lookbook/lb-panorama.webp" alt="" decoding="async" onerror="this.parentNode.remove()">
           </div>
           <div class="container about-hero-container">
             <div class="about-badge-wrap">
@@ -3338,10 +3618,11 @@ Thank you.
             <p class="about-manifesto-sub">
               Bravadian is built on one idea: Indian identity belongs in everyday streetwear. We take the myths, temples, scripts and craft we grew up around and turn them into original graphics on oversized, heavyweight tees. Made to be worn, not displayed.
             </p>
+            <p class="about-manifesto-sub about-adhyaya-note">We release our designs in chapters. Each one is an <em>Adhyaya</em>, Sanskrit for &ldquo;chapter&rdquo;. Adhyaya 01, <em>Rooted Form</em>, is our first drop.</p>
 
             <div class="about-geo-coordinates">
               <span class="geo-bar"></span>
-              <span class="geo-text">— ADHYAYA 01 // ROOTED FORM // EST. 2026 —</span>
+              <span class="geo-text">— ADHYAYA 01 (CHAPTER ONE): ROOTED FORM · EST. 2026 —</span>
               <span class="geo-bar"></span>
             </div>
           </div>
@@ -3356,7 +3637,7 @@ Thank you.
             </blockquote>
             <div class="quote-author-line">
               <span class="quote-line-dash"></span>
-              <span class="quote-author-text">BRAVADIAN // bravadian.in</span>
+              <span class="quote-author-text">BRAVADIAN · bravadian.in</span>
               <span class="quote-line-dash"></span>
             </div>
           </div>
@@ -3385,7 +3666,7 @@ Thank you.
               <p class="pillar-desc">
                 Indian roots, worn the way you actually dress. No costume, no stereotypes. Culture treated as source material, used with respect.
               </p>
-              <div class="pillar-metric">INDIAN ROOTS // MODERN FORM</div>
+              <div class="pillar-metric">INDIAN ROOTS · MODERN FORM</div>
             </div>
 
             <!-- PILLAR 2: NO-BACON RIB COLLAR -->
@@ -3402,7 +3683,7 @@ Thank you.
               <p class="pillar-desc">
                 Inspiration sets the direction. The final artwork is always ours. Every design gets a name, a concept and one sentence that says why it exists.
               </p>
-              <div class="pillar-metric">ORIGINAL ARTWORK // EVERY DESIGN</div>
+              <div class="pillar-metric">ORIGINAL ARTWORK · EVERY DESIGN</div>
             </div>
 
             <!-- PILLAR 3: HOYSALA ICONOGRAPHY -->
@@ -3417,7 +3698,7 @@ Thank you.
               <p class="pillar-desc">
                 Fabric, fit, print and finish have to justify the price. Every design is sampled and wash-tested before we make a full batch.
               </p>
-              <div class="pillar-metric">SAMPLE-TESTED // BEFORE BULK</div>
+              <div class="pillar-metric">WASH-TESTED · BEFORE WE MAKE IT</div>
             </div>
 
             <!-- PILLAR 4: VAULT SERIALIZATION -->
@@ -3434,7 +3715,7 @@ Thank you.
               <p class="pillar-desc">
                 A premium feel without a premium barrier. We keep prices within reach so the story is something you wear every day.
               </p>
-              <div class="pillar-metric">AFFORDABLE PREMIUM // EVERYDAY</div>
+              <div class="pillar-metric">PREMIUM · AT A FAIR PRICE</div>
             </div>
           </div>
         </section>
@@ -3443,39 +3724,40 @@ Thank you.
         <section class="about-specs-section container">
           <div class="about-spec-strip">
             <div class="about-spec-item">
-              <span class="spec-label">[ FABRIC ]</span>
+              <span class="spec-label">FABRIC</span>
               <span class="spec-val">240 GSM</span>
-              <span class="spec-sub">French Terry Cotton</span>
+              <span class="spec-sub">Thick, soft French Terry cotton</span>
             </div>
             <div class="about-spec-item">
-              <span class="spec-label">[ FIT ]</span>
+              <span class="spec-label">FIT</span>
               <span class="spec-val">OVERSIZED</span>
-              <span class="spec-sub">Relaxed Drop-Shoulder</span>
+              <span class="spec-sub">Relaxed, with dropped shoulders</span>
             </div>
             <div class="about-spec-item">
-              <span class="spec-label">[ FINISH ]</span>
-              <span class="spec-val">BIO + SILICONE</span>
-              <span class="spec-sub">Washed For A Soft Hand-Feel</span>
+              <span class="spec-label">FEEL</span>
+              <span class="spec-val">WASHED SOFT</span>
+              <span class="spec-sub">Bio + silicone wash, soft from day one</span>
             </div>
             <div class="about-spec-item">
-              <span class="spec-label">[ PRINT ]</span>
-              <span class="spec-val">DTF</span>
-              <span class="spec-sub">Sharp, Full-Colour Artwork</span>
+              <span class="spec-label">PRINT</span>
+              <span class="spec-val">FULL COLOUR</span>
+              <span class="spec-sub">DTF print, sharp and bright</span>
             </div>
           </div>
         </section>
 
         <!-- 5. CALL TO ACTION WITH THEMED VAULT BUTTON -->
         <section class="about-cta-section container">
-          <div class="about-cta-card">
-            <span class="figma-tag">[ ADHYAYA 01 IS HERE ]</span>
-            <h2 class="about-cta-title">WEAR THE STORY</h2>
-            <p class="about-cta-sub">
+          <div class="about-cta-card" id="aboutCtaCard">
+            ${aboutCtaBackdropHTML()}
+            <span class="figma-tag cta-rise" style="--i:0">[ OUR FIRST DROP IS HERE ]</span>
+            <h2 class="about-cta-title cta-rise" style="--i:1">WEAR THE STORY</h2>
+            <p class="about-cta-sub cta-rise" style="--i:2">
               You didn't just pick a T-shirt. You picked a story.
             </p>
-            <div class="about-cta-actions">
+            <div class="about-cta-actions cta-rise" style="--i:3">
               <a href="#/shop" class="btn-figma-primary">
-                <span>[ SHOP NOW ]</span>
+                <span>SHOP ALL TEES</span>
                 <svg class="btn-vault-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                   <line x1="5" y1="12" x2="19" y2="12"></line>
                   <polyline points="12 5 19 12 12 19"></polyline>
@@ -3490,6 +3772,60 @@ Thank you.
         </section>
       </div>
     `;
+    initAboutCta();
+  }
+
+  // About page, closing card: the stories are the tees. Two slow rows of real tee artwork drift
+  // behind the words in opposite directions, a rangoli draws itself in behind the heading, and
+  // the words rise in one after another. Seen once per visit, so it can afford a moment.
+  function aboutCtaBackdropHTML() {
+    const products = window.BravadianDB.getProducts().filter(p => p.images && p.images.front && !/^data:/.test(p.images.front));
+    const tees = [...products.filter(p => !p.isComingSoon), ...products.filter(p => p.isComingSoon)].slice(0, 10);
+    if (tees.length < 3) return '';
+    const half = Math.ceil(tees.length / 2);
+    // Each half of a row holds the tees twice (enough to span a wide card); the row slides by
+    // exactly one half, so it loops without a seam
+    const row = (list, dir) => `
+      <div class="cta-reel cta-reel-${dir}">
+        <div class="cta-reel-track">
+          ${[...list, ...list, ...list, ...list].map(p => `<img src="${p.images.front}" alt="" loading="lazy" decoding="async" draggable="false">`).join('')}
+        </div>
+      </div>`;
+    // Rangoli: 16 outer petals, 8 inner petals, two rings and a ring of dots, drawn as one line
+    const petals = (n, rx, ry, cy) => Array.from({ length: n }, (_, i) =>
+      `<ellipse cx="0" cy="${cy}" rx="${rx}" ry="${ry}" transform="rotate(${(360 / n) * i})" pathLength="1"/>`).join('');
+    const dots = Array.from({ length: 24 }, (_, i) =>
+      `<circle cx="0" cy="-94" r="2.2" transform="rotate(${15 * i})"/>`).join('');
+    return `
+      <div class="cta-backdrop" aria-hidden="true">
+        ${row(tees.slice(0, half), 'left')}
+        ${row(tees.slice(half).length >= 2 ? tees.slice(half) : tees.slice(0, half), 'right')}
+      </div>
+      <svg class="cta-rangoli" viewBox="-110 -110 220 220" aria-hidden="true">
+        <g class="cta-rangoli-spin">
+          <circle r="100" pathLength="1"/>
+          <circle r="62" pathLength="1"/>
+          ${petals(16, 13, 34, -66)}
+          ${petals(8, 10, 24, -34)}
+          <circle r="12" pathLength="1"/>
+          <g class="cta-rangoli-dots">${dots}</g>
+        </g>
+      </svg>`;
+  }
+
+  function initAboutCta() {
+    const card = document.getElementById('aboutCtaCard');
+    if (!card) return;
+    if (!('IntersectionObserver' in window)) { card.classList.add('is-in', 'is-live'); return; }
+    // Reveal once when it comes into view; run the drifting rows only while it is on screen
+    const io = new IntersectionObserver((entries) => {
+      if (!card.isConnected) { io.disconnect(); return; }
+      entries.forEach(e => {
+        if (e.isIntersecting) card.classList.add('is-in');
+        card.classList.toggle('is-live', e.isIntersecting);
+      });
+    }, { threshold: 0.3 });
+    io.observe(card);
   }
 
   function renderContactView() {
@@ -3538,7 +3874,7 @@ Thank you.
         <!-- 2. SECTION 04: THE FOUR MAINTENANCE PROTOCOLS -->
         <section class="size-spec-section" style="margin-bottom: 3.5rem;">
           <div class="size-spec-section-head">
-            <span class="size-spec-section-num">— 04 / CARE GUIDE</span>
+            <span class="size-spec-section-num">— CARE GUIDE</span>
             <h2 class="size-spec-section-title">EVERY WASH</h2>
             <p class="size-spec-section-sub">
               Four simple steps, every time you wash.
@@ -3573,7 +3909,7 @@ Thank you.
         <!-- 4. TECHNICAL FIBER & STRUCTURAL SPECIFICATIONS -->
         <section class="size-spec-section" style="margin-top: 3.5rem;">
           <div class="size-spec-section-head">
-            <span class="size-spec-section-num">— 05 / WHAT IT IS MADE OF</span>
+            <span class="size-spec-section-num">— WHAT IT'S MADE OF</span>
             <h2 class="size-spec-section-title">FABRIC DETAILS</h2>
           </div>
 
@@ -3589,25 +3925,25 @@ Thank you.
               </thead>
               <tbody>
                 <tr>
-                  <td style="color: #FFA000; font-weight: 700;">240 GSM Body Fabric</td>
+                  <td style="color: var(--theme-accent); font-weight: 700;">240 GSM Body Fabric</td>
                   <td>French Terry cotton, bio + silicone washed</td>
                   <td>Cold, gentle wash</td>
                   <td>Soft, thick and holds its shape</td>
                 </tr>
                 <tr>
-                  <td style="color: #FFA000; font-weight: 700;">1.25" Collar Rib</td>
+                  <td style="color: var(--theme-accent); font-weight: 700;">1.25" Collar Rib</td>
                   <td>Thick ribbed collar</td>
                   <td>Dry flat</td>
                   <td>Stays neat around the neck</td>
                 </tr>
                 <tr>
-                  <td style="color: #FFA000; font-weight: 700;">Printed Artwork</td>
+                  <td style="color: var(--theme-accent); font-weight: 700;">Printed Artwork</td>
                   <td>Large DTF print</td>
                   <td>Iron inside out only</td>
                   <td>Keeps colours bright</td>
                 </tr>
                 <tr>
-                  <td style="color: #FFA000; font-weight: 700;">Shoulder Drop Seams</td>
+                  <td style="color: var(--theme-accent); font-weight: 700;">Shoulder Drop Seams</td>
                   <td>Dropped shoulders, strong stitching</td>
                   <td>Fold, or use a wide hanger</td>
                   <td>The relaxed oversized fit</td>
@@ -3621,7 +3957,7 @@ Thank you.
         <div class="care-page-cta-strip">
           <div>
             <span class="figma-tag">[ NOT SURE OF YOUR SIZE? ]</span>
-            <h3 style="font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; color: #fff; margin: 0.35rem 0 0 0; letter-spacing: 1.5px; text-transform: uppercase;">FIND YOUR FIT</h3>
+            <h3 style="font-family: var(--font-display); font-size: 1.8rem; color: var(--theme-text-primary); margin: 0.35rem 0 0 0; letter-spacing: 1.5px; text-transform: uppercase;">FIND YOUR FIT</h3>
           </div>
           <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
             <button type="button" onclick="window.BravadianStore.openSizeGuideModal();" class="btn-figma-primary" style="cursor: pointer;">
@@ -3663,14 +3999,18 @@ Thank you.
     const showCard = (lat, lon, a) => {
       const area = [a.road, a.neighbourhood || a.suburb].filter(Boolean).join(', ');
       const city = a.city || a.town || a.village || a.county || '';
+      // Address text comes from OpenStreetMap, which anyone can edit: set it as text, never as HTML.
       card.innerHTML = `
-        ${mapHTML(lat, lon)}
+        ${mapHTML(Number(lat), Number(lon))}
         <div class="loc-card-body">
           <span class="loc-card-kicker">DELIVERING TO</span>
-          <b>${area || city}</b>
-          <span>${[city, a.state].filter(Boolean).join(', ')}${a.postcode ? ` &ndash; ${a.postcode}` : ''}</span>
+          <b data-f="area"></b>
+          <span data-f="place"></span>
           <button type="button" class="loc-change" id="locChange">Change</button>
         </div>`;
+      card.querySelector('[data-f="area"]').textContent = area || city;
+      card.querySelector('[data-f="place"]').textContent =
+        [city, a.state].filter(Boolean).join(', ') + (a.postcode ? ` – ${a.postcode}` : '');
       card.hidden = false;
       const or = document.querySelector('.loc-or');
       if (or) or.hidden = true;
@@ -3685,8 +4025,18 @@ Thank you.
         const { latitude: lat, longitude: lon } = pos.coords;
         try {
           setBusy(true, 'Getting your address…');
-          const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1&accept-language=en`);
-          const d = await r.json();
+          // OpenStreetMap's free lookup asks for few requests: reuse a result for the same spot (~10 m)
+          const key = `bravadian_geo_${lat.toFixed(4)},${lon.toFixed(4)}`;
+          let d = null;
+          try { d = JSON.parse(sessionStorage.getItem(key)); } catch (e) { /* storage blocked */ }
+          if (!d) {
+            const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1&accept-language=en`,
+              { signal: AbortSignal.timeout(10000) });
+            if (r.status === 429) { setBusy(false, 'The address lookup is busy right now. Please type your address.'); return; }
+            if (!r.ok) throw new Error(`lookup failed (${r.status})`);
+            d = await r.json();
+            try { sessionStorage.setItem(key, JSON.stringify(d)); } catch (e) { /* storage full or blocked */ }
+          }
           const a = d.address || {};
           if (a.country_code && a.country_code !== 'in') { setBusy(false, 'We deliver within India only. Please type an Indian address.'); return; }
           put('chkAddress2', [a.road, a.neighbourhood || a.suburb].filter(Boolean).join(', '), true);
@@ -3716,7 +4066,8 @@ Thank you.
       if (v.length !== 6 || v === lastPin) return;
       lastPin = v;
       try {
-        const r = await fetch(`https://api.postalpincode.in/pincode/${v}`);
+        const r = await fetch(`https://api.postalpincode.in/pincode/${v}`, { signal: AbortSignal.timeout(8000) });
+        if (!r.ok) return;
         const [d] = await r.json();
         const po = d && d.Status === 'Success' && d.PostOffice && d.PostOffice[0];
         if (po && pin.value === v) { put('chkCity', po.District); put('chkState', po.State); }
@@ -3786,8 +4137,7 @@ Thank you.
       const color = product.colors[0];
       const availableSizes = getAvailableSizesForColor(product, color);
       if (availableSizes.length > 0) {
-        addToCart(product, color, availableSizes[0], 1);
-        openCartDrawer();
+        if (addToCart(product, color, availableSizes[0], 1)) openCartDrawer();
       } else {
         window.location.hash = `#/product/${slug}`;
       }
