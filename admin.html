@@ -9,7 +9,7 @@
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Yatra+One&family=Eczar:wght@500;600;700;800&family=Rajdhani:wght@500;600;700&family=Mukta:wght@300;400;500;600;700;800&family=Tiro+Devanagari+Hindi&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Yatra+One&family=Eczar:wght@500;600;700;800&family=Rajdhani:wght@500;600;700&family=Mukta:wght@300;400;500;600;700;800&family=Tiro+Devanagari+Hindi&family=Kalam:wght@400;700&display=swap" rel="stylesheet">
   
   <link rel="stylesheet" href="css/styles.css">
   <link rel="stylesheet" href="css/admin.css">
@@ -79,7 +79,7 @@
           <a href="#wallposts"><span>🗂️ WALL POSTS <b class="nav-count" id="wallNavCount" hidden></b></span></a>
         </li>
         <li class="sidebar-nav-item" data-tab="walleditor">
-          <a href="#walleditor"><span>➕ ADD CUSTOMER</span></a>
+          <a href="#walleditor"><span>➕ ADD TO WALL</span></a>
         </li>
         <li class="sidebar-nav-item" data-tab="wallfeatured">
           <a href="#wallfeatured"><span>⭐ FEATURED</span></a>
@@ -147,7 +147,7 @@
         </div>
         <div class="topbar-actions">
           <a class="btn-admin-secondary wa-view-wall" href="wall" target="_blank" rel="noopener">VIEW WALL ↗</a>
-          <button type="button" class="btn-admin-secondary" data-wall-new>+ ADD CUSTOMER</button>
+          <button type="button" class="btn-admin-secondary" data-wall-new>+ ADD TO WALL</button>
           <button type="button" class="btn-admin-primary" id="btnAddNewProduct">
             <span>+ ADD NEW PRODUCT</span>
           </button>
@@ -238,7 +238,7 @@
             </div>
             <div class="wa-head-actions">
               <button type="button" class="btn-admin-secondary" id="waRemoveDemo" hidden>REMOVE DEMO POSTS</button>
-              <button type="button" class="btn-admin-primary" data-wall-new>+ ADD CUSTOMER</button>
+              <button type="button" class="btn-admin-primary" data-wall-new>+ ADD TO WALL</button>
             </div>
           </div>
           <div class="orders-toolbar wa-toolbar">
@@ -269,14 +269,27 @@
             <div class="admin-card-container">
               <div class="card-header-bar">
                 <div>
-                  <h2 class="card-heading" id="waEditorTitle">ADD CUSTOMER TO THE WALL</h2>
+                  <h2 class="card-heading" id="waEditorTitle">ADD TO THE WALL</h2>
                   <p class="wa-muted" id="waEditorState"></p>
                 </div>
                 <button type="button" class="btn-admin-secondary" data-wall-tab="wallposts">← ALL POSTS</button>
               </div>
 
               <fieldset class="wa-set">
-                <legend>PHOTOS <span class="wa-hint">The first photo is the cover. Up to 6.</span></legend>
+                <legend>WALL PIECE</legend>
+                <div class="admin-form-grid">
+                  <div class="admin-field"><label for="waKind">TYPE</label>
+                    <select id="waKind" class="admin-select">
+                      <option value="photo">Customer photo</option>
+                      <option value="featured">Featured (a larger photo, near the top)</option>
+                    </select>
+                  </div>
+                  <p class="wa-kind-help" id="waKindHelp"></p>
+                </div>
+              </fieldset>
+
+              <fieldset class="wa-set" id="waPhotoSet">
+                <legend>PHOTOS <span class="wa-hint" id="waPhotoHint">The first photo is the cover. Up to 6.</span></legend>
                 <div class="wa-drop" id="waDrop">
                   <input type="file" id="waFiles" accept="image/jpeg,image/png,image/webp,image/avif" multiple hidden>
                   <label for="waFiles" class="btn-admin-primary">CHOOSE PHOTOS</label>
@@ -288,38 +301,37 @@
               </fieldset>
 
               <fieldset class="wa-set">
-                <legend>CUSTOMER <span class="wa-hint">Shown on the Wall</span></legend>
+                <legend id="waWhoLegend">CUSTOMER <span class="wa-hint">Shown when a visitor opens the photo</span></legend>
                 <div class="admin-form-grid">
-                  <div class="admin-field"><label for="waName">DISPLAY NAME *</label><input id="waName" class="admin-input" maxlength="60" required placeholder="Arjun"><p class="wa-field-error" data-for="waName"></p></div>
-                  <div class="admin-field"><label for="waCity">CITY *</label><input id="waCity" class="admin-input" maxlength="60" required placeholder="Bengaluru" list="waCityList"><datalist id="waCityList"></datalist><p class="wa-field-error" data-for="waCity"></p></div>
-                  <div class="admin-field"><label for="waState">STATE</label><input id="waState" class="admin-input" maxlength="60" placeholder="Karnataka"></div>
-                  <div class="admin-field"><label for="waCountry">COUNTRY</label><input id="waCountry" class="admin-input" maxlength="60" value="India"></div>
-                  <div class="admin-field"><label for="waDate">SUBMISSION DATE</label><input id="waDate" class="admin-input" type="date"></div>
-                  <div class="admin-field form-field-full"><label for="waQuote">THEIR WORDS <span class="wa-hint" id="waQuoteCount">0 / 280</span></label><textarea id="waQuote" class="admin-textarea" rows="2" maxlength="280" placeholder="More than a shirt. It's something I connect with."></textarea><p class="wa-field-error" data-for="waQuote"></p></div>
+                  <div class="admin-field"><label for="waName" id="waNameLabel">DISPLAY NAME *</label><input id="waName" class="admin-input" maxlength="60" required placeholder="Arjun"><p class="wa-field-error" data-for="waName"></p></div>
+                  <div class="admin-field wa-only-customer"><label for="waCity">CITY *</label><input id="waCity" class="admin-input" maxlength="60" required placeholder="Bengaluru" list="waCityList"><datalist id="waCityList"></datalist><p class="wa-field-error" data-for="waCity"></p></div>
+                  <div class="admin-field wa-only-customer"><label for="waState">STATE</label><input id="waState" class="admin-input" maxlength="60" placeholder="Karnataka"></div>
+                  <div class="admin-field wa-only-customer"><label for="waCountry">COUNTRY</label><input id="waCountry" class="admin-input" maxlength="60" value="India"></div>
+                  <div class="admin-field wa-only-customer"><label for="waDate">SUBMISSION DATE</label><input id="waDate" class="admin-input" type="date"></div>
+                  <div class="admin-field form-field-full" id="waQuoteField"><label for="waQuote"><span id="waQuoteLabel">THEIR WORDS</span> <span class="wa-hint" id="waQuoteCount">0 / 280</span></label><textarea id="waQuote" class="admin-textarea" rows="2" maxlength="280" placeholder="More than a shirt. It's something I connect with."></textarea><p class="wa-field-error" data-for="waQuote"></p></div>
                 </div>
               </fieldset>
 
-              <fieldset class="wa-set">
-                <legend>WHAT THEY'RE WEARING</legend>
+              <fieldset class="wa-set" id="waWearSet">
+                <legend id="waWearLegend">WHAT THEY'RE WEARING</legend>
                 <div class="admin-form-grid">
-                  <div class="admin-field"><label for="waProduct">TEE</label><select id="waProduct" class="admin-select"></select></div>
-                  <div class="admin-field"><label for="waCollection">COLLECTION</label><select id="waCollection" class="admin-select"></select></div>
+                  <div class="admin-field wa-only-customer"><label for="waProduct">TEE</label><select id="waProduct" class="admin-select"></select></div>
+                  <div class="admin-field"><label for="waCollection">COLLECTION</label><select id="waCollection" class="admin-select"></select><p class="wa-field-error" data-for="waCollection"></p></div>
                   <div class="admin-field wa-manual" hidden><label for="waProductName">PRODUCT NAME</label><input id="waProductName" class="admin-input" maxlength="80" placeholder="Custom Bravadian tee"><p class="wa-field-error" data-for="waProductName"></p></div>
                   <div class="admin-field wa-manual" hidden><label for="waProductUrl">PRODUCT LINK</label><input id="waProductUrl" class="admin-input" maxlength="300" placeholder="https://... or /#/product/..." spellcheck="false"><p class="wa-field-error" data-for="waProductUrl"></p></div>
                 </div>
               </fieldset>
 
-              <fieldset class="wa-set">
-                <legend>FEATURED STORY</legend>
-                <label class="wa-switch"><input type="checkbox" id="waFeatured"> <span>Feature this customer as a mini story at the top of the Wall</span></label>
-                <div class="admin-form-grid wa-featured-fields" id="waFeaturedFields" hidden>
+              <fieldset class="wa-set" id="waFeaturedFields" hidden>
+                <legend>FEATURED <span class="wa-hint">a larger photo near the top of the Wall; the headline and quote show in its story</span></legend>
+                <div class="admin-form-grid wa-featured-fields">
                   <div class="admin-field form-field-full"><label for="waHeadline">FEATURED HEADLINE</label><input id="waHeadline" class="admin-input" maxlength="80" placeholder="THIS IS WHAT BRAVADIAN LOOKS LIKE."></div>
                   <div class="admin-field form-field-full"><label for="waFeaturedQuote">FEATURED QUOTE <span class="wa-hint">leave empty to use their words</span></label><textarea id="waFeaturedQuote" class="admin-textarea" rows="2" maxlength="280"></textarea></div>
                   <div class="admin-field"><label for="waFeaturedImage">FEATURED PHOTO</label><select id="waFeaturedImage" class="admin-select"></select></div>
                 </div>
               </fieldset>
 
-              <fieldset class="wa-set wa-private">
+              <fieldset class="wa-set wa-private" id="waPermissionSet">
                 <legend>PERMISSION &amp; PRIVATE NOTES <span class="wa-lock">🔒 PRIVATE · never shown on the Wall</span></legend>
                 <div class="admin-form-grid">
                   <div class="admin-field"><label for="waPermission">PERMISSION TO FEATURE *</label>
@@ -346,7 +358,7 @@
                       <option value="published" disabled>Published (use Publish)</option>
                     </select>
                   </div>
-                  <div class="admin-field"><label for="waOrder">DISPLAY ORDER <span class="wa-hint">lower comes first; 0 = newest first</span></label><input id="waOrder" class="admin-input" type="number" step="1" value="0"></div>
+                  <div class="admin-field"><label for="waOrder">DISPLAY ORDER <span class="wa-hint">lower comes first; 0 = newest first; negative puts it near the top</span></label><input id="waOrder" class="admin-input" type="number" step="1" value="0"></div>
                 </div>
               </fieldset>
             </div>
@@ -357,8 +369,8 @@
               <div class="card-header-bar">
                 <h3 class="card-heading">LIVE PREVIEW</h3>
                 <div class="wa-view-toggle" role="group" aria-label="Preview">
-                  <button type="button" data-preview="card" aria-pressed="true">CARD</button>
-                  <button type="button" data-preview="featured" aria-pressed="false">FEATURED</button>
+                  <button type="button" data-preview="desktop" aria-pressed="true">DESKTOP</button>
+                  <button type="button" data-preview="phone" aria-pressed="false">PHONE</button>
                   <button type="button" data-preview-theme aria-pressed="false" title="Show the dark theme">DARK</button>
                 </div>
               </div>

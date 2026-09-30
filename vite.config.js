@@ -67,7 +67,7 @@ function buildWallPage() {
   swap(/href="#\//g, 'href="%BASE_URL%#/', 'store links');
   swap(/<body>/, '<body data-page="wall">', '<body>');
   swap(/<main id="storeMainApp"><\/main>/, `<main id="storeMainApp" class="is-wall-page">\n${main}\n</main>`, 'the empty <main id="storeMainApp">');
-  swap(/<link rel="stylesheet" href="\/css\/store\.css">/, '$&\n  <link rel="stylesheet" href="/css/wall.css">', 'the store stylesheet');
+  swap(/<link rel="stylesheet" href="\/css\/store\.css">/, '$&\n  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&display=swap">\n  <link rel="stylesheet" href="/css/wall.css">', 'the store stylesheet');
   swap(/<script type="module" src="\/js\/store\.js"><\/script>/, '$&\n  <script type="module" src="/js/wall.js"></script>', 'the store script');
   // Mark the Wall links in the header and menus as the current page
   html = html.replace(/(<a href="%BASE_URL%wall")( class="[^"]*")?/g, '$1$2 aria-current="page"');

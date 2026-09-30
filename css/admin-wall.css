@@ -113,26 +113,26 @@
 .wa-spinner { width: 26px; height: 26px; border: 3px solid rgba(255, 255, 255, 0.15); border-top-color: var(--admin-ember); border-radius: 50%; animation: waSpin 800ms linear infinite; }
 @keyframes waSpin { to { transform: rotate(360deg); } }
 
-/* live preview: the real Wall card on the site's own colours */
+/* live preview: the real piece on a patch of the real wall (tokens and look come from css/wall.css) */
 .wall-preview {
-  --theme-bg-body: #EDE8D0; --theme-bg-card: #F8F6EC; --theme-bg-surface: #E2DCC1;
-  --theme-text-primary: #000000; --theme-text-secondary: #2B2A26; --theme-text-muted: #5C5A52;
-  --theme-border-subtle: rgba(0, 35, 102, 0.12); --theme-border-medium: rgba(0, 35, 102, 0.22); --theme-border-strong: rgba(0, 35, 102, 0.36);
-  --theme-accent: #D0141B;
-  background: var(--theme-bg-body); color: var(--theme-text-primary);
-  padding: 1rem; border-radius: 4px; max-height: 70vh; overflow: auto;
+  background-color: var(--wall-plaster);
+  background-image: radial-gradient(120% 70% at 50% 0%, var(--wall-light), transparent 70%), var(--wall-grain);
+  background-size: 100% 100%, 220px 220px;
+  padding: 2.25rem 1.5rem 1rem; border-radius: 4px; max-height: 76vh; overflow: auto;
 }
-.wall-preview[data-theme="dark"] {
-  --theme-bg-body: #000000; --theme-bg-card: #121214; --theme-bg-surface: #0C0C0E;
-  --theme-text-primary: #FFFFFF; --theme-text-secondary: #D6D3C6; --theme-text-muted: #9A978C;
-  --theme-border-subtle: rgba(237, 232, 208, 0.08); --theme-border-medium: rgba(237, 232, 208, 0.16); --theme-border-strong: rgba(237, 232, 208, 0.28);
-  --theme-accent: #ED1C24;
-}
-.wa-preview-card { max-width: 280px; margin: 0 auto; }
-.wall-preview .wall-feature { grid-template-columns: minmax(0, 1fr); gap: 1rem; }
-.wall-preview .wall-feature-headline { font-size: 1.7rem; }
-.wall-preview .wall-feature-quote { font-size: 1.05rem; }
-.wall-preview .wall-card-media, .wall-preview .wall-feature-media { cursor: default; }
+.wa-preview-stage { display: grid; justify-items: center; }
+.wa-preview-wall.wall-canvas { width: auto; min-height: 0; max-width: none; margin: 0; }
+.wa-preview-wall .wp { position: relative; left: auto; top: auto; }
+.wa-preview-wall .wp-hit, .wa-preview-wall .wp-feature-photo { cursor: default; }
+.wa-preview-note { margin: 1.5rem 0 0; font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 1px; color: var(--wall-text-soft); text-align: center; }
+.wa-kind-help { grid-column: 1 / -1; margin: 0; font-size: 0.82rem; line-height: 1.45; color: #b5b5c0; }
+.wa-radios { display: grid; gap: 0.45rem; margin-top: 0.35rem; font-size: 0.86rem; }
+.wa-radios label { display: flex; gap: 0.5rem; align-items: center; cursor: pointer; }
+.wa-radios input { accent-color: var(--admin-ember); width: 16px; height: 16px; }
+.wa-manual-layout input[type="range"] { width: 100%; accent-color: var(--admin-ember); }
+.wa-manual-layout output { margin-left: 0.4rem; font-family: var(--font-mono); color: #fff; }
+.wa-manual-layout[hidden], #waForm .admin-field[hidden], #waForm .wa-set[hidden] { display: none; }
+.wa-pill.is-kind { background: rgba(237, 232, 208, 0.12); color: #ede8d0; }
 .wa-checklist { list-style: none; margin: 1rem 0 0; padding: 0; display: grid; gap: 0.35rem; font-size: 0.8rem; color: #9a9aa6; }
 .wa-checklist li span:first-child { display: inline-block; width: 1.2rem; }
 .wa-checklist li.is-ok { color: #e6e6e6; }
@@ -207,3 +207,6 @@ body.is-wall-tab .topbar-actions #btnAddNewProduct { display: none; }
 .wa-preview-box .card-header-bar { flex-wrap: wrap; gap: 0.6rem; }
 .wa-preview-box .card-heading { white-space: nowrap; }
 .btn-admin-primary:disabled, .btn-admin-secondary:disabled { opacity: 0.4; cursor: not-allowed; }
+/* preview: the photo next to two blank prints, so its size on the wall is clear */
+.wa-preview-wall.wall-canvas { padding: 14px 10px; gap: 22px 16px; }
+.wa-preview-wall .wa-ghost .wp-photo-print { opacity: 0.28; box-shadow: none; }

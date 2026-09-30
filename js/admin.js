@@ -199,7 +199,7 @@
       dataio: 'BACKUP & DATA IMPORT',
       wall: 'THE BRAVADIAN WALL',
       wallposts: 'WALL POSTS',
-      walleditor: 'WALL · CUSTOMER',
+      walleditor: 'WALL · ADD / EDIT',
       wallfeatured: 'WALL · FEATURED ORDER',
       wallmedia: 'WALL · MEDIA'
     };

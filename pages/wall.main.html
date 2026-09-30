@@ -1,92 +1,57 @@
 <!-- The Bravadian Wall: page content. vite.config.js puts this inside the site shell (index.html) to make /wall. -->
 <div class="wall-page" id="wallPage">
-  <section class="wall-hero" aria-labelledby="wallTitle">
-    <div class="wall-hero-inner">
-      <div class="wall-hero-copy">
-        <span class="wall-eyebrow">[ Bravadian &middot; Brave Indian ]</span>
-        <h1 class="wall-title" id="wallTitle">The Bravadian Wall</h1>
-        <p class="wall-lede"><span>Real people.</span> <span>Real stories.</span> <span>One identity.</span></p>
-        <p class="wall-sub">You don&rsquo;t just buy Bravadian. You become part of it. See how India wears it.</p>
-        <a class="wall-jump" href="#wallGrid">See the Wall <span aria-hidden="true">&darr;</span></a>
-      </div>
-
-      <aside class="wall-join" aria-labelledby="wallJoinTitle">
-        <h2 class="wall-join-title" id="wallJoinTitle">Show us your Bravadian.</h2>
-        <ol class="wall-steps">
-          <li><b>Wear it.</b><span>Your tee, your way.</span></li>
-          <li><b>Capture it.</b><span>A photo where the print shows.</span></li>
-          <li><b>Tag <span data-brand-handle>@bravadian.in</span>.</b><span>On your post or your story.</span></li>
-        </ol>
-        <p class="wall-join-note">Want to be featured? You could be next.</p>
-        <a class="wall-btn wall-btn-primary" data-brand-ig href="https://www.instagram.com/bravadian.in/" target="_blank" rel="noopener noreferrer">Tag <span data-brand-handle>@bravadian.in</span> <span aria-hidden="true">&nearr;</span></a>
-      </aside>
+  <header class="wall-hero" aria-labelledby="wallTitle">
+    <div class="wall-hero-copy">
+      <p class="wall-hero-tag"><span>Bravadian</span> <span aria-hidden="true">&middot;</span> <span>Brave Indian</span></p>
+      <h1 class="wall-title" id="wallTitle">The Bravadian Wall</h1>
+      <p class="wall-lede"><span>Real people.</span> <span>Real stories.</span> <span>One identity.</span></p>
+      <p class="wall-sub">See how India wears Bravadian. <span class="wall-sub-arrow" aria-hidden="true">&#8595;</span></p>
+      <p class="wall-count" id="wallCount" aria-live="polite"></p>
     </div>
-  </section>
+
+    <!-- pinned to the wall beside the title -->
+    <aside class="wall-hero-poster" aria-labelledby="wallPosterTitle">
+      <div class="wp-body" style="--r:1.4deg;--tt:-3deg">
+        <div class="wp-card wp-poster">
+          <p class="wp-kicker">Be part of the Wall</p>
+          <h2 class="wp-poster-title" id="wallPosterTitle">Your story could be next.</h2>
+          <p class="wp-poster-lines">Wear your Bravadian.<br>Capture your moment.<br>Tag <span data-brand-handle>@bravadian.in</span>.</p>
+          <p class="wp-poster-stamp">You could be next.</p>
+          <div class="wp-poster-actions">
+            <a class="wp-btn is-red" href="%BASE_URL%#/shop">Shop Bravadian</a>
+            <a class="wp-btn is-ink" data-brand-ig href="https://www.instagram.com/bravadian.in/" target="_blank" rel="noopener noreferrer">Follow <span data-brand-handle>@bravadian.in</span></a>
+          </div>
+        </div>
+        <span class="wp-tape at-tl is-red" aria-hidden="true"></span><span class="wp-tape at-tr is-red" aria-hidden="true"></span>
+        <span class="wp-tape at-bl is-red" aria-hidden="true"></span><span class="wp-tape at-br is-red" aria-hidden="true"></span>
+      </div>
+    </aside>
+  </header>
 
   <div class="wall-preview-notice" id="wallPreviewNotice" role="status" hidden></div>
 
-  <section class="wall-featured" id="wallFeatured" aria-labelledby="wallFeaturedTitle" hidden>
-    <div class="wall-section-inner">
-      <h2 class="wall-sr" id="wallFeaturedTitle">Featured Bravadians</h2>
-      <div class="wall-featured-body" id="wallFeaturedBody"></div>
+  <nav class="wall-tools" id="wallTools" aria-label="Filter the Wall" hidden>
+    <div class="wall-pills" id="wallPills" role="group" aria-label="Show"></div>
+    <div class="wall-refine">
+      <label class="wall-field" for="wallCollection"><span class="wall-sr">Collection</span>
+        <select id="wallCollection"><option value="">All collections</option></select>
+      </label>
+      <label class="wall-field" for="wallProduct"><span class="wall-sr">Tee</span>
+        <select id="wallProduct"><option value="">All tees</option></select>
+      </label>
+      <label class="wall-field wall-search" for="wallSearch" id="wallSearchWrap" hidden><span class="wall-sr">Search the Wall</span>
+        <input type="search" id="wallSearch" placeholder="Search a name, city or tee" autocomplete="off" maxlength="40" enterkeyhint="search">
+      </label>
     </div>
-  </section>
+  </nav>
 
-  <section class="wall-browse" id="wallGrid" aria-labelledby="wallGridTitle">
-    <div class="wall-section-inner">
-      <header class="wall-browse-head">
-        <div>
-          <span class="wall-eyebrow">The Wall</span>
-          <h2 class="wall-h2" id="wallGridTitle">See how India wears Bravadian</h2>
-        </div>
-        <div class="wall-tools" id="wallTools" hidden>
-          <div class="wall-pills" id="wallPills" role="group" aria-label="Show"></div>
-          <div class="wall-refine">
-            <label class="wall-field" for="wallCollection"><span class="wall-sr">Collection</span>
-              <select id="wallCollection"><option value="">All collections</option></select>
-            </label>
-            <label class="wall-field" for="wallProduct"><span class="wall-sr">Tee</span>
-              <select id="wallProduct"><option value="">All tees</option></select>
-            </label>
-            <label class="wall-field wall-search" for="wallSearch" id="wallSearchWrap" hidden><span class="wall-sr">Search the Wall</span>
-              <input type="search" id="wallSearch" placeholder="Search a name, city or tee" autocomplete="off" maxlength="40" enterkeyhint="search">
-            </label>
-          </div>
-        </div>
-      </header>
-
-      <p class="wall-status" id="wallStatus" role="status" aria-live="polite"></p>
-      <div class="wall-grid" id="wallGridBody" aria-busy="true"></div>
-      <div class="wall-more">
-        <button type="button" class="wall-btn wall-btn-quiet" id="wallMore" hidden>Show more</button>
-      </div>
-
-      <div class="wall-empty" id="wallEmpty" hidden>
-        <span class="wall-eyebrow">Just getting started</span>
-        <h3 class="wall-empty-title">The Wall is just getting started.</h3>
-        <p>Be one of the first to wear Bravadian. Wear it. Capture it. Tag <span data-brand-handle>@bravadian.in</span>.</p>
-        <p>You could be one of the first faces on the Wall.</p>
-        <a class="wall-btn wall-btn-primary" data-brand-ig href="https://www.instagram.com/bravadian.in/" target="_blank" rel="noopener noreferrer">Be part of the Wall <span aria-hidden="true">&nearr;</span></a>
-      </div>
-    </div>
-  </section>
-
-  <section class="wall-cta" aria-labelledby="wallCtaTitle">
-    <div class="wall-section-inner wall-cta-inner">
-      <span class="wall-eyebrow">Your turn.</span>
-      <h2 class="wall-cta-title" id="wallCtaTitle">Your story could be next.</h2>
-      <ol class="wall-cta-steps">
-        <li>Wear your Bravadian.</li>
-        <li>Capture your moment.</li>
-        <li>Tag <span data-brand-handle>@bravadian.in</span>.</li>
-      </ol>
-      <p class="wall-cta-note">We feature our favourites on the Bravadian Wall, always with your permission.</p>
-      <div class="wall-cta-actions">
-        <a class="wall-btn wall-btn-primary" data-brand-ig href="https://www.instagram.com/bravadian.in/" target="_blank" rel="noopener noreferrer">Tag <span data-brand-handle>@bravadian.in</span> <span aria-hidden="true">&nearr;</span></a>
-        <a class="wall-btn wall-btn-outline" href="%BASE_URL%#/shop">Shop Bravadian</a>
-        <button type="button" class="wall-btn wall-btn-link" id="wallCopyCaption">Copy a caption for your post</button>
-      </div>
-      <p class="wall-copied" id="wallCopied" role="status" aria-live="polite"></p>
+  <section class="wall-board" id="wallBoard" aria-labelledby="wallBoardTitle">
+    <h2 class="wall-sr" id="wallBoardTitle">The Wall</h2>
+    <p class="wall-status" id="wallStatus" role="status" aria-live="polite"></p>
+    <ul class="wall-canvas" id="wallCanvas" aria-busy="true"></ul>
+    <div class="wall-tail" id="wallTail">
+      <p class="wall-loader" id="wallLoader" role="status"><span class="wall-loader-tape">Adding more to the Wall<span class="wall-loader-dots" aria-hidden="true"><i></i><i></i><i></i></span></span></p>
+      <button type="button" class="wp-btn is-ink" id="wallMore" hidden>Show more</button>
     </div>
   </section>
 </div>
@@ -96,10 +61,29 @@
     <div class="wall-lb-stage">
       <div class="wall-lb-photo" id="wallLbPhoto"></div>
       <div class="wall-lb-thumbs" id="wallLbThumbs" role="group" aria-label="More photos"></div>
-      <button type="button" class="wall-lb-nav is-prev" id="wallLbPrev" aria-label="Previous person"><span aria-hidden="true">&larr;</span></button>
-      <button type="button" class="wall-lb-nav is-next" id="wallLbNext" aria-label="Next person"><span aria-hidden="true">&rarr;</span></button>
+      <button type="button" class="wall-lb-nav is-prev" id="wallLbPrev" aria-label="Previous story"><span aria-hidden="true">&larr;</span></button>
+      <button type="button" class="wall-lb-nav is-next" id="wallLbNext" aria-label="Next story"><span aria-hidden="true">&rarr;</span></button>
     </div>
     <div class="wall-lb-info" id="wallLbInfo"></div>
     <button type="button" class="wall-lb-close" id="wallLbClose" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+  </div>
+</dialog>
+
+<dialog class="wall-join" id="wallJoin" aria-labelledby="wallJoinTitle">
+  <div class="wall-join-paper">
+    <button type="button" class="wall-join-close" id="wallJoinClose" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+    <p class="wp-kicker">Get on the Wall</p>
+    <h2 class="wall-join-title" id="wallJoinTitle">Show us your Bravadian.</h2>
+    <ol class="wall-steps">
+      <li><b>Wear it.</b><span>Your tee, your way.</span></li>
+      <li><b>Capture it.</b><span>A photo where the print shows.</span></li>
+      <li><b>Tag <span data-brand-handle>@bravadian.in</span>.</b><span>On your post or your story.</span></li>
+    </ol>
+    <p class="wall-join-note">We pin our favourites here, always with your permission first.</p>
+    <div class="wall-join-actions">
+      <a class="wp-btn is-red" data-brand-ig href="https://www.instagram.com/bravadian.in/" target="_blank" rel="noopener noreferrer">Tag <span data-brand-handle>@bravadian.in</span> <span aria-hidden="true">&nearr;</span></a>
+      <button type="button" class="wp-btn is-ink" id="wallCopyCaption">Copy a caption</button>
+    </div>
+    <p class="wall-copied" id="wallCopied" role="status" aria-live="polite"></p>
   </div>
 </dialog>

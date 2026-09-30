@@ -13,10 +13,11 @@ export const PHOTO_WIDTHS = [480, 960, 1600];
 export const PUBLIC_COLUMNS = [
   'id', 'display_name', 'city', 'state', 'country', 'quote',
   'product_id', 'product_name', 'product_url', 'collection_slug', 'images', 'featured', 'featured_headline',
-  'featured_quote', 'featured_image', 'display_order', 'submitted_at', 'published_at', 'is_demo'
+  'featured_quote', 'featured_image', 'display_order', 'submitted_at', 'published_at', 'is_demo',
+  'kind', 'body', 'link_url', 'link_label', 'size', 'tilt', 'nudge_x', 'nudge_y', 'layer', 'tape'
 ].join(',');
 
-export const LIMITS = { name: 60, city: 60, state: 60, country: 60, quote: 280, headline: 80, featuredQuote: 280, productName: 80, alt: 200, caption: 200, photos: 6 };
+export const LIMITS = { name: 60, city: 60, state: 60, country: 60, quote: 280, headline: 80, featuredQuote: 280, productName: 80, alt: 200, caption: 200, photos: 6, body: 400, linkLabel: 40 };
 
 export const IG_HANDLE_RE = /^[A-Za-z0-9._]{1,30}$/;
 const SAFE_URL_RE = /^(https:\/\/|\/)[^\s<>"'()\\]+$/;
@@ -135,62 +136,65 @@ export function place(post) {
   return [post.city, post.country && post.country !== 'India' ? post.country : ''].filter(Boolean).join(', ');
 }
 
-/* ---------------------------------------------------------------- markup */
+/* ---------------------------------------------------------------- wall pieces */
 
-const ARROW = '<span class="wall-arrow" aria-hidden="true">&rarr;</span>';
+// The Wall shows photos of customers only (they need permission and a photo; db/009 enforces it).
+// Older rows may be brand cards (quote, note, ...): the Wall no longer shows them; the admin can delete them.
+export const CUSTOMER_KINDS = ['photo', 'polaroid'];
+export const KIND_LABELS = {
+  photo: 'Photo', polaroid: 'Photo', featured: 'Featured (large)',
+  quote: 'Old card (not shown)', note: 'Old card (not shown)', brand: 'Old card (not shown)', collection: 'Old card (not shown)', campaign: 'Old card (not shown)'
+};
+export const TAPE_COLOURS = ['cream', 'white', 'red', 'blue', 'black'];
+export const isCustomer = (post) => !post.kind || CUSTOMER_KINDS.includes(post.kind);
 
-/** One card on the Wall grid. opts.wide gives it two columns on wider screens. */
-export function renderCard(post, opts = {}) {
-  const img = coverPhoto(post);
-  const product = productFor(post);
-  const name = post.display_name || 'Your name';
-  const count = (post.images || []).length;
-  const ratio = img ? `${Math.round(img.w) || 4} / ${Math.round(img.h) || 5}` : '4 / 5';
-  const tags = [
-    post.featured ? '<span class="wall-tag is-featured">Featured</span>' : '',
-    post.is_demo ? '<span class="wall-tag is-demo">Demo</span>' : '',
-    opts.draftLabel ? `<span class="wall-tag is-draft">${esc(opts.draftLabel)}</span>` : ''
-  ].join('');
-  return `
-    <article class="wall-card${post.featured ? ' is-featured' : ''}${opts.wide ? ' is-wide' : ''}" data-id="${esc(post.id || '')}" style="--ar:${ratio}">
-      <button type="button" class="wall-card-media" data-open="${esc(post.id || '')}" aria-label="${esc(`See ${name}'s photo${post.city ? ` from ${post.city}` : ''}`)}">
-        ${img ? photoTag(img, { sizes: opts.wide ? '(max-width: 600px) 100vw, 50vw' : undefined, eager: opts.eager }) : '<span class="wall-card-empty">Photo</span>'}
-        ${tags ? `<span class="wall-card-tags">${tags}</span>` : ''}
-        ${count > 1 ? `<span class="wall-card-count" aria-label="${count} photos">${count}</span>` : ''}
-      </button>
-      <div class="wall-card-body">
-        <p class="wall-card-who"><span class="wall-card-name">${esc(name)}</span>${post.city ? `<span class="wall-card-city">${esc(place(post))}</span>` : ''}</p>
-        ${post.quote ? `<p class="wall-card-quote">&ldquo;${esc(post.quote)}&rdquo;</p>` : ''}
-        ${product.name ? `<p class="wall-card-meta">
-          ${product.name ? (product.href
-            ? `<a class="wall-card-product" href="${esc(product.href)}"${product.external ? ' target="_blank" rel="noopener noreferrer"' : ''}>Wearing ${esc(product.name)} ${ARROW}</a>`
-            : `<span class="wall-card-product">Wearing ${esc(product.name)}</span>`) : ''}
-        </p>` : ''}
-      </div>
-    </article>`;
+/** Same id → same random numbers, so a photo keeps its tilt and tape every visit. */
+export function seeded(key) {
+  let h = 2166136261;
+  for (const ch of String(key)) h = Math.imul(h ^ ch.charCodeAt(0), 16777619);
+  let a = h >>> 0;
+  return () => {
+    a = (a + 0x6D2B79F5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
 }
 
-/** A featured customer as a mini editorial story. */
-export function renderFeature(post, opts = {}) {
-  const img = featuredPhoto(post);
+/** A slight tilt and a tape colour for each photo. Saved admin values (tilt, tape colour) win. */
+export function pieceLook(item) {
+  const r = seeded(item.id || item.display_name || 'piece');
+  const type = item.featured ? 'feature' : 'photo';
+  const range = type === 'feature' ? 0.8 : 1.8;
+  let tilt = (r() * 2 - 1) * range;
+  if (Math.abs(tilt) < range * 0.3) tilt = (tilt < 0 ? -1 : 1) * range * 0.4;   // never dead straight
+  if (item.tilt !== null && item.tilt !== undefined && item.tilt !== '') tilt = Number(item.tilt) || 0;
+  let colour = ['cream', 'cream', 'white', 'red', 'blue', 'black', 'cream', 'white'][Math.floor(r() * 8)];
+  if (TAPE_COLOURS.includes(item.tape)) colour = item.tape;
+  return { type, tilt: Math.round(tilt * 10) / 10, colour, tapeTilt: Math.round((r() * 2 - 1) * 5) };
+}
+
+/* ---------------------------------------------------------------- markup */
+
+const CORNERS = ['tl', 'tr', 'bl', 'br'];
+
+/**
+ * One photo on the wall, as an <li>: the print, taped at all four corners. No text on the wall;
+ * the name, place and tee are in the button's label and in the story viewer it opens.
+ * opts: label (a Preview/Draft stamp, admin only), eager, sizes, want
+ */
+export function renderPiece(post, opts = {}) {
+  const look = pieceLook(post);
+  const img = look.type === 'feature' ? featuredPhoto(post) : coverPhoto(post);
   const product = productFor(post);
-  const quote = post.featured_quote || post.quote;
-  const collection = collectionName(product.collection);
-  return `
-    <article class="wall-feature${opts.compact ? ' is-compact' : ''}" data-id="${esc(post.id || '')}">
-      <button type="button" class="wall-feature-media" data-open="${esc(post.id || '')}" aria-label="${esc(`See ${post.display_name || 'this person'}'s photo`)}">
-        ${img ? photoTag(img, { sizes: opts.compact ? '(max-width: 1023px) 50vw, 20vw' : '(max-width: 1023px) 100vw, 55vw', want: opts.compact ? 480 : 1600, eager: !opts.compact && opts.eager }) : '<span class="wall-card-empty">Photo</span>'}
-        ${post.is_demo ? '<span class="wall-card-tags"><span class="wall-tag is-demo">Demo</span></span>' : ''}
-      </button>
-      <div class="wall-feature-copy">
-        <span class="wall-eyebrow">Featured Bravadian</span>
-        <h3 class="wall-feature-headline">${esc(post.featured_headline || 'This is what Bravadian looks like.')}</h3>
-        ${quote ? `<blockquote class="wall-feature-quote">&ldquo;${esc(quote)}&rdquo;</blockquote>` : ''}
-        <p class="wall-feature-who"><b>${esc(post.display_name || 'Your name')}</b>${post.city ? ` <span>${esc(place(post))}</span>` : ''}</p>
-        ${product.name ? `<p class="wall-feature-wearing">Wearing ${esc(product.name)}${collection ? ` <span>&middot; ${esc(collection)}</span>` : ''}</p>` : ''}
-        <div class="wall-feature-actions">
-          ${product.href ? `<a class="wall-btn wall-btn-primary" href="${esc(product.href)}"${product.external ? ' target="_blank" rel="noopener noreferrer"' : ''}>View this tee ${ARROW}</a>` : ''}
-        </div>
-      </div>
-    </article>`;
+  const label = `${post.display_name || 'A Bravadian'}${post.city ? `, ${place(post)}` : ''}${product.name ? `. Wearing ${product.name}` : ''}. View story`;
+  const photo = img ? photoTag(img, { sizes: opts.sizes, want: opts.want || 960, eager: opts.eager }) : '<span class="wall-card-empty" aria-hidden="true"></span>';
+  const tape = CORNERS.map(c => `<span class="wp-tape at-${c} is-${look.colour}" aria-hidden="true"></span>`).join('');
+  const stamp = opts.label ? `<span class="wp-stamp is-draft">${esc(opts.label)}</span>` : '';
+  return `<li class="wp is-${look.type}" data-id="${esc(post.id || '')}" data-type="${look.type}" style="--r:${look.tilt}deg">
+    <div class="wp-body">
+      <button type="button" class="wp-hit" data-open="${esc(post.id || '')}" aria-label="${esc(label)}">
+        <span class="wp-photo-print"><span class="wp-print">${photo}</span></span>
+      </button>${tape}${stamp}
+    </div></li>`;
 }

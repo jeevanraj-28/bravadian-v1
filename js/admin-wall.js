@@ -4,8 +4,8 @@
  * (only admins write, nothing publishes without permission and a photo, private notes stay private).
  */
 import {
-  BASE, PHOTO_BUCKET, LIMITS, esc, isSafeUrl, titleCase,
-  renderCard, renderFeature, photoUrl, collectionName, formatDate, productFor, place
+  BASE, PHOTO_BUCKET, LIMITS, CUSTOMER_KINDS, KIND_LABELS, esc, isSafeUrl, titleCase,
+  renderPiece, photoUrl, collectionName, formatDate, productFor, place, isCustomer
 } from './wall-shared.js';
 
 const STATUS = { draft: 'Draft', pending: 'Pending review', approved: 'Approved', rejected: 'Rejected', published: 'Published' };
@@ -20,7 +20,7 @@ const OTHER = '__other__';
 const $ = (id) => document.getElementById(id);
 const S = {
   ready: false, posts: [], priv: new Map(), activity: [], error: null, loading: null,
-  filter: 'all', q: '', view: 'grid', previewMode: 'card', previewDark: false,
+  filter: 'all', q: '', view: 'grid', previewMode: 'desktop', previewDark: false,
   ed: null, dirty: false, saving: false, featuredOrder: null
 };
 const client = () => window.BravadianDB && window.BravadianDB.supabaseClient;
@@ -45,7 +45,7 @@ async function show(tab) {
 
 function canLeave(nextTab) {
   if (nextTab === 'walleditor' || !S.dirty || !isEditorOpen()) return true;
-  if (window.confirm('This customer has unsaved changes. Leave without saving?')) { S.dirty = false; return true; }
+  if (window.confirm('This piece has unsaved changes. Leave without saving?')) { S.dirty = false; return true; }
   return false;
 }
 const isEditorOpen = () => $('pane-walleditor') && $('pane-walleditor').classList.contains('active');
@@ -142,11 +142,15 @@ function ago(iso) {
 
 const statusPill = (s) => `<span class="wa-pill is-${esc(s)}">${esc(STATUS[s] || s)}</span>`;
 const permissionPill = (s) => `<span class="wa-pill is-perm-${esc(s)}">${esc(PERMISSION[s] || s)}</span>`;
+const kindOf = (post) => (post.featured ? 'featured' : (post.kind || 'photo'));
+const kindPill = (post) => `<span class="wa-pill is-kind">${esc(KIND_LABELS[kindOf(post)] || post.kind)}</span>`;
 const thumb = (post, cls = 'wa-thumb') => {
   const img = (post.images || [])[0];
   const src = img ? photoUrl(img, 480) : '';
-  return src ? `<img class="${cls}" src="${esc(src)}" alt="" loading="lazy">` : `<span class="${cls} is-empty">No photo</span>`;
+  if (src) return `<img class="${cls}" src="${esc(src)}" alt="" loading="lazy">`;
+  return `<span class="${cls} is-empty">${isCustomer(post) ? 'No photo' : esc(KIND_LABELS[post.kind] || 'Card')}</span>`;
 };
+const placeOf = (post) => (isCustomer(post) ? place(post) : KIND_LABELS[post.kind] || '');
 const storagePath = (url) => {
   const m = String(url || '').match(/\/storage\/v1\/object\/public\/wall-photos\/([^?#]+)/);
   return m ? decodeURIComponent(m[1]) : null;
@@ -155,6 +159,15 @@ const photoPaths = (img) => Object.values((img && img.sizes) || {}).map(storageP
 
 function publishProblems(post) {
   const out = [];
+  const kind = post.kind || 'photo';
+  if (!isCustomer(post)) {
+    if (!String(post.display_name || '').trim()) out.push(kind === 'quote' ? 'who said it' : 'a title');
+    if (kind === 'quote' && !String(post.quote || '').trim()) out.push('the quote');
+    if (kind === 'note' && !String(post.body || '').trim()) out.push('the note text');
+    if (kind === 'collection' && !post.collection_slug) out.push('a collection');
+    if ((post.images || []).some(i => !String(i.alt || '').trim())) out.push('alt text on every photo');
+    return out;
+  }
   if (!String(post.display_name || '').trim()) out.push('a display name');
   if (!String(post.city || '').trim()) out.push('a city');
   if (!(post.images || []).length) out.push('at least one photo');
@@ -166,6 +179,9 @@ function publishProblems(post) {
 function friendly(error) {
   const msg = (error && (error.message || error.error_description)) || String(error || 'Something went wrong');
   if (/wall_publish_needs_permission_and_photo/.test(msg)) return 'It can\'t be published yet: it needs permission granted and at least one photo.';
+  if (/wall_customer_needs_city/.test(msg)) return 'Add the customer\'s city.';
+  if (/wall_link_valid/.test(msg)) return 'The button link must be a full https:// link or a site path starting with /.';
+  if (/wall_kind_valid|wall_layout_valid|column .* does not exist|PGRST204/.test(msg)) return 'The database needs the latest Wall update: run db/009_wall.sql again in Supabase → SQL Editor, then retry.';
   if (/row-level security|permission denied|not authorized|JWT/i.test(msg)) return 'You are not signed in as an admin any more. Sign in again and retry.';
   if (/maximum allowed size|Payload too large|413/i.test(msg)) return 'A photo is too large to upload. Try a smaller photo.';
   if (/mime type|invalid_mime/i.test(msg)) return 'That file type can\'t be uploaded.';
@@ -254,7 +270,7 @@ function renderDashboard() {
     ['PENDING REVIEW', count(p => p.status === 'pending'), 'is-amber'],
     ['DRAFTS', count(p => p.status === 'draft'), ''],
     ['FEATURED', count(p => p.featured), 'is-red'],
-    ['AWAITING PERMISSION', count(p => p.permission_status === 'pending' && p.status !== 'rejected'), '']
+    ['AWAITING PERMISSION', count(p => isCustomer(p) && p.permission_status === 'pending' && p.status !== 'rejected'), '']
   ];
   $('waMetrics').innerHTML = metrics.map(([t, v, c]) =>
     `<div class="metric-card"><div class="metric-title">${t}</div><div class="metric-val ${c}">${S.error ? '—' : v}</div></div>`).join('');
@@ -263,7 +279,7 @@ function renderDashboard() {
   $('waRecent').innerHTML = recent.length ? `<ul class="wa-recent">${recent.map(p => `
     <li>
       ${thumb(p)}
-      <div class="wa-recent-who"><b>${esc(p.display_name)}</b><span>${esc(place(p))}${p.is_demo ? ' · <em>demo</em>' : ''}</span></div>
+      <div class="wa-recent-who"><b>${esc(p.display_name)}</b><span>${esc(placeOf(p))}${p.is_demo ? ' · <em>demo</em>' : ''}</span></div>
       <div class="wa-recent-state">${statusPill(p.status)}<small>${esc(ago(p.created_at))}</small></div>
       <button type="button" class="btn-action-icon" data-wall-act="edit" data-id="${esc(p.id)}">✎ Edit</button>
     </li>`).join('')}</ul>`
@@ -276,7 +292,7 @@ function renderDashboard() {
     : '<li class="wa-empty-note">Adds, edits and publishes appear here.</li>';
 
   const byCity = new Map();
-  posts.filter(p => p.status === 'published').forEach(p => byCity.set(p.city, (byCity.get(p.city) || 0) + 1));
+  posts.filter(p => p.status === 'published' && isCustomer(p)).forEach(p => byCity.set(p.city, (byCity.get(p.city) || 0) + 1));
   const cities = [...byCity.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8);
   const max = cities.length ? cities[0][1] : 1;
   $('waCities').innerHTML = cities.length ? `<ul class="wa-bars">${cities.map(([c, n]) => `
@@ -292,7 +308,7 @@ function filteredPosts() {
     if (S.filter === 'featured' ? !p.featured : S.filter !== 'all' && p.status !== S.filter) return false;
     if (!q) return true;
     const product = productFor(p);
-    return [p.display_name, p.city, p.state, product.name, p.collection_slug, p.quote]
+    return [p.display_name, p.city, p.state, product.name, p.collection_slug, p.quote, p.body, KIND_LABELS[kindOf(p)]]
       .some(v => String(v || '').toLowerCase().includes(q));
   });
 }
@@ -321,18 +337,18 @@ function renderPosts() {
   box.className = `wa-posts is-${S.view}`;
   if (S.error) { box.innerHTML = ''; return; }
   if (!list.length) {
-    box.innerHTML = `<p class="wa-empty-note">${S.posts.length ? 'No posts match this filter.' : 'No customers on the Wall yet.'} <button type="button" class="btn-action-icon" data-wall-new>+ Add customer</button></p>`;
+    box.innerHTML = `<p class="wa-empty-note">${S.posts.length ? 'Nothing matches this filter.' : 'Nothing on the Wall yet.'} <button type="button" class="btn-action-icon" data-wall-new>+ Add to the Wall</button></p>`;
     return;
   }
   const productName = (p) => productFor(p).name || '—';
   if (S.view === 'list') {
     box.innerHTML = `<div class="wa-table-wrap"><table class="admin-table wa-table"><thead><tr>
-      <th>PHOTO</th><th>CUSTOMER</th><th>TEE</th><th>STATUS</th><th>ADDED</th><th>ACTIONS</th></tr></thead><tbody>
+      <th>PHOTO</th><th>PIECE</th><th>TYPE · TEE</th><th>STATUS</th><th>ADDED</th><th>ACTIONS</th></tr></thead><tbody>
       ${list.map(p => `<tr>
         <td>${thumb(p, 'wa-thumb is-small')}</td>
-        <td><b>${esc(p.display_name)}</b>${p.featured ? ' <span class="wa-star" title="Featured">★</span>' : ''}${p.is_demo ? ' <span class="wa-pill is-demo">Demo</span>' : ''}<br><small>${esc(place(p))}</small></td>
-        <td>${esc(productName(p))}</td>
-        <td>${statusPill(p.status)}<br>${permissionPill(p.permission_status)}</td>
+        <td><b>${esc(p.display_name)}</b>${p.featured ? ' <span class="wa-star" title="Featured">★</span>' : ''}${p.is_demo ? ' <span class="wa-pill is-demo">Demo</span>' : ''}<br><small>${esc(placeOf(p))}</small></td>
+        <td>${kindPill(p)}<br><small>${esc(isCustomer(p) ? productName(p) : '')}</small></td>
+        <td>${statusPill(p.status)}${isCustomer(p) ? `<br>${permissionPill(p.permission_status)}` : ''}</td>
         <td><small>${esc(formatDate(p.submitted_at || p.created_at))}</small></td>
         <td>${actionButtons(p, true)}</td></tr>`).join('')}
       </tbody></table></div>`;
@@ -345,9 +361,9 @@ function renderPosts() {
         <span class="wa-post-badges">${p.featured ? '<span class="wa-pill is-featured">★ Featured</span>' : ''}${p.is_demo ? '<span class="wa-pill is-demo">Demo</span>' : ''}</span>
       </button>
       <div class="wa-post-body">
-        <p class="wa-post-name"><b>${esc(p.display_name)}</b><span>${esc(place(p))}</span></p>
-        <p class="wa-post-product">${esc(productName(p))}</p>
-        <p class="wa-post-pills">${statusPill(p.status)} ${permissionPill(p.permission_status)}</p>
+        <p class="wa-post-name"><b>${esc(p.display_name)}</b><span>${esc(placeOf(p))}</span></p>
+        <p class="wa-post-product">${kindPill(p)} ${isCustomer(p) ? esc(productName(p)) : ''}</p>
+        <p class="wa-post-pills">${statusPill(p.status)} ${isCustomer(p) ? permissionPill(p.permission_status) : ''}</p>
         <p class="wa-post-date">Added ${esc(formatDate(p.created_at))}${p.published_at ? ` · live since ${esc(formatDate(p.published_at))}` : ''}</p>
         ${actionButtons(p)}
       </div>
@@ -378,9 +394,15 @@ async function publishPost(post) {
     toast(`${post.display_name} can't be published yet. It needs ${problems.join(', ')}.`, 'error');
     return false;
   }
-  const ok = await confirmBox({ title: `Publish ${post.display_name} to the Wall?`, body: 'Everyone visiting bravadian.in/wall will see their photo, name, city, words and the tee they wear.', ok: 'Publish' });
+  const ok = await confirmBox({ title: `Publish ${post.display_name} to the Wall?`, body: publishBody(post), ok: 'Publish' });
   if (!ok) return false;
   return setStatus(post, 'published');
+}
+
+function publishBody(post) {
+  return isCustomer(post)
+    ? 'Everyone visiting bravadian.in/wall will see their photo, name, city, words and the tee they wear. Their order reference and permission note stay private.'
+    : 'Everyone visiting bravadian.in/wall will see this card.';
 }
 
 async function setStatus(post, status, opts = {}) {
@@ -579,21 +601,27 @@ async function deletePhoto(post, index) {
 /* ================================================================ editor */
 
 const F = (id) => $(id);
-const FIELDS = ['waName', 'waCity', 'waState', 'waCountry', 'waDate', 'waQuote', 'waProduct', 'waCollection',
-  'waProductName', 'waProductUrl', 'waFeatured', 'waHeadline', 'waFeaturedQuote', 'waFeaturedImage', 'waPermission', 'waOrderRef',
-  'waPermissionNote', 'waStatus', 'waOrder'];
+const FIELDS = ['waKind', 'waName', 'waCity', 'waState', 'waCountry', 'waDate', 'waQuote',
+  'waProduct', 'waCollection', 'waProductName', 'waProductUrl', 'waHeadline', 'waFeaturedQuote', 'waFeaturedImage', 'waPermission',
+  'waOrderRef', 'waPermissionNote', 'waStatus', 'waOrder'];
+const KIND_HELP = {
+  photo: 'A customer photo on the Wall: a print taped at four corners. Needs their permission and a photo.',
+  featured: 'A featured customer: a larger print near the top of the Wall. Needs permission and a photo.'
+};
+const currentKind = () => F('waKind').value || 'photo';
+const kindIsCustomer = () => true;   // the Wall shows customers only (old brand cards can only be deleted)
 
 function newPost(navigate) {
-  if (S.dirty && isEditorOpen() && !window.confirm('This customer has unsaved changes. Start a new one anyway?')) return;
+  if (S.dirty && isEditorOpen() && !window.confirm('This piece has unsaved changes. Start a new one anyway?')) return;
   S.ed = { id: null, isNew: true, status: 'draft', photos: [], removed: [] };
   S.dirty = false;
-  fillForm({ country: 'India', permission_status: 'pending', status: 'draft', display_order: 0, submitted_at: new Date().toISOString().slice(0, 10) }, {});
+  fillForm({ kind: 'photo', country: 'India', permission_status: 'pending', status: 'draft', display_order: 0, size: 'auto', tape: 'auto', submitted_at: new Date().toISOString().slice(0, 10) }, {});
   if (navigate) go('walleditor');
   else renderEditor();
 }
 
 function openPost(post) {
-  if (S.dirty && isEditorOpen() && S.ed && S.ed.id !== post.id && !window.confirm('This customer has unsaved changes. Open another one anyway?')) return;
+  if (S.dirty && isEditorOpen() && S.ed && S.ed.id !== post.id && !window.confirm('This piece has unsaved changes. Open another one anyway?')) return;
   S.ed = {
     id: post.id, isNew: false, status: post.status, is_demo: post.is_demo, created_at: post.created_at,
     photos: (post.images || []).map(img => ({ ...img, saved: true })), removed: []
@@ -626,11 +654,11 @@ function fillForm(post, priv) {
   set('waCountry', post.country || 'India');
   set('waDate', post.submitted_at || '');
   set('waQuote', post.quote);
+  F('waKind').value = post.featured ? 'featured' : 'photo';
   F('waProduct').value = post.product_id && [...F('waProduct').options].some(o => o.value === post.product_id) ? post.product_id : (manual ? OTHER : '');
   set('waCollection', post.collection_slug || '');
   set('waProductName', manual ? post.product_name : '');
   set('waProductUrl', manual ? post.product_url : '');
-  F('waFeatured').checked = !!post.featured;
   set('waHeadline', post.featured_headline);
   set('waFeaturedQuote', post.featured_quote);
   set('waPermission', post.permission_status || 'pending');
@@ -874,6 +902,7 @@ function readForm() {
   const featuredImage = Math.min(Number(F('waFeaturedImage').value || S.ed.featuredImage || 0), Math.max(0, photos.length - 1));
   return {
     id: S.ed.id,
+    kind: 'photo',
     display_name: trim('waName'),
     city: trim('waCity'),
     state: trim('waState') || null,
@@ -884,7 +913,7 @@ function readForm() {
     product_name: manual ? (trim('waProductName') || null) : (product ? titleCase(product.name) : null),
     product_url: manual ? (trim('waProductUrl') || null) : null,
     collection_slug: F('waCollection').value || null,
-    featured: F('waFeatured').checked,
+    featured: currentKind() === 'featured',
     featured_headline: trim('waHeadline') || null,
     featured_quote: trim('waFeaturedQuote') || null,
     featured_image: featuredImage,
@@ -911,7 +940,7 @@ function clearErrors() {
 function validateField(id) {
   const v = F(id).value.trim();
   let msg = '';
-  if (id === 'waName' && !v) msg = 'Add the name to show on the Wall.';
+  if (id === 'waName' && !v) msg = 'Add the name to show in their story.';
   if (id === 'waCity' && !v) msg = 'Add their city.';
   if (id === 'waProductUrl' && v && !isSafeUrl(v)) msg = 'Use a full https:// link, or a site path starting with /.';
   if (id === 'waProductName' && F('waProduct').value === OTHER && !v && F('waProductUrl').value.trim()) msg = 'Give the product a name.';
@@ -923,13 +952,14 @@ function validate(forPublish) {
   clearErrors();
   const ids = ['waName', 'waCity', 'waProductUrl', 'waProductName'];
   const bad = ids.filter(id => !validateField(id));
+  const customer = kindIsCustomer();
   const photos = S.ed.photos.filter(p => !p.busy);
   let photoMsg = '';
   if (S.ed.photos.some(p => p.busy)) photoMsg = 'Wait for the photos to finish preparing.';
-  else if (forPublish && !photos.length) photoMsg = 'Add at least one photo to publish.';
-  else if (forPublish && photos.some(p => !String(p.alt || '').trim())) photoMsg = 'Add alt text to every photo before publishing: describe the person and the tee.';
+  else if (forPublish && customer && !photos.length) photoMsg = 'Add at least one photo to publish.';
+  else if (forPublish && photos.some(p => !String(p.alt || '').trim())) photoMsg = 'Add alt text to every photo before publishing: describe what is in it.';
   F('waPhotosError').textContent = photoMsg;
-  if (forPublish && F('waPermission').value !== 'granted') bad.push('waPermission');
+  if (forPublish && customer && F('waPermission').value !== 'granted') bad.push('waPermission');
   if (bad.length || photoMsg) {
     const first = photoMsg ? F('waDrop') : F(bad[0]);
     first.scrollIntoView({ block: 'center', behavior: 'smooth' });
@@ -947,8 +977,9 @@ function syncEditorUi(withPhotos = true) {
   if (!S.ed) return;
   const quote = F('waQuote').value.length;
   F('waQuoteCount').textContent = `${quote} / ${LIMITS.quote}`;
-  document.querySelectorAll('.wa-manual').forEach(el => { el.hidden = F('waProduct').value !== OTHER; });
-  F('waFeaturedFields').hidden = !F('waFeatured').checked;
+  syncKindUi();
+  document.querySelectorAll('.wa-manual').forEach(el => { el.hidden = !kindIsCustomer() || F('waProduct').value !== OTHER; });
+  F('waFeaturedFields').hidden = currentKind() !== 'featured';
   const photos = S.ed.photos.filter(p => !p.busy);
   const sel = F('waFeaturedImage');
   const keep = Math.min(Number(sel.value || S.ed.featuredImage || 0), Math.max(0, photos.length - 1));
@@ -959,28 +990,39 @@ function syncEditorUi(withPhotos = true) {
   previewRaf = requestAnimationFrame(() => { renderPreview(); renderChecklist(); renderActions(); });
 }
 
+function syncKindUi() {
+  F('waKindHelp').textContent = KIND_HELP[currentKind()] || '';
+}
+
+// The live preview is the real photo on a patch of the wall, next to two blank prints for scale
 function renderPreview() {
   if (!S.ed) return;
   const post = readForm();
-  post.id = post.id || 'preview';
+  post.id = post.id || S.ed.previewId || (S.ed.previewId = crypto.randomUUID());
   const box = F('waPreview');
   box.dataset.theme = S.previewDark ? 'dark' : 'light';
-  box.innerHTML = S.previewMode === 'featured'
-    ? renderFeature(post)
-    : `<div class="wa-preview-card">${renderCard(post, { draftLabel: post.status === 'published' ? '' : STATUS[post.status] })}</div>`;
+  const phone = S.previewMode === 'phone';
+  const label = post.status === 'published' ? '' : STATUS[post.status];
+  const blank = '<li class="wp is-photo is-in wa-ghost" aria-hidden="true"><div class="wp-body"><span class="wp-photo-print"><span class="wp-print"></span></span></div></li>';
+  box.innerHTML = `<ul class="wall-canvas wa-preview-wall" style="--cols:2">${renderPiece(post, { label, want: 960, sizes: '300px' })}${blank}</ul>
+    <p class="wa-preview-note">${phone ? 'Phone: 2 photos across' : 'Desktop: 4 to 5 photos across'}${post.featured ? ' · featured photos are twice as big' : ''}. Name, city and words show when a visitor opens the photo.</p>`;
+  const li = box.querySelector('.wp');
+  if (li) li.classList.add('is-in');
   box.querySelectorAll('a').forEach(a => { a.setAttribute('tabindex', '-1'); a.addEventListener('click', ev => ev.preventDefault()); });
   box.querySelectorAll('button').forEach(b => { b.setAttribute('tabindex', '-1'); b.disabled = true; });
 }
 
 function renderChecklist() {
   const post = readForm();
-  const items = [
+  const items = isCustomer(post) ? [
     ['Name and city', !!(post.display_name && post.city)],
     ['At least one photo', post.images.length > 0],
     ['Alt text on every photo', post.images.length > 0 && post.images.every(i => String(i.alt || '').trim())],
     ['Permission granted', post.permission_status === 'granted'],
     ['Tee linked (optional)', !!(post.product_id || post.product_url)]
-  ];
+  ] : publishProblems(post).length
+    ? publishProblems(post).map(p => [`Add ${p}`, false])
+    : [['Ready to publish (no customer, so no permission needed)', true]];
   F('waChecklist').innerHTML = items.map(([label, ok]) => `<li class="${ok ? 'is-ok' : ''}"><span aria-hidden="true">${ok ? '✓' : '○'}</span>${esc(label)}<span class="wall-sr">${ok ? ': done' : ': not yet'}</span></li>`).join('');
 }
 
@@ -988,7 +1030,7 @@ function renderActions() {
   const ed = S.ed;
   const published = ed.status === 'published';
   const statusNow = published ? 'published' : F('waStatus').value;
-  $('waEditorTitle').textContent = ed.isNew ? 'ADD CUSTOMER TO THE WALL' : `EDIT ${String(F('waName').value || 'CUSTOMER').toUpperCase()}`;
+  $('waEditorTitle').textContent = ed.isNew ? 'ADD TO THE WALL' : `EDIT ${String(F('waName').value || 'PIECE').toUpperCase()}`;
   $('waEditorState').innerHTML = ed.isNew
     ? 'New post, not saved yet.'
     : `${statusPill(ed.status)}${ed.is_demo ? ' <span class="wa-pill is-demo">Demo</span>' : ''} <span>Added ${esc(formatDate(ed.created_at))}</span>`;
@@ -1027,7 +1069,7 @@ async function save(targetStatus, confirmUnpublish) {
   const post = readForm();
   if (targetStatus) post.status = targetStatus;
   if (publishing) {
-    const ok = await confirmBox({ title: `Publish ${post.display_name} to the Wall?`, body: 'Everyone visiting bravadian.in/wall will see their photo, name, city, words and the tee they wear. Their order reference and permission note stay private.', ok: 'Publish' });
+    const ok = await confirmBox({ title: `Publish ${post.display_name} to the Wall?`, body: publishBody(post), ok: 'Publish' });
     if (!ok) return false;
   }
   if (confirmUnpublish) {
@@ -1069,7 +1111,7 @@ async function save(targetStatus, confirmUnpublish) {
     if (error) throw error;
     rowSaved = true;
     const priv = post.private;
-    if (priv.order_reference || priv.permission_note || S.priv.has(id)) {
+    if (isCustomer(row) && (priv.order_reference || priv.permission_note || S.priv.has(id))) {
       const { error: pe } = await c.from('wall_post_private').upsert({ post_id: id, ...priv });
       if (pe) throw Object.assign(new Error(`The post was saved, but the private notes were not: ${friendly(pe)}`), { partial: true });
     }

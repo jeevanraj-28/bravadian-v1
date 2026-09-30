@@ -2,8 +2,9 @@
 --
 -- THE BRAVADIAN WALL: photos of real customers wearing Bravadian, added and published from the admin panel.
 --
---   wall_posts          what a Wall card shows. Visitors can read a post only when it is PUBLISHED
---                       and the customer GRANTED permission. Admins read and write everything.
+--   wall_posts          every piece on the Wall: customer photos and the brand's own cards. Visitors can
+--                       read a piece only when it is PUBLISHED, and a customer only when they GRANTED
+--                       permission. Admins read and write everything.
 --   wall_post_private   order reference and permission note. Admins only; never readable by visitors.
 --   wall_activity       a log of adds, edits, publishes and deletes, written by the database itself.
 --   wall-photos         storage bucket for the photos (admins upload; files are served publicly by URL,
@@ -41,7 +42,7 @@ END $$;
 CREATE TABLE IF NOT EXISTS wall_posts (
   id                 UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   display_name       TEXT NOT NULL CHECK (char_length(btrim(display_name)) BETWEEN 1 AND 60),
-  city               TEXT NOT NULL CHECK (char_length(btrim(city)) BETWEEN 1 AND 60),
+  city               TEXT,             -- required for customers (see 1b)
   state              TEXT CHECK (state IS NULL OR char_length(state) <= 60),
   country            TEXT NOT NULL DEFAULT 'India' CHECK (char_length(country) BETWEEN 1 AND 60),
   quote              TEXT CHECK (quote IS NULL OR char_length(quote) <= 280),
@@ -62,10 +63,8 @@ CREATE TABLE IF NOT EXISTS wall_posts (
   is_demo            BOOLEAN NOT NULL DEFAULT false,
   created_at         TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at         TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  published_at       TIMESTAMPTZ,
-  -- Nothing reaches the Wall without the customer's permission and at least one photo
-  CONSTRAINT wall_publish_needs_permission_and_photo
-    CHECK (status <> 'published' OR (permission_status = 'granted' AND jsonb_array_length(images) > 0))
+  published_at       TIMESTAMPTZ
+  -- the publish rule (permission + photo) and the piece columns are added in 1b below
 );
 
 CREATE INDEX IF NOT EXISTS wall_posts_public_order ON wall_posts (display_order, published_at DESC) WHERE status = 'published';
@@ -75,6 +74,63 @@ CREATE INDEX IF NOT EXISTS wall_posts_featured ON wall_posts (display_order) WHE
 -- Customers' Instagram usernames and post links are not kept. If an earlier run of this file created
 -- those columns, they are removed here (with anything stored in them).
 ALTER TABLE wall_posts DROP COLUMN IF EXISTS instagram_handle, DROP COLUMN IF EXISTS instagram_post_url;
+
+-- 1b. WALL PIECES ---------------------------------------------------------------------------------
+-- The Wall is a physical wall: besides customer photos it holds the brand's own pinned pieces.
+--   kind  photo, polaroid      a real customer: needs their permission and a photo to be published
+--         quote, note, brand,  the brand's own cards (a quote card, a handwritten note, a brand card,
+--         collection, campaign a collection card, a campaign poster): no customer, so no permission step
+--   featured                   on a customer, makes it a Featured story (a larger editorial spread)
+--   body, link_url, link_label the text and button of a card
+--   size, tilt, nudge_x/_y,    how the piece sits on the wall. 'auto' / empty = the Wall decides.
+--   layer, tape                tilt in degrees; nudge in % of a wall column; layer 1 (back) to 5 (front)
+ALTER TABLE wall_posts
+  ADD COLUMN IF NOT EXISTS kind       TEXT NOT NULL DEFAULT 'photo',
+  ADD COLUMN IF NOT EXISTS body       TEXT,
+  ADD COLUMN IF NOT EXISTS link_url   TEXT,
+  ADD COLUMN IF NOT EXISTS link_label TEXT,
+  ADD COLUMN IF NOT EXISTS size       TEXT NOT NULL DEFAULT 'auto',
+  ADD COLUMN IF NOT EXISTS tilt       NUMERIC(3,1),
+  ADD COLUMN IF NOT EXISTS nudge_x    SMALLINT,
+  ADD COLUMN IF NOT EXISTS nudge_y    SMALLINT,
+  ADD COLUMN IF NOT EXISTS layer      SMALLINT,
+  ADD COLUMN IF NOT EXISTS tape       TEXT NOT NULL DEFAULT 'auto';
+
+-- Cards have no customer, so no city: the city rule now applies to customers only
+ALTER TABLE wall_posts ALTER COLUMN city DROP NOT NULL;
+ALTER TABLE wall_posts DROP CONSTRAINT IF EXISTS wall_posts_city_check;
+ALTER TABLE wall_posts DROP CONSTRAINT IF EXISTS wall_city_valid;
+ALTER TABLE wall_posts ADD CONSTRAINT wall_city_valid CHECK (city IS NULL OR char_length(btrim(city)) <= 60);
+ALTER TABLE wall_posts DROP CONSTRAINT IF EXISTS wall_customer_needs_city;
+ALTER TABLE wall_posts ADD CONSTRAINT wall_customer_needs_city
+  CHECK (kind NOT IN ('photo', 'polaroid') OR char_length(btrim(coalesce(city, ''))) >= 1);
+
+ALTER TABLE wall_posts DROP CONSTRAINT IF EXISTS wall_kind_valid;
+ALTER TABLE wall_posts ADD CONSTRAINT wall_kind_valid
+  CHECK (kind IN ('photo', 'polaroid', 'quote', 'note', 'brand', 'collection', 'campaign'));
+ALTER TABLE wall_posts DROP CONSTRAINT IF EXISTS wall_featured_is_customer;
+ALTER TABLE wall_posts ADD CONSTRAINT wall_featured_is_customer CHECK (NOT featured OR kind IN ('photo', 'polaroid'));
+ALTER TABLE wall_posts DROP CONSTRAINT IF EXISTS wall_body_valid;
+ALTER TABLE wall_posts ADD CONSTRAINT wall_body_valid CHECK (body IS NULL OR char_length(body) <= 400);
+ALTER TABLE wall_posts DROP CONSTRAINT IF EXISTS wall_link_valid;
+ALTER TABLE wall_posts ADD CONSTRAINT wall_link_valid
+  CHECK (link_url IS NULL OR (char_length(link_url) <= 300 AND link_url ~ '^(https://|/)[^\s<>"''\\]+$'));
+ALTER TABLE wall_posts DROP CONSTRAINT IF EXISTS wall_link_label_valid;
+ALTER TABLE wall_posts ADD CONSTRAINT wall_link_label_valid CHECK (link_label IS NULL OR char_length(link_label) <= 40);
+ALTER TABLE wall_posts DROP CONSTRAINT IF EXISTS wall_layout_valid;
+ALTER TABLE wall_posts ADD CONSTRAINT wall_layout_valid CHECK (
+  size IN ('auto', 's', 'm', 'l', 'xl')
+  AND tape IN ('auto', 'cream', 'white', 'red', 'blue', 'black', 'pin', 'none')
+  AND (tilt IS NULL OR tilt BETWEEN -8 AND 8)
+  AND (nudge_x IS NULL OR nudge_x BETWEEN -40 AND 40)
+  AND (nudge_y IS NULL OR nudge_y BETWEEN -40 AND 40)
+  AND (layer IS NULL OR layer BETWEEN 1 AND 5));
+
+-- Nothing about a customer reaches the Wall without their permission and at least one photo
+ALTER TABLE wall_posts DROP CONSTRAINT IF EXISTS wall_publish_needs_permission_and_photo;
+ALTER TABLE wall_posts ADD CONSTRAINT wall_publish_needs_permission_and_photo
+  CHECK (status <> 'published' OR kind NOT IN ('photo', 'polaroid')
+         OR (permission_status = 'granted' AND jsonb_array_length(images) > 0));
 
 -- 2. PRIVATE DETAILS (admins only) -----------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS wall_post_private (
@@ -158,7 +214,7 @@ ALTER TABLE wall_activity ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "Public reads published wall posts" ON wall_posts;
 CREATE POLICY "Public reads published wall posts" ON wall_posts FOR SELECT TO anon, authenticated
-  USING (status = 'published' AND permission_status = 'granted');
+  USING (status = 'published' AND (permission_status = 'granted' OR kind IN ('quote', 'note', 'brand', 'collection', 'campaign')));
 
 DROP POLICY IF EXISTS "Admin manages wall posts" ON wall_posts;
 CREATE POLICY "Admin manages wall posts" ON wall_posts FOR ALL TO authenticated
