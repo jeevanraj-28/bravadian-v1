@@ -12151,3 +12151,36 @@ body .figma-hero-section .figma-hero-cta-wrap > a { font-size: 12.5px; }
 @media (prefers-reduced-motion: reduce) {
   .cart-toast, .cart-toast.is-visible { transform: none; }
 }
+
+/* "All collections": first entry in the header dropdown, last tile in the phone menu,
+   and a link beside "The Five Collections" on the home page. All lead to #/collections. */
+body .mega-list .mega-item-all a, [data-theme="light"] body .mega-list .mega-item-all a { color: var(--theme-accent, var(--brand-red)); }
+.mega-item-all { margin-bottom: 0.35rem; padding-bottom: 0.35rem; border-bottom: 1px solid var(--theme-border-subtle); }
+.mega-all-arrow { transition: transform 160ms var(--ease-out); }
+@media (hover: hover) and (pointer: fine) { .mega-item-all a:hover .mega-all-arrow { transform: translateX(3px); } }
+
+.mnav-tile-all { display: grid; place-items: center; border: 1px solid var(--theme-border-subtle); background: var(--theme-bg-card); }
+.mnav-tile-all::after { display: none; }
+.mnav-tile-all span { position: static; text-align: center; padding: 0 0.6rem; font-size: 1rem; line-height: 1.2; color: var(--theme-accent, var(--brand-red)); }
+
+.archive-header-right { display: flex; flex-direction: column; align-items: flex-end; gap: 0.75rem; }
+.archive-all-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 40px;
+  padding: 0 1.1rem;
+  border: 1px solid var(--theme-border-subtle);
+  border-radius: 999px;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--theme-text-primary);
+  text-decoration: none;
+  transition: border-color 160ms var(--ease-out), color 160ms var(--ease-out);
+}
+@media (hover: hover) and (pointer: fine) { .archive-all-link:hover { border-color: var(--theme-accent, var(--brand-red)); color: var(--theme-accent, var(--brand-red)); } }
+.archive-all-link:focus-visible { outline: 2px solid var(--theme-accent, var(--brand-red)); outline-offset: 3px; }
+@media (max-width: 768px) {
+  .archive-header-right { align-items: flex-start; }
+}

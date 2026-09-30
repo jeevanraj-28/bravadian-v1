@@ -421,17 +421,24 @@ Thank you.`,
   /* --------------------------------------------------------------------------
      HEADER & GLOBAL CONTROLS
      -------------------------------------------------------------------------- */
-  function initHeaderEvents() {
-    // Populate Mega-Menu Collections
+  // Collections dropdown (header) and tiles (phone menu). Drawn again when the catalog arrives,
+  // so collections that have tees to buy always come first.
+  function renderCollectionMenus() {
     const megaList = document.getElementById('megaCollectionsList');
     const mobileList = document.getElementById('mobileCollectionsList');
     const collections = window.BravadianDB.getCollections();
 
-    // 5 Official Collections (ANIME, MYTHOLOGY, HERITAGE, STREET CULTURE, MINIMAL)
-    const filteredCollections = collections.filter(c => c.slug !== 'all');
+    // 5 Official Collections, the ones with tees to buy first
+    const filteredCollections = liveFirst(collections.filter(c => c.slug !== 'all'));
 
     if (megaList) {
-      megaList.innerHTML = filteredCollections.map(c => `
+      megaList.innerHTML = `
+        <li class="mega-item mega-item-all">
+          <a href="#/collections">
+            <span>ALL COLLECTIONS</span>
+            <span class="mega-all-arrow" aria-hidden="true">&rarr;</span>
+          </a>
+        </li>` + filteredCollections.map(c => `
         <li class="mega-item">
           <a href="#/collections/${c.slug}">
             <span>${c.name}</span>
@@ -448,8 +455,17 @@ Thank you.`,
           ${COLLECTION_IMAGES[c.slug] ? `<img src="${COLLECTION_IMAGES[c.slug]}" alt="" loading="lazy">` : ''}
           <span>${c.name}</span>
         </a>
-      `).join('');
+      `).join('') + `
+        <a href="#/collections" class="mnav-tile mnav-tile-all">
+          <span>ALL COLLECTIONS &rarr;</span>
+        </a>`;
     }
+  }
+
+  function initHeaderEvents() {
+    renderCollectionMenus();
+    window.addEventListener('bravadian:catalog-updated', renderCollectionMenus);
+
     const mobileFeature = document.getElementById('mobileNavFeature');
     const featured = window.BravadianDB.getProducts().find(p => p.newDrop && !p.isComingSoon);
     if (mobileFeature && featured) {
@@ -862,11 +878,13 @@ Thank you.`,
             </div>
             <div class="archive-header-right">
               <span class="archive-cadence">NEW DESIGNS IN EVERY CHAPTER</span>
+              <a href="#/collections" class="archive-all-link">All collections <span aria-hidden="true">&rarr;</span></a>
             </div>
           </div>
 
           <div class="archive-cards-grid">
-            ${(window.BravadianDB ? window.BravadianDB.getArchiveEditions() : []).map(card => {
+            ${liveFirst(window.BravadianDB ? window.BravadianDB.getArchiveEditions() : []).map((card, pos) => {
+              const shownNum = String(pos + 1).padStart(2, '0');   // numbered in the order shown
               if (card.status === 'active') {
                 return `
                   <a href="#/collections/${card.slug || 'all'}" class="archive-card status-active ${COLLECTION_IMAGES[card.slug] ? 'has-custom-img' : ''}" data-edition="${card.num}">
@@ -874,7 +892,7 @@ Thank you.`,
                     <div class="archive-card-bg-img" style="background-image: url('${COLLECTION_IMAGES[card.slug]}');"></div>
                     <div class="archive-card-bg-overlay"></div>` : ''}
                     <div class="archive-card-top">
-                      <span class="archive-num">${card.num}</span>
+                      <span class="archive-num">${shownNum}</span>
                       <span class="archive-plus">+</span>
                     </div>
                     <div class="archive-card-bottom">
@@ -888,7 +906,7 @@ Thank you.`,
                 return `
                   <div class="archive-card status-next" data-edition="${card.num}" aria-disabled="true" role="region" aria-label="${card.title}, coming soon">
                     <div class="archive-card-top">
-                      <span class="archive-num">${card.num}</span>
+                      <span class="archive-num">${shownNum}</span>
                       <span class="archive-badge badge-next">COMING SOON</span>
                     </div>
                     <div class="archive-card-bottom">
@@ -901,7 +919,7 @@ Thank you.`,
                 return `
                   <div class="archive-card status-vault" data-edition="${card.num}" aria-disabled="true" role="region" aria-label="${card.title}, coming later">
                     <div class="archive-card-top">
-                      <span class="archive-num">${card.num}</span>
+                      <span class="archive-num">${shownNum}</span>
                       <span class="archive-badge badge-vault">COMING LATER</span>
                     </div>
                     <div class="archive-card-bottom">
@@ -1461,6 +1479,14 @@ Thank you.`,
   /* --------------------------------------------------------------------------
      1.5 THE TEN ARCHIVE / COLLECTIONS OVERVIEW VIEW
      -------------------------------------------------------------------------- */
+  // Any list of collections (by slug): the ones with tees to buy first, "coming soon" ones last,
+  // each group keeping its usual order.
+  function liveFirst(list) {
+    const products = window.BravadianDB ? window.BravadianDB.getProducts() : [];
+    const live = (c) => products.some(p => p.collection === c.slug && !p.isComingSoon);
+    return [...list.filter(live), ...list.filter(c => !live(c))];
+  }
+
   // Collections page: featured carousel + filter chips + image-card grid (Google Labs-inspired)
   function renderUniverseWallView() {
     const chapters = (window.BravadianDB && typeof window.BravadianDB.getUniverseChapters === 'function')
@@ -1479,6 +1505,7 @@ Thank you.`,
       };
     });
     const featured = cols.filter(c => c.live).sort((a, b) => b.count - a.count);
+    const browse = liveFirst(cols);
     const designs = n => `${n} ${n === 1 ? 'design' : 'designs'}`;
     const arrow = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>';
 
@@ -1523,7 +1550,7 @@ Thank you.`,
             <button type="button" class="lab-chip" data-f="soon" role="tab" aria-selected="false">Coming soon</button>
           </div>
           <div class="lab-grid">
-            ${cols.map(c => `
+            ${browse.map(c => `
             <article class="lab-card ${c.live ? '' : 'is-soon'}" data-live="${c.live}">
               <a href="#/collections/${c.slug}" class="lab-card-media" tabindex="-1" aria-hidden="true">
                 <img src="${c.image}" alt="" loading="lazy">
@@ -1864,7 +1891,7 @@ Thank you.`,
         <nav class="canon-filter-toolbar" aria-label="Collection filters">
           <!-- Chapter Tabs Pills -->
           <div class="canon-tabs-group" role="tablist">
-            ${collections.map(c => {
+            ${[...collections.filter(c => c.slug === 'all'), ...liveFirst(collections.filter(c => c.slug !== 'all'))].map(c => {
               const isActive = c.slug === colSlug;
               return `
                 <a 
